@@ -40,17 +40,17 @@ export interface ExtractStrConfig {
  */
 interface AngularWebpackPluginOptions {
   /**
-   * {@inheritdoc @lynx-js/react-rsbuild-plugin#PluginReactLynxOptions.compat.disableCreateSelectorQueryIncompatibleWarning}
+   * Whether to disable warnings about incompatible createSelectorQuery usage
    */
   disableCreateSelectorQueryIncompatibleWarning?: boolean | undefined;
 
   /**
-   * {@inheritdoc @lynx-js/react-rsbuild-plugin#PluginReactLynxOptions.firstScreenSyncTiming}
+   * When to sync the first screen content
    */
   firstScreenSyncTiming?: 'immediately' | 'jsReady';
 
   /**
-   * {@inheritdoc @lynx-js/react-rsbuild-plugin#PluginReactLynxOptions.enableSSR}
+   * Whether to enable server-side rendering
    */
   enableSSR?: boolean;
 
@@ -81,54 +81,51 @@ interface AngularWebpackPluginOptions {
 }
 
 /**
- * ReactWebpackPlugin allows using ReactLynx with webpack
+ * AngularWebpackPlugin allows using Angular with Lynx and webpack
  *
  * @example
  * ```js
  * // webpack.config.js
- * import { ReactWebpackPlugin } from '@lynx-js/react-webpack-plugin'
+ * import { AngularWebpackPlugin } from '@lynx-js/angular-webpack-plugin'
  * export default {
- *   plugins: [new ReactWebpackPlugin()],
+ *   plugins: [new AngularWebpackPlugin()],
  * }
  * ```
  *
  * @public
  */
-class AngularWebpackPlugin {
-  /**
-   * The loaders for ReactLynx.
+class AngularWebpackPlugin {  /**
+   * The loaders for Angular with Lynx.
    *
    * @remarks
-   * Note that this loader will only transform JSX/TSX to valid JavaScript.
-   * For `.tsx` files, the type annotations would not be eliminated.
-   * You should use `babel-loader` or `swc-loader` to load TypeScript files.
+   * Note that this loader will only transform TypeScript to valid JavaScript.
+   * You should use `swc-loader` to load TypeScript files.
    *
    * @example
    * ```js
    * // webpack.config.js
-   * import { ReactWebpackPlugin, LAYERS } from '@lynx-js/react-webpack-plugin'
+   * import { AngularWebpackPlugin, LAYERS } from '@lynx-js/angular-webpack-plugin'
    * export default {
    *   module: {
    *     rules: [
    *       {
-   *         test: /\.tsx?$/,
+   *         test: /\.ts$/,
    *         layer: LAYERS.MAIN_THREAD,
-   *         use: ['swc-loader', ReactWebpackPlugin.loaders.MAIN_THREAD]
+   *         use: ['swc-loader', AngularWebpackPlugin.loaders.MAIN_THREAD]
    *       },
    *       {
-   *         test: /\.tsx?$/,
+   *         test: /\.ts$/,
    *         layer: LAYERS.BACKGROUND,
-   *         use: ['swc-loader', ReactWebpackPlugin.loaders.BACKGROUND]
+   *         use: ['swc-loader', AngularWebpackPlugin.loaders.BACKGROUND]
    *       },
    *     ],
    *   },
-   *   plugins: [new ReactWebpackPlugin()],
+   *   plugins: [new AngularWebpackPlugin()],
    * }
    * ```
    *
    * @public
-   */
-  // static loaders: Record<keyof typeof LAYERS, string> = {
+   */  // static loaders: Record<keyof typeof LAYERS, string> = {
   //   BACKGROUND: require.resolve('../lib/loaders/background.js'),
   //   MAIN_THREAD: require.resolve('../lib/loaders/main-thread.js'),
   // };
@@ -192,20 +189,18 @@ class AngularWebpackPlugin {
       // Default values of null and undefined behave differently.
       // Use undefined for variables that must be provided during bundling, or null if they are optional.
       DEBUG: null,
-    }).apply(compiler);
-
-    new DefinePlugin({
+    }).apply(compiler);    new DefinePlugin({
       __DEV__: JSON.stringify(compiler.options.mode === 'development'),
       // We enable profile by default in development.
-      // __PROFILE__: JSON.stringify(compiler.options.mode === 'development',),
-      // __EXTRACT_STR__: JSON.stringify(Boolean(options.extractStr)),
-      // __FIRST_SCREEN_SYNC_TIMING__: JSON.stringify(
-      //   options.firstScreenSyncTiming,
-      // ),
-      // __ENABLE_SSR__: JSON.stringify(options.enableSSR),
-      // __DISABLE_CREATE_SELECTOR_QUERY_INCOMPATIBLE_WARNING__: JSON.stringify(
-      //   options.disableCreateSelectorQueryIncompatibleWarning,
-      // ),
+      __PROFILE__: JSON.stringify(compiler.options.mode === 'development'),
+      __EXTRACT_STR__: JSON.stringify(Boolean(options.extractStr)),
+      __FIRST_SCREEN_SYNC_TIMING__: JSON.stringify(
+        options.firstScreenSyncTiming,
+      ),
+      __ENABLE_SSR__: JSON.stringify(options.enableSSR),
+      __DISABLE_CREATE_SELECTOR_QUERY_INCOMPATIBLE_WARNING__: JSON.stringify(
+        options.disableCreateSelectorQueryIncompatibleWarning,
+      ),
     }).apply(compiler);
 
     compiler.hooks.thisCompilation.tap(this.constructor.name, compilation => {
@@ -269,8 +264,7 @@ class AngularWebpackPlugin {
       // @ts-expect-error Rspack x Webpack compilation not match
       const hooks = LynxTemplatePlugin.getLynxTemplatePluginHooks(compilation);
 
-      const { ConcatSource } = compiler.webpack.sources;
-      // hooks.beforeEncode.tap(
+      const { ConcatSource } = compiler.webpack.sources;      // hooks.beforeEncode.tap(
       //   this.constructor.name,
       //   (args) => {
       //     const lepusCode = args.encodeData.lepusCode;
@@ -280,8 +274,8 @@ class AngularWebpackPlugin {
       //       )
       //     ) {
       //       const path = compiler.options.mode === 'development'
-      //         ? '@lynx-js/react/worklet-dev-runtime'
-      //         : '@lynx-js/react/worklet-runtime';
+      //         ? '@lynx-js/angular/worklet-dev-runtime'
+      //         : '@lynx-js/angular/worklet-runtime';
       //       const runtimeFile = require.resolve(path);
       //       lepusCode.chunks.push({
       //         name: 'worklet-runtime',
@@ -328,9 +322,7 @@ class AngularWebpackPlugin {
             ),
         );
         return args;
-      });
-
-      // // The react-transform will add `-${LAYER}` to the webpackChunkName.
+      });      // // The angular-transform will add `-${LAYER}` to the webpackChunkName.
       // // We replace it with an empty string here to make sure main-thread & background chunk match.
       // hooks.asyncChunkName.tap(
       //   this.constructor.name,
