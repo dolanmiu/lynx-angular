@@ -216,7 +216,7 @@ declare global {
     node: ElementRef,
     type: string,
     name: string,
-    func: string | Object,
+    func: string | Record<string, unknown>,
   ): void;
 
   function __SetEvents(
@@ -356,7 +356,11 @@ declare global {
     node: ElementRef,
     gestureID: number,
     gestureType: number,
-    callbackArray: [name: string, script: string, func: Function],
+    callbackArray: [
+      name: string,
+      script: string,
+      func: (...args: unknown[]) => unknown,
+    ],
     relationMap: Record<string, number[]>,
   ): void;
 
@@ -364,7 +368,11 @@ declare global {
     node: ElementRef,
     gestureID: number,
     gestureType: number,
-    callbackArray: [name: string, script: string, func: Function],
+    callbackArray: [
+      name: string,
+      script: string,
+      func: (...args: unknown[]) => unknown,
+    ],
     relationMap: Record<string, number[]>,
   ): void;
 
@@ -395,7 +403,7 @@ declare global {
 
   function __AddTimingListener(): void;
 
-  function __SetLepusInitData(initData: Object): void;
+  function __SetLepusInitData(initData: Record<string, unknown>): void;
 
   function __GetElementByUniqueID(elementId: number): ElementRef | undefined;
 

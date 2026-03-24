@@ -58,66 +58,65 @@ export function applyCSS(
       CHAIN_ID.RULE.STYLUS,
     ] as const;
 
-    cssRules
-      // Rsbuild 0.7.0 removed sass and less from builtin plugins
-      .filter((rule) => chain.module.rules.has(rule))
-      .forEach((ruleName) => {
-        const rule = chain.module.rule(ruleName);
+    for (const ruleName of cssRules.filter((rule) =>
+      chain.module.rules.has(rule),
+    )) {
+      const rule = chain.module.rule(ruleName);
 
-        removeLightningCSS(rule);
+      removeLightningCSS(rule);
 
-        // Replace the CssExtractRspackPlugin.loader with ours.
-        // This is for scoped CSS.
-        rule
-          .issuerLayer(LAYERS.BACKGROUND)
-          .use(CHAIN_ID.USE.MINI_CSS_EXTRACT)
-          .loader(CssExtractPlugin.loader)
-          .end();
+      // Replace the CssExtractRspackPlugin.loader with ours.
+      // This is for scoped CSS.
+      rule
+        .issuerLayer(LAYERS.BACKGROUND)
+        .use(CHAIN_ID.USE.MINI_CSS_EXTRACT)
+        .loader(CssExtractPlugin.loader)
+        .end();
 
-        // The Rsbuild default loaders
-        //   - CssExtractRspackPlugin.loader
-        //   - css-loader
-        //   - resolve-url-loader(for sass/less)
-        //   - sass-loader/less-loader(for sass/less)
-        const uses = rule.uses.entries();
-        const ruleEntries = rule.entries() as Rspack.RuleSetRule;
+      // The Rsbuild default loaders
+      //   - CssExtractRspackPlugin.loader
+      //   - css-loader
+      //   - resolve-url-loader(for sass/less)
+      //   - sass-loader/less-loader(for sass/less)
+      const uses = rule.uses.entries();
+      const ruleEntries = rule.entries() as Rspack.RuleSetRule;
 
-        const cssLoaderRule = uses[
-          CHAIN_ID.USE.CSS
-        ]?.entries() as Rspack.RuleSetRule;
+      const cssLoaderRule = uses[
+        CHAIN_ID.USE.CSS
+      ]?.entries() as Rspack.RuleSetRule;
 
-        // We add an additional rule for background layer.
-        // With only the following loaders:
-        //   - ignore-css-loader
-        //   - css-loader
-        //   - resolve-url-loader(for sass/less)
-        //   - sass-loader/less-loader(for sass/less)
-        // dprint-ignore
-        chain.module
-          .rule(`${ruleName}:${LAYERS.MAIN_THREAD}`)
-          .merge(ruleEntries)
-          .issuerLayer(LAYERS.MAIN_THREAD)
-          .use(CHAIN_ID.USE.IGNORE_CSS)
-          .loader(path.resolve(__dirname, './loaders/ignore-css-loader'))
-          .end()
-          .uses.merge(uses)
-          .delete(CHAIN_ID.USE.MINI_CSS_EXTRACT)
-          .delete(CHAIN_ID.USE.LIGHTNINGCSS)
-          .delete(CHAIN_ID.USE.CSS)
-          .end()
-          // We replace the css-loader rules with the normalized one
-          // to force setting `exportOnlyLocals: true`.
-          .use(CHAIN_ID.USE.CSS)
-          .after(CHAIN_ID.USE.IGNORE_CSS)
-          .merge(cssLoaderRule)
-          .options(
-            normalizeCssLoaderOptions(
-              cssLoaderRule.options as CSSLoaderOptions,
-              true,
-            ),
-          )
-          .end();
-      });
+      // We add an additional rule for background layer.
+      // With only the following loaders:
+      //   - ignore-css-loader
+      //   - css-loader
+      //   - resolve-url-loader(for sass/less)
+      //   - sass-loader/less-loader(for sass/less)
+      // dprint-ignore
+      chain.module
+        .rule(`${ruleName}:${LAYERS.MAIN_THREAD}`)
+        .merge(ruleEntries)
+        .issuerLayer(LAYERS.MAIN_THREAD)
+        .use(CHAIN_ID.USE.IGNORE_CSS)
+        .loader(path.resolve(__dirname, './loaders/ignore-css-loader'))
+        .end()
+        .uses.merge(uses)
+        .delete(CHAIN_ID.USE.MINI_CSS_EXTRACT)
+        .delete(CHAIN_ID.USE.LIGHTNINGCSS)
+        .delete(CHAIN_ID.USE.CSS)
+        .end()
+        // We replace the css-loader rules with the normalized one
+        // to force setting `exportOnlyLocals: true`.
+        .use(CHAIN_ID.USE.CSS)
+        .after(CHAIN_ID.USE.IGNORE_CSS)
+        .merge(cssLoaderRule)
+        .options(
+          normalizeCssLoaderOptions(
+            cssLoaderRule.options as CSSLoaderOptions,
+            true,
+          ),
+        )
+        .end();
+    }
 
     const inlineCSSRules = [
       CHAIN_ID.RULE.CSS_INLINE,
@@ -126,14 +125,12 @@ export function applyCSS(
       CHAIN_ID.RULE.STYLUS_INLINE,
     ] as const;
 
-    inlineCSSRules
-      // Rsbuild 0.7.0 removed sass and less from builtin plugins
-      // Rsbuild 1.3.0 add *_INLINE rules
-      .filter((rule) => rule && chain.module.rules.has(rule))
-      .forEach((ruleName) => {
-        const rule = chain.module.rule(ruleName);
-        removeLightningCSS(rule);
-      });
+    for (const ruleName of inlineCSSRules.filter(
+      (rule) => rule && chain.module.rules.has(rule),
+    )) {
+      const rule = chain.module.rule(ruleName);
+      removeLightningCSS(rule);
+    }
 
     function removeLightningCSS(rule: ReturnType<typeof chain.module.rule>) {
       if (

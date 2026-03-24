@@ -82,7 +82,10 @@ export class LynxElement implements BaseLynxElement {
   }
 
   remove() {
-    const parent = this.parentNode()!;
+    const parent = this.parentNode();
+    if (!parent) {
+      return;
+    }
     __RemoveElement(parent.element, this.element);
   }
 
@@ -162,10 +165,10 @@ export class LynxBackgroundElement implements BaseLynxElement {
       .split(';')
       .map((s) => s.trim())
       .filter((s) => s.length > 0);
-    styles.forEach((s) => {
+    for (const s of styles) {
       const [key, value] = s.split(':').map((s) => s.trim());
       this.setStyle(key, value);
-    });
+    }
   }
 
   insertBefore(

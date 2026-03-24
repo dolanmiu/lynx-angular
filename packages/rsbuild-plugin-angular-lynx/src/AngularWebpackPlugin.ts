@@ -168,7 +168,7 @@ class AngularWebpackPlugin {
         // TODO: handle cases that do not have `'use strict'`
         banner: `'use strict';var globDynamicComponentEntry=globDynamicComponentEntry||'__Card__';`,
         raw: true,
-        test: options.mainThreadChunks!,
+        test: options.mainThreadChunks ?? [],
       }).apply(compiler);
     }
 
@@ -176,13 +176,13 @@ class AngularWebpackPlugin {
     new BannerPlugin({
       banner: `globalThis["__MAIN_THREAD__"]=true;`,
       raw: true,
-      test: options.mainThreadChunks!,
+      test: options.mainThreadChunks ?? [],
     }).apply(compiler);
 
     new BannerPlugin({
       banner: `globalThis["__MAIN_THREAD__"]=false;`,
       raw: true,
-      test: options.backgroundChunks!,
+      test: options.backgroundChunks ?? [],
     }).apply(compiler);
     new EnvironmentPlugin({
       // Default values of null and undefined behave differently.
@@ -242,23 +242,18 @@ class AngularWebpackPlugin {
             this.#updateMainThreadInfo(compilation, name);
           }
 
-          compilation.chunkGroups
-            // Async ChunkGroups
+          for (const cg of compilation.chunkGroups
             .filter((cg) => !cg.isInitial())
-            // MainThread ChunkGroups
             .filter((cg) =>
               cg.origins.every(
                 (origin) => origin.module?.layer === LAYERS.MAIN_THREAD,
               ),
-            )
-            .forEach((cg) => {
-              const files = cg.getFiles();
-              files
-                .filter((name) => name.endsWith('.js'))
-                .forEach((name) =>
-                  this.#updateMainThreadInfo(compilation, name),
-                );
-            });
+            )) {
+            const files = cg.getFiles();
+            for (const name of files.filter((name) => name.endsWith('.js'))) {
+              this.#updateMainThreadInfo(compilation, name);
+            }
+          }
         },
       );
 

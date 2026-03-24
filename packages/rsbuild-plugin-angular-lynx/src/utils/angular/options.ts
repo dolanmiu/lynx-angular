@@ -111,7 +111,8 @@ export async function readBuildOptions(
   if (!target) {
     throw new Error("couldn't find target");
   }
-  configurationName ??= target.defaultConfiguration;
+  const resolvedConfigurationName =
+    configurationName ?? target.defaultConfiguration;
   const buildOptions = target?.options;
   // TODO: throw error to the user
   if (!buildOptions) return null;
@@ -119,7 +120,7 @@ export async function readBuildOptions(
   const configurations = target.configurations;
   if (configurations) {
     for (const name in configurations) {
-      if (name === configurationName) {
+      if (name === resolvedConfigurationName) {
         Object.assign(buildOptions, {
           ...configurations[name],
         });

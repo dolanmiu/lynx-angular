@@ -45,7 +45,11 @@ export function applyEntry(
     experimental_isLazyBundle,
   } = options;
 
-  const { config } = api.useExposed<ExposedAPI>(Symbol.for('rspeedy.api'))!;
+  const exposed = api.useExposed<ExposedAPI>(Symbol.for('rspeedy.api'));
+  if (!exposed) {
+    throw new Error('Failed to get rspeedy API from useExposed');
+  }
+  const { config } = exposed;
 
   api.modifyBundlerChain((chain, { environment, isDev }) => {
     const isLynx = environment.name === 'lynx';
@@ -56,7 +60,7 @@ export function applyEntry(
     chain.entryPoints.clear();
     const mainThreadChunks: string[] = [];
     const backgroundChunks: string[] = [];
-    Object.entries(entries).forEach(([entryName, entryPoint]) => {
+    for (const [entryName, entryPoint] of Object.entries(entries)) {
       const { imports } = getChunks(entryName, entryPoint.values());
 
       const templateFilename =
@@ -131,7 +135,7 @@ export function applyEntry(
           },
         ])
         .end();
-    });
+    }
     if (isLynx) {
       chain
         .plugin(PLUGIN_NAME_RUNTIME_WRAPPER)

@@ -122,7 +122,7 @@ export class LynxDocument {
         element = __CreateView(this.pageId);
       }
     }
-    return new LynxElement(element!);
+    return new LynxElement(element);
   }
   createText(value: string): LynxElement {
     const text = __CreateRawText(value);

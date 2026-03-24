@@ -19,10 +19,14 @@ export async function applyAngularRules(api: RsbuildPluginAPI): Promise<void> {
   if (!project) {
     throw new Error("couldn't find the project");
   }
-  const buildOptions = (await readBuildOptions(
-    workspace.projects.get(project)!,
-    basePath,
-  ))!;
+  const projectDefinition = workspace.projects.get(project);
+  if (!projectDefinition) {
+    throw new Error(`Project "${project}" not found in workspace`);
+  }
+  const buildOptions = await readBuildOptions(projectDefinition, basePath);
+  if (!buildOptions) {
+    throw new Error(`Failed to read build options for project "${project}"`);
+  }
   applyAngularConfig(api, buildOptions);
   const sourcemap = !!(
     !!buildOptions.sourcemapOptions.scripts &&
@@ -149,7 +153,10 @@ export async function applyAngularRules(api: RsbuildPluginAPI): Promise<void> {
           code: Buffer.from(contents).toString(),
         };
       }
-      const content = typeScriptFileCache.get(context.resourcePath)!;
+      const content = typeScriptFileCache.get(context.resourcePath);
+      if (!content) {
+        throw new Error(`No compiled output found for ${context.resourcePath}`);
+      }
       let code: string;
       if (typeof content === 'string') {
         code = content;
@@ -163,7 +170,7 @@ export async function applyAngularRules(api: RsbuildPluginAPI): Promise<void> {
         for (let i = 0; i < imports.length; ++i) {
           let relativeImport = path.relative(
             path.dirname(context.resourcePath),
-            imports[i]!,
+            imports[i],
           );
           if (!relativeImport.startsWith('.')) {
             relativeImport = `./${relativeImport}`;
