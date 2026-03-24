@@ -1,17 +1,17 @@
 import type { ApplicationConfig, ApplicationRef, Type } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
-import { Subject, firstValueFrom } from 'rxjs';
+import { firstValueFrom, Subject } from 'rxjs';
 
-// @ts-ignore
+// @ts-expect-error
 globalThis.renderPage = () => {
   pageReady.next();
 };
 
-// @ts-ignore
+// @ts-expect-error
 globalThis.updatePage = () => {};
-// @ts-ignore
+// @ts-expect-error
 globalThis.processData = () => {};
-// @ts-ignore
+// @ts-expect-error
 globalThis.runWorklet = (value, params) => {
   if (typeof value === 'function') {
     value(...params);

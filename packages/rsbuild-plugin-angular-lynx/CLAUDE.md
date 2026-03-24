@@ -56,7 +56,7 @@ src/
       env.ts                    # maxWorkers, useTypeChecking flags
       componentStyleBundler.ts  # Component style handling
       find-up.ts                # File search utility
-      nomalize-cache.ts         # Cache normalization
+      normalize-cache.ts        # Cache normalization
 ```
 
 ## Build

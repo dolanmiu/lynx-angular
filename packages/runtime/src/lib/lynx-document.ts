@@ -65,10 +65,10 @@ export class LynxDocument {
 
         // This callback is called when the list needs to render a component at a specific index
         const componentAtIndex = (
-          listRef: ListElementRef,
+          _listRef: ListElementRef,
           listId: number,
           cellIndex: number,
-          opId: number,
+          _opId: number,
         ) => {
           console.log(
             `List ${listId} requesting component at index ${cellIndex}`,
@@ -82,7 +82,7 @@ export class LynxDocument {
 
         // This callback is called when a component (cell) needs to be prepared for rendering
         const enqueueComponent = (
-          listRef: ListElementRef,
+          _listRef: ListElementRef,
           listId: number,
           eleId: number,
         ) => {
@@ -181,10 +181,10 @@ export class LynxBackgroundDocument implements LynxDocumentBase {
   }
 }
 
-export interface LynxDocumentBase {
+export type LynxDocumentBase = {
   createRootElement(): BaseLynxElement;
   createElement(tag: string, value?: string): BaseLynxElement;
   createText(value: string): BaseLynxElement;
   createComment(): BaseLynxElement;
   appendChild(newChild: BaseLynxElement): void;
-}
+};

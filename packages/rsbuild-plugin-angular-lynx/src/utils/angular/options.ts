@@ -1,5 +1,5 @@
 import assert from 'node:assert';
-import { constants, access } from 'node:fs/promises';
+import { access, constants } from 'node:fs/promises';
 import path from 'node:path';
 import type { OutputHashing } from '@angular-devkit/build-angular';
 import type { workspaces } from '@angular-devkit/core';
@@ -7,7 +7,7 @@ import type { TargetDefinition } from '@angular-devkit/core/src/workspace/defini
 import {
   type NormalizedCachedOptions,
   normalizeCacheOptions,
-} from './nomalize-cache.js';
+} from './normalize-cache.js';
 
 export function normalizeSourceMaps(sourceMap: any): any {
   const scripts = typeof sourceMap === 'object' ? sourceMap.scripts : sourceMap;

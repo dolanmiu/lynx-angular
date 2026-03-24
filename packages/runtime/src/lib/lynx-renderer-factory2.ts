@@ -1,9 +1,9 @@
 import {
   Injectable,
+  inject,
   type Renderer2,
   type RendererFactory2,
   type RendererType2,
-  inject,
 } from '@angular/core';
 import type { LynxDocumentBase } from './lynx-document';
 import { LynxRenderer } from './renderer';

@@ -5,11 +5,10 @@
 // import * as fs from 'node:fs';
 // import { createRequire } from 'node:module';
 
-import type { Chunk, Compilation, Compiler } from '@rspack/core';
-import invariant from 'tiny-invariant';
-
 import { LynxTemplatePlugin } from '@lynx-js/template-webpack-plugin';
 import { RuntimeGlobals } from '@lynx-js/webpack-runtime-globals';
+import type { Chunk, Compilation, Compiler } from '@rspack/core';
+import invariant from 'tiny-invariant';
 
 import { createLynxProcessEvalResultRuntimeModule } from './LynxProcessEvalResultRuntimeModule.js';
 import { LAYERS } from './layers.js';
@@ -21,7 +20,7 @@ import { LAYERS } from './layers.js';
  *
  * @public
  */
-export interface ExtractStrConfig {
+export type ExtractStrConfig = {
   /**
    * The minimum length of string literals to be extracted.
    *
@@ -32,13 +31,13 @@ export interface ExtractStrConfig {
   strLength: number;
   /** @internal */
   extractedStrArr?: string[];
-}
+};
 /**
  * The options for AngularWebpackPluginOptions
  *
  * @public
  */
-interface AngularWebpackPluginOptions {
+type AngularWebpackPluginOptions = {
   /**
    * Whether to disable warnings about incompatible createSelectorQuery usage
    */
@@ -78,7 +77,7 @@ interface AngularWebpackPluginOptions {
    * @alpha
    */
   experimental_isLazyBundle?: boolean;
-}
+};
 
 /**
  * AngularWebpackPlugin allows using Angular with Lynx and webpack
@@ -343,5 +342,5 @@ class AngularWebpackPlugin {
   }
 }
 
-export { AngularWebpackPlugin };
 export type { AngularWebpackPluginOptions };
+export { AngularWebpackPlugin };

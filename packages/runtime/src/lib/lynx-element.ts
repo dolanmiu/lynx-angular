@@ -1,6 +1,6 @@
 import type { ElementRef } from './types/lynx';
 
-export interface BaseLynxElement {
+export type BaseLynxElement = {
   setProperty(name: string, value: any): void;
   setAttribute(name: string, value: any): void;
   getAttribute(name: string): string | null;
@@ -18,7 +18,7 @@ export interface BaseLynxElement {
   querySelector(selector: string): BaseLynxElement | null;
   querySelectorAll(selector: string): BaseLynxElement[];
   addEventListener(name: string, cb: (event: any) => any): () => void;
-}
+};
 export class LynxElement implements BaseLynxElement {
   private readonly element: ElementRef;
   constructor(element: ElementRef) {
@@ -234,19 +234,21 @@ export class LynxBackgroundElement implements BaseLynxElement {
   nextSibling(): BaseLynxElement | null {
     return this._nextSibling;
   }
-  querySelector(selector: string): BaseLynxElement | null {
+  querySelector(_selector: string): BaseLynxElement | null {
     throw new Error('Method not implemented.');
   }
-  querySelectorAll(selector: string): BaseLynxElement[] {
+  querySelectorAll(_selector: string): BaseLynxElement[] {
     throw new Error('Method not implemented.');
   }
-  addEventListener(name: string, cb: (event: any) => any): () => void {
+  addEventListener(_name: string, _cb: (event: any) => any): () => void {
     console.log('Method not implemented.');
     return () => {};
   }
 }
-type LynxEventType =
-  | 'bindEvent'
-  | 'catchEvent'
-  | 'capture-bind'
-  | 'capture-catch';
+
+// TODO: Use when event system is implemented
+// type LynxEventType =
+//   | 'bindEvent'
+//   | 'catchEvent'
+//   | 'capture-bind'
+//   | 'capture-catch';

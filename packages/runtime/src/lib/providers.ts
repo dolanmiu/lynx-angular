@@ -1,7 +1,7 @@
 import {
   type EnvironmentProviders,
-  RendererFactory2,
   makeEnvironmentProviders,
+  RendererFactory2,
 } from '@angular/core';
 import { LynxBackgroundDocument, LynxDocument } from './lynx-document';
 import { LynxRendererFactory2 } from './lynx-renderer-factory2';

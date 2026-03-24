@@ -22,7 +22,7 @@ export function normalizeOptions(
   options?: Partial<PluginAngularLynxOptions>,
 ): Required<PluginAngularLynxOptions> {
   const defaultOptions: Required<PluginAngularLynxOptions> = {
-    //@ts-ignore
+    //@ts-expect-error
     customCSSInheritanceList: undefined,
     debugInfoOutside: true,
     enableICU: false,

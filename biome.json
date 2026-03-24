@@ -1,6 +1,6 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
-  "organizeImports": {
+  "$schema": "https://biomejs.dev/schemas/2.4.8/schema.json",
+  "assist": {
     "enabled": true
   },
   "vcs": {
@@ -33,7 +33,12 @@
       "recommended": true,
       "style": {
         "noNonNullAssertion": "off",
-        "noParameterAssign": "off"
+        "noParameterAssign": "off",
+        "useImportType": "error",
+        "useConsistentTypeDefinitions": {
+          "level": "error",
+          "options": { "style": "type" }
+        }
       },
       "complexity": {
         "noForEach": "off",
@@ -41,8 +46,7 @@
       },
       "suspicious": {
         "noExplicitAny": "off",
-        "noConfusingVoidType": "off",
-        "noEmptyInterface": "off"
+        "noConfusingVoidType": "off"
       }
     }
   }

@@ -1,5 +1,10 @@
-import { CUSTOM_ELEMENTS_SCHEMA, Component, signal } from '@angular/core';
-import type { Router } from '@angular/router';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  inject,
+  signal,
+} from '@angular/core';
+import { Router } from '@angular/router';
 import type { TouchEvent } from '@lynx-js/types';
 import angularLogo from '../assets/angular-logo.png';
 import arrow from '../assets/arrow.png';
@@ -11,9 +16,8 @@ import lynxLogo from '../assets/lynx-logo.png';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class AppComponent {
+  private router = inject(Router);
   alterLogo = signal(false);
-
-  constructor(private router: Router) {}
 
   onTap(event: TouchEvent) {
     console.log(event);

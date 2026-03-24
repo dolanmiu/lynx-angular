@@ -1,18 +1,18 @@
 // import type {
 //   NormalizedEnvironmentConfig,
 // } from "@rsbuild/core";
+
+import path from 'node:path';
 import type { ExposedAPI, RsbuildPluginAPI, Rspack } from '@lynx-js/rspeedy';
+import { RuntimeWrapperWebpackPlugin } from '@lynx-js/runtime-wrapper-webpack-plugin';
 import {
   CSSPlugins,
   LynxEncodePlugin,
   LynxTemplatePlugin,
 } from '@lynx-js/template-webpack-plugin';
 import type { UndefinedOnPartialDeep } from 'type-fest';
-import { LAYERS } from './layers.js';
-
-import path from 'node:path';
-import { RuntimeWrapperWebpackPlugin } from '@lynx-js/runtime-wrapper-webpack-plugin';
 import { AngularWebpackPlugin } from './AngularWebpackPlugin.js';
+import { LAYERS } from './layers.js';
 import type { PluginAngularLynxOptions } from './utils/options.js';
 
 // const DEFAULT_DIST_PATH_INTERMEDIATE = ".rspeedy";

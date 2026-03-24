@@ -6,8 +6,8 @@ import { applyGenerator } from './generator.js';
 import { applyLayers } from './layers.js';
 import { applySplitChunksRule } from './splitChunks.js';
 import {
-  type PluginAngularLynxOptions,
   normalizeOptions,
+  type PluginAngularLynxOptions,
 } from './utils/options.js';
 
 export function pluginAngularLynx(

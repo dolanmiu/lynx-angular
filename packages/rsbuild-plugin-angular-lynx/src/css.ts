@@ -4,13 +4,11 @@
 
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-
-import type { RsbuildPluginAPI, Rspack } from '@lynx-js/rspeedy';
-
 import type {
   CssExtractRspackPluginOptions,
   CssExtractWebpackPluginOptions,
 } from '@lynx-js/css-extract-webpack-plugin';
+import type { RsbuildPluginAPI, Rspack } from '@lynx-js/rspeedy';
 import { CSSPlugins } from '@lynx-js/template-webpack-plugin';
 import type { CSSLoaderOptions } from '@rsbuild/core';
 import { LAYERS } from './layers.js';

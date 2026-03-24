@@ -3,7 +3,7 @@
 // LICENSE file in the root directory of this source tree.
 // Taken from https://github.com/lynx-family/lynx/blob/develop/js_libraries/type-element-api/README.md
 
-export interface ElementRef {}
+export type ElementRef = {};
 
 export interface ComponentElementRef extends ElementRef {}
 
@@ -33,18 +33,18 @@ export interface BlockElementRef extends ElementRef {}
 
 export type ElementInfo = Record<string, any>;
 
-export interface SelectorParams {
+export type SelectorParams = {
   onlyCurrentComponent?: boolean;
-}
+};
 
-export interface DynamicComponentResult {
+export type DynamicComponentResult = {
   code: number;
   data: {
     evalResult: (url: string) => {
       name: string;
     };
   };
-}
+};
 
 declare global {
   function __CreatePage(

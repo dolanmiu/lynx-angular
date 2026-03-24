@@ -6,12 +6,12 @@
  * found in the LICENSE file at https://angular.dev/license
  */
 
-import { join, resolve } from 'node:path';
+import { join, resolve } from "node:path";
 
 /** Version placeholder is replaced during the build process with actual package version */
-const VERSION = '0.0.0-PLACEHOLDER';
+const VERSION = "0.0.0-PLACEHOLDER";
 
-export interface NormalizedCachedOptions {
+export type NormalizedCachedOptions = {
   /** Whether disk cache is enabled. */
   enabled: boolean;
 
@@ -20,30 +20,30 @@ export interface NormalizedCachedOptions {
 
   /** Disk cache base path. Example: `/.angular/cache`. */
   basePath: string;
-}
+};
 
-interface CacheMetadata {
+type CacheMetadata = {
   enabled?: boolean;
-  environment?: 'local' | 'ci' | 'all';
+  environment?: "local" | "ci" | "all";
   path?: string;
-}
+};
 
 function hasCacheMetadata(
   value: unknown,
 ): value is { cli: { cache: CacheMetadata } } {
   return (
     !!value &&
-    typeof value === 'object' &&
-    'cli' in value &&
+    typeof value === "object" &&
+    "cli" in value &&
     !!value.cli &&
-    typeof value.cli === 'object' &&
-    'cache' in value.cli
+    typeof value.cli === "object" &&
+    "cache" in value.cli
   );
 }
 
 export function normalizeCacheOptions(
   projectMetadata: unknown,
-  worspaceRoot: string,
+  workspaceRoot: string,
 ): NormalizedCachedOptions {
   const cacheMetadata = hasCacheMetadata(projectMetadata)
     ? projectMetadata.cli.cache
@@ -52,25 +52,25 @@ export function normalizeCacheOptions(
   const {
     // Webcontainers do not currently benefit from persistent disk caching and can lead to increased browser memory usage
     enabled = !process.versions.webcontainer,
-    environment = 'local',
-    path = '.angular/cache',
+    environment = "local",
+    path = ".angular/cache",
   } = cacheMetadata;
   const isCI =
-    process.env.CI === '1' || process.env.CI?.toLowerCase() === 'true';
+    process.env.CI === "1" || process.env.CI?.toLowerCase() === "true";
 
   let cacheEnabled = enabled;
   if (cacheEnabled) {
     switch (environment) {
-      case 'ci':
+      case "ci":
         cacheEnabled = isCI;
         break;
-      case 'local':
+      case "local":
         cacheEnabled = !isCI;
         break;
     }
   }
 
-  const cacheBasePath = resolve(worspaceRoot, path);
+  const cacheBasePath = resolve(workspaceRoot, path);
 
   return {
     enabled: cacheEnabled,

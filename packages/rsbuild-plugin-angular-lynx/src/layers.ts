@@ -1,5 +1,4 @@
-import type { Rspack } from '@lynx-js/rspeedy';
-import type { RsbuildPluginAPI } from '@lynx-js/rspeedy';
+import type { RsbuildPluginAPI, Rspack } from '@lynx-js/rspeedy';
 export const LAYERS = {
   BACKGROUND: 'background',
   MAIN_THREAD: 'main',

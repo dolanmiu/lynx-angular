@@ -33,10 +33,10 @@ graph TB
         end
 
         subgraph bg ["Background Thread"]
-            bgruntime["runtime<br/><i>LynxBackgroundDocument +<br/>LynxBackgroundElement</i>"]
-            applogic["App Logic<br/><i>change detection, signals,<br/>routing, event handling</i>"]
+            bg_runtime["runtime<br/><i>LynxBackgroundDocument +<br/>LynxBackgroundElement</i>"]
+            app_logic["App Logic<br/><i>change detection, signals,<br/>routing, event handling</i>"]
 
-            applogic --> bgruntime
+            app_logic --> bg_runtime
         end
 
         engine --> main
@@ -47,10 +47,10 @@ graph TB
 
     subgraph dev ["Dev Flow"]
         direction LR
-        devserver["Dev Server<br/><i>rspeedy dev</i>"]
+        dev_server["Dev Server<br/><i>rspeedy dev</i>"]
         explorer["Lynx Explorer App<br/><i>scan QR code</i>"]
 
-        devserver -- "serves bundle" --> explorer
+        dev_server -- "serves bundle" --> explorer
     end
 
     explorer -- "embeds" --> engine

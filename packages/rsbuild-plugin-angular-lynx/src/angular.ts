@@ -1,10 +1,10 @@
 import path from 'node:path';
 import {
-  DiagnosticModes,
   createAngularCompilation,
+  DiagnosticModes,
 } from '@angular/build/src/tools/angular/compilation';
 import { JavaScriptTransformer } from '@angular/build/src/tools/esbuild/javascript-transformer';
-import type { ExposedAPI, RsbuildPluginAPI } from '@lynx-js/rspeedy';
+import type { RsbuildPluginAPI } from '@lynx-js/rspeedy';
 import { applyAngularConfig } from './utils/angular/angular-config.js';
 import { maxWorkers, useTypeChecking } from './utils/angular/env.js';
 import { readBuildOptions } from './utils/angular/options.js';
@@ -118,7 +118,7 @@ export async function applyAngularRules(api: RsbuildPluginAPI): Promise<void> {
       //   !!initializationResult.compilerOptions.inlineSourceMap;
       // referencedFiles = initializationResult.referencedFiles;
       // externalStylesheets = initializationResult.externalStylesheets;
-    } catch (error) {}
+    } catch (_error) {}
     try {
       for (const {
         filename,
@@ -126,7 +126,7 @@ export async function applyAngularRules(api: RsbuildPluginAPI): Promise<void> {
       } of await compilation.emitAffectedFiles()) {
         typeScriptFileCache.set(path.normalize(filename), contents);
       }
-    } catch (error) {}
+    } catch (_error) {}
     const diagnostics = await compilation.diagnoseFiles(
       useTypeChecking
         ? DiagnosticModes.All

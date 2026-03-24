@@ -1,4 +1,4 @@
-import { CUSTOM_ELEMENTS_SCHEMA, Component } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import angularLogo from '../../assets/angular-logo.png';
 import lynxLogo from '../../assets/lynx-logo.png';
 
