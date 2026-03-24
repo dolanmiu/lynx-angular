@@ -1,17 +1,20 @@
 {
-  "name": "angular-lynx",
+  "name": "@blotch/angular-lynx",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "workspaces": ["packages/*"],
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4"
+    "@biomejs/biome": "^1.9.4",
+    "cspell": "^9.7.0"
   },
   "scripts": {
-    "build": "pnpm -r build",
-    "demo": "pnpm --filter angular start"
+    "build": "npm run build -w packages/rsbuild-plugin-angular-lynx && npm run build -w packages/runtime && npm run build -w packages/demo-app",
+    "demo": "npm run start --workspace=packages/demo-app",
+    "lint": "biome check .",
+    "cspell": "cspell ."
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
-  "packageManager": "pnpm@10.9.0"
+  "license": "ISC"
 }

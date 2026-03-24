@@ -1,0 +1,32 @@
+{
+  "name": "demo-app",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "rspeedy dev",
+    "build": "rspeedy build"
+  },
+  "dependencies": {
+    "@angular/common": "^19.2.0",
+    "@angular/compiler": "^19.2.0",
+    "@angular/core": "^19.2.0",
+    "@angular/forms": "^19.2.0",
+    "@angular/platform-browser": "^19.2.0",
+    "@angular/platform-browser-dynamic": "^19.2.0",
+    "@angular/router": "^19.2.0",
+    "@blotch/angular-lynx": "*",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0",
+    "zone.js": "~0.15.0"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "^19.2.9",
+    "@angular/cli": "^19.2.9",
+    "@angular/compiler-cli": "^19.2.0",
+    "@lynx-js/qrcode-rsbuild-plugin": "^0.3.6",
+    "@lynx-js/rspeedy": "^0.9.2",
+    "@lynx-js/types": "^3.2.1",
+    "@blotch/rsbuild-plugin-angular-lynx": "*",
+    "typescript": "~5.7.2"
+  }
+}

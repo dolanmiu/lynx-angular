@@ -1,5 +1,0 @@
-packages:
-  - packages/*
-
-catalog:
-  "@lynx-js/rspeedy": "^0.9.2"
