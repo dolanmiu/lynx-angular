@@ -1,4 +1,4 @@
-export type PluginAngularLynxOptions = {
+export type PluginNgLynxOptions = {
   customCSSInheritanceList?: string[] | undefined;
   debugInfoOutside?: boolean;
   defaultDisplayLinear?: boolean;
@@ -19,9 +19,9 @@ export type PluginAngularLynxOptions = {
 };
 
 export function normalizeOptions(
-  options?: Partial<PluginAngularLynxOptions>,
-): Required<PluginAngularLynxOptions> {
-  const defaultOptions: Required<PluginAngularLynxOptions> = {
+  options?: Partial<PluginNgLynxOptions>,
+): Required<PluginNgLynxOptions> {
+  const defaultOptions: Required<PluginNgLynxOptions> = {
     //@ts-expect-error
     customCSSInheritanceList: undefined,
     debugInfoOutside: true,

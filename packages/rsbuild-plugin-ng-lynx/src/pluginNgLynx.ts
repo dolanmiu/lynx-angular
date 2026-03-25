@@ -5,14 +5,9 @@ import { applyEntry } from './entry.js';
 import { applyGenerator } from './generator.js';
 import { applyLayers } from './layers.js';
 import { applySplitChunksRule } from './splitChunks.js';
-import {
-  normalizeOptions,
-  type PluginAngularLynxOptions,
-} from './utils/options.js';
+import { normalizeOptions, type PluginNgLynxOptions } from './utils/options.js';
 
-export function pluginAngularLynx(
-  options?: PluginAngularLynxOptions,
-): RsbuildPlugin {
+export function pluginNgLynx(options?: PluginNgLynxOptions): RsbuildPlugin {
   return {
     name: 'lynx:angular',
     pre: ['lynx:rsbuild:plugin-api'],

@@ -2,7 +2,7 @@ import {
   type ApplicationConfig,
   provideExperimentalZonelessChangeDetection,
 } from '@angular/core';
-import { provideLynxRenderer } from '@blotch/angular-lynx';
+import { provideLynxRenderer } from '@blotch/ng-lynx';
 
 export const appConfig: ApplicationConfig = {
   providers: [

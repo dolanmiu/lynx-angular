@@ -1,10 +1,10 @@
-# @blotch/rsbuild-plugin-angular-lynx — RSpeedy/Rsbuild Plugin for Angular + Lynx
+# @blotch/rsbuild-plugin-ng-lynx — RSpeedy/Rsbuild Plugin for Angular + Lynx
 
 Bridges Angular's build system with the Lynx runtime. Configures webpack/rspack to compile Angular apps into Lynx's dual-thread bundles.
 
 ## Plugin Entry
 
-`pluginAngularLynx(options?)` returns an `RsbuildPlugin` named `"lynx:angular"`. Setup calls 6 functions in order:
+`pluginNgLynx(options?)` returns an `RsbuildPlugin` named `"lynx:angular"`. Setup calls 6 functions in order:
 
 1. `applyCSS` — CSS handling configuration
 2. `applyEntry` — Splits each entry into `main-thread` + `background-thread` bundles, applies Lynx webpack plugins
@@ -37,7 +37,7 @@ Each entry is duplicated into two webpack entries with different layers:
 
 ```
 src/
-  pluginAngularLynx.ts          # Main plugin entry, orchestrates setup
+  pluginNgLynx.ts               # Main plugin entry, orchestrates setup
   entry.ts                      # Entry splitting, Lynx plugin application
   layers.ts                     # Layer definitions (LAYERS.MAIN_THREAD, LAYERS.BACKGROUND)
   angular.ts                    # Angular compilation and transform pipeline
@@ -62,7 +62,7 @@ src/
 ## Build
 
 ```sh
-npm run build -w packages/rsbuild-plugin-angular-lynx   # rslib build
+npm run build -w packages/rsbuild-plugin-ng-lynx   # rslib build
 ```
 
-Exports: `pluginAngularLynx` (main), polyfills, `loaders/ignore-css-loader`
+Exports: `pluginNgLynx` (main), polyfills, `loaders/ignore-css-loader`
