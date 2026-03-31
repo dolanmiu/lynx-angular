@@ -23,5 +23,19 @@ declare global {
   // biome-ignore lint/style/useConsistentTypeDefinitions: interface required for global augmentation
   interface HTMLElementEventMap {
     bindtap: TouchEvent;
+    catchtap: TouchEvent;
+    'capture-bindtap': TouchEvent;
+    'capture-catchtap': TouchEvent;
+    'global-bindtap': TouchEvent;
+    bindtouchstart: TouchEvent;
+    bindtouchend: TouchEvent;
+    bindtouchmove: TouchEvent;
+    bindtouchcancel: TouchEvent;
+    bindlongpress: TouchEvent;
+    catchtouchstart: TouchEvent;
+    catchtouchend: TouchEvent;
+    catchtouchmove: TouchEvent;
+    catchtouchcancel: TouchEvent;
+    catchlongpress: TouchEvent;
   }
 }

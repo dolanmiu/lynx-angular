@@ -1,5 +1,20 @@
 import type { ElementRef } from './types/lynx';
 
+type LynxEventType =
+  | 'bindEvent'
+  | 'catchEvent'
+  | 'capture-bindEvent'
+  | 'capture-catchEvent'
+  | 'global-bindEvent';
+
+const EVENT_PREFIXES: [string, LynxEventType][] = [
+  ['capture-bind', 'capture-bindEvent'],
+  ['capture-catch', 'capture-catchEvent'],
+  ['global-bind', 'global-bindEvent'],
+  ['catch', 'catchEvent'],
+  ['bind', 'bindEvent'],
+];
+
 export type BaseLynxElement = {
   setProperty(name: string, value: any): void;
   setAttribute(name: string, value: any): void;
@@ -113,21 +128,36 @@ export class LynxElement implements BaseLynxElement {
   }
   addEventListener(name: string, cb: (event: any) => any) {
     let eventName = '';
-    let eventType = '';
-    if (name.startsWith('bind')) {
-      eventName = name.slice(4);
-      eventType = 'bindEvent';
-    } else {
-      console.log('unsupported event');
+    let eventType: LynxEventType | undefined;
+
+    for (const [prefix, type] of EVENT_PREFIXES) {
+      if (name.startsWith(prefix)) {
+        eventName = name.slice(prefix.length);
+        eventType = type;
+        break;
+      }
+    }
+
+    if (!eventType) {
       return () => {};
     }
-    console.log(`adding event ${eventName} ${eventType}`);
+
     __AddEvent(this.element, eventType, eventName, {
       type: 'worklet',
       value: cb,
     });
+
     return () => {
-      // cleanup function
+      const events = __GetEvents(this.element);
+      const filtered = Object.entries(events).reduce<
+        Record<string, Record<string, any>>
+      >((acc, [key, value]) => {
+        if (key !== `${eventType}:${eventName}`) {
+          acc[key] = value;
+        }
+        return acc;
+      }, {});
+      __SetEvents(this.element, Object.values(filtered));
     };
   }
 }
@@ -136,6 +166,7 @@ export class LynxBackgroundElement implements BaseLynxElement {
   private _props = new Map<string, any>();
   private _styles = new Map<string, any>();
   private _classes = new Set<string>();
+  private _events = new Map<string, (event: any) => any>();
   private _parent: LynxBackgroundElement | null = null;
   private _firstChild: LynxBackgroundElement | null = null;
   private _lastChild: LynxBackgroundElement | null = null;
@@ -240,15 +271,10 @@ export class LynxBackgroundElement implements BaseLynxElement {
   querySelectorAll(_selector: string): BaseLynxElement[] {
     throw new Error('Method not implemented.');
   }
-  addEventListener(_name: string, _cb: (event: any) => any): () => void {
-    console.log('Method not implemented.');
-    return () => {};
+  addEventListener(name: string, cb: (event: any) => any): () => void {
+    this._events.set(name, cb);
+    return () => {
+      this._events.delete(name);
+    };
   }
 }
-
-// TODO: Use when event system is implemented
-// type LynxEventType =
-//   | 'bindEvent'
-//   | 'catchEvent'
-//   | 'capture-bind'
-//   | 'capture-catch';
