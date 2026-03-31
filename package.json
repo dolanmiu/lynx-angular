@@ -8,10 +8,12 @@
   ],
   "devDependencies": {
     "@biomejs/biome": "^2.4.8",
-    "cspell": "^9.7.0"
+    "cspell": "^9.7.0",
+    "vitest": "^4.0.8"
   },
   "scripts": {
     "build": "npm run build -w packages/rsbuild-plugin-angular-lynx && npm run build -w packages/runtime && npm run build -w packages/demo-app",
+    "test": "vitest run",
     "demo": "npm run start --workspace=packages/demo-app",
     "lint": "biome check .",
     "lint:fix": "biome check --fix .",
