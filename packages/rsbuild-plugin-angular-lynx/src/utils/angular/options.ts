@@ -9,7 +9,7 @@ import {
   normalizeCacheOptions,
 } from './normalize-cache.js';
 
-export function normalizeSourceMaps(sourceMap: any): any {
+export const normalizeSourceMaps = (sourceMap: any): any => {
   const scripts = typeof sourceMap === 'object' ? sourceMap.scripts : sourceMap;
   const styles = typeof sourceMap === 'object' ? sourceMap.styles : sourceMap;
   const hidden = (typeof sourceMap === 'object' && sourceMap.hidden) || false;
@@ -21,11 +21,11 @@ export function normalizeSourceMaps(sourceMap: any): any {
     scripts,
     styles,
   };
-}
+};
 
-export function normalizeOptimization(
+export const normalizeOptimization = (
   optimization: boolean | Record<string, any> | undefined = true,
-): any {
+): any => {
   if (typeof optimization === 'object') {
     const styleOptimization = !!optimization.styles;
 
@@ -59,7 +59,7 @@ export function normalizeOptimization(
       inline: optimization,
     },
   };
-}
+};
 
 export type NormalizedOptions = {
   tsconfig: string;
@@ -95,17 +95,17 @@ type Replacement = {
   replace: string;
 };
 
-export function readTarget(
+export const readTarget = (
   project: workspaces.ProjectDefinition,
   target = 'build',
-): TargetDefinition | undefined {
+): TargetDefinition | undefined => {
   return project.targets.get(target);
-}
-export async function readBuildOptions(
+};
+export const readBuildOptions = async (
   project: workspaces.ProjectDefinition,
   basePath: string,
   configurationName?: string,
-): Promise<NormalizedOptions | null> {
+): Promise<NormalizedOptions | null> => {
   const workspaceRoot = basePath;
   const target = readTarget(project);
   if (!target) {
@@ -210,4 +210,4 @@ export async function readBuildOptions(
     styles,
   };
   return normalizedOptions;
-}
+};

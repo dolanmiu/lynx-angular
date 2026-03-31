@@ -3,10 +3,10 @@ import { fileURLToPath } from 'node:url';
 import type { RsbuildPluginAPI } from '@lynx-js/rspeedy';
 import type { NormalizedOptions } from './options.js';
 
-export function applyAngularConfig(
+export const applyAngularConfig = (
   api: RsbuildPluginAPI,
   buildOptions: NormalizedOptions,
-): void {
+): void => {
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
   api.modifyRsbuildConfig((config) => {
@@ -50,4 +50,4 @@ export function applyAngularConfig(
       config.source.define.ngDevMode = false;
     }
   });
-}
+};

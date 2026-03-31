@@ -13,7 +13,9 @@ import {
   getProjectByCwd,
 } from './utils/angular/read-workspace.js';
 
-export async function applyAngularRules(api: RsbuildPluginAPI): Promise<void> {
+export const applyAngularRules = async (
+  api: RsbuildPluginAPI,
+): Promise<void> => {
   const { basePath, workspace } = await getAngularWorkspace();
   const project = getProjectByCwd(workspace, basePath);
   if (!project) {
@@ -184,4 +186,4 @@ export async function applyAngularRules(api: RsbuildPluginAPI): Promise<void> {
       };
     },
   );
-}
+};

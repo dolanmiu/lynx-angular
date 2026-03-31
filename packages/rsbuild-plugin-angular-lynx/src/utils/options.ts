@@ -18,9 +18,9 @@ export type PluginAngularLynxOptions = {
   experimental_isLazyBundle?: boolean;
 };
 
-export function normalizeOptions(
+export const normalizeOptions = (
   options?: Partial<PluginAngularLynxOptions>,
-): Required<PluginAngularLynxOptions> {
+): Required<PluginAngularLynxOptions> => {
   const defaultOptions: Required<PluginAngularLynxOptions> = {
     //@ts-expect-error
     customCSSInheritanceList: undefined,
@@ -42,4 +42,4 @@ export function normalizeOptions(
     experimental_isLazyBundle: false,
   };
   return Object.assign(defaultOptions, options);
-}
+};

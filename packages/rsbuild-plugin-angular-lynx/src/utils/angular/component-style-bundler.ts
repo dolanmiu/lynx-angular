@@ -5,9 +5,9 @@ import {
 import { ComponentStylesheetBundler } from '@angular/build/src/tools/esbuild/angular/component-stylesheets';
 import type { NormalizedOptions } from './options.js';
 
-export function createComponentStyleBundler(
+export const createComponentStyleBundler = (
   options: NormalizedOptions,
-): ComponentStylesheetBundler {
+): ComponentStylesheetBundler => {
   const {
     workspaceRoot,
     optimizationOptions,
@@ -54,4 +54,4 @@ export function createComponentStyleBundler(
     inlineStyleLanguage,
     false,
   );
-}
+};

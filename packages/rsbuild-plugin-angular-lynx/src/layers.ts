@@ -4,7 +4,7 @@ export const LAYERS = {
   MAIN_THREAD: 'main',
 };
 
-export function applyLayers(api: RsbuildPluginAPI): void {
+export const applyLayers = (api: RsbuildPluginAPI): void => {
   api.modifyBundlerChain((chain) => {
     const experiments = chain.get(
       'experiments',
@@ -79,4 +79,4 @@ export function applyLayers(api: RsbuildPluginAPI): void {
     //     .end();
     // }
   });
-}
+};

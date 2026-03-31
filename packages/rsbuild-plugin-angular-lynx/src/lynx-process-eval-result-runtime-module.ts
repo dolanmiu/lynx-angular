@@ -7,9 +7,9 @@ import type { RuntimeModule } from '@rspack/core';
 
 type LynxProcessEvalResultRuntimeModule = new () => RuntimeModule;
 
-export function createLynxProcessEvalResultRuntimeModule(
+export const createLynxProcessEvalResultRuntimeModule = (
   webpack: typeof import('@rspack/core').rspack,
-): LynxProcessEvalResultRuntimeModule {
+): LynxProcessEvalResultRuntimeModule => {
   return class LynxProcessEvalResultRuntimeModule extends webpack.RuntimeModule {
     constructor() {
       super('Lynx process eval result', webpack.RuntimeModule.STAGE_ATTACH);
@@ -40,4 +40,4 @@ ${LynxRuntimeGlobals.lynxProcessEvalResult} = function (result, schema) {
 `;
     }
   };
-}
+};

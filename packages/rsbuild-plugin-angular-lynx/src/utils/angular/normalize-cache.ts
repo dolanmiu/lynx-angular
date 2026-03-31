@@ -28,9 +28,9 @@ type CacheMetadata = {
   path?: string;
 };
 
-function hasCacheMetadata(
+const hasCacheMetadata = (
   value: unknown,
-): value is { cli: { cache: CacheMetadata } } {
+): value is { cli: { cache: CacheMetadata } } => {
   return (
     !!value &&
     typeof value === 'object' &&
@@ -39,12 +39,12 @@ function hasCacheMetadata(
     typeof value.cli === 'object' &&
     'cache' in value.cli
   );
-}
+};
 
-export function normalizeCacheOptions(
+export const normalizeCacheOptions = (
   projectMetadata: unknown,
   workspaceRoot: string,
-): NormalizedCachedOptions {
+): NormalizedCachedOptions => {
   const cacheMetadata = hasCacheMetadata(projectMetadata)
     ? projectMetadata.cli.cache
     : {};
@@ -77,4 +77,4 @@ export function normalizeCacheOptions(
     basePath: cacheBasePath,
     path: join(cacheBasePath, VERSION),
   };
-}
+};

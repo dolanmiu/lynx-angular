@@ -4,7 +4,7 @@
 import type { RsbuildPluginAPI } from '@lynx-js/rspeedy';
 import { LAYERS } from './layers';
 
-export function applyGenerator(api: RsbuildPluginAPI): void {
+export const applyGenerator = (api: RsbuildPluginAPI): void => {
   api.modifyBundlerChain({
     order: 'pre',
     handler: (chain) => {
@@ -20,4 +20,4 @@ export function applyGenerator(api: RsbuildPluginAPI): void {
         });
     },
   });
-}
+};

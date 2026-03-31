@@ -10,9 +10,9 @@ import {
   type PluginAngularLynxOptions,
 } from './utils/options.js';
 
-export function pluginAngularLynx(
+export const pluginAngularLynx = (
   options?: PluginAngularLynxOptions,
-): RsbuildPlugin {
+): RsbuildPlugin => {
   return {
     name: 'lynx:angular',
     pre: ['lynx:rsbuild:plugin-api'],
@@ -26,4 +26,4 @@ export function pluginAngularLynx(
       applySplitChunksRule(api);
     },
   };
-}
+};

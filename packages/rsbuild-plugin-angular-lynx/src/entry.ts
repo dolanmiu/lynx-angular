@@ -22,10 +22,10 @@ const PLUGIN_NAME_TEMPLATE = 'lynx:template';
 const PLUGIN_NAME_RUNTIME_WRAPPER = 'lynx:runtime-wrapper';
 const PLUGIN_NAME_ANGULAR = 'lynx:angular';
 
-export function applyEntry(
+export const applyEntry = (
   api: RsbuildPluginAPI,
   options: Required<PluginAngularLynxOptions>,
-): void {
+): void => {
   const {
     customCSSInheritanceList,
     debugInfoOutside,
@@ -170,17 +170,17 @@ export function applyEntry(
         },
       ]);
   });
-}
+};
 
 // This is copied from https://github.com/web-infra-dev/rsbuild/blob/037da7b9d92e20c7136c8b2efa21eef539fa2f88/packages/core/src/plugins/html.ts#L168
-function getChunks(
+const getChunks = (
   entryName: string,
   entryValue: (
     | string
     | string[]
     | UndefinedOnPartialDeep<Rspack.EntryDescription>
   )[],
-): { chunks: string[]; imports: string[] } {
+): { chunks: string[]; imports: string[] } => {
   const chunks = [entryName];
   const imports: string[] = [];
 
@@ -215,7 +215,7 @@ function getChunks(
   }
 
   return { chunks, imports };
-}
+};
 
 // function getBackgroundFilename(
 //   entryName: string,
