@@ -23,7 +23,7 @@
     "lightningcss",
     "lynx",
     "packagr",
-    "pluginNgLynx",
+    "pluginAngularLynx",
     "provideLynxRenderer",
     "qrcode",
     "rsbuild",

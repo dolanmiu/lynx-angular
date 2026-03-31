@@ -1,5 +1,5 @@
 {
-  "name": "@blotch/rsbuild-plugin-ng-lynx",
+  "name": "@blotch/rsbuild-plugin-angular-lynx",
   "version": "0.0.0",
   "type": "module",
   "exports": {

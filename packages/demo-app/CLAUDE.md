@@ -22,7 +22,7 @@ Example app demonstrating the runtime library. Uses standalone components, zonel
 ## Key Files
 
 ```
-lynx.config.ts                     # RSpeedy config using pluginNgLynx()
+lynx.config.ts                     # RSpeedy config using pluginAngularLynx()
 src/
   main.ts                          # Entry point — bootstrapLynxApplication()
   app/

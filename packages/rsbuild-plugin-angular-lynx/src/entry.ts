@@ -13,7 +13,7 @@ import {
 import type { UndefinedOnPartialDeep } from 'type-fest';
 import { AngularWebpackPlugin } from './AngularWebpackPlugin.js';
 import { LAYERS } from './layers.js';
-import type { PluginNgLynxOptions } from './utils/options.js';
+import type { PluginAngularLynxOptions } from './utils/options.js';
 
 // const DEFAULT_DIST_PATH_INTERMEDIATE = ".rspeedy";
 // const DEFAULT_FILENAME_HASH = ".[contenthash:8]";
@@ -24,7 +24,7 @@ const PLUGIN_NAME_ANGULAR = 'lynx:angular';
 
 export function applyEntry(
   api: RsbuildPluginAPI,
-  options: Required<PluginNgLynxOptions>,
+  options: Required<PluginAngularLynxOptions>,
 ): void {
   const {
     customCSSInheritanceList,

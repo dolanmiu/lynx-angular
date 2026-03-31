@@ -1,5 +1,5 @@
 /*
- * Public API Surface of @blotch/ng-lynx
+ * Public API Surface of @blotch/angular-lynx
  */
 
 export { provideLynxRenderer } from './lib/providers';

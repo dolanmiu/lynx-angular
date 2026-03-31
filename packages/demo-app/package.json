@@ -14,7 +14,7 @@
     "@angular/platform-browser": "^21.0.0",
     "@angular/platform-browser-dynamic": "^21.0.0",
     "@angular/router": "^21.0.0",
-    "@blotch/ng-lynx": "*",
+    "@blotch/angular-lynx": "*",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
@@ -26,7 +26,7 @@
     "@lynx-js/qrcode-rsbuild-plugin": "^0.3.6",
     "@lynx-js/rspeedy": "^0.9.2",
     "@lynx-js/types": "^3.2.1",
-    "@blotch/rsbuild-plugin-ng-lynx": "*",
+    "@blotch/rsbuild-plugin-angular-lynx": "*",
     "typescript": "~5.9.0"
   }
 }

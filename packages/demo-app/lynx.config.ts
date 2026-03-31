@@ -1,4 +1,4 @@
-import { pluginNgLynx } from '@blotch/rsbuild-plugin-ng-lynx';
+import { pluginAngularLynx } from '@blotch/rsbuild-plugin-angular-lynx';
 import { pluginQRCode } from '@lynx-js/qrcode-rsbuild-plugin';
 import { defineConfig } from '@lynx-js/rspeedy';
 export default defineConfig({
@@ -12,6 +12,6 @@ export default defineConfig({
         return `${url}?fullscreen=true`;
       },
     }),
-    pluginNgLynx(),
+    pluginAngularLynx(),
   ],
 });
