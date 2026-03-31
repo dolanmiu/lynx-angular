@@ -7,20 +7,23 @@ import type { LynxDocumentBase } from './lynx-document';
 import type { BaseLynxElement } from './lynx-element';
 
 export class LynxRenderer implements Renderer2 {
-  constructor(private document: LynxDocumentBase) {}
+  readonly #document: LynxDocumentBase;
+  constructor(document: LynxDocumentBase) {
+    this.#document = document;
+  }
 
   get data(): { [key: string]: any } {
     return {};
   }
   destroy(): void {}
   createElement(name: string, _namespace?: string | null): BaseLynxElement {
-    return this.document.createElement(name);
+    return this.#document.createElement(name);
   }
   createComment(_value: string): BaseLynxElement {
-    return this.document.createComment();
+    return this.#document.createComment();
   }
   createText(value: string): BaseLynxElement {
-    return this.document.createText(value);
+    return this.#document.createText(value);
   }
   destroyNode: ((node: unknown) => void) | null = null;
 
@@ -43,7 +46,7 @@ export class LynxRenderer implements Renderer2 {
     oldChild.remove();
   }
   selectRootElement(): BaseLynxElement {
-    return this.document.createRootElement();
+    return this.#document.createRootElement();
   }
   parentNode(node: BaseLynxElement): BaseLynxElement | null {
     return node.parentNode();

@@ -60,7 +60,7 @@ import lynxLogo from '../assets/lynx-logo.png';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class AppComponent {
-  private router = inject(Router);
+  #router = inject(Router);
   alterLogo = signal(false);
 
   onTap(event: TouchEvent) {
@@ -69,7 +69,7 @@ export class AppComponent {
   }
 
   navigateTo(path: string): void {
-    this.router.navigateByUrl(path);
+    this.#router.navigateByUrl(path);
   }
 
   get arrow() {

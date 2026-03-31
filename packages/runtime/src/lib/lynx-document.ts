@@ -7,7 +7,7 @@ import type { ElementRef, ListElementRef } from './types/lynx';
 
 export class LynxDocument {
   page!: LynxElement;
-  private pageId = 0;
+  #pageId = 0;
 
   constructor() {
     console.log('main thread lynx document');
@@ -15,18 +15,18 @@ export class LynxDocument {
   createRootElement(): LynxElement {
     const pageElement = __CreatePage('0', 0);
     this.page = new LynxElement(pageElement);
-    this.pageId = __GetElementUniqueID(pageElement);
+    this.#pageId = __GetElementUniqueID(pageElement);
     return this.page;
   }
   createElement(tag: string, value?: string): LynxElement {
     let element: ElementRef;
     switch (tag) {
       case 'x-view': {
-        element = __CreateView(this.pageId);
+        element = __CreateView(this.#pageId);
         break;
       }
       case 'x-image': {
-        element = __CreateImage(this.pageId);
+        element = __CreateImage(this.#pageId);
 
         // Set default image properties
         __SetConfig(element, {
@@ -38,7 +38,7 @@ export class LynxDocument {
         break;
       }
       case 'x-text': {
-        element = __CreateText(this.pageId);
+        element = __CreateText(this.#pageId);
         break;
       }
       case 'x-raw-text': {
@@ -46,7 +46,7 @@ export class LynxDocument {
         break;
       }
       case 'x-scroll-view': {
-        element = __CreateScrollView(this.pageId);
+        element = __CreateScrollView(this.#pageId);
 
         // Set default scroll-view properties for better performance
         __SetConfig(element, {
@@ -92,7 +92,11 @@ export class LynxDocument {
           // and prepare it for rendering in the virtualized list
         };
 
-        element = __CreateList(this.pageId, componentAtIndex, enqueueComponent);
+        element = __CreateList(
+          this.#pageId,
+          componentAtIndex,
+          enqueueComponent,
+        );
 
         // Set default list properties
         __SetConfig(element, {
@@ -104,22 +108,22 @@ export class LynxDocument {
         break;
       }
       case 'x-block': {
-        element = __CreateBlock(this.pageId);
+        element = __CreateBlock(this.#pageId);
         break;
       }
       case 'x-if': {
-        element = __CreateIf(this.pageId);
+        element = __CreateIf(this.#pageId);
         break;
       }
       case 'x-for': {
-        element = __CreateFor(this.pageId);
+        element = __CreateFor(this.#pageId);
         break;
       }
       default: {
         console.warn(
           `Unknown element tag "${tag}". Falling back to view element.`,
         );
-        element = __CreateView(this.pageId);
+        element = __CreateView(this.#pageId);
       }
     }
     return new LynxElement(element);
@@ -131,7 +135,7 @@ export class LynxDocument {
   }
   createComment(): LynxElement {
     // TODO: this i think should be raw text
-    const nonElement = __CreateNonElement(this.pageId);
+    const nonElement = __CreateNonElement(this.#pageId);
     return new LynxElement(nonElement);
   }
   appendChild(newChild: LynxElement): void {

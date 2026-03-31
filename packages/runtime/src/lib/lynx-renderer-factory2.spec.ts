@@ -1,20 +1,26 @@
 import type { RendererType2 } from '@angular/core';
-import { ViewEncapsulation } from '@angular/core';
+import {
+  Injector,
+  runInInjectionContext,
+  ViewEncapsulation,
+} from '@angular/core';
 import { describe, expect, it } from 'vitest';
 import { EmulatedLynxRenderer } from './emulated-lynx-renderer';
 import { LynxBackgroundDocument } from './lynx-document';
 import { LynxRendererFactory2 } from './lynx-renderer-factory2';
 import { LynxRenderer } from './renderer';
+import { LYNX_DOCUMENT } from './token';
 
 const createFactory = () => {
-  const factory = Object.create(
-    LynxRendererFactory2.prototype,
-  ) as LynxRendererFactory2;
-  factory.lynxDocument = new LynxBackgroundDocument();
-  // Initialize private fields that would normally be set by the class constructor
-  (factory as any).defaultRenderer = null;
-  (factory as any).emulatedRenderers = new Map();
-  return factory;
+  const injector = Injector.create({
+    providers: [
+      {
+        provide: LYNX_DOCUMENT,
+        useFactory: () => new LynxBackgroundDocument(),
+      },
+    ],
+  });
+  return runInInjectionContext(injector, () => new LynxRendererFactory2());
 };
 
 describe('LynxRendererFactory2', () => {
