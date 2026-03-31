@@ -43,7 +43,3 @@ packages/
 npm install && npm run build   # Build all packages
 npm run demo                   # Start demo dev server (rspeedy)
 ```
-
-## Not Yet Implemented
-
-Emulated view encapsulation, HMR, live reload, background-thread directives, compiler warnings.
