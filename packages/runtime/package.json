@@ -6,19 +6,21 @@
     "build": "ng-packagr -p ng-package.json -c tsconfig.lib.prod.json"
   },
   "peerDependencies": {
-    "@angular/common": "^19.2.0",
-    "@angular/core": "^19.2.0"
+    "@angular/common": "^21.0.0",
+    "@angular/core": "^21.0.0",
+    "@angular/platform-browser": "^21.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"
   },
   "devDependencies": {
-    "@angular/common": "^19.2.0",
-    "@angular/compiler": "^19.2.0",
-    "@angular/compiler-cli": "^19.2.0",
-    "@angular/core": "^19.2.0",
-    "ng-packagr": "^19.2.0",
-    "typescript": "~5.7.2"
+    "@angular/common": "^21.0.0",
+    "@angular/compiler": "^21.0.0",
+    "@angular/compiler-cli": "^21.0.0",
+    "@angular/core": "^21.0.0",
+    "@angular/platform-browser": "^21.0.0",
+    "ng-packagr": "^21.0.0",
+    "typescript": "~5.9.0"
   },
   "sideEffects": false
 }

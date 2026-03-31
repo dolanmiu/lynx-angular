@@ -1,12 +1,9 @@
 import {
   type ApplicationConfig,
-  provideExperimentalZonelessChangeDetection,
+  provideZonelessChangeDetection,
 } from '@angular/core';
 import { provideLynxRenderer } from '@blotch/ng-lynx';
 
 export const appConfig: ApplicationConfig = {
-  providers: [
-    provideExperimentalZonelessChangeDetection(),
-    provideLynxRenderer(),
-  ],
+  providers: [provideZonelessChangeDetection(), provideLynxRenderer()],
 };
