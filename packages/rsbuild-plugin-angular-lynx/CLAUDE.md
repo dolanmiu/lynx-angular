@@ -4,7 +4,7 @@ Bridges Angular's build system with the Lynx runtime. Configures webpack/rspack 
 
 ## Plugin Entry
 
-`pluginAngularLynx(options?)` returns an `RsbuildPlugin` named `"lynx:angular"`. Setup calls 6 functions in order:
+`pluginAngularLynx(options?)` (in `plugin-angular-lynx.ts`) returns an `RsbuildPlugin` named `"lynx:angular"`. Setup calls 6 functions in order:
 
 1. `applyCSS` — CSS handling configuration
 2. `applyEntry` — Splits each entry into `main-thread` + `background-thread` bundles, applies Lynx webpack plugins
@@ -37,26 +37,26 @@ Each entry is duplicated into two webpack entries with different layers:
 
 ```
 src/
-  pluginAngularLynx.ts               # Main plugin entry, orchestrates setup
-  entry.ts                      # Entry splitting, Lynx plugin application
-  layers.ts                     # Layer definitions (LAYERS.MAIN_THREAD, LAYERS.BACKGROUND)
-  angular.ts                    # Angular compilation and transform pipeline
-  AngularWebpackPlugin.ts       # Webpack plugin: banners, defines, async chunk wrapping
-  css.ts                        # CSS handling
-  generator.ts                  # Output filename rules
-  splitChunks.ts                # Chunk splitting config
-  LynxProcessEvalResultRuntimeModule.ts  # Runtime module for eval result processing
-  loaders/ignore-css-loader.ts  # CSS ignore loader
+  plugin-angular-lynx.ts               # Main plugin entry, orchestrates setup
+  entry.ts                             # Entry splitting, Lynx plugin application
+  layers.ts                            # Layer definitions (LAYERS.MAIN_THREAD, LAYERS.BACKGROUND)
+  angular.ts                           # Angular compilation and transform pipeline
+  angular-webpack-plugin.ts            # Webpack plugin: banners, defines, async chunk wrapping
+  css.ts                               # CSS handling
+  generator.ts                         # Output filename rules
+  split-chunks.ts                      # Chunk splitting config
+  lynx-process-eval-result-runtime-module.ts  # Runtime module for eval result processing
+  loaders/ignore-css-loader.ts         # CSS ignore loader
   utils/
-    options.ts                  # Plugin options normalization
+    options.ts                         # Plugin options normalization
     angular/
-      readWorkspace.ts          # Reads angular.json, finds project
-      options.ts                # Reads Angular build options from workspace
-      angular-config.ts         # Applies Angular config to Rsbuild
-      env.ts                    # maxWorkers, useTypeChecking flags
-      componentStyleBundler.ts  # Component style handling
-      find-up.ts                # File search utility
-      normalize-cache.ts        # Cache normalization
+      read-workspace.ts                # Reads angular.json, finds project
+      options.ts                       # Reads Angular build options from workspace
+      angular-config.ts                # Applies Angular config to Rsbuild
+      env.ts                           # maxWorkers, useTypeChecking flags
+      component-style-bundler.ts       # Component style handling
+      find-up.ts                       # File search utility
+      normalize-cache.ts               # Cache normalization
 ```
 
 ## Build

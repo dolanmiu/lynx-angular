@@ -51,5 +51,5 @@ src/
     token.ts                       # LYNX_DOCUMENT injection token
     types/
       lynx.ts                      # Global Lynx API type declarations (__CreateElement, etc.)
-      runtime_types.ts             # Runtime type definitions
+      runtime-types.ts             # Runtime type definitions
 ```

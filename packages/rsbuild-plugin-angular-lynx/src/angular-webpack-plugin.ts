@@ -9,9 +9,8 @@ import { LynxTemplatePlugin } from '@lynx-js/template-webpack-plugin';
 import { RuntimeGlobals } from '@lynx-js/webpack-runtime-globals';
 import type { Chunk, Compilation, Compiler } from '@rspack/core';
 import invariant from 'tiny-invariant';
-
-import { createLynxProcessEvalResultRuntimeModule } from './LynxProcessEvalResultRuntimeModule.js';
 import { LAYERS } from './layers.js';
+import { createLynxProcessEvalResultRuntimeModule } from './lynx-process-eval-result-runtime-module.js';
 
 // const require = createRequire(import.meta.url);
 

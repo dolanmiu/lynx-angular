@@ -9,7 +9,7 @@
 import { existsSync } from 'node:fs';
 import * as path from 'node:path';
 
-export function findUp(names: string | string[], from: string) {
+export const findUp = (names: string | string[], from: string) => {
   const namesList = Array.isArray(names) ? names : [names];
   const root = path.parse(from).root;
 
@@ -26,4 +26,4 @@ export function findUp(names: string | string[], from: string) {
   }
 
   return null;
-}
+};

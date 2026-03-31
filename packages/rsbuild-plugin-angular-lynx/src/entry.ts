@@ -11,7 +11,7 @@ import {
   LynxTemplatePlugin,
 } from '@lynx-js/template-webpack-plugin';
 import type { UndefinedOnPartialDeep } from 'type-fest';
-import { AngularWebpackPlugin } from './AngularWebpackPlugin.js';
+import { AngularWebpackPlugin } from './angular-webpack-plugin.js';
 import { LAYERS } from './layers.js';
 import type { PluginAngularLynxOptions } from './utils/options.js';
 

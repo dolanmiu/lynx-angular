@@ -12,11 +12,11 @@ Lynx uses a dual-thread model: **main thread** (native UI rendering) and **backg
 packages/
   rsbuild-plugin-angular-lynx/   # @blotch/rsbuild-plugin-angular-lynx — RSpeedy build plugin for Angular+Lynx
     src/
-      pluginAngularLynx.ts        # Main entry: CSS, entry, layers, rules, generation
+      plugin-angular-lynx.ts  # Main entry: CSS, entry, layers, rules, generation
       entry.ts               # Splits code into main-thread/background-thread layers
       layers.ts              # Webpack layers (ES2019 main, ES2015 background)
       angular.ts             # Angular TS compilation via @angular-build
-      AngularWebpackPlugin.ts
+      angular-webpack-plugin.ts
   runtime/         # Core library — Angular Renderer2 → Lynx API bridge
     src/lib/
       renderer.ts              # LynxRenderer implements Renderer2

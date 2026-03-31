@@ -1,6 +1,6 @@
 const { readFileSync, writeFileSync } = require('node:fs');
 
-function main() {
+const main = () => {
   const angularBuildPackageJson = require.resolve(
     '@angular/build/package.json',
   );
@@ -22,6 +22,6 @@ function main() {
     angularBuildPackageJson,
     JSON.stringify(fileContentsJson, null, 2),
   );
-}
+};
 
 main();

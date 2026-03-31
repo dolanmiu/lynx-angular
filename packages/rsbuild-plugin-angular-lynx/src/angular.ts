@@ -11,7 +11,7 @@ import { readBuildOptions } from './utils/angular/options.js';
 import {
   getAngularWorkspace,
   getProjectByCwd,
-} from './utils/angular/readWorkspace.js';
+} from './utils/angular/read-workspace.js';
 
 export async function applyAngularRules(api: RsbuildPluginAPI): Promise<void> {
   const { basePath, workspace } = await getAngularWorkspace();

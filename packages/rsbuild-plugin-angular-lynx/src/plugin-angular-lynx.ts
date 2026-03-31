@@ -4,7 +4,7 @@ import { applyCSS } from './css.js';
 import { applyEntry } from './entry.js';
 import { applyGenerator } from './generator.js';
 import { applyLayers } from './layers.js';
-import { applySplitChunksRule } from './splitChunks.js';
+import { applySplitChunksRule } from './split-chunks.js';
 import {
   normalizeOptions,
   type PluginAngularLynxOptions,

@@ -1,1 +1,1 @@
-export { pluginAngularLynx } from './pluginAngularLynx';
+export { pluginAngularLynx } from './plugin-angular-lynx';

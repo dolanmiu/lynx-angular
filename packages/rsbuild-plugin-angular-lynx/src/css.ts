@@ -14,10 +14,10 @@ import type { CSSLoaderOptions } from '@rsbuild/core';
 import { LAYERS } from './layers.js';
 import type { PluginAngularLynxOptions } from './utils/options.js';
 
-export function applyCSS(
+export const applyCSS = (
   api: RsbuildPluginAPI,
   options: Required<PluginAngularLynxOptions>,
-): void {
+): void => {
   const {
     enableRemoveCSSScope,
     enableCSSSelector,
@@ -38,10 +38,7 @@ export function applyCSS(
 
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-  api.modifyBundlerChain(async function handler(
-    chain,
-    { CHAIN_ID, environment },
-  ) {
+  api.modifyBundlerChain(async (chain, { CHAIN_ID, environment }) => {
     const { CssExtractRspackPlugin, CssExtractWebpackPlugin } = await import(
       '@lynx-js/css-extract-webpack-plugin'
     );
@@ -49,6 +46,18 @@ export function applyCSS(
       api.context.bundlerType === 'rspack'
         ? CssExtractRspackPlugin
         : CssExtractWebpackPlugin;
+
+    const removeLightningCSS = (rule: ReturnType<typeof chain.module.rule>) => {
+      if (
+        // Webpack does not have lightningcss-loader
+        rule.uses.has(CHAIN_ID.USE.LIGHTNINGCSS) &&
+        // We only disable lightningcss for Lynx
+        environment.name === 'lynx'
+      ) {
+        rule.uses.delete(CHAIN_ID.USE.LIGHTNINGCSS);
+      }
+    };
+
     const cssRules = [
       CHAIN_ID.RULE.CSS,
       CHAIN_ID.RULE.SASS,
@@ -130,17 +139,6 @@ export function applyCSS(
       removeLightningCSS(rule);
     }
 
-    function removeLightningCSS(rule: ReturnType<typeof chain.module.rule>) {
-      if (
-        // Webpack does not have lightningcss-loader
-        rule.uses.has(CHAIN_ID.USE.LIGHTNINGCSS) &&
-        // We only disable lightningcss for Lynx
-        environment.name === 'lynx'
-      ) {
-        rule.uses.delete(CHAIN_ID.USE.LIGHTNINGCSS);
-      }
-    }
-
     chain
       .plugin(CHAIN_ID.PLUGIN.MINI_CSS_EXTRACT)
       .tap(([options]) => {
@@ -186,7 +184,7 @@ export function applyCSS(
           .sideEffects(false),
     );
   });
-}
+};
 
 // This is copied from https://github.com/web-infra-dev/rsbuild/blob/9f8be2d71ffeb7da969cda36fd9755db2cadaff5/packages/core/src/plugins/css.ts#L42
 //

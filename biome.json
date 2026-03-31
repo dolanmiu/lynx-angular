@@ -1,5 +1,6 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.4.8/schema.json",
+  "plugins": ["./biome/noFunctionDeclaration.grit"],
   "assist": {
     "enabled": true
   },
@@ -35,6 +36,12 @@
         "noNonNullAssertion": "off",
         "noParameterAssign": "off",
         "useImportType": "error",
+        "useFilenamingConvention": {
+          "level": "error",
+          "options": {
+            "filenameCases": ["kebab-case"]
+          }
+        },
         "useConsistentTypeDefinitions": {
           "level": "error",
           "options": { "style": "type" }

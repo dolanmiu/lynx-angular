@@ -1,0 +1,6 @@
+engine biome(1.0)
+language js(typescript)
+
+`function $name($args) { $body }` as $fn where {
+  register_diagnostic(span=$fn, message="Use arrow function expression instead of function declaration.", severity="error")
+}

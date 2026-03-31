@@ -7,7 +7,14 @@ export type AngularWorkspace = {
   workspace: workspaces.WorkspaceDefinition;
   basePath: string;
 };
-export async function getAngularWorkspace(): Promise<AngularWorkspace> {
+
+const configNames = ['angular.json', '.angular.json'];
+
+const findWorkspaceFile = () => {
+  return findUp(configNames, process.cwd());
+};
+
+export const getAngularWorkspace = async (): Promise<AngularWorkspace> => {
   const host = workspaces.createWorkspaceHost(new NodeJsSyncHost());
   const workspaceFile = findWorkspaceFile();
   if (!workspaceFile) throw new Error("couldn't find workspace file");
@@ -16,35 +23,13 @@ export async function getAngularWorkspace(): Promise<AngularWorkspace> {
     basePath: path.dirname(workspaceFile),
     workspace,
   };
-}
-const configNames = ['angular.json', '.angular.json'];
+};
 
-function findWorkspaceFile() {
-  return findUp(configNames, process.cwd());
-}
-
-export function getProjectByCwd(
-  workspace: workspaces.WorkspaceDefinition,
-  basePath: string,
-): string | null {
-  if (workspace.projects.size === 1) {
-    // If there is only one project, return that one.
-    return Array.from(workspace.projects.keys())[0];
-  }
-
-  const project = findProjectByPath(workspace, process.cwd(), basePath);
-  if (project) {
-    return project;
-  }
-
-  return null;
-}
-
-function findProjectByPath(
+const findProjectByPath = (
   workspace: workspaces.WorkspaceDefinition,
   location: string,
   basePath: string,
-): string | null {
+): string | null => {
   const isInside = (base: string, potential: string): boolean => {
     const absoluteBase = path.resolve(basePath, base);
     const absolutePotential = path.resolve(basePath, potential);
@@ -88,4 +73,21 @@ function findProjectByPath(
   }
 
   return projects[0][1];
-}
+};
+
+export const getProjectByCwd = (
+  workspace: workspaces.WorkspaceDefinition,
+  basePath: string,
+): string | null => {
+  if (workspace.projects.size === 1) {
+    // If there is only one project, return that one.
+    return Array.from(workspace.projects.keys())[0];
+  }
+
+  const project = findProjectByPath(workspace, process.cwd(), basePath);
+  if (project) {
+    return project;
+  }
+
+  return null;
+};
