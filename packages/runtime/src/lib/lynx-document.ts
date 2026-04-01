@@ -63,33 +63,31 @@ export class LynxDocument {
         // For list elements, we need to provide callbacks for handling component creation at specific indices
         // These callbacks facilitate virtualized list rendering
 
-        // This callback is called when the list needs to render a component at a specific index
         const componentAtIndex = (
-          _listRef: ListElementRef,
-          listId: number,
+          listRef: ListElementRef,
+          _listId: number,
           cellIndex: number,
           _opId: number,
         ) => {
-          console.log(
-            `List ${listId} requesting component at index ${cellIndex}`,
-          );
-
-          // For now, we return undefined which tells Lynx to use a default cell renderer
-          // In a more advanced implementation, you would return component identifiers
-          // based on your data model and cell reuse strategy
+          const children = __GetChildren(listRef);
+          if (cellIndex < children.length) {
+            return __GetElementUniqueID(children[cellIndex]);
+          }
           return undefined;
         };
 
-        // This callback is called when a component (cell) needs to be prepared for rendering
         const enqueueComponent = (
           _listRef: ListElementRef,
           listId: number,
           eleId: number,
         ) => {
-          console.log(`List ${listId} enqueuing component with id ${eleId}`);
-
-          // In a more advanced implementation, this would queue the cell for data binding
-          // and prepare it for rendering in the virtualized list
+          const element = __GetElementByUniqueID(eleId);
+          if (element) {
+            __FlushElementTree(element, {
+              triggerLayout: true,
+              listID: listId,
+            });
+          }
         };
 
         element = __CreateList(

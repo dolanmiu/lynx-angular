@@ -37,6 +37,10 @@ packages/
 - Templates use Lynx elements: `<x-view>`, `<x-text>`, not HTML
 - Standalone components, signals, `@if`/`@for` control flow, lazy-loaded routes all work
 
+## Code Style
+
+- Always write comments explaining **why** something is done, not just what. Future developers need to understand the reasoning and intent behind decisions.
+
 ## Build & Run
 
 ```sh

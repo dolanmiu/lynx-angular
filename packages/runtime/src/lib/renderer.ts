@@ -33,10 +33,14 @@ export class LynxRenderer implements Renderer2 {
   insertBefore(
     parent: BaseLynxElement,
     newChild: BaseLynxElement,
-    refChild: BaseLynxElement,
+    refChild: BaseLynxElement | null,
     _isMove?: boolean,
   ): void {
-    parent.insertBefore(newChild, refChild);
+    if (refChild == null) {
+      parent.appendChild(newChild);
+    } else {
+      parent.insertBefore(newChild, refChild);
+    }
   }
   removeChild(
     _parent: BaseLynxElement,

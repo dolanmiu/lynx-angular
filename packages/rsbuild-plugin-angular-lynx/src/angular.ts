@@ -108,9 +108,19 @@ export const applyAngularRules = async (
 
             const scopedCss = encapsulateStyle(data, scopeId);
 
+            const writeIfChanged = (
+              filePath: string,
+              content: string,
+            ): void => {
+              try {
+                if (fs.readFileSync(filePath, 'utf-8') === content) return;
+              } catch {}
+              fs.writeFileSync(filePath, content);
+            };
+
             if (stylesheetFile) {
               const scopedPath = `${stylesheetFile}.__scoped_${scopeId}.css`;
-              fs.writeFileSync(scopedPath, scopedCss);
+              writeIfChanged(scopedPath, scopedCss);
               componentStyles.imports.push(scopedPath);
             } else {
               const containingDir = path.dirname(containingFile);
@@ -118,7 +128,7 @@ export const applyAngularRules = async (
                 containingDir,
                 `__inline_${resolvedClassName}_${order}.__scoped_${scopeId}.css`,
               );
-              fs.writeFileSync(scopedPath, scopedCss);
+              writeIfChanged(scopedPath, scopedCss);
               componentStyles.imports.push(scopedPath);
             }
             return '';
