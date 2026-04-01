@@ -2,7 +2,7 @@
 
 ## Runtime
 
-- [ ] Emulated view encapsulation (`ViewEncapsulation.Emulated`)
+- [x] Emulated view encapsulation (`ViewEncapsulation.Emulated`)
 - [ ] `x-list` virtualization — `componentAtIndex` and `enqueueComponent` callbacks are stubs (`lynx-document.ts:67-93`)
 - [ ] Background-thread `querySelector`/`querySelectorAll` — currently throw "not implemented" (`lynx-element.ts`)
 - [ ] `__DEV__` and `__PROFILE__` globals — marked TODO in `runtime-types.ts`

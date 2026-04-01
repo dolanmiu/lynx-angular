@@ -1,11 +1,14 @@
+import fs from 'node:fs';
 import path from 'node:path';
 import {
   createAngularCompilation,
   DiagnosticModes,
 } from '@angular/build/src/tools/angular/compilation';
 import { JavaScriptTransformer } from '@angular/build/src/tools/esbuild/javascript-transformer';
+import { encapsulateStyle } from '@angular/compiler';
 import type { RsbuildPluginAPI } from '@lynx-js/rspeedy';
 import { applyAngularConfig } from './utils/angular/angular-config.js';
+import { generateComponentScopeId } from './utils/angular/component-scope-id.js';
 import { maxWorkers, useTypeChecking } from './utils/angular/env.js';
 import { readBuildOptions } from './utils/angular/options.js';
 import {
@@ -58,7 +61,12 @@ export const applyAngularRules = async (
     {
       imports: string[];
       inlineStyles: string[];
+      scopeId: string;
     }
+  >();
+  const componentScopeIds = new Map<
+    string,
+    { className: string; scopeId: string }
   >();
   api.onBeforeEnvironmentCompile(async () => {
     // Initialize the Angular compilation for the current build.
@@ -76,21 +84,42 @@ export const applyAngularRules = async (
             data,
             containingFile,
             stylesheetFile,
-            _order,
-            _className,
+            order,
+            className,
           ) {
+            const resolvedClassName = className ?? 'Component';
+            const scopeId = generateComponentScopeId(
+              resolvedClassName,
+              containingFile,
+            );
             let componentStyles = componentStylesCache.get(containingFile);
             if (!componentStyles) {
               componentStyles = {
                 imports: [],
                 inlineStyles: [],
+                scopeId,
               };
               componentStylesCache.set(containingFile, componentStyles);
             }
+            componentScopeIds.set(containingFile, {
+              className: resolvedClassName,
+              scopeId,
+            });
+
+            const scopedCss = encapsulateStyle(data, scopeId);
+
             if (stylesheetFile) {
-              componentStyles.imports.push(stylesheetFile);
+              const scopedPath = `${stylesheetFile}.__scoped_${scopeId}.css`;
+              fs.writeFileSync(scopedPath, scopedCss);
+              componentStyles.imports.push(scopedPath);
             } else {
-              componentStyles.inlineStyles.push(data);
+              const containingDir = path.dirname(containingFile);
+              const scopedPath = path.join(
+                containingDir,
+                `__inline_${resolvedClassName}_${order}.__scoped_${scopeId}.css`,
+              );
+              fs.writeFileSync(scopedPath, scopedCss);
+              componentStyles.imports.push(scopedPath);
             }
             return '';
           },
@@ -180,6 +209,10 @@ export const applyAngularRules = async (
           importsString += `import "${relativeImport}";`;
         }
         code = importsString + code;
+      }
+      const scopeInfo = componentScopeIds.get(context.resourcePath);
+      if (scopeInfo) {
+        code += `\n;${scopeInfo.className}.\u0275cmp.id = '${scopeInfo.scopeId}';\n`;
       }
       return {
         code,

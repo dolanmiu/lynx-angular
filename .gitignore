@@ -134,3 +134,7 @@ out-tsc
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Angular scoped CSS (generated at build time)
+**/*.__scoped_*.css
+**/__inline_*.__scoped_*.css
