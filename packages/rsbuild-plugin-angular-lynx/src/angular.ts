@@ -106,7 +106,15 @@ export const applyAngularRules = async (
               scopeId,
             });
 
-            const scopedCss = encapsulateStyle(data, scopeId);
+            // Use raw CSS without Angular's encapsulateStyle scoping.
+            // Angular's encapsulateStyle generates [_ngcontent-xxx] attribute selectors,
+            // and even class-conjunction replacements (.class._ngscope-xxx) don't work
+            // because the Lynx template stores the scope ID separately from element class
+            // lists — elements only get their component classes (e.g. "nav-title"), not
+            // scope classes. Plain class selectors (.nav-title) match correctly since
+            // enableCSSSelector handles them, and per-component scoping in the template
+            // already associates the CSS with the right component scope.
+            const scopedCss = data;
 
             const writeIfChanged = (
               filePath: string,

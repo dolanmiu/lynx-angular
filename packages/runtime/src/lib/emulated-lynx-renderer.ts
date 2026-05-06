@@ -2,24 +2,22 @@ import type { LynxDocumentBase } from './lynx-document';
 import { LynxRenderer } from './renderer';
 
 export class EmulatedLynxRenderer extends LynxRenderer {
-  #contentAttr: string;
-  #hostAttr: string;
+  #componentScopeId: string;
 
   constructor(document: LynxDocumentBase, componentId: string) {
     super(document);
-    this.#contentAttr = `_ngcontent-${componentId}`;
-    this.#hostAttr = `_nghost-${componentId}`;
+    this.#componentScopeId = componentId;
   }
 
-  override createElement(name: string, namespace?: string | null) {
-    const el = super.createElement(name, namespace);
-    el.setAttribute(this.#contentAttr, '');
-    return el;
-  }
+  // Note: we no longer add scope classes to child elements. The Lynx template
+  // embeds the component scope ID separately from element class lists, so plain
+  // class selectors in CSS are matched by the native CSS engine without needing
+  // a conjunction scope class on every element.
 
   override selectRootElement() {
     const el = super.selectRootElement();
-    el.setAttribute(this.#hostAttr, '');
+    // Keep scope class on the host element for potential :host CSS rules.
+    el.addClass(`_nghost-${this.#componentScopeId}`);
     return el;
   }
 }
