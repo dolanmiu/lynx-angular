@@ -2,10 +2,6 @@ import type { Routes } from '@angular/router';
 
 export const routes: Routes = [
   {
-    path: '',
-    loadComponent: () => import('./app.component').then((m) => m.AppComponent),
-  },
-  {
     path: 'list-example',
     loadComponent: () =>
       import('./list-example/list-example.component').then(

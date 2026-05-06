@@ -3,6 +3,7 @@ import {
   type LocationChangeListener,
   PlatformLocation,
 } from '@angular/common';
+import { Injectable } from '@angular/core';
 
 /**
  * PlatformLocation implementation for Lynx.
@@ -12,7 +13,14 @@ import {
  * parsing pathname, search, and hash from the URL string.
  *
  * Registered via `provideLynxRouter()` in `lynx-router.ts`.
+ *
+ * The `@Injectable()` decorator is required so Angular generates a `ɵfac`
+ * factory for this class. Without it, `getUndecoratedInjectableFactory()`
+ * walks the prototype chain, finds PlatformLocation's factory
+ * (`() => inject(BrowserPlatformLocation)`), and silently creates the wrong
+ * class — which crashes in Lynx because `window.location` doesn't exist.
  */
+@Injectable()
 export class LynxPlatformLocation extends PlatformLocation {
   #history: { state: unknown; title: string; url: string }[] = [
     { state: null, title: '', url: '/' },
