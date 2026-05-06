@@ -2,8 +2,14 @@ import {
   type ApplicationConfig,
   provideZonelessChangeDetection,
 } from '@angular/core';
-import { provideLynxRenderer } from '@blotch/angular-lynx';
+import { provideLynxRenderer, provideLynxRouter } from '@blotch/angular-lynx';
+
+import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
-  providers: [provideZonelessChangeDetection(), provideLynxRenderer()],
+  providers: [
+    provideZonelessChangeDetection(),
+    provideLynxRenderer(),
+    provideLynxRouter(routes),
+  ],
 };
