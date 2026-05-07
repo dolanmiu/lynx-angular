@@ -26,6 +26,29 @@ if (typeof globalThis.removeEventListener !== 'function') {
   (globalThis as any).removeEventListener = () => {};
 }
 
+// Lynx provides timer/scheduling APIs on the `lynx` global, not on `globalThis`.
+// Angular's zoneless ChangeDetectionScheduler uses setTimeout to schedule CD
+// after markForCheck(). Without these polyfills, CD never fires after the initial
+// synchronous render, so dynamic content (RouterOutlet, signal updates) never appears.
+// React Lynx does the same polyfill — see @lynx-js/react worklet-runtime/api/lynxApi.ts.
+if (
+  typeof globalThis.setTimeout !== 'function' &&
+  typeof lynx !== 'undefined'
+) {
+  const _lynx = lynx as any;
+  (globalThis as any).setTimeout = _lynx.setTimeout;
+  (globalThis as any).setInterval = _lynx.setInterval;
+  (globalThis as any).clearTimeout = _lynx.clearTimeout;
+  (globalThis as any).clearInterval =
+    _lynx.clearInterval ?? _lynx.clearTimeInterval;
+  if (_lynx.requestAnimationFrame) {
+    (globalThis as any).requestAnimationFrame = _lynx.requestAnimationFrame;
+  }
+  if (_lynx.cancelAnimationFrame) {
+    (globalThis as any).cancelAnimationFrame = _lynx.cancelAnimationFrame;
+  }
+}
+
 // @ts-expect-error
 globalThis.renderPage = () => {
   pageReady.next();

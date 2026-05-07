@@ -6,14 +6,14 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <x-view class="list-container">
+      <x-text style="color: red; font-size: 12px">test router</x-text>
       <x-text class="title">List Example</x-text>
       <!-- Simple list example -->
       <x-list class="list">
-        <!-- List will be populated with list items -->
         @for (item of items; track item.id) {
-        <x-view class="list-item">
+        <list-item class="list-item">
           <x-text class="item-text">{{ item.text }}</x-text>
-        </x-view>
+        </list-item>
         }
       </x-list>
 

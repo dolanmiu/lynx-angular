@@ -1,25 +1,13 @@
 import type { Routes } from '@angular/router';
+import { ElementsShowcaseComponent } from './elements-showcase/elements-showcase.component';
+import { ListExampleComponent } from './list-example/list-example.component';
+import { ScrollExampleComponent } from './scroll-example/scroll-example.component';
 
 export const routes: Routes = [
-  {
-    path: 'list-example',
-    loadComponent: () =>
-      import('./list-example/list-example.component').then(
-        (m) => m.ListExampleComponent,
-      ),
-  },
-  {
-    path: 'scroll-example',
-    loadComponent: () =>
-      import('./scroll-example/scroll-example.component').then(
-        (m) => m.ScrollExampleComponent,
-      ),
-  },
-  {
-    path: 'showcase',
-    loadComponent: () =>
-      import('./elements-showcase/elements-showcase.component').then(
-        (m) => m.ElementsShowcaseComponent,
-      ),
-  },
+  // Default route for '/' — redirects to list-example to prevent
+  // NavigationError which crashes Lynx's background thread.
+  { path: '', pathMatch: 'full', redirectTo: 'list-example' },
+  { path: 'list-example', component: ListExampleComponent },
+  { path: 'scroll-example', component: ScrollExampleComponent },
+  { path: 'showcase', component: ElementsShowcaseComponent },
 ];

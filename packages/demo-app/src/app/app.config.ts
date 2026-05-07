@@ -4,11 +4,12 @@ import {
 } from '@angular/core';
 import { provideLynxRenderer, provideLynxRouter } from '@blotch/angular-lynx';
 
+import { routes } from './app.routes';
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZonelessChangeDetection(),
     provideLynxRenderer(),
-    // Diagnostic: empty routes, no RouterOutlet — testing if just the provider breaks things
-    provideLynxRouter([]),
+    provideLynxRouter(routes),
   ],
 };

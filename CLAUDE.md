@@ -6,29 +6,12 @@ Angular renderer for [Lynx](https://lynxjs.org/) — a cross-platform native UI 
 
 Lynx uses a dual-thread model: **main thread** (native UI rendering) and **background thread** (JS execution/layout). Elements are manipulated via global `__*` functions (`__CreateElement`, `__AppendElement`, `__SetAttribute`, `__AddInlineStyle`, `__AddEvent`, `__RemoveElement`, etc.) instead of browser DOM. Native elements: `x-view`, `x-text`, `x-image`, `x-scroll-view`, `x-list`, `x-block`, `x-if`, `x-for`.
 
-## Monorepo Structure (npm workspaces)
+## Monorepo Structure
 
-```
-packages/
-  rsbuild-plugin-angular-lynx/   # @blotch/rsbuild-plugin-angular-lynx — RSpeedy build plugin for Angular+Lynx
-    src/
-      plugin-angular-lynx.ts  # Main entry: CSS, entry, layers, rules, generation
-      entry.ts               # Splits code into main-thread/background-thread layers
-      layers.ts              # Webpack layers (ES2019 main, ES2015 background)
-      angular.ts             # Angular TS compilation via @angular-build
-      angular-webpack-plugin.ts
-  runtime/         # Core library — Angular Renderer2 → Lynx API bridge
-    src/lib/
-      renderer.ts              # LynxRenderer implements Renderer2
-      lynx-renderer-factory2.ts # RendererFactory2 impl
-      lynx-document.ts         # LynxDocument (main) + LynxBackgroundDocument (background)
-      lynx-element.ts          # LynxElement (main) + LynxBackgroundElement (background)
-      runtime.ts               # bootstrapLynxApplication() entry point
-      providers.ts             # provideLynxRenderer() DI setup
-      types/lynx.ts            # Global Lynx API type declarations
-  demo-app/        # Demo app with routing, signals, Lynx elements
-    lynx.config.ts             # RSpeedy config using pluginAngularLynx()
-```
+- `packages/runtime` — Core Angular renderer for Lynx (the main library)
+- `packages/demo-app` — Demo Angular app running on Lynx
+- `packages/rsbuild-plugin-angular-lynx` — Rsbuild plugin for building Angular Lynx apps
+- `references/lynx-stack-main/packages/react` — **React Lynx** (production-proven reference implementation). Always refer to how React Lynx does things — it's battle-tested and used in production. When unsure about renderer design, element handling, or Lynx API usage, check this reference first.
 
 ## Key Patterns
 
@@ -47,3 +30,7 @@ packages/
 npm install && npm run build   # Build all packages
 npm run demo                   # Start demo dev server (rspeedy)
 ```
+
+## Debugging
+
+The demo runs on-device (iPhone) — there is no browser console. To debug, render logs on screen using `<x-text>` elements instead of `console.log`.

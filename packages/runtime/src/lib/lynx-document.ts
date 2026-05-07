@@ -2,12 +2,15 @@ import {
   type BaseLynxElement,
   LynxBackgroundElement,
   LynxElement,
+  LynxListElement,
 } from './lynx-element';
 import type { ElementRef, ListElementRef } from './types/lynx';
 
 export class LynxDocument {
   page!: LynxElement;
   #pageId = 0;
+  // Track NoneElements (Angular comment markers from @for/@if) so x-list can skip them
+  readonly #nonElements = new WeakSet<ElementRef>();
 
   constructor() {
     console.log('main thread lynx document');
@@ -60,18 +63,24 @@ export class LynxDocument {
         break;
       }
       case 'x-list': {
-        // For list elements, we need to provide callbacks for handling component creation at specific indices
-        // These callbacks facilitate virtualized list rendering
+        // Lynx's native x-list is a virtualized list driven by engine callbacks.
+        // Children must NOT be appended via __AppendElement — the list calls
+        // componentAtIndex to request items by index.
+        // LynxListElement intercepts appendChild/insertBefore and manages
+        // children in a virtual JS-level tree instead.
+
+        // Forward-declared so componentAtIndex closure can reference it
+        let listEl: LynxListElement;
 
         const componentAtIndex = (
-          listRef: ListElementRef,
+          _listRef: ListElementRef,
           _listId: number,
           cellIndex: number,
           _opId: number,
         ) => {
-          const children = __GetChildren(listRef);
-          if (cellIndex < children.length) {
-            return __GetElementUniqueID(children[cellIndex]);
+          const uiChildren = listEl.getUIChildren();
+          if (cellIndex < uiChildren.length) {
+            return __GetElementUniqueID(uiChildren[cellIndex]);
           }
           return undefined;
         };
@@ -81,28 +90,32 @@ export class LynxDocument {
           listId: number,
           eleId: number,
         ) => {
-          const element = __GetElementByUniqueID(eleId);
-          if (element) {
-            __FlushElementTree(element, {
+          const el = __GetElementByUniqueID(eleId);
+          if (el) {
+            __FlushElementTree(el, {
               triggerLayout: true,
               listID: listId,
             });
           }
         };
 
-        element = __CreateList(
+        const nativeList = __CreateList(
           this.#pageId,
           componentAtIndex,
           enqueueComponent,
         );
 
-        // Set default list properties
-        __SetConfig(element, {
-          recycleEnabled: true, // Enable cell recycling for better performance
-          estimatedItemSize: 60, // Default estimated height for cells (in pixels)
-          overscrollEnabled: true, // Enable overscroll effect
+        __SetConfig(nativeList, {
+          recycleEnabled: true,
+          estimatedItemSize: 60,
+          overscrollEnabled: true,
         });
 
+        listEl = new LynxListElement(nativeList, this.#nonElements);
+        return listEl;
+      }
+      case 'list-item': {
+        element = __CreateView(this.#pageId);
         break;
       }
       case 'x-block': {
@@ -132,8 +145,8 @@ export class LynxDocument {
     return lynxElement;
   }
   createComment(): LynxElement {
-    // TODO: this i think should be raw text
     const nonElement = __CreateNonElement(this.#pageId);
+    this.#nonElements.add(nonElement);
     return new LynxElement(nonElement);
   }
   appendChild(newChild: LynxElement): void {

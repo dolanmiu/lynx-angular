@@ -38,7 +38,15 @@ export type BaseLynxElement = {
   addEventListener(name: string, cb: (event: any) => any): () => void;
 };
 export class LynxElement implements BaseLynxElement {
-  private readonly element: ElementRef;
+  readonly element: ElementRef;
+
+  // Virtual tree tracking — used when parent manages children outside the
+  // native element tree (e.g., x-list manages children via componentAtIndex
+  // callbacks rather than __AppendElement)
+  _virtualParent: LynxElement | null = null;
+  _virtualPrev: LynxElement | null = null;
+  _virtualNext: LynxElement | null = null;
+
   constructor(element: ElementRef) {
     this.element = element;
   }
@@ -104,6 +112,13 @@ export class LynxElement implements BaseLynxElement {
   }
 
   remove() {
+    if (this._virtualParent) {
+      // Remove from virtual tree (e.g., when parent is an x-list)
+      if (this._virtualParent instanceof LynxListElement) {
+        this._virtualParent.removeVirtualChild(this);
+      }
+      return;
+    }
     const parent = this.parentNode();
     if (!parent) {
       return;
@@ -112,12 +127,15 @@ export class LynxElement implements BaseLynxElement {
   }
 
   parentNode(): LynxElement | null {
+    if (this._virtualParent) return this._virtualParent;
     const parent = __GetParent(this.element);
     if (!parent) return null;
     return new LynxElement(parent);
   }
 
   nextSibling(): LynxElement | null {
+    // If in a virtual tree, use virtual sibling tracking
+    if (this._virtualParent) return this._virtualNext;
     const nextSibling = __NextElement(this.element);
     if (!nextSibling) return null;
     return new LynxElement(nextSibling);
@@ -166,6 +184,122 @@ export class LynxElement implements BaseLynxElement {
       }, {});
       __SetEvents(this.element, Object.values(filtered));
     };
+  }
+}
+
+/**
+ * Manages x-list children in a virtual tree instead of the native element tree.
+ *
+ * Lynx's native x-list is a virtualized list driven by engine callbacks
+ * (componentAtIndex / enqueueComponent). Children must NOT be appended via
+ * __AppendElement — the list calls componentAtIndex to request items by index,
+ * and update-list-info tells it which indices exist.
+ *
+ * Angular's rendering model appends children directly, so this class intercepts
+ * appendChild/insertBefore and stores children in a JS-level linked list.
+ */
+export class LynxListElement extends LynxElement {
+  private _firstVirtualChild: LynxElement | null = null;
+  private _lastVirtualChild: LynxElement | null = null;
+  private readonly _nonElements: WeakSet<ElementRef>;
+  private _updateScheduled = false;
+
+  constructor(element: ElementRef, nonElements: WeakSet<ElementRef>) {
+    super(element);
+    this._nonElements = nonElements;
+  }
+
+  override appendChild(newChild: LynxElement): void {
+    newChild._virtualParent = this;
+    newChild._virtualPrev = this._lastVirtualChild;
+    newChild._virtualNext = null;
+
+    if (this._lastVirtualChild) {
+      this._lastVirtualChild._virtualNext = newChild;
+    }
+    if (!this._firstVirtualChild) {
+      this._firstVirtualChild = newChild;
+    }
+    this._lastVirtualChild = newChild;
+
+    this._scheduleUpdate();
+  }
+
+  override insertBefore(
+    newChild: LynxElement,
+    refChild: LynxElement | null,
+  ): void {
+    if (refChild == null) {
+      this.appendChild(newChild);
+      return;
+    }
+
+    newChild._virtualParent = this;
+    newChild._virtualNext = refChild;
+    newChild._virtualPrev = refChild._virtualPrev;
+
+    if (refChild._virtualPrev) {
+      refChild._virtualPrev._virtualNext = newChild;
+    } else {
+      this._firstVirtualChild = newChild;
+    }
+    refChild._virtualPrev = newChild;
+
+    this._scheduleUpdate();
+  }
+
+  removeVirtualChild(child: LynxElement): void {
+    if (child._virtualPrev) {
+      child._virtualPrev._virtualNext = child._virtualNext;
+    } else {
+      this._firstVirtualChild = child._virtualNext;
+    }
+    if (child._virtualNext) {
+      child._virtualNext._virtualPrev = child._virtualPrev;
+    } else {
+      this._lastVirtualChild = child._virtualPrev;
+    }
+
+    child._virtualParent = null;
+    child._virtualPrev = null;
+    child._virtualNext = null;
+
+    this._scheduleUpdate();
+  }
+
+  /** Returns ElementRefs of real UI children (excludes NoneElements / comment markers). */
+  getUIChildren(): ElementRef[] {
+    const children: ElementRef[] = [];
+    let child = this._firstVirtualChild;
+    while (child) {
+      if (!this._nonElements.has(child.element)) {
+        children.push(child.element);
+      }
+      child = child._virtualNext;
+    }
+    return children;
+  }
+
+  /**
+   * Batch list updates — tells the native list which indices to render via
+   * the update-list-info attribute, then flushes the element tree.
+   */
+  private _scheduleUpdate(): void {
+    if (this._updateScheduled) return;
+    this._updateScheduled = true;
+    setTimeout(() => {
+      this._updateScheduled = false;
+      const uiChildren = this.getUIChildren();
+      __SetAttribute(this.element, 'update-list-info', {
+        insertAction: uiChildren.map((child, i) => ({
+          position: i,
+          'item-key': `${__GetElementUniqueID(child)}`,
+        })),
+        removeAction: [],
+        updateAction: [],
+      });
+      __FlushElementTree();
+    }, 0);
   }
 }
 
