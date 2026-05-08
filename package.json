@@ -14,7 +14,7 @@
   "scripts": {
     "build": "npm run build -w packages/rsbuild-plugin-angular-lynx && npm run build -w packages/runtime && npm run build -w packages/demo-app",
     "test": "vitest run",
-    "demo": "npm run start --workspace=packages/demo-app",
+    "demo": "npm run build && npm run start --workspace=packages/demo-app",
     "lint": "biome check .",
     "lint:fix": "biome check --fix .",
     "cspell": "cspell ."

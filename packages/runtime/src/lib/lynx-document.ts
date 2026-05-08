@@ -51,13 +51,11 @@ export class LynxDocument {
       case 'x-scroll-view': {
         element = __CreateScrollView(this.#pageId);
 
-        // Set default scroll-view properties for better performance
+        // Only set config properties that exist in the Lynx scroll-view API.
+        // Attributes like scroll-orientation, enable-scroll, upper-threshold, etc.
+        // are set via __SetAttribute by Angular template bindings.
         __SetConfig(element, {
-          bounces: true, // Enable bouncing effect when scrolling past the edge
-          showScrollIndicator: true, // Show scroll indicators
-          pagingEnabled: false, // Disable paging by default
-          scrollsToTop: true, // Enable scrolling to top when tapping the status bar
-          decelerationRate: 'normal', // Use normal deceleration rate
+          bounces: true,
         });
 
         break;
