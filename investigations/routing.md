@@ -210,3 +210,76 @@ If Angular's native Router can't be made to work:
 | `packages/demo-app/src/app/app.routes.ts` | Route definitions |
 | `packages/demo-app/src/app/app.component.ts` | Root component — currently has debug diagnostics |
 | `packages/demo-app/src/main.ts` | Entry point — `bootstrapLynxApplication()` |
+| `packages/rsbuild-plugin-angular-lynx/src/polyfills.js` | Pre-entry polyfills (runs before Angular) |
+
+---
+
+## Resolution (2026-05-08)
+
+### Root Cause Found
+
+**`AbortController` is not available in Lynx's PrimJS runtime.**
+
+Angular Router v21 uses `new AbortController()` at the very start of its navigation pipeline (`NavigationTransitions.setupNavigations()`, line 3708 of `_router-chunk.mjs`):
+
+```javascript
+setupNavigations(router) {
+  this.transitions = new BehaviorSubject(null);
+  return this.transitions.pipe(filter(t => t !== null), switchMap(overallTransitionState => {
+    const abortController = new AbortController();  // ← THROWS ReferenceError
+    ...
+```
+
+The Router constructor subscribes with an intentionally empty error handler:
+
+```javascript
+this.navigationTransitions.setupNavigations(this).subscribe({
+  error: e => {}  // line 4410 — silently swallows ALL errors
+});
+```
+
+**Failure sequence:**
+1. `initialNavigation()` pushes to `transitions` BehaviorSubject
+2. `switchMap` runs its projection function
+3. `new AbortController()` → `ReferenceError: AbortController is not defined`
+4. Error propagates to `subscribe({ error: e => {} })` — silently swallowed
+5. The subscription terminates permanently (RxJS subscriptions die after error)
+6. All future `transitions.next()` calls emit to nobody
+7. No events, `navigated: false`, promises hang forever
+
+### Why This Was Hard to Find
+
+1. **Silent error swallowing** — The empty `error: e => {}` handler is intentional in Angular (it's a known pattern for the Router). No logging, no events, nothing.
+2. **`resolveNavigationPromiseOnError: true`** masked the error further by resolving promises to `false` instead of rejecting.
+3. **No console on Lynx device** — Errors can only be seen by rendering on screen.
+4. **The error occurs BEFORE `NavigationStart`** — `AbortController` is at line 3708, `NavigationStart` is emitted at line 3745. So zero events were ever seen.
+
+### Evidence
+
+- React Lynx (`references/lynx-stack-main/packages/motion/src/polyfill/shim.ts`) polyfills `queueMicrotask`, `performance`, `NodeList`, `HTMLElement`, etc. — confirming Lynx needs polyfills for standard Web APIs.
+- `AbortController` is a Web Platform API (not core ECMAScript). Lightweight JS engines like PrimJS typically lack it.
+- React Lynx has no `AbortController` polyfill because it has no client-side router.
+
+### Fix Applied
+
+Added a minimal `AbortController`/`AbortSignal` polyfill to:
+1. **`packages/rsbuild-plugin-angular-lynx/src/polyfills.js`** — Runs as `preEntry` before any Angular code loads (primary)
+2. **`packages/runtime/src/lib/runtime.ts`** — Defensive polyfill for consumers not using the rsbuild plugin
+
+Also added `queueMicrotask` polyfill to `runtime.ts` (Angular core uses it for effect scheduling).
+
+The polyfill implements the subset Angular Router needs:
+- `signal.aborted` (boolean) — checked in Recognizer
+- `signal.reason` (any) — read via `signal.reason + ''` for cancellation messages
+- `signal.addEventListener('abort', fn)` / `removeEventListener` — used by `abortSignalToObservable()`
+- `controller.abort(reason?)` — called in `finalize()`
+
+### Previous Unsolved Questions — Answered
+
+| Question | Answer |
+|----------|--------|
+| Why zero events? | Error at line 3708 (before NavigationStart at 3745) kills the subscription |
+| Why does `navigateByUrl()` hang? | The promise's resolve/reject are inside the dead pipeline |
+| Why did the custom `LynxRouterOutlet` work before? | It subscribed to `NavigationEnd` — but that was in an earlier version of the code before `AbortController` was added to Angular Router's pipeline |
+| Is `createComment()` related? | No — it affects `ViewContainerRef` anchors, not the Router's RxJS pipeline |
+| Is zoneless related? | No — the error is in the Router initialization, not change detection |

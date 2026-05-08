@@ -2,6 +2,74 @@ import type { ApplicationConfig, ApplicationRef, Type } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { firstValueFrom, Subject } from 'rxjs';
 
+// Angular Router v21+ uses AbortController in its navigation pipeline.
+// The rsbuild plugin's polyfills.js provides this as preEntry, but this
+// defensive polyfill covers consumers not using the plugin.
+if (typeof AbortController === 'undefined') {
+  class LynxAbortSignal {
+    aborted = false;
+    reason: unknown = undefined;
+    _listeners: ((event: { type: string }) => void)[] = [];
+    addEventListener(
+      type: string,
+      listener: (event: { type: string }) => void,
+    ) {
+      if (type === 'abort') this._listeners.push(listener);
+    }
+    removeEventListener(
+      type: string,
+      listener: (event: { type: string }) => void,
+    ) {
+      if (type === 'abort') {
+        this._listeners = this._listeners.filter((l) => l !== listener);
+      }
+    }
+    dispatchEvent(event: { type: string }) {
+      if (event.type === 'abort') {
+        for (const listener of this._listeners.slice()) {
+          listener(event);
+        }
+      }
+      return true;
+    }
+    throwIfAborted() {
+      if (this.aborted) throw this.reason;
+    }
+  }
+  (globalThis as any).AbortSignal = LynxAbortSignal;
+  (globalThis as any).AbortController = class LynxAbortController {
+    signal = new LynxAbortSignal();
+    abort(reason?: unknown) {
+      if (this.signal.aborted) return;
+      this.signal.aborted = true;
+      if (reason === undefined) {
+        const err = new Error('This operation was aborted');
+        err.name = 'AbortError';
+        reason = err;
+      }
+      this.signal.reason = reason;
+      this.signal.dispatchEvent({ type: 'abort' });
+    }
+  };
+}
+
+// Angular core uses queueMicrotask for effect scheduling and change detection.
+// React Lynx polyfills this from lynx.queueMicrotask (see motion/src/polyfill/shim.ts).
+if (typeof globalThis.queueMicrotask !== 'function') {
+  if (typeof lynx !== 'undefined' && (lynx as any).queueMicrotask) {
+    (globalThis as any).queueMicrotask = (lynx as any).queueMicrotask;
+  } else {
+    const resolved = Promise.resolve();
+    (globalThis as any).queueMicrotask = (fn: () => void) => {
+      resolved.then(fn).catch((err: unknown) => {
+        setTimeout(() => {
+          throw err;
+        }, 0);
+      });
+    };
+  }
+}
+
 if (typeof document === 'undefined') {
   (globalThis as any).document = {
     // BrowserPlatformLocation uses document.defaultView to get the window

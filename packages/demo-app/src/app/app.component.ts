@@ -4,15 +4,11 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { Router } from '@angular/router';
-import { LynxRouterOutlet } from '@blotch/angular-lynx';
+import { Router, RouterOutlet } from '@angular/router';
 import type { TouchEvent } from '@lynx-js/types';
 import angularLogo from '../assets/angular-logo.png';
 import arrow from '../assets/arrow.png';
 import lynxLogo from '../assets/lynx-logo.png';
-import { ElementsShowcaseComponent } from './elements-showcase/elements-showcase.component';
-import { ListExampleComponent } from './list-example/list-example.component';
-import { ScrollExampleComponent } from './scroll-example/scroll-example.component';
 
 @Component({
   selector: 'app-root',
@@ -41,8 +37,9 @@ import { ScrollExampleComponent } from './scroll-example/scroll-example.componen
           </x-text>
         </x-view>
 
-        <x-text style="color: red; font-size: 12px">IMG SRC: {{ lynxLogo }}</x-text>
-        <x-image [src]="lynxLogo" style="width: 100px; height: 100px" />
+        <x-view style="height: 300px; overflow: hidden;">
+          <router-outlet />
+        </x-view>
 
         <x-view class="navigation">
           <x-text class="nav-title">Examples:</x-text>
@@ -59,30 +56,11 @@ import { ScrollExampleComponent } from './scroll-example/scroll-example.componen
           </x-view>
         </x-view>
 
-        <x-text style="color: red; font-size: 12px">Router start</x-text>
-        <router-outlet #o>
-          <x-text style="color: red; font-size: 12px">Inside router {{o.route()}}</x-text>
-          @switch (o.route()) {
-            @case ('') { <app-list-example /> }
-            @case ('scroll-example') { <app-scroll-example /> }
-            @case ('showcase') { <app-elements-showcase /> }
-          }
-        </router-outlet>
-        <x-text style="color: red; font-size: 12px">Router end</x-text>
-        <x-view style="flex: 1">
-                  <x-text style="color: red; font-size: 12px">IMG SRC: {{ lynxLogo }}</x-text>
-
-        </x-view>
       </x-view>
     </x-view>
   `,
   styleUrl: './app.component.css',
-  imports: [
-    LynxRouterOutlet,
-    ListExampleComponent,
-    ScrollExampleComponent,
-    ElementsShowcaseComponent,
-  ],
+  imports: [RouterOutlet],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class AppComponent {
