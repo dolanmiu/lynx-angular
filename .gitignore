@@ -138,3 +138,5 @@ out-tsc
 # Angular scoped CSS (generated at build time)
 **/*.__scoped_*.css
 **/__inline_*.__scoped_*.css
+
+/references

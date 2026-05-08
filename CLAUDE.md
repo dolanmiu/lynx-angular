@@ -12,6 +12,11 @@ Lynx uses a dual-thread model: **main thread** (native UI rendering) and **backg
 - `packages/demo-app` — Demo Angular app running on Lynx
 - `packages/rsbuild-plugin-angular-lynx` — Rsbuild plugin for building Angular Lynx apps
 - `references/lynx-stack-main/packages/react` — **React Lynx** (production-proven reference implementation). Always refer to how React Lynx does things — it's battle-tested and used in production. When unsure about renderer design, element handling, or Lynx API usage, check this reference first.
+- `references/lynx-website-main` — **Lynx official documentation website**. Contains API docs, guides, element/CSS/native API compatibility data, and examples. Reference for understanding Lynx platform capabilities, supported elements, CSS properties, and API status across platforms.
+
+## Goal
+
+Near-1:1 Angular parity — partial support isn't acceptable. Every Angular API (RouterOutlet, ViewContainerRef.createComponent(), NgComponentOutlet, etc.) should work on Lynx. If something doesn't work, fix the renderer rather than building workarounds.
 
 ## Key Patterns
 

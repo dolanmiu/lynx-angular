@@ -145,9 +145,15 @@ export class LynxDocument {
     return lynxElement;
   }
   createComment(): LynxElement {
-    const nonElement = __CreateNonElement(this.#pageId);
-    this.#nonElements.add(nonElement);
-    return new LynxElement(nonElement);
+    // Angular uses comment nodes as insertion anchors for dynamic views
+    // (createComponent, @if, @for, @switch). They must be valid tree
+    // participants — supporting __InsertElementBefore, __GetParent,
+    // __NextElement. __CreateNonElement crashes on these operations,
+    // so we use an invisible x-view instead.
+    const element = __CreateView(this.#pageId);
+    __AddInlineStyle(element, 'display', 'none');
+    this.#nonElements.add(element);
+    return new LynxElement(element);
   }
   appendChild(newChild: LynxElement): void {
     this.page.appendChild(newChild);
