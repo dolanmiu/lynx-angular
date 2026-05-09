@@ -5,6 +5,7 @@ import {
   signal,
 } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
+import { LynxLoggerService } from '@blotch/angular-lynx';
 import type { TouchEvent } from '@lynx-js/types';
 import angularLogo from '../assets/angular-logo.png';
 import arrow from '../assets/arrow.png';
@@ -46,6 +47,12 @@ import lynxLogo from '../assets/lynx-logo.png';
           <router-outlet />
         </x-view>
 
+        @if (lastError()) {
+          <x-view style="background-color: red; padding: 8px; margin: 8px;">
+            <x-text style="color: white; font-size: 12px; word-break: break-all;">{{ lastError() }}</x-text>
+          </x-view>
+        }
+
         <x-view class="navigation">
           <x-text class="nav-title">Examples:</x-text>
           <x-view class="nav-links">
@@ -70,15 +77,31 @@ import lynxLogo from '../assets/lynx-logo.png';
 })
 export class AppComponent {
   #router = inject(Router);
+  #logger = inject(LynxLoggerService);
   alterLogo = signal(false);
+  lastError = signal('');
 
   onTap(event: TouchEvent) {
-    console.log(event);
+    this.#logger.log('tap', event);
     this.alterLogo.update((value) => !value);
   }
 
   navigateTo(path: string): void {
-    this.#router.navigateByUrl(path);
+    // Defer navigation out of the Lynx worklet event callback.
+    // Angular's Router processes navigation synchronously, triggering
+    // __RemoveElement/__CreateView/__AppendElement during the worklet —
+    // React Lynx avoids this by never mutating the tree inside event handlers.
+    // Moving to setTimeout ensures mutations happen in a clean macrotask.
+    setTimeout(() => {
+      this.#router.navigateByUrl(path);
+      this.#logger.log('navigated to', path);
+      // Capture any error the global handler caught during navigation.
+      const err = (globalThis as any).__lynxLastError;
+      if (err) {
+        this.lastError.set(err);
+        (globalThis as any).__lynxLastError = '';
+      }
+    }, 0);
   }
 
   get arrow() {

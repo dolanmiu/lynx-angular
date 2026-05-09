@@ -2,6 +2,33 @@ import type { ApplicationConfig, ApplicationRef, Type } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { firstValueFrom, Subject } from 'rxjs';
 
+// On-device diagnostic: capture the last unhandled error/rejection so Angular
+// components can render it via <x-text>. There is no console on the Lynx device,
+// so this is the only way to see what is crashing.
+(globalThis as any).__lynxLastError = '';
+if (typeof (globalThis as any).onerror !== 'function') {
+  (globalThis as any).onerror = (
+    msg: string | Event,
+    _src?: string,
+    _line?: number,
+    _col?: number,
+    err?: Error,
+  ) => {
+    (globalThis as any).__lynxLastError = err
+      ? `${err.name}: ${err.message}\n${err.stack ?? ''}`
+      : String(msg);
+  };
+}
+if (typeof (globalThis as any).onunhandledrejection !== 'function') {
+  (globalThis as any).onunhandledrejection = (event: PromiseRejectionEvent) => {
+    const reason = event?.reason;
+    (globalThis as any).__lynxLastError =
+      reason instanceof Error
+        ? `Unhandled rejection: ${reason.name}: ${reason.message}\n${reason.stack ?? ''}`
+        : `Unhandled rejection: ${String(reason)}`;
+  };
+}
+
 // Angular Router v21+ uses AbortController in its navigation pipeline.
 // The rsbuild plugin's polyfills.js provides this as preEntry, but this
 // defensive polyfill covers consumers not using the plugin.
@@ -151,7 +178,7 @@ export const bootstrapLynxApplication = async (
 ): Promise<ApplicationRef> => {
   if (__MAIN_THREAD__) {
     await firstValueFrom(pageReady);
-    return bootstrapApplication(rootComponent, options);
   }
-  return bootstrapApplication(rootComponent, options);
+  const appRef = await bootstrapApplication(rootComponent, options);
+  return appRef;
 };

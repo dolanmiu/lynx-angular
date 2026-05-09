@@ -5,24 +5,25 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
   standalone: true,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
-    <x-view class="list-container">
-      <x-text style="color: red; font-size: 12px">test router</x-text>
+    <x-scroll-view class="list-container" scroll-orientation="vertical">
       <x-text class="title">List Example</x-text>
       <!-- Simple list example -->
-      <x-list class="list">
-        @for (item of items; track item.id) {
-        <list-item class="list-item">
-          <x-text class="item-text">{{ item.text }}</x-text>
-        </list-item>
-        }
-      </x-list>
-
       <x-view class="button-container">
         <x-view class="button" (bindtap)="addItem()">
           <x-text class="button-text">Add Item</x-text>
         </x-view>
       </x-view>
-    </x-view>
+      <x-text style="font-size: 10px; color: #333; white-space: pre-wrap">{{ dbg }}</x-text>
+      <x-list class="list">
+        @for (item of items; track item.id) {
+        <list-item class="list-item" item-key="{{ item.id }}">
+          <x-text class="item-text">{{ item.text }}</x-text>
+        </list-item>
+        }
+      </x-list>
+
+
+    </x-scroll-view>
   `,
   styles: [
     `
@@ -42,8 +43,9 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
       }
 
       .list {
-        flex: 1;
-        background-color: white;
+        width: 100%;
+        height: 400px;
+        background-color: red;
         border-radius: 8px;
         overflow: hidden;
         margin-bottom: 16px;
@@ -56,6 +58,8 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
       .item-text {
         font-size: 16px;
+        background-color: #007bff;
+        color: black;
       }
 
       .button-container {
@@ -85,6 +89,10 @@ export class ListExampleComponent {
   ];
 
   nextId = 4;
+
+  get dbg(): string {
+    return (globalThis as any).__dbg || 'none';
+  }
 
   addItem() {
     this.items = [

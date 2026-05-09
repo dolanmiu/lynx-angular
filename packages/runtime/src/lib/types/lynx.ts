@@ -120,6 +120,14 @@ declare global {
       eleId: number,
     ) => void,
     info?: ElementInfo,
+    componentAtIndexes?: (
+      listRef: ListElementRef,
+      listId: number,
+      cellIndexes: number[],
+      opIds: number[],
+      enableReuseNotification: boolean,
+      asyncFlush: boolean,
+    ) => void,
   ): ListElementRef;
 
   function __UpdateListCallbacks(
@@ -135,6 +143,14 @@ declare global {
       listId: number,
       eleId: number,
     ) => void,
+    componentAtIndexes?: (
+      listRef: ListElementRef,
+      listId: number,
+      cellIndexes: number[],
+      opIds: number[],
+      enableReuseNotification: boolean,
+      asyncFlush: boolean,
+    ) => void | null,
   ): void;
 
   function __CreateElement(

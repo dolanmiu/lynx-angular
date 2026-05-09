@@ -7,7 +7,7 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 import { EmulatedLynxRenderer } from './emulated-lynx-renderer';
-import type { LynxDocumentBase } from './lynx-document';
+import type { LynxDocument, LynxDocumentBase } from './lynx-document';
 import { processPendingListUpdates } from './lynx-element';
 import { LynxRenderer } from './renderer';
 import { LYNX_DOCUMENT } from './token';
@@ -53,6 +53,9 @@ export class LynxRendererFactory2 implements RendererFactory2 {
       // which crashed because __FlushElementTree can't be called from
       // macrotask contexts.
       processPendingListUpdates();
+      // Bare __FlushElementTree() (no args) is what the native engine uses to
+      // process update-list-info and trigger componentAtIndex. Passing page.element
+      // with options uses a different code path that skips list processing.
       __FlushElementTree();
     }
   }

@@ -1,6 +1,6 @@
 # x-list Crash Investigation — All Attempts
 
-**Status:** Unresolved — app crashes to home screen (native crash, not JS error)
+**Status:** Unresolved — no crash, but `componentAtIndex` is never called and items never render
 
 ## Problem
 
@@ -191,12 +191,217 @@ React Lynx sets `update-list-info` during `__pendingListUpdates.flush()` which i
 
 ---
 
-## Next Steps to Try
+## Attempt 6: Fix update-list-info format (array wrap) + __UpdateListCallbacks before flush
 
-1. **Try numeric `item-key`** in insertAction (match React Lynx exactly)
-2. **Call `__UpdateListCallbacks()`** before setting update-list-info
-3. **Pass page element to `__FlushElementTree()`** — `__FlushElementTree(page, { triggerLayout: true })`
-4. **Remove `update-list-info` entirely** and confirm no crash — isolates whether the crash is from update-list-info parsing or componentAtIndex execution
-5. **Add on-screen debug logging** — wrap critical operations in try/catch blocks and render the current step to an `<x-text>` element before the crash point
-6. **Try setting update-list-info as a JSON string** instead of an object
-7. **Try an empty insertAction array** — `{ insertAction: [], removeAction: [], updateAction: [] }` — to see if the crash is from the format or from having items
+**Changes:**
+- Wrapped `update-list-info` value in an array: `[{ insertAction, removeAction, updateAction }]` instead of plain object
+- Called `__UpdateListCallbacks(element, componentAtIndex, enqueueComponent)` after setting `update-list-info` (matching React Lynx `listUpdateInfo.ts flush()`)
+- Changed `__FlushElementTree()` (bare) → `__FlushElementTree(page.element)` in `end()`
+
+**Result:** No longer crashes. But nothing renders.
+
+**Why:** The array format fixed the crash (native expects `[...]` not `{...}`). Passing page element to `__FlushElementTree` matched React Lynx pattern. But items still don't appear.
+
+---
+
+## Attempt 7: Add componentAtIndexes (batch callback) + microtask timing fix
+
+**Observation via on-screen debug logging:**
+- `_processUpdate` does NOT run on first page load — only after navigating away and back
+- `componentAtIndex` is **never called** by the native engine even when `_processUpdate` does run
+
+**Root causes identified:**
+1. `__CreateList` is missing the 5th arg (`componentAtIndexes`) and 4th arg (`info: {}`). React Lynx always passes `{}, componentAtIndexes` — the engine may require the batch callback to activate list processing.
+2. `__UpdateListCallbacks` was missing its 4th arg (`componentAtIndexes`). React Lynx passes all 4 args.
+3. First-render timing gap: list items are created during lazy route loading, after the initial `end()` fires. The `pendingListUpdates` set is populated but `end()` never fires again to drain it — causing `_processUpdate` to not run until next navigation.
+
+**Changes:**
+- Added `componentAtIndexes` batch callback (iterates cellIndexes, delegates to `componentAtIndex`)
+- Passed `{}` + `componentAtIndexes` as 4th/5th args to `__CreateList`
+- Passed `componentAtIndexes` as 4th arg to `__UpdateListCallbacks`
+- Added `queueMicrotask` fallback in `_scheduleUpdate`: if `end()` doesn't drain `pendingListUpdates`, the microtask calls `processPendingListUpdates()` + `__FlushElementTree(page.element)`
+
+**Result:** Still nothing renders.
+
+**Why:** Unknown. `componentAtIndex` is still not being called by the native engine despite all the above changes. The engine receives `update-list-info` with insertActions but doesn't trigger the callbacks.
+
+---
+
+## What We Know For Certain (updated)
+
+1. **The crash is fixed** by wrapping `update-list-info` in an array
+2. **`_processUpdate` runs correctly** — it sees the right number of children and sets `update-list-info`
+3. **`componentAtIndex` is never called** — the native engine processes `update-list-info` but doesn't invoke the registered callback
+4. This holds even after: providing `componentAtIndexes`, re-registering via `__UpdateListCallbacks` before every flush, passing the page element to `__FlushElementTree`
+
+---
+
+## Remaining Hypotheses
+
+### H1: `update-list-info` format is wrong (still)
+
+Our format:
+```json
+[{"insertAction": [{"position": 0, "type": "__angular_list_item", "item-key": "123"}], "removeAction": [], "updateAction": []}]
+```
+
+React Lynx test example format:
+```json
+[{"insertAction": [{"position": 0, "type": "__snapshot_f75b7_test_2", "item-key": 0}], "removeAction": [], "updateAction": []}]
+```
+
+Differences still present:
+- React Lynx uses **numeric** `item-key` (0, 1, 2), we use string (`"123"`)
+- React Lynx `type` matches the snapshot class name, ours is generic `"__angular_list_item"`
+
+### H2: `removeAction` format is wrong
+
+Our `removeAction` is `[]`. React Lynx's `removeAction` is `number[]` (indices). Possibly the engine expects the array type to differ between initial vs incremental updates.
+
+### H3: list-item elements don't exist in the native tree when flush happens
+
+`componentAtIndex` appends the child via `__AppendElement` — but the child has never been attached to the page tree before this. The engine might require list-items to already exist in the native tree (not just in our JS-level virtual linked list) before processing `update-list-info`.
+
+### H4: Timing — flush happens before update-list-info is seen
+
+The microtask from `_scheduleUpdate` fires before `end()`. But Angular's `end()` also calls `processPendingListUpdates()`. Both set `update-list-info` then call `__FlushElementTree(page)`. Could double-flush be interfering?
+
+### H5: `__FlushElementTree(page.element)` with no options isn't enough
+
+React Lynx passes `__FlushElementTree(__page, options)` where `options` comes from the native `renderPage`/`updatePage` call (contains pipeline info). Our bare call with just the page element may not carry the required metadata for list processing.
+
+### H6: Need `triggerLayout: true` in the page-level flush
+
+React Lynx's per-item flush uses `{ triggerLayout: true }`. Maybe the page-level flush also needs this option to process lists.
+
+---
+
+## Attempt 8: Numeric item-key + triggerLayout + targeted list flush + componentAtIndexes
+
+**Changes (all combined):**
+- Changed `item-key` to numeric (`__GetElementUniqueID(child)` number, not string)
+- Added `{ triggerLayout: true }` to both page-level flush and microtask flush
+- Added targeted flush `__FlushElementTree(listElement, { triggerLayout: true, listID })` at the end of `_processUpdate()`
+- Added `componentAtIndexes` as 4th arg to `__UpdateListCallbacks` (already from Attempt 7)
+
+**Result:** No crash. `componentAtIndex` still never called. `cAI:` never appears in debug log.
+
+---
+
+## Attempt 9: Pre-append children before update-list-info
+
+**Change:** Called `this.appendChildToNativeList(child)` for each child inside `_processUpdate()` before setting `update-list-info`, so children exist in the native list tree when the engine processes the list.
+
+`componentAtIndex` simplified to just flush + return ID (no append).
+
+**Result:** CRASH to home screen.
+
+**Why:** `__AppendElement` on a native list element is invalid outside the `componentAtIndex` callback context. The native list engine only allows children to be appended from within `componentAtIndex`.
+
+---
+
+## Attempt 10: estimated-main-axis-size-px in insertAction
+
+**Hypothesis:** The engine calls `componentAtIndex` only for visible items. Without `estimated-main-axis-size-px`, the engine assumes 0px height per item, so nothing is "in the viewport" and `componentAtIndex` is never called.
+
+**Change:** Added `'estimated-main-axis-size-px': __GetAttributeByName(child, 'estimated-main-axis-size-px') ?? 50` to each insertAction entry.
+
+Also removed `__SetAttribute(child, 'item-key', ...)` from the loop (React Lynx doesn't set platform-info attrs via `__SetAttribute` on the element — they go into insertAction only).
+
+**Result:** No crash. `componentAtIndex` still never called.
+
+---
+
+## Attempt 11: Re-added per-item flush inside componentAtIndex
+
+**Hypothesis:** `componentAtIndex` IS being called asynchronously (after Angular render), but items don't appear because the child is appended without being flushed.
+
+**Change:** Re-added `__FlushElementTree(child, { triggerLayout: true, operationID: opId, elementID, listID: listId })` inside `componentAtIndex`.
+
+**Result:** No crash. No items. `cAI:` still never appears.
+
+**Note:** The original crash in Attempt 4 was likely due to the wrong `update-list-info` format (plain object), not the nested flush. With correct array format, nested flush doesn't crash. But `componentAtIndex` still isn't called.
+
+---
+
+## Attempt 12: __CreateList with 4 args (no info object, componentAtIndexes as 4th)
+
+**Hypothesis:** The test mock signature for `__CreateList` is 4 args: `(pageId, componentAtIndex, enqueueComponent, componentAtIndexes)` — no `info` object. The real native engine may match the test mock. By passing `{}` as 4th arg, `componentAtIndexes` lands in the wrong position and is never registered.
+
+**Change:**
+```typescript
+// Before:
+__CreateList(pageId, componentAtIndex, enqueueComponent, {}, componentAtIndexes)
+// After:
+__CreateList(pageId, componentAtIndex, enqueueComponent, componentAtIndexes as any)
+```
+
+**Result:** No crash. `componentAtIndex` and `componentAtIndexes` still never called. `cAI:` and `cAIbatch:` never appear.
+
+---
+
+## Current State of Code
+
+### `lynx-document.ts`
+- `__CreateList(pageId, componentAtIndex, enqueueComponent, componentAtIndexes)` — 4 args
+- `componentAtIndex`: appends child + per-item flush + returns ID
+- `componentAtIndexes`: logs `cAIbatch:`, iterates and calls `componentAtIndex`
+
+### `lynx-element.ts`
+- `_processUpdate()`: sets `item-key` (numeric) + `estimated-main-axis-size-px: 50` in insertAction; `update-list-info` is `[{insertAction, removeAction: [], updateAction: []}]`
+- `__UpdateListCallbacks(element, componentAtIndex, enqueueComponent, componentAtIndexes)` — 4 args
+- `_scheduleUpdate()`: adds to `pendingListUpdates` + queues `queueMicrotask` fallback
+
+### `lynx-renderer-factory2.ts`
+- `end()`: calls `processPendingListUpdates()` then bare `__FlushElementTree()`
+
+---
+
+---
+
+## KEY FINDING: update-list-info must be a PLAIN OBJECT, not an array
+
+**The test mock misled us.** The mock does `(e.props[key] ??= []).push(value)` — it auto-wraps each `__SetAttribute` call into an accumulating array. So when React Lynx passes a plain object, the mock stores `[plainObject]` which looks like an array format.
+
+**The real native engine expects a plain object directly:**
+```json
+{"insertAction": [...], "removeAction": [], "updateAction": []}
+```
+NOT wrapped in `[...]`.
+
+Wrapping in an array (our Attempts 6–12) stopped the crash but also stopped the engine from calling `componentAtIndex` — it silently processed the outer array as "no operations".
+
+---
+
+## Attempt 13: Plain object update-list-info + componentAtIndex without nested flush
+
+**Change:** Removed the array wrapper — `update-list-info` is now a plain object. `componentAtIndex` appends child (via stored `listEl.element`) but does NOT call nested `__FlushElementTree`.
+
+**Result:** `componentAtIndex` IS called! Debug shows `cAI:cell=0`, `cAI:cell=1`, `cAI:cell=2`. **App crashes ~50% of the time.**
+
+**Why the crash:** Either `__AppendElement(_listRef, child)` is crashing (flaky), or the missing per-item flush leaves the engine in an inconsistent state.
+
+---
+
+## Attempt 14: Use `_listRef` for append + add per-item flush back
+
+**Hypothesis:**
+1. We should use `_listRef` (engine-provided first arg to `componentAtIndex`) for the append, not the stored `listEl.element` — React Lynx always uses the engine-provided ref.
+2. The per-item `__FlushElementTree(child, { triggerLayout: true, operationID: opId, elementID, listID })` is required. The original crash in Attempt 4 was due to the array format, not the nested flush itself.
+
+**Changes:**
+- `componentAtIndex` uses `__AppendElement(_listRef, child)` instead of `__AppendElement(listEl.element, child)`
+- Per-item flush restored: `__FlushElementTree(child, { triggerLayout: true, operationID: opId, elementID, listID: listId })`
+- Added `isAppendedToNativeList()` + `markAppendedToNativeList()` helpers to `LynxListElement`
+
+**Result:** TBD
+
+---
+
+## What We Know For Certain (updated)
+
+1. **`update-list-info` must be a plain object** — array wrapper prevents `componentAtIndex` from being called
+2. **The test mock auto-wraps** — `(e.props[key] ??= []).push(value)` makes it look like array format is expected, but that's the mock's accumulation behavior
+3. **`componentAtIndex` IS called** by the engine with plain object format (Attempt 13 confirmed)
+4. **Pre-appending outside `componentAtIndex` crashes** — only valid inside the callback
+5. **Missing per-item flush may cause instability** — the engine may expect `__FlushElementTree` to be called inside each `componentAtIndex` invocation

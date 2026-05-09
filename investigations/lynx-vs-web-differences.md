@@ -2315,3 +2315,43 @@ Lynx supports **Instant First-Frame Rendering (IFR)**: if initial data is availa
 - **Lynx IFR**: Data available → main thread renders synchronously → visible on first frame → background thread hydrates for interactivity
 
 IFR imposes constraints: main-thread code must be synchronous (no async/await), side effects must be deferred to background thread, and all captured values must be serializable.
+
+---
+
+## fetch() is only available on the background thread
+
+### What you'd expect (web)
+`fetch()` is a global function available everywhere — event handlers, constructors, async callbacks, etc.
+
+### What Lynx does
+`fetch` is injected by Lynx's `tt.define()` module wrapper as a **function parameter**, not a global. It is only available on the **background thread** (where the JavaScript engine runs Angular). The **main thread** (Lepus, handles native UI and event handlers) does not receive `fetch` in its module scope — `typeof fetch === 'undefined'` there.
+
+This means:
+- Angular component constructors → background thread → `fetch` available ✓
+- `(bindtap)` event handlers → main thread → `fetch` unavailable ✗
+- `setTimeout` callbacks set from a tap handler → still main thread → `fetch` unavailable ✗
+
+Neither `globalThis.fetch` nor `lynx.fetch` fills the gap — all are `undefined` on the main thread.
+
+### Cross-thread logging via IPC
+
+To log from event handlers (main thread), use Lynx's RuntimeProxy IPC to relay to the background thread which does the actual fetch:
+
+```typescript
+// Main thread → background thread (fire and forget):
+lynx.getJSContext().dispatchEvent({ type: '__lynx_log__', data: JSON.stringify(entry) });
+
+// Background thread: receive and fetch:
+lynx.getCoreContext().addEventListener('__lynx_log__', (event) => {
+  fetch(logServerUrl, { method: 'POST', body: event.data });
+});
+```
+
+This is the same mechanism React Lynx uses internally for `runOnBackground()`. See `LynxLoggerService` in `packages/runtime/src/lib/lynx-logger.service.ts` for the full implementation.
+
+### RuntimeProxy API summary
+
+| Thread | To send TO other thread | To receive FROM other thread |
+|--------|------------------------|------------------------------|
+| Main thread | `lynx.getJSContext().dispatchEvent(e)` | `lynx.getJSContext().addEventListener(type, cb)` |
+| Background thread | `lynx.getCoreContext().dispatchEvent(e)` | `lynx.getCoreContext().addEventListener(type, cb)` |
