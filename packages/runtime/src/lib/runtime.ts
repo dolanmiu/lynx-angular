@@ -162,16 +162,6 @@ globalThis.runWorklet = (value, params) => {
 
 const pageReady = new Subject<void>();
 
-// const renderLynx = (cb: ()=> void): void => {
-//   if(__MAIN_THREAD__){
-//     pageReady.pipe(first()).subscribe(()=> {
-//       cb();
-//     });
-//   } else {
-//     cb();
-//   }
-// }
-
 export const bootstrapLynxApplication = async (
   rootComponent: Type<unknown>,
   options?: ApplicationConfig,

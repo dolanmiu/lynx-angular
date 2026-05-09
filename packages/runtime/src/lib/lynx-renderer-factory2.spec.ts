@@ -37,6 +37,7 @@ describe('LynxRendererFactory2', () => {
       id: 'comp1',
       encapsulation: ViewEncapsulation.None,
       styles: [],
+      data: {},
     };
     const renderer = factory.createRenderer(null, type);
 
@@ -50,6 +51,7 @@ describe('LynxRendererFactory2', () => {
       id: 'comp1',
       encapsulation: ViewEncapsulation.Emulated,
       styles: [],
+      data: {},
     };
     const renderer = factory.createRenderer(null, type);
 
@@ -70,6 +72,7 @@ describe('LynxRendererFactory2', () => {
       id: 'comp1',
       encapsulation: ViewEncapsulation.Emulated,
       styles: [],
+      data: {},
     };
     const r1 = factory.createRenderer(null, type);
     const r2 = factory.createRenderer(null, type);
@@ -83,11 +86,13 @@ describe('LynxRendererFactory2', () => {
       id: 'comp1',
       encapsulation: ViewEncapsulation.Emulated,
       styles: [],
+      data: {},
     };
     const type2: RendererType2 = {
       id: 'comp2',
       encapsulation: ViewEncapsulation.Emulated,
       styles: [],
+      data: {},
     };
     const r1 = factory.createRenderer(null, type1);
     const r2 = factory.createRenderer(null, type2);
@@ -103,6 +108,7 @@ describe('LynxRendererFactory2', () => {
       id: 'comp1',
       encapsulation: ViewEncapsulation.ShadowDom,
       styles: [],
+      data: {},
     };
     const renderer = factory.createRenderer(null, type);
 
