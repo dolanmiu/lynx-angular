@@ -13,8 +13,13 @@ import lynxLogo from '../assets/lynx-logo.png';
 @Component({
   selector: 'app-root',
   template: `
-    <x-view>
-      <x-view class="background" />
+    <!-- background is a sibling of the scroll-view at the page level, NOT inside it.
+         position: fixed/absolute elements inside a scroll-view intercept the platform
+         scroll gesture recognizer even with pointer-events: none. As a sibling that
+         comes first in DOM order, it has lower stacking context and the scroll-view
+         (rendered after) sits on top and receives all platform gestures. -->
+    <x-view class="background" />
+    <x-scroll-view class="app-container" scroll-orientation="vertical">
       <x-view class="app">
         <x-view class="banner">
           <x-view class="logo" (bindtap)="onTap($event)">
@@ -57,7 +62,7 @@ import lynxLogo from '../assets/lynx-logo.png';
         </x-view>
 
       </x-view>
-    </x-view>
+    </x-scroll-view>
   `,
   styleUrl: './app.component.css',
   imports: [RouterOutlet],

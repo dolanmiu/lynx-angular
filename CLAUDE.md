@@ -39,3 +39,7 @@ npm run demo                   # Start demo dev server (rspeedy)
 ## Debugging
 
 The demo runs on-device (iPhone) — there is no browser console. To debug, render logs on screen using `<x-text>` elements instead of `console.log`.
+
+## Lynx vs Web Differences
+
+When you discover that Lynx behaves differently from the web platform in a non-obvious way, **add it to `investigations/lynx-vs-web-differences.md`**. This file is the canonical reference for Lynx gotchas encountered during development.

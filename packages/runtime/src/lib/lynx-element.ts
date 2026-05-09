@@ -198,15 +198,46 @@ export class LynxElement implements BaseLynxElement {
  * Angular's rendering model appends children directly, so this class intercepts
  * appendChild/insertBefore and stores children in a JS-level linked list.
  */
+// Module-level set of LynxListElements that need their native list updated.
+// Drained by processPendingListUpdates() which is called from
+// LynxRendererFactory2.end() — right before __FlushElementTree().
+const pendingListUpdates = new Set<LynxListElement>();
+
+/**
+ * Process all pending list updates. Called from LynxRendererFactory2.end()
+ * before __FlushElementTree() so list updates are flushed as part of the
+ * normal Angular CD cycle — never from setTimeout (which crashes native).
+ */
+export function processPendingListUpdates(): void {
+  if (pendingListUpdates.size === 0) return;
+  // Copy & clear before iterating — a processUpdate could theoretically
+  // trigger further mutations, though unlikely.
+  const lists = [...pendingListUpdates];
+  pendingListUpdates.clear();
+  for (const list of lists) {
+    list._processUpdate();
+  }
+}
+
 export class LynxListElement extends LynxElement {
   private _firstVirtualChild: LynxElement | null = null;
   private _lastVirtualChild: LynxElement | null = null;
   private readonly _nonElements: WeakSet<ElementRef>;
-  private _updateScheduled = false;
+  private _destroyed = false;
+  // Tracks which list-item elements have been appended to the native list tree.
+  // We append once (in flushIntoNativeList on first componentAtIndex call) and
+  // never again — __AppendElement is not idempotent.
+  private _appendedToNativeList = new WeakSet<ElementRef>();
 
   constructor(element: ElementRef, nonElements: WeakSet<ElementRef>) {
     super(element);
     this._nonElements = nonElements;
+  }
+
+  override remove(): void {
+    this._destroyed = true;
+    pendingListUpdates.delete(this);
+    super.remove();
   }
 
   override appendChild(newChild: LynxElement): void {
@@ -264,6 +295,12 @@ export class LynxListElement extends LynxElement {
     child._virtualPrev = null;
     child._virtualNext = null;
 
+    // Remove from native list tree if it was already appended there.
+    if (this._appendedToNativeList.has(child.element)) {
+      __RemoveElement(this.element, child.element);
+      this._appendedToNativeList.delete(child.element);
+    }
+
     this._scheduleUpdate();
   }
 
@@ -281,25 +318,67 @@ export class LynxListElement extends LynxElement {
   }
 
   /**
-   * Batch list updates — tells the native list which indices to render via
-   * the update-list-info attribute, then flushes the element tree.
+   * Append a child to the native list element tree (idempotent).
+   * Called from the componentAtIndex callback in lynx-document.ts —
+   * elements are connected to the native list on demand when the engine
+   * requests them, matching the React Lynx reference pattern.
+   */
+  appendChildToNativeList(child: ElementRef): void {
+    if (!this._appendedToNativeList.has(child)) {
+      __AppendElement(this.element, child);
+      this._appendedToNativeList.add(child);
+    }
+  }
+
+  /**
+   * Mark this list for update. The actual processing happens in
+   * processPendingListUpdates(), called from LynxRendererFactory2.end()
+   * right before __FlushElementTree(). This ensures list updates are
+   * flushed as part of the normal Angular CD cycle — calling
+   * __FlushElementTree from setTimeout crashes the native engine.
    */
   private _scheduleUpdate(): void {
-    if (this._updateScheduled) return;
-    this._updateScheduled = true;
-    setTimeout(() => {
-      this._updateScheduled = false;
-      const uiChildren = this.getUIChildren();
-      __SetAttribute(this.element, 'update-list-info', {
-        insertAction: uiChildren.map((child, i) => ({
-          position: i,
-          'item-key': `${__GetElementUniqueID(child)}`,
-        })),
-        removeAction: [],
-        updateAction: [],
-      });
-      __FlushElementTree();
-    }, 0);
+    if (this._destroyed) return;
+    pendingListUpdates.add(this);
+  }
+
+  /**
+   * Process a pending list update: set item-key on each child,
+   * append children to native list tree, and set update-list-info.
+   * Called from processPendingListUpdates() — NOT directly.
+   * __FlushElementTree() is called afterwards by the renderer factory.
+   */
+  _processUpdate(): void {
+    if (this._destroyed) return;
+    const uiChildren = this.getUIChildren();
+
+    // item-key is required on each list-item — the native x-list reads
+    // it from the element when processing update-list-info.
+    // recyclable=false tells the engine not to recycle items since we
+    // don't implement a recycle pool in enqueueComponent.
+    for (const child of uiChildren) {
+      const key = `${__GetElementUniqueID(child)}`;
+      __SetAttribute(child, 'item-key', key);
+      __SetAttribute(child, 'recyclable', false);
+    }
+
+    // Children are NOT pre-appended here. The native list expects children
+    // to be appended inside componentAtIndex (matching React Lynx pattern).
+    // Pre-appending via __AppendElement on a list element crashes native.
+
+    // Tell native engine which indices exist. The subsequent
+    // __FlushElementTree() (called by the renderer factory) triggers the
+    // engine to call componentAtIndex for each visible index, which
+    // appends + flushes each child on demand.
+    __SetAttribute(this.element, 'update-list-info', {
+      insertAction: uiChildren.map((child, i) => ({
+        position: i,
+        type: '__angular_list_item',
+        'item-key': `${__GetElementUniqueID(child)}`,
+      })),
+      removeAction: [],
+      updateAction: [],
+    });
   }
 }
 

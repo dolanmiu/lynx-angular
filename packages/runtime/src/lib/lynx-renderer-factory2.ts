@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { EmulatedLynxRenderer } from './emulated-lynx-renderer';
 import type { LynxDocumentBase } from './lynx-document';
+import { processPendingListUpdates } from './lynx-element';
 import { LynxRenderer } from './renderer';
 import { LYNX_DOCUMENT } from './token';
 
@@ -46,6 +47,12 @@ export class LynxRendererFactory2 implements RendererFactory2 {
   begin?(): void {}
   end?(): void {
     if (__MAIN_THREAD__) {
+      // Process pending x-list updates before flushing — list elements
+      // need update-list-info set before the native engine processes the
+      // element tree. This replaces the old setTimeout-based approach
+      // which crashed because __FlushElementTree can't be called from
+      // macrotask contexts.
+      processPendingListUpdates();
       __FlushElementTree();
     }
   }

@@ -1,5 +1,10 @@
+.app-container {
+  height: 100vh;
+  width: 100vw;
+}
+
 .background {
-  position: fixed;
+  position: absolute;
   background: radial-gradient(
     71.43% 62.3% at 46.43% 36.43%,
     rgba(18, 229, 229, 0) 15%,
@@ -13,6 +18,9 @@
   top: -60vw;
   left: -14.27vw;
   transform: rotate(15.25deg);
+  /* pointer-events is NOT supported by the Lynx CSS engine.
+     Gesture interception is solved by placing background as a sibling
+     BEFORE the scroll-view in DOM order (lower stacking context). */
 }
 
 .app {

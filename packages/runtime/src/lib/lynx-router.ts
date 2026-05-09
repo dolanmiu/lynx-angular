@@ -5,12 +5,14 @@ import {
 } from '@angular/core';
 import {
   provideRouter,
+  RouteReuseStrategy,
   type RouterFeatures,
   type Routes,
   withRouterConfig,
 } from '@angular/router';
 import { LynxLocationStrategy } from './lynx-location-strategy';
 import { LynxPlatformLocation } from './lynx-platform-location';
+import { LynxRouteReuseStrategy } from './lynx-route-reuse-strategy';
 
 /**
  * Provides Angular Router configured for the Lynx runtime.
@@ -32,6 +34,13 @@ export const provideLynxRouter = (
     // so any access to `pathname`/`href` throws a TypeError that silently kills navigation.
     { provide: PlatformLocation, useClass: LynxPlatformLocation },
     { provide: LocationStrategy, useClass: LynxLocationStrategy },
+    // Lynx's native element pool is finite (~256 slots on device) and
+    // __RemoveElement only detaches elements — it does not free pool slots.
+    // Angular's default strategy destroys components on navigation, creating
+    // fresh elements each time and exhausting the pool (hard crash on ~9th nav).
+    // LynxRouteReuseStrategy detaches views instead: elements are removed from
+    // the tree but their pool slots are reused when the route is revisited.
+    { provide: RouteReuseStrategy, useClass: LynxRouteReuseStrategy },
     provideRouter(
       routes,
       // Lynx runs Angular on a background thread for layout calculation.

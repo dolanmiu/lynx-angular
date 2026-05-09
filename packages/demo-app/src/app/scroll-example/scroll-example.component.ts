@@ -9,25 +9,21 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
       <x-text class="title">Scroll View Example</x-text>
       <!-- Horizontal scroll example -->
       <x-text class="subtitle">Horizontal Scroll</x-text>
-      <x-scroll-view class="horizontal-scroll" scrollX="true" scrollY="false">
-        <x-view class="horizontal-content">
-          @for (item of horizontalItems; track item) {
-          <x-view class="horizontal-item">
-            <x-text class="item-text">{{ item }}</x-text>
-          </x-view>
-          }
+      <x-scroll-view class="horizontal-scroll" scroll-orientation="horizontal">
+        @for (item of horizontalItems; track item) {
+        <x-view class="horizontal-item">
+          <x-text class="item-text">{{ item }}</x-text>
         </x-view>
+        }
       </x-scroll-view>
       <!-- Vertical scroll example -->
       <x-text class="subtitle">Vertical Scroll</x-text>
-      <x-scroll-view class="vertical-scroll" scrollX="false" scrollY="true">
-        <x-view class="vertical-content">
-          @for (item of verticalItems; track item) {
-          <x-view class="vertical-item">
-            <x-text class="item-text">{{ item }}</x-text>
-          </x-view>
-          }
+      <x-scroll-view class="vertical-scroll" scroll-orientation="vertical">
+        @for (item of verticalItems; track item) {
+        <x-view class="vertical-item">
+          <x-text class="item-text">{{ item }}</x-text>
         </x-view>
+        }
       </x-scroll-view>
     </x-view>
   `,
@@ -61,18 +57,12 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
         margin-bottom: 24px;
       }
 
-      .horizontal-content {
-        display: flex;
-        flex-direction: row;
-        padding: 16px;
-      }
-
       .horizontal-item {
-        min-width: 150px;
+        width: 150px;
         height: 80px;
         background-color: #007bff;
         border-radius: 8px;
-        margin-right: 16px;
+        margin: 16px;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -84,15 +74,11 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
         border-radius: 8px;
       }
 
-      .vertical-content {
-        padding: 16px;
-      }
-
       .vertical-item {
         height: 80px;
         background-color: #17a2b8;
         border-radius: 8px;
-        margin-bottom: 16px;
+        margin: 16px;
         display: flex;
         justify-content: center;
         align-items: center;

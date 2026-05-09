@@ -49,52 +49,65 @@ export class LynxDocument {
         break;
       }
       case 'x-scroll-view': {
+        // No __SetConfig needed — bounces defaults to true per the API.
+        // All scroll-view properties (scroll-orientation, enable-scroll, etc.)
+        // are attributes, set via __SetAttribute by Angular template bindings.
         element = __CreateScrollView(this.#pageId);
-
-        // Only set config properties that exist in the Lynx scroll-view API.
-        // Attributes like scroll-orientation, enable-scroll, upper-threshold, etc.
-        // are set via __SetAttribute by Angular template bindings.
-        __SetConfig(element, {
-          bounces: true,
-        });
-
         break;
       }
       case 'x-list': {
         // Lynx's native x-list is a virtualized list driven by engine callbacks.
-        // Children must NOT be appended via __AppendElement — the list calls
-        // componentAtIndex to request items by index.
-        // LynxListElement intercepts appendChild/insertBefore and manages
-        // children in a virtual JS-level tree instead.
+        // Angular's rendering calls LynxListElement.appendChild() for each child;
+        // we intercept this and store children in a virtual JS-level linked list.
+        //
+        // _scheduleUpdate pre-appends all children to the native list tree, sets
+        // update-list-info, then calls __FlushElementTree() to trigger rendering.
+        // The engine calls componentAtIndex for each visible index; we just return
+        // the element ID since children are already appended.
+        //
+        // NOTE: React Lynx appends + flushes per-item inside componentAtIndex,
+        // but that causes re-entrant __FlushElementTree crashes when triggered
+        // from setTimeout (Angular's async scheduling). Pre-appending avoids this
+        // because Angular already fully builds all children before the list update.
 
         // Forward-declared so componentAtIndex closure can reference it
         let listEl: LynxListElement;
 
         const componentAtIndex = (
           _listRef: ListElementRef,
-          _listId: number,
+          listId: number,
           cellIndex: number,
-          _opId: number,
+          opId: number,
         ) => {
+          // Append child to native list tree on demand and flush it —
+          // matching React Lynx pattern. The native list expects children
+          // to be attached inside this callback, not pre-appended.
           const uiChildren = listEl.getUIChildren();
           if (cellIndex < uiChildren.length) {
-            return __GetElementUniqueID(uiChildren[cellIndex]);
+            const child = uiChildren[cellIndex];
+            listEl.appendChildToNativeList(child);
+            const elementID = __GetElementUniqueID(child);
+            // Per-item flush with list-specific options — tells the native
+            // engine this is a list item, not a page-level flush.
+            __FlushElementTree(child, {
+              triggerLayout: true,
+              operationID: opId,
+              elementID,
+              listID: listId,
+            });
+            return elementID;
           }
           return undefined;
         };
 
         const enqueueComponent = (
           _listRef: ListElementRef,
-          listId: number,
-          eleId: number,
+          _listId: number,
+          _eleId: number,
         ) => {
-          const el = __GetElementByUniqueID(eleId);
-          if (el) {
-            __FlushElementTree(el, {
-              triggerLayout: true,
-              listID: listId,
-            });
-          }
+          // enqueueComponent signals that the native list is done with an item
+          // (i.e., it scrolled off-screen and can be recycled). We don't implement
+          // a recycle pool — items stay in the native list tree permanently.
         };
 
         const nativeList = __CreateList(
@@ -103,17 +116,22 @@ export class LynxDocument {
           enqueueComponent,
         );
 
-        __SetConfig(nativeList, {
-          recycleEnabled: true,
-          estimatedItemSize: 60,
-          overscrollEnabled: true,
-        });
+        // list-type, span-count, and scroll-orientation are all required by the
+        // native list engine (per Lynx docs). Without them the native side crashes
+        // at render time. Defaults to a single-column vertical list; users can
+        // override via template attributes.
+        __SetAttribute(nativeList, 'list-type', 'single');
+        __SetAttribute(nativeList, 'span-count', 1);
+        __SetAttribute(nativeList, 'scroll-orientation', 'vertical');
 
         listEl = new LynxListElement(nativeList, this.#nonElements);
         return listEl;
       }
       case 'list-item': {
-        element = __CreateView(this.#pageId);
+        // x-list requires native list-item elements via __CreateElement, not plain views.
+        // The native componentAtIndex callback returns this element ID to the engine,
+        // which expects a list-item type — using __CreateView crashes the native side.
+        element = __CreateElement('list-item', this.#pageId);
         break;
       }
       case 'x-block': {

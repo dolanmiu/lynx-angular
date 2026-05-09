@@ -1,4 +1,4 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, signal } from '@angular/core';
 import angularLogo from '../../assets/angular-logo.png';
 import lynxLogo from '../../assets/lynx-logo.png';
 
@@ -11,7 +11,7 @@ import lynxLogo from '../../assets/lynx-logo.png';
       <x-text class="title">Lynx Elements Showcase</x-text>
 
       <!-- Basic Elements Section -->
-      <x-view class="section">
+      <!-- <x-view class="section">
         <x-text class="section-title">Basic Elements</x-text>
 
         <x-view class="card">
@@ -43,16 +43,16 @@ import lynxLogo from '../../assets/lynx-logo.png';
             >Image element for displaying images</x-text
           >
         </x-view>
-      </x-view>
+      </x-view> -->
 
       <!-- Layout Elements Section -->
       <x-view class="section">
         <x-text class="section-title">Layout Elements</x-text>
 
-        <x-view class="card">
+        <!-- <x-view class="card">
           <x-text class="element-name">x-scroll-view</x-text>
           <x-view class="element-example">
-            <x-scroll-view class="mini-scroll" scrollX="true">
+            <x-scroll-view class="mini-scroll" scroll-orientation="horizontal">
               <x-view class="scroll-content">
                 @for (i of [1, 2, 3, 4, 5]; track i) {
                 <x-view class="scroll-item">
@@ -63,16 +63,16 @@ import lynxLogo from '../../assets/lynx-logo.png';
             </x-scroll-view>
           </x-view>
           <x-text class="description">Scrollable container for content</x-text>
-        </x-view>
+        </x-view> -->
 
         <x-view class="card">
           <x-text class="element-name">x-list</x-text>
           <x-view class="element-example">
             <x-list class="mini-list">
               @for (i of [1, 2, 3]; track i) {
-              <x-view class="list-item">
+              <list-item class="list-item">
                 <x-text>List Item {{ i }}</x-text>
-              </x-view>
+              </list-item>
               }
             </x-list>
           </x-view>
@@ -83,18 +83,18 @@ import lynxLogo from '../../assets/lynx-logo.png';
       </x-view>
 
       <!-- Structural Elements -->
-      <x-view class="section">
+      <!-- <x-view class="section">
         <x-text class="section-title">Structural Elements</x-text>
 
         <x-view class="card">
-          <x-text class="element-name">x-block</x-text>
+          <x-text class="element-name">x-view (grouping)</x-text>
           <x-view class="element-example">
-            <x-block class="block-example">
+            <x-view class="block-example">
               <x-view class="block-item"></x-view>
               <x-view class="block-item"></x-view>
-            </x-block>
+            </x-view>
           </x-view>
-          <x-text class="description">Container for grouping elements</x-text>
+          <x-text class="description">Using x-view as a container for grouping elements</x-text>
         </x-view>
 
         <x-view class="card">
@@ -130,7 +130,7 @@ import lynxLogo from '../../assets/lynx-logo.png';
             >Using Angular's for control flow for lists</x-text
           >
         </x-view>
-      </x-view>
+      </x-view> -->
 
       <!-- Events Demo -->
       <x-view class="section">
@@ -142,7 +142,7 @@ import lynxLogo from '../../assets/lynx-logo.png';
             <x-view class="event-button" (bindtap)="handleTap()">
               <x-text>Tap Me</x-text>
             </x-view>
-            <x-text class="tap-count">Taps: {{ tapCount }}</x-text>
+            <x-text class="tap-count">Taps: {{ tapCount() }}</x-text>
           </x-view>
           <x-text class="description">Using bindtap event handler</x-text>
         </x-view>
@@ -246,6 +246,7 @@ import lynxLogo from '../../assets/lynx-logo.png';
       }
 
       .mini-list {
+        width: 100%;
         height: 120px;
       }
 
@@ -320,17 +321,17 @@ export class ElementsShowcaseComponent {
     angular: angularLogo,
   };
 
-  isVisible = true;
+  isVisible = signal(true);
 
-  tapCount = 0;
+  tapCount = signal(0);
 
   listItems = ['Apple', 'Banana', 'Cherry'];
 
   toggleVisibility(): void {
-    this.isVisible = !this.isVisible;
+    this.isVisible.update((v) => !v);
   }
 
   handleTap(): void {
-    this.tapCount++;
+    this.tapCount.update((v) => v + 1);
   }
 }

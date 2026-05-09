@@ -1,0 +1,2317 @@
+# Lynx vs Web Differences
+
+Gotchas discovered while building Angular on Lynx. These are places where Lynx behaves differently from the web platform in ways that are non-obvious.
+
+---
+
+## `pointer-events: none` does not work for scroll gesture interception
+
+### What you'd expect (web)
+Setting `pointer-events: none` on an overlay element makes it transparent to all pointer events, including scroll gestures. Underlying scrollable elements receive the scroll unobstructed.
+
+### What Lynx does
+`pointer-events` is **not supported by the Lynx CSS encoder** — using it causes a build error:
+```
+Error: "pointer-events" is not supported now!
+```
+
+Even if it were supported, it would not help. The Lynx `view` element docs for `user-interaction-enabled` (the closest equivalent) explicitly state:
+> "This property does not affect platform-level gestures (such as scrolling of `scroll-view`)."
+
+Platform scroll gestures are handled by the native gesture recognizer, which attaches to the topmost view in the hit-test stack. Lynx-level event properties (`pointer-events`, `user-interaction-enabled`) only affect Lynx touch events, not the native scroll recognizer.
+
+### The fix
+Use **DOM order / stacking context** instead of `pointer-events`. Place the overlay element **before** the scroll-view in DOM order (lower stacking context). The scroll-view, rendered after, sits on top and the native gesture recognizer attaches to it.
+
+```html
+<!-- background BEFORE scroll-view → lower stacking context → scroll-view wins -->
+<x-view class="background" />
+<x-scroll-view scroll-orientation="vertical">
+  ...
+</x-scroll-view>
+```
+
+Do NOT put a `position: fixed`/`position: absolute` overlay element inside the scroll-view — even with `position: fixed` (which in Lynx makes the element a direct child of root), it ends up above the scroll-view in z-order and blocks scroll gestures.
+
+---
+
+## `position: fixed` is absolute-relative-to-root, not viewport-fixed
+
+### What you'd expect (web)
+`position: fixed` positions an element relative to the viewport and keeps it fixed during scroll.
+
+### What Lynx does
+> "The element will be treated as a direct child of root node with the property `position` as `absolute`."
+
+`position: fixed` in Lynx = `position: absolute` relative to the root page node. It does NOT stay fixed during scroll — it's just taken out of normal flow and positioned against the page root. Use it for full-screen overlays, but don't expect viewport-fixed behavior during scrolling.
+
+---
+
+## `display: none` resizes to 0×0, does not remove from layout
+
+### What you'd expect (web)
+`display: none` removes the element from the layout entirely — no space, no interaction, invisible to siblings.
+
+### What Lynx does
+> "Element and its descents will be resized to 0×0."
+
+The element still exists in the layout tree at 0×0. It participates in the stacking context and can still intercept gestures (see pointer-events note above). This matters for Angular's invisible comment/anchor nodes created by `@for`/`@if` — they exist as 0×0 views inside the element tree.
+
+---
+
+## `scroll-view` requires an explicit height constraint to scroll
+
+### What you'd expect (web)
+A scrollable container with `overflow: scroll` and `height: 100%` or similar will scroll when content overflows.
+
+### What Lynx does
+`scroll-view` is forced into linear layout. Without an explicit height, it **expands to fit its content** — no overflow means no scrolling.
+
+Every `scroll-view` must have an explicit `height` (e.g., `height: 100vh`, `height: 300px`) or a flex constraint (`flex: 1` inside a sized flex parent) that bounds it. Content that exceeds that bound becomes scrollable.
+
+```css
+/* Required — scroll-view won't scroll without this */
+.my-scroll-view {
+  height: 100vh;
+  width: 100vw;
+}
+```
+
+---
+
+## Scroll direction uses kebab-case attributes, not camelCase
+
+### What you'd expect (web / React camelCase props)
+`scrollX`, `scrollY` — camelCase property names as you'd use in React DOM or Angular property bindings.
+
+### What Lynx does
+Lynx native elements use **kebab-case attributes** passed directly to `__SetAttribute`. No camelCase-to-kebab conversion happens. Use:
+- `scroll-orientation="horizontal"` / `scroll-orientation="vertical"` (v3.0+)
+- Or the older `scroll-x` / `scroll-y` boolean attributes (pre-3.0 compatible)
+
+`scrollX`/`scrollY` are silently ignored by the native runtime.
+
+---
+
+## `display` values: no `block`/`inline`, default is `linear`
+
+### What you'd expect (web)
+Default display is `block` for block elements, `inline` for inline. `display: flex` and `display: grid` work as expected.
+
+### What Lynx does
+Lynx does not have flow layout. **Default display is `linear`** (Lynx's own layout model, inspired by Android LinearLayout). Supported values: `linear`, `flex`, `grid`, `relative`, `none`. `block` and `inline` are not supported.
+
+`scroll-view` is always forced to `linear`, regardless of what CSS you set.
+
+---
+
+## `box-sizing` default is `border-box`, not `content-box`
+
+### What you'd expect (web)
+`box-sizing: content-box` is the default — `width`/`height` only covers the content area; padding and border are added on top.
+
+### What Lynx does
+The default `box-sizing` is **`border-box`**. `width` and `height` already include padding and border. This matches the mental model of most mobile layout systems (Android, iOS) but silently breaks any CSS that assumes `content-box` semantics.
+
+---
+
+## No margin collapsing
+
+### What you'd expect (web)
+Adjacent vertical margins between block elements collapse into the larger of the two (e.g., a 16px margin-bottom above a 8px margin-top produces 16px of space, not 24px).
+
+### What Lynx does
+Margins **never collapse**. Both margins are applied in full. Two siblings with `margin-bottom: 16px` and `margin-top: 8px` produce 24px of space between them.
+
+---
+
+## Text cannot be placed directly in `<x-view>` — must use `<x-text>`
+
+### What you'd expect (web)
+Text nodes can live directly inside any block element (`<div>`, `<section>`, etc.).
+
+### What Lynx does
+Text must be wrapped in a `<text>` element (`<x-text>` in Angular Lynx). Raw text nodes inside a `<view>` are unsupported and will not render. This applies to all text content — even a single word.
+
+```html
+<!-- WRONG — raw text in x-view doesn't render -->
+<x-view>Hello world</x-view>
+
+<!-- CORRECT -->
+<x-view><x-text>Hello world</x-text></x-view>
+```
+
+---
+
+## `overflow: scroll` does not work on `<x-view>` — only `<x-scroll-view>` and `<x-list>` scroll
+
+### What you'd expect (web)
+Any element can be made scrollable by setting `overflow: scroll` or `overflow: auto`.
+
+### What Lynx does
+Regular `<view>` elements cannot scroll, regardless of CSS `overflow` value. Only the dedicated `<scroll-view>` and `<list>` elements scroll. Use:
+- `<x-scroll-view>` for small data sets and simple scrolling
+- `<x-list>` for large data sets requiring lazy loading / recycling
+
+---
+
+## CSS inheritance is NOT enabled by default
+
+### What you'd expect (web)
+Properties like `color`, `font-size`, `font-family`, `line-height` inherit from parent to child automatically.
+
+### What Lynx does
+CSS inheritance is **disabled by default**. Every element must declare its own styles — parent styles do not flow down. This matches the native mobile model (each view is styled independently).
+
+**Exception:** Nested `<text>` inside `<text>` **does** inherit `color` and `font-family` from the parent `<text>`, even without explicit declaration.
+
+```css
+/* On web, children inherit font-size from .container.
+   On Lynx, you must set font-size on every x-text individually. */
+.container { font-size: 16px; }
+```
+
+---
+
+## `flex-shrink` can shrink elements below their minimum content size
+
+### What you'd expect (web)
+Flex items won't shrink below their intrinsic minimum content size, even with `flex-shrink: 1`. An element containing text won't collapse to smaller than the text requires.
+
+### What Lynx does
+Lynx treats `min-content` as `0px`. Flex items **can** shrink below their content minimum, potentially clipping or overflowing text. If you need to prevent over-shrinking, set `min-width` or `min-height` explicitly.
+
+---
+
+## `position: sticky` only works inside `<x-scroll-view>`
+
+### What you'd expect (web)
+`position: sticky` sticks an element relative to its nearest scrolling ancestor.
+
+### What Lynx does
+`position: sticky` only has effect when the parent is a `<scroll-view>`. It does nothing in other contexts (e.g., inside a flex container or a regular view). There is no general "nearest scrolling ancestor" concept in Lynx.
+
+---
+
+## SVG is not supported
+
+### What you'd expect (web)
+SVG is a first-class format — rendered via `<svg>` elements or loaded as `<img src="icon.svg">`.
+
+### What Lynx does
+Lynx has **no `<svg>` element** and the `<image>` element does not support SVG files. Supported image formats are: `png`, `jpg`, `jpeg`, `bmp`, `gif`, `webp`. Use PNG/WebP for icons and illustrations, or implement a custom component if vector graphics are required.
+
+---
+
+## `AbortController` and `queueMicrotask` are missing in PrimJS
+
+### What you'd expect (web)
+`AbortController`, `AbortSignal`, and `queueMicrotask` are standard globals available in all modern browsers and Node.js.
+
+### What Lynx does
+Lynx's PrimJS JavaScript runtime **does not provide** `AbortController`, `AbortSignal`, or `queueMicrotask`. They throw `ReferenceError` at runtime. This is particularly critical for Angular:
+- Angular Router v21+ uses `new AbortController()` internally; its error handler silently swallows the resulting `ReferenceError`, killing the entire navigation pipeline.
+- Angular's zoneless change detection scheduler uses `queueMicrotask` to schedule change detection ticks.
+
+### The fix
+Polyfill both before Angular bootstraps (see `packages/runtime/src/lib/runtime.ts`):
+- `AbortController`/`AbortSignal`: implement the minimal subset (`signal.aborted`, `signal.reason`, `addEventListener/removeEventListener`, `controller.abort()`).
+- `queueMicrotask`: implement as `Promise.resolve().then(fn)`.
+
+---
+
+## Timer/scheduling APIs live on `lynx` global, not `globalThis`
+
+### What you'd expect (web)
+`setTimeout`, `clearTimeout`, `setInterval`, `clearInterval`, `requestAnimationFrame`, and `cancelAnimationFrame` are available on `globalThis` / `window`.
+
+### What Lynx does
+These APIs are **methods of the `lynx` global object**, not on `globalThis`. `globalThis.setTimeout` is undefined. Since Angular's change detection scheduler and many internal timers call `setTimeout(fn, delay)` as a global, they silently never fire without a polyfill.
+
+### The fix
+At app startup (before Angular bootstraps), copy them onto `globalThis`:
+```ts
+globalThis.setTimeout = lynx.setTimeout.bind(lynx);
+globalThis.clearTimeout = lynx.clearTimeout.bind(lynx);
+// ... same for setInterval, requestAnimationFrame, etc.
+```
+See `packages/runtime/src/lib/runtime.ts` lines 129-145.
+
+---
+
+## No browser navigation/location APIs (`window.location`, `history`, `URL`)
+
+### What you'd expect (web)
+`window.location`, `window.history`, the `URL` constructor, and `window.addEventListener` / `window.removeEventListener` are all standard globals.
+
+### What Lynx does
+None of these exist in Lynx. `window` itself is not a global (though we shim it to `globalThis`). Attempting to use `new URL(string)` or `location.pathname` throws at runtime. `addEventListener` / `removeEventListener` as globals are also absent.
+
+### The fix
+- Shim `window = globalThis`, `document = { defaultView: globalThis, querySelector: () => null }`, and no-op `addEventListener` / `removeEventListener` at startup (see `runtime.ts`).
+- Implement a custom `LynxPlatformLocation` that stores the current path in a signal and provides manual URL string parsing, bypassing the `URL` constructor entirely (see `packages/runtime/src/lib/lynx-platform-location.ts`).
+
+---
+
+## Native element pool is finite (~256 slots); `__RemoveElement` does not free slots
+
+### What you'd expect (web)
+DOM elements are garbage-collected when removed from the tree and no longer referenced. There is no practical upper limit on elements.
+
+### What Lynx does
+Lynx maintains a **fixed-size native element pool** (~256 slots on device). `__RemoveElement` detaches an element from the tree but **does not free its pool slot**. There is no public `__ReleaseElement` API (it exists in React Lynx source but is commented out). Once the pool is exhausted, the app crashes with a hard native crash — deterministically on around the 9th navigation when using Angular's default destroy-on-navigate behavior.
+
+### The fix
+Use `LynxRouteReuseStrategy` (see `packages/runtime/src/lib/lynx-route-reuse-strategy.ts`) to detach and reattach route component trees instead of destroying and recreating them. The same native elements are reused across navigations, preventing pool exhaustion.
+
+---
+
+## DOM mutations during worklet event handler callbacks cause crashes
+
+### What you'd expect (web)
+DOM mutations (`createElement`, `appendChild`, `removeChild`) are safe to perform inside any event handler synchronously.
+
+### What Lynx does
+Performing synchronous DOM mutations (`__CreateElement`, `__RemoveElement`, `__AppendElement`, etc.) **inside a worklet callback** (e.g., an `bindtap` event handler) causes a native crash or produces a blank screen. The Lynx worklet executes in a synchronous native call frame; mutating the element tree during that frame corrupts internal state.
+
+React Lynx avoids this by never mutating the tree directly in event handlers — it only updates state and defers mutations to the next render cycle.
+
+### The fix
+Defer all DOM-mutating operations (including Angular Router navigation, which triggers component destroy/create) via `setTimeout`:
+
+```ts
+bindtap() {
+  // WRONG — navigating synchronously inside a worklet event crashes
+  this.router.navigateByUrl('/other');
+
+  // CORRECT — defer to next macrotask, after the worklet returns
+  setTimeout(() => this.router.navigateByUrl('/other'), 0);
+}
+```
+
+---
+
+## ECMAScript support is limited: ES2019 on main thread, ES2015 on background thread
+
+### What you'd expect (web)
+Modern browsers support ES2023+ (optional chaining `?.`, nullish coalescing `??`, `Array.at()`, `structuredClone()`, etc.).
+
+### What Lynx does
+- **Main thread (PrimJS):** ES2019 (ES10) — supports `Array.flat()`, `Object.fromEntries()`, optional catch binding; no optional chaining or nullish coalescing.
+- **Background thread:** ES2015 (ES6) — `let`/`const`, arrow functions, classes, template literals, `Promise`, destructuring; nothing newer.
+
+Transpilation via the Rsbuild/RSpeedy build pipeline handles most of this automatically, but be aware that polyfills for newer built-ins (e.g., `Array.prototype.at`, `structuredClone`) may still be needed and are not guaranteed by the runtime.
+
+---
+
+## Event attribute naming uses `bind`/`catch` prefixes, not `on*`
+
+### What you'd expect (web)
+Events are registered with `on*` attributes or `addEventListener`: `onclick`, `ontouchstart`, `onscroll`, etc.
+
+### What Lynx does
+Lynx has its own event binding syntax. Event attributes use explicit phase/propagation prefixes:
+
+| Prefix | Web equivalent | Behavior |
+|--------|---------------|----------|
+| `bindtap` | `onclick` | Bubble phase, propagates |
+| `catchtap` | `onclick` + `stopPropagation()` | Bubble phase, stops propagation |
+| `capture-bindtap` | `addEventListener('click', fn, true)` | Capture phase, propagates |
+| `capture-catchtap` | Capture + stop | Capture phase, stops propagation |
+| `global-bindtap` | — | Cross-element global listener (no web equivalent) |
+
+Additionally, events can be prefixed with `main-thread:` to execute the handler on the rendering thread (e.g., `main-thread:bindtap`). This has no web equivalent — on web, all event handlers run in the same thread.
+
+In templates, these are set as kebab-case attributes (e.g., `bind:tap`, `catch:tap`).
+
+---
+
+## `tap` and `longpress` are mutually exclusive; `longpress` takes priority
+
+### What you'd expect (web)
+`click` and a custom long-press handler can coexist independently.
+
+### What Lynx does
+If both `bindtap` and `bindlongpress` listeners are present on the same element, they are **mutually exclusive**. `longpress` takes priority — if a long press is detected, `tap` will NOT fire. Plan UI interactions accordingly; don't rely on both firing for different gesture durations on the same element.
+
+---
+
+## No `:hover`, `:focus` pseudo-classes; no `::before`/`::after` pseudo-elements
+
+### What you'd expect (web)
+`:hover` styles change on mouse-over. `:focus` styles apply when an element has keyboard/programmatic focus. `::before`/`::after` inject decorative content via CSS.
+
+### What Lynx does
+- **`:hover`** — not supported. Lynx runs on touch devices; there is no cursor/hover concept.
+- **`:focus`** — not supported as a CSS pseudo-class. Input focus is a programmatic state, not a CSS selector.
+- **`::before` / `::after`** — not supported. There is no CSS generated content in Lynx. Use explicit `<x-view>` elements instead.
+- **`:active`** — IS supported, but it tracks touch state (finger on screen), not mouse click.
+- **`::selection`** — IS supported on `<x-text>` for styling text selection handles. Supports `background-color`, `-x-handle-size`, `-x-handle-color`.
+
+---
+
+## No `@media` queries
+
+### What you'd expect (web)
+`@media (max-width: 768px) { ... }` applies styles conditionally based on viewport size, device type, color scheme, etc.
+
+### What Lynx does
+`@media` queries are **not supported**. Responsive layout must be done in JavaScript/TypeScript using Lynx's screen metrics APIs, or by conditionally applying classes based on runtime logic.
+
+---
+
+## `rpx` is a Lynx-specific responsive unit
+
+### What you'd expect (web)
+Common units: `px`, `em`, `rem`, `%`, `vw`, `vh`. No `rpx`.
+
+### What Lynx does
+Lynx adds `rpx` (responsive pixels) — a unit that scales proportionally to the device screen width. `750rpx` always equals the full screen width regardless of physical pixel density. This is commonly used in mini-program/native UI frameworks (similar to `rpx` in WeChat Mini Program). Use `rpx` for layouts that should scale across device sizes without JavaScript.
+
+---
+
+## `white-space` only supports `normal` and `nowrap`
+
+### What you'd expect (web)
+`white-space` supports: `normal`, `nowrap`, `pre`, `pre-wrap`, `pre-line`, `break-spaces`.
+
+### What Lynx does
+Only `normal` and `nowrap` are supported. `pre`, `pre-wrap`, `pre-line`, and `break-spaces` are **not supported** — whitespace in text will always be collapsed. To display preformatted text, you must handle whitespace in JavaScript before rendering.
+
+---
+
+## `line-height` only works on `<x-text>` elements
+
+### What you'd expect (web)
+`line-height` can be set on any block element and inherits to all text descendants.
+
+### What Lynx does
+`line-height` is only effective when set on a `<text>` (`<x-text>`) element directly. Setting it on a container `<view>` has no effect. Since CSS inheritance is also disabled by default, every `<x-text>` that needs non-default line height must declare it explicitly.
+
+---
+
+## `text-align: justify` is not supported
+
+### What you'd expect (web)
+`text-align: justify` spreads words across the full line width.
+
+### What Lynx does
+`justify` and `justify-all` are **not supported**. Only `left`, `right`, `center`, and `start`/`end` are available. `match-parent` is also not supported.
+
+---
+
+## `text-shadow` only supports one shadow layer and requires all parameters
+
+### What you'd expect (web)
+`text-shadow` accepts a comma-separated list of shadows, and `blur-radius` and `color` are optional.
+
+### What Lynx does
+- Only **one shadow layer** is supported; additional comma-separated shadows are ignored.
+- **All four parameters are required**: `offset-x offset-y blur-radius color`. Omitting any parameter is invalid.
+
+```css
+/* Web: valid (blur and color optional, multiple shadows OK) */
+text-shadow: 1px 1px red, 2px 2px blue;
+
+/* Lynx: only this form works */
+text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+```
+
+---
+
+## `font-weight` does not support `lighter` or `bolder`
+
+### What you'd expect (web)
+`font-weight: bolder` / `font-weight: lighter` compute relative to the parent's weight.
+
+### What Lynx does
+Only `normal`, `bold`, and numeric values `100`–`1000` (integers only) are supported. `bolder` and `lighter` are **not supported** — they will have no effect or be ignored.
+
+---
+
+## `letter-spacing` does not accept the `normal` keyword
+
+### What you'd expect (web)
+`letter-spacing: normal` resets to the font's default tracking.
+
+### What Lynx does
+Only `<length>` values are accepted (e.g., `0px`, `2px`, `0.1em`). The keyword `normal` is **not supported** — use `0px` to achieve default letter spacing.
+
+---
+
+## `filter` only supports 5 functions and cannot be chained
+
+### What you'd expect (web)
+`filter` accepts a space-separated list of functions: `blur()`, `brightness()`, `contrast()`, `grayscale()`, `saturate()`, `sepia()`, `hue-rotate()`, `invert()`, `drop-shadow()`, `opacity()`.
+
+### What Lynx does
+- Only **one filter function** per `filter` property — chaining multiple functions is **not supported**.
+- Only these 5 functions are available: `blur`, `grayscale`, `brightness`, `contrast`, `saturate`.
+- `opacity` via `filter` causes **offscreen rendering on Android**, which has a performance cost.
+
+---
+
+## `box-shadow` does not support `inset`
+
+### What you'd expect (web)
+`box-shadow: inset 0 2px 4px rgba(0,0,0,0.5)` draws a shadow inside the element's border.
+
+### What Lynx does
+The `inset` keyword is **not supported** (marked as temporarily unsupported in Lynx docs). Only outer drop shadows work.
+
+---
+
+## `clip-path` is restricted: only on `<view>`, no `polygon()`, custom `super-ellipse` syntax
+
+### What you'd expect (web)
+`clip-path` works on any element and supports `polygon()`, `circle()`, `ellipse()`, `inset()`, `path()`.
+
+### What Lynx does
+- Only works on `<view>` elements — not on `<text>`, `<image>`, etc.
+- `polygon()` is **not supported**.
+- `inset()` supports a custom Lynx `super-ellipse` exponent parameter not present in the web spec.
+- `path()` does not support the `<clip-rule>` parameter.
+
+---
+
+## CSS `@keyframes` can only animate a limited set of properties
+
+### What you'd expect (web)
+Any animatable CSS property can be used in `@keyframes`.
+
+### What Lynx does
+Only the following properties can be animated in `@keyframes`:
+`left`, `right`, `top`, `bottom`, `width`, `height`, `opacity`, `background-color`, `color`, `transform`, `transform-origin`, `max-width`, `min-width`, `max-height`, `min-height`, `padding-*`, `margin-*`, `border-*-width`, `border-*-color`, `flex-basis`, `flex-grow`, `filter`.
+
+Attempting to animate other properties (e.g., `border-radius`, `font-size`) in keyframes has no effect.
+
+---
+
+## `animation-iteration-count: 0` plays a zero-duration animation rather than being ignored
+
+### What you'd expect (web)
+Setting `animation-iteration-count: 0` means the animation never plays — it is effectively a no-op.
+
+### What Lynx does
+Lynx treats it as a zero-duration animation that still fires the full lifecycle (`animationstart`, `animationend`). If you're listening to animation lifecycle events, be careful — you will receive events even for a "zero" iteration count.
+
+---
+
+## `border-style: dotted` and `dashed` render as solid
+
+### What you'd expect (web)
+`border-style: dotted` renders a series of dots; `dashed` renders dashes.
+
+### What Lynx does
+Both `dotted` and `dashed` are **rendered as solid lines** in most Lynx environments. If your design requires dotted/dashed borders, simulate them with a background image (repeating gradient) or a custom drawn element.
+
+---
+
+## `border-style` default is `solid`, not `none`; setting `none`/`hidden` doesn't collapse the border width
+
+### What you'd expect (web)
+Default `border-style` is `none`. Setting `none` or `hidden` collapses the border to 0 width.
+
+### What Lynx does
+- Default `border-style` is **`solid`**.
+- Setting `border-style: none` or `hidden` does NOT collapse the border width to 0 — the element still reserves space for the border. You must also explicitly set `border-width: 0`.
+
+---
+
+## `border-width` keywords map to different pixel values
+
+### What you'd expect (web)
+`thin` ≈ 1px, `medium` ≈ 3px, `thick` ≈ 5px (browser-defined, typically those values).
+
+### What Lynx does
+- `thin` = **2px**
+- `medium` = **4px**
+- `thick` = **6px**
+- Default `border-width` is `0` (web default: `medium`)
+
+---
+
+## `max-height` and `max-width` do not support `none`, `max-content`, `min-content`, or `fit-content`
+
+### What you'd expect (web)
+`max-width: none` removes the maximum constraint. `max-content`, `min-content`, `fit-content` size to intrinsic content size.
+
+### What Lynx does
+None of these keywords are supported — only explicit `<length>` and `<percentage>` values work. To remove a max constraint, either don't set the property or set a very large value.
+
+---
+
+## `align-content: space-evenly` and baseline values are not supported
+
+### What you'd expect (web)
+`align-content` supports `normal`, `stretch`, `center`, `flex-start`, `flex-end`, `space-between`, `space-around`, `space-evenly`, `baseline`, `first baseline`, `last baseline`.
+
+### What Lynx does
+`space-evenly`, `normal`, `baseline`, `first baseline`, and `last baseline` are **not supported**. `justify-content` also does not support `normal`, `left`, or `right` — and its default is `stretch` (not `normal` as on web).
+
+---
+
+## `visibility: hidden` cannot be overridden by `visibility: visible` on a descendant
+
+### What you'd expect (web)
+A child can set `visibility: visible` to become visible even inside a `visibility: hidden` parent.
+
+### What Lynx does
+Once a parent sets `visibility: hidden`, **all descendants remain hidden** regardless of their own `visibility` value. There is no way to make a child visible inside a hidden parent. Structure your component tree to avoid this pattern.
+
+---
+
+## `background-repeat: space` and `round` are accepted but render as `repeat`
+
+### What you'd expect (web)
+`space` distributes tiles evenly without clipping. `round` scales tiles to fill the area without partial tiles.
+
+### What Lynx does
+Both `space` and `round` are accepted by the parser but are **not implemented** — they render identically to `repeat`. Use `repeat`, `no-repeat`, `repeat-x`, or `repeat-y` only.
+
+---
+
+## `background-image` color stops only accept `<percentage>`, not `<length>`
+
+### What you'd expect (web)
+Gradient color stops accept both lengths and percentages: `linear-gradient(red 20px, blue 100px)`.
+
+### What Lynx does
+Color stop positions only accept `<percentage>` values — `<length>` values (e.g., `20px`) are **not supported** in gradient definitions. Also, `linear-color-hint` (midpoint interpolation like `red, 20%, blue`) is not supported.
+
+---
+
+## No `<select>` element; no `<input type="checkbox">` or `<input type="radio">`
+
+### What you'd expect (web)
+HTML form controls include `<select>`, `<input type="checkbox">`, `<input type="radio">`, `<input type="file">`, etc.
+
+### What Lynx does
+Lynx has no `<select>` element and no checkbox or radio input types. The supported `<input>` types are: `text`, `number`, `digit`, `password`, `tel`, `email`. For selection UI, build custom components using `<x-view>` and state management.
+
+---
+
+## `<x-input>` has a Lynx-specific API that differs from HTML `<input>`
+
+### What you'd expect (web)
+HTML `<input>` is controlled via `.value`, `.focus()`, `.blur()`, and DOM events.
+
+### What Lynx does
+The Lynx `<input>` element has a distinct API:
+- **`confirm-type`** — changes the soft keyboard's action button: `'send' | 'search' | 'go' | 'done' | 'next'`
+- **`input-filter`** — a regex string that filters which characters can be typed (no web equivalent)
+- **`show-soft-input-on-focus`** — controls whether the software keyboard appears (no web equivalent)
+- **Programmatic control** requires `SelectorQuery` to get a node reference, then call `.getValue()`, `.setValue(value)`, `.setSelectionRange(start, end)` — there is no direct property access like `element.value`
+- Events: `bindfocus`, `bindblur`, `bindconfirm` (keyboard action button), `bindinput` (with `isComposing` field), `bindselection` (cursor moved)
+
+---
+
+## `object-fit` and `object-position` are not supported — use the `mode` attribute
+
+### What you'd expect (web)
+`object-fit: cover` / `object-fit: contain` on an `<img>` controls how the image scales inside its box.
+
+### What Lynx does
+`object-fit` and `object-position` are **not CSS properties in Lynx**. Instead, use the `mode` attribute on `<x-image>`:
+
+| `mode` value | Equivalent `object-fit` | Behavior |
+|---|---|---|
+| `scaleToFill` | `fill` | Stretches to fill box; ignores aspect ratio |
+| `aspectFit` | `contain` | Scales to fit, letterboxes if needed |
+| `aspectFill` | `cover` | Scales to fill shortest side, may crop |
+| `center` | `none` | No scaling, centers image |
+
+Note: The Angular Lynx renderer defaults images to `aspectFit` (see `lynx-document.ts`), while the Lynx native default is `scaleToFill`.
+
+---
+
+## `float`, `clear`, `outline`, `writing-mode`, `touch-action`, `will-change`, `mix-blend-mode`, and `columns` are not supported
+
+### What you'd expect (web)
+These are standard CSS properties with wide browser support.
+
+### What Lynx does
+None of these properties are supported in Lynx:
+- **`float` / `clear`** — Lynx has no flow layout, so float-based layout is irrelevant. Use flex or linear layout.
+- **`outline`** — Not supported. Use `border` for visual outlines.
+- **`writing-mode`** — Not supported. Grid layout always uses horizontal inline axis.
+- **`touch-action`** — Not supported. Use Lynx's native gesture attributes (`pan-intercept-direction`, `consume-slide-event`) on `<x-view>` instead.
+- **`will-change`** — Not supported. Lynx manages layer promotion natively.
+- **`mix-blend-mode`** / **`isolation`** — Not supported.
+- **`columns`** / multi-column layout — Not supported. Use `<x-list list-type="flow">` for multi-column grids.
+
+---
+
+## `perspective` applies to the element itself, not its children
+
+### What you'd expect (web)
+`perspective` on a parent element creates a 3D perspective context for its children's 3D transforms.
+
+### What Lynx does
+`perspective` in Lynx is applied to the **element it's set on**, not its children. To make `rotateX`/`rotateY` on an element look three-dimensional, set `perspective` on that same element:
+
+```css
+/* Web: set perspective on parent */
+.parent { perspective: 500px; }
+.child { transform: rotateX(45deg); } /* child gets 3D effect */
+
+/* Lynx: set perspective on the element being transformed */
+.child { perspective: 500px; transform: rotateX(45deg); }
+```
+
+Also: `rotate3d()` and `scale3d()` are **not supported** in Lynx. Use `rotateX()`/`rotateY()`/`rotateZ()` and `scaleX()`/`scaleY()`/`scaleZ()` separately.
+
+---
+
+## `overflow: auto` and `overflow: scroll` are not supported on `<x-view>`
+
+### What you'd expect (web)
+`overflow: auto` / `overflow: scroll` makes any element scrollable when content overflows.
+
+### What Lynx does
+`overflow` only supports **`visible`** (default) and **`hidden`**. There is no `auto` or `scroll` value for `<view>`. This is consistent with the earlier documented difference that scrolling only works via `<scroll-view>` / `<list>`.
+
+Performance tip: explicitly set `overflow: hidden` on non-scrolling animated elements — especially on Android, it reduces the redraw region size and significantly improves animation performance.
+
+---
+
+## `z-index: 0` should be set on `<x-scroll-view>` to prevent children from escaping during scroll
+
+### What you'd expect (web)
+`z-index` creates stacking contexts but has no interaction with scroll clipping.
+
+### What Lynx does
+Without `z-index: 0`, children of a `<scroll-view>` can visually "escape" the scroll container during scrolling animations. Setting `z-index: 0` on the scroll-view creates a stacking context that clips its children correctly. Additionally, **do not set `z-index` directly on `<x-list>` children** — it interferes with the list's recycling mechanism. Set z-index inside the list item content instead.
+
+---
+
+## `aspect-ratio: auto` is not supported
+
+### What you'd expect (web)
+`aspect-ratio: auto` uses the element's intrinsic aspect ratio (e.g., an image's natural size).
+
+### What Lynx does
+The `auto` keyword is **not supported**. Only explicit ratio values work (`aspect-ratio: 16/9`, `aspect-ratio: 1`, etc.). If you need an image to maintain its intrinsic ratio, use `<x-image mode="aspectFit">` with the `auto-size` attribute instead.
+
+---
+
+## `text-indent` with `%` requires the `<x-text>` element to have an explicit width
+
+### What you'd expect (web)
+`text-indent: 2em` or `text-indent: 10%` works on any block element with text.
+
+### What Lynx does
+`text-indent` is supported, but when using a percentage value, the `<x-text>` element **must have an explicit `width`** declared — otherwise the percentage has nothing to compute against and the indent is ignored. Length values (`px`, `em`, `rpx`) work without this requirement.
+
+---
+
+## `vertical-align` only works for inline elements nested inside `<x-text>`
+
+### What you'd expect (web)
+`vertical-align` controls alignment for inline and table-cell elements in their line box.
+
+### What Lynx does
+`vertical-align` is only effective for content **inline inside a `<text>` element** — specifically nested `<text>`, `<image>`, or `<view>` elements that appear inline inside a parent `<text>`. It has no effect on block-level elements.
+
+Additionally, when a `<text>` is nested inside a `<view>`, the default baseline is the **bottom of the view** rather than the text baseline. Use `vertical-align: baseline` explicitly on the inner `<text>` if you need text-baseline alignment.
+
+---
+
+## `mask` is supported but does not accept SVG sources and lacks `mask-composite`/`mask-type`
+
+### What you'd expect (web)
+`mask-image` accepts SVG `<mask>` element references (`url(#my-mask)`), images, and gradients. `mask-composite` composes multiple mask layers.
+
+### What Lynx does
+- `mask` shorthand and its longhand properties (`mask-image`, `mask-repeat`, `mask-position`, `mask-clip`, `mask-origin`, `mask-size`) are supported.
+- `mask-image` accepts: bitmap images via `url()`, and CSS shapes (`circle()`, `ellipse()`, `inset()`, `path()`).
+- **SVG element references are NOT supported** in `mask-image`.
+- **`mask-composite`** and **`mask-type`** are not supported.
+
+---
+
+## `-x-auto-font-size`: Lynx-specific automatic font sizing
+
+### What you'd expect (web)
+No equivalent. Web developers use JavaScript resize observers or viewport units for responsive font sizes.
+
+### What Lynx does
+Lynx provides a proprietary `-x-auto-font-size` CSS property that automatically adjusts a `<text>` element's font size to fit its container:
+
+```css
+/* Enable with defaults */
+-x-auto-font-size: true;
+
+/* Enable with min/max size */
+-x-auto-font-size: true 10px 30px;
+
+/* Enable with min, max, and step granularity */
+-x-auto-font-size: true 10px 30px 2px;
+```
+
+Parameters: `(enabled) (min-size) (max-size) (granularity)`. This shrinks/grows the font within the bounds to prevent overflow or excessive whitespace.
+
+---
+
+## `linear-weight` and `linear-direction`: Lynx-specific linear layout properties
+
+### What you'd expect (web)
+No direct equivalent. The closest analogy is `flex-grow` inside a flex container.
+
+### What Lynx does
+When `display: linear` (the Lynx default), two custom properties control layout:
+
+- **`linear-direction`**: Sets the main axis direction — `column` (default), `row`, `column-reverse`, `row-reverse`. Behaves like `flex-direction` but for linear layout. Note that `row` is affected by `direction: rtl`.
+- **`linear-weight`**: Distributes remaining space proportionally among children, like `flex-grow`. Elements with weight `0` are sized first; remaining space is divided among weighted elements. Mixing fixed sizes with weights in the same container is not recommended for performance.
+
+---
+
+## Network APIs (`fetch`, `XMLHttpRequest`, `WebSocket`) are not available
+
+### What you'd expect (web)
+`fetch()`, `XMLHttpRequest`, and `WebSocket` are universally available browser globals.
+
+### What Lynx does
+**None of these are available** in the Lynx JS runtime. There is no `fetch`, no `XHR`, no `WebSocket`. Network requests must be made via native bridge modules exposed through `lynx.requireModule()`. This means standard Angular `HttpClient` (which ultimately uses `fetch` or `XHR`) **cannot work without a custom HTTP adapter**.
+
+---
+
+## `localStorage` and `sessionStorage` use a different API
+
+### What you'd expect (web)
+`localStorage.setItem('key', value)` / `localStorage.getItem('key')` — synchronous, string-based storage.
+
+### What Lynx does
+The standard `localStorage` / `sessionStorage` globals **do not exist**. Use the native Lynx storage API instead:
+- `lynx.setSessionStorage(key, value)` — persistent key-value store
+- `lynx.getSessionStorage(key)` — retrieve a value
+- `lynx.subscribeSessionStorage(key, callback)` — reactively listen to changes
+
+The naming is "session" but the storage is actually persistent (analogous to `localStorage`).
+
+---
+
+## Inline `<svg>` elements are partially supported; SVG as image source is not
+
+### What you'd expect (web)
+SVG works both as an `<img src="icon.svg">` source and as inline `<svg>` markup inside HTML.
+
+### What Lynx does
+- **SVG as image source** (e.g., `<x-image src="icon.svg">`) — **not supported** (as noted in the earlier entry).
+- **Inline `<svg>` element** — **partially supported** via a dedicated `<svg>` element. Lynx supports 17 common SVG tags: `svg`, `g`, `path`, `rect`, `circle`, `ellipse`, `polygon`, `polyline`, `line`, `text`, `image`, `linearGradient`, `radialGradient`, `stop`, `defs`, `use`, `clipPath`.
+
+The `<svg>` element is parsed on the **background thread** and rendered as a single native view — the entire SVG is composited as a flat image, so you cannot animate individual SVG child elements or apply CSS to them as you would on web.
+
+---
+
+## `ShadowDom` ViewEncapsulation is not supported — falls back to `None`
+
+### What you'd expect (Angular web)
+`ViewEncapsulation.ShadowDom` uses the browser's native Shadow DOM for true style isolation.
+
+### What Lynx does
+Lynx has no Shadow DOM. Setting `encapsulation: ViewEncapsulation.ShadowDom` on a component logs a warning and falls back to `ViewEncapsulation.None` — no style scoping at all. Only `ViewEncapsulation.Emulated` (the default, which adds `_nghost-*` class to the host element) and `ViewEncapsulation.None` are supported.
+
+---
+
+## Unknown element tags silently fall back to `<x-view>` with a console warning
+
+### What you'd expect (web)
+Unknown HTML tags are rendered as `HTMLUnknownElement` and still appear in the DOM.
+
+### What Lynx does
+If you use an unrecognized element tag in a Lynx template, the renderer **silently creates an `<x-view>` in its place** and logs a console warning. Since there is no device console, this warning is invisible on-device. This means typos in element names (e.g., `<x-veiw>` instead of `<x-view>`) fail silently and produce an unexpectedly-styled `<x-view>`.
+
+---
+
+## `<x-list>` requires `item-key` on every list item — missing it causes a native crash
+
+### What you'd expect (web)
+In web frameworks, keys are an optional optimization hint. Missing a `key` prop is a warning, not a crash.
+
+### What Lynx does
+The `item-key` attribute (which provides the unique key for `<x-list>` items) is **required**. If it is missing, Lynx's native list engine cannot correctly identify items for recycling and crashes with a native error. When implementing lists, always ensure every `<list-item>` has a unique `item-key` attribute set.
+
+---
+
+## `<x-list>` children must not be appended via normal DOM methods — the list engine manages them
+
+### What you'd expect (web)
+You add children to a scrollable list by appending them to the container element.
+
+### What Lynx does
+`<x-list>` is a **virtualized native list** driven by engine callbacks. The native engine calls `componentAtIndex(index)` to request each item and `enqueueComponent(element)` to recycle items no longer visible. You must **never directly `__AppendElement`** a child to an `x-list` — doing so bypasses the recycling mechanism and corrupts the list state.
+
+The Angular Lynx renderer handles this transparently: `LynxListElement` intercepts all `appendChild`/`insertBefore` calls, maintains a JS-level virtual tree, and communicates changes to the native engine via `update-list-info` attribute updates (batched via `setTimeout`).
+
+---
+
+## `<x-scroll-view>` bounces defaults to `true`; `<x-image>` defaults to `aspectFit` in the renderer
+
+### What you'd expect
+Scrolling without bounce and images stretching to fill (web default `object-fit: fill` / Lynx native default `scaleToFill`).
+
+### What Lynx does
+Two default behaviors set by the Angular Lynx renderer differ from what you might expect:
+- **`<x-scroll-view>`**: The native `bounces` property (iOS over-scroll bounce) defaults to `true` in the Lynx API.
+- **`<x-image>`**: The Angular Lynx renderer's `LynxDocument` creates image elements with `mode: 'aspectFit'` by default (not `scaleToFill` which is the Lynx native default). This means images preserve their aspect ratio by default in the Angular renderer.
+
+Be explicit with `mode` on every `<x-image>` to avoid surprising platform-specific defaults.
+
+---
+
+## `!important` is not supported in Lynx CSS
+
+### What you'd expect (web)
+`!important` overrides all other declarations regardless of specificity.
+
+### What Lynx does
+`!important` is **not supported**. Specificity and cascade order work normally, but `!important` has no effect. Do not rely on it for style overrides.
+
+---
+
+## `transition` and `@keyframes` only animate a fixed whitelist of CSS properties
+
+### What you'd expect (web)
+Any animatable CSS property can be transitioned or used in `@keyframes`.
+
+### What Lynx does
+Both `transition-property` and `@keyframes` are restricted to the **same explicit whitelist**:
+
+`left`, `right`, `top`, `bottom`, `width`, `height`, `opacity`, `background-color`, `color`, `transform`, `transform-origin`, `max-width`, `min-width`, `max-height`, `min-height`, `padding-left/right/top/bottom`, `margin-left/right/top/bottom`, `border-left/right/top/bottom-width`, `border-left/right/top/bottom-color`, `flex-basis`, `flex-grow`, `filter`.
+
+Properties like `font-size`, `border-radius`, `letter-spacing`, etc. **cannot be animated**. Additionally, style changes that happen during component initialization may trigger unexpected transitions if the element transitions from its initial value — set transitions only after the element has rendered.
+
+---
+
+## `animation-timing-function: frames()` is a Lynx-specific non-standard easing
+
+### What you'd expect (web)
+Timing functions: `ease`, `ease-in`, `ease-out`, `ease-in-out`, `linear`, `cubic-bezier()`, `steps()`.
+
+### What Lynx does
+All standard timing functions are supported, plus a Lynx-specific **`frames(n)`** function that divides the animation into `n` equal frames (similar to `steps()` but with different semantics). `frames()` is not part of the web CSS standard and will not work in a browser.
+
+---
+
+## `font-size` default is `14px`, not `16px`; keyword sizes are not supported
+
+### What you'd expect (web)
+Default `font-size` is `16px` (user agent default). Keyword values like `small`, `medium`, `large`, `xx-large` are also supported.
+
+### What Lynx does
+- The default `font-size` is **`14px`**, not `16px`. Any layout designed around browser defaults needs adjustment.
+- The keyword size values (`xx-small`, `x-small`, `small`, `medium`, `large`, `x-large`, `xx-large`) are **not supported** — only explicit length/percentage values work.
+
+---
+
+## `text-decoration` supports only one layer and has no `text-decoration-thickness`
+
+### What you'd expect (web)
+Multiple `text-decoration` layers can be stacked via comma separation. `text-decoration-thickness` controls line weight independently.
+
+### What Lynx does
+- Only **one decoration layer** is supported; multiple comma-separated values are ignored.
+- `text-decoration-thickness` is **not supported**.
+
+---
+
+## `text-overflow` only supports `clip` and `ellipsis`
+
+### What you'd expect (web)
+`text-overflow` supports `clip`, `ellipsis`, `fade`, and a custom string to use as the overflow marker.
+
+### What Lynx does
+Only `clip` (default) and `ellipsis` are supported. `fade` (a gradient fade-out) and custom truncation strings are **not available**.
+
+---
+
+## `currentColor` keyword is not supported
+
+### What you'd expect (web)
+`currentColor` references the element's computed `color` value and can be used in any CSS property that accepts a color.
+
+### What Lynx does
+`currentColor` is **not documented** as a supported color value in Lynx, and there is no evidence it works. Use explicit color values or CSS variables instead.
+
+---
+
+## `background-position` does not support edge-offset syntax
+
+### What you'd expect (web)
+`background-position: bottom 10px right 20px` positions a background image 10px from the bottom and 20px from the right.
+
+### What Lynx does
+The edge-offset syntax (`<edge> <offset> <edge> <offset>`) is **not supported**. Only the standard two-value form is available: keyword/percentage/length for X and Y axes. To achieve bottom-right anchoring, calculate the equivalent percentage or combine with `background-size`.
+
+---
+
+## `opacity` causes offscreen rendering — explicit `overflow: hidden` is needed for correct clipping
+
+### What you'd expect (web)
+`opacity` is straightforward; elements clip to their parent naturally.
+
+### What Lynx does
+`opacity` causes the element to be rendered in an **offscreen layer**, which has two consequences:
+1. **Performance cost** on both iOS and Android — avoid applying opacity to deeply nested or frequently-updated elements.
+2. **On Android**, `overflow: visible` becomes ineffective on an element with `opacity` — children that would normally extend outside the element's bounds are clipped. This is controlled by the `overlap` attribute (default `true` on Android); setting `overlap={false}` separates background and content transparency but causes other artifacts.
+
+---
+
+## Grid layout: no named lines, no `grid-area` shorthand, no `min-content`/`subgrid`/`masonry`
+
+### What you'd expect (web)
+CSS Grid supports named lines (`[sidebar-start]`), the `grid-area` shorthand (sets all four start/end values), and keywords like `min-content`, `subgrid`, `masonry`.
+
+### What Lynx does
+- **Named grid lines** (`[linename]` syntax) — not supported in `grid-template-columns`/`grid-template-rows`.
+- **`grid-area` shorthand** — not documented/not supported. Set `grid-column-start`, `grid-column-end`, `grid-row-start`, `grid-row-end` individually.
+- **`min-content`, `subgrid`, `masonry`** — not supported in track sizing functions.
+- **`writing-mode`** — not supported; grid always uses horizontal inline axis.
+- Lynx has deprecated non-standard `grid-column-span`/`grid-row-span` properties — do not use them (they conflict with the standard start/end properties when both are set).
+
+---
+
+## `SelectorQuery` queries are batched and asynchronous — unlike `querySelector()` which is immediate
+
+### What you'd expect (web)
+`document.querySelector('#my-element')` returns the element synchronously and immediately.
+
+### What Lynx does
+Lynx has no direct DOM access. Element queries use `lynx.createSelectorQuery()`, which is **batched and asynchronous**:
+
+```ts
+lynx.createSelectorQuery()
+  .select('#my-element')
+  .invoke({ method: 'getValue', params: [] })
+  .exec((res) => {
+    // res[0] contains the result
+  });
+```
+
+You must chain `.select()` or `.selectAll()`, then `.invoke()` to specify the operation, then `.exec()` to actually run all batched queries together. There is no way to synchronously read an element's state. This affects any pattern that reads DOM state (e.g., checking input value, getting scroll position) — all must use callbacks.
+
+---
+
+## Non-touch events do not propagate — they only reach the exact target element
+
+### What you'd expect (web)
+Events like `scroll`, `change`, `input` propagate through the DOM tree (bubble phase) unless stopped.
+
+### What Lynx does
+In Lynx, **only touch events** (`tap`, `longpress`, `click`, `touchstart`, `touchmove`, `touchend`) travel through the capture/bubble propagation chain. All other events are delivered **only to the target element** — there is no capture or bubble phase. Listener ancestors will not receive them.
+
+---
+
+## `GlobalEventEmitter`: cross-component event broadcasting (no web equivalent)
+
+### What you'd expect (web)
+Cross-component communication uses custom DOM events, RxJS subjects, or global state. No built-in framework-level event bus.
+
+### What Lynx does
+Lynx provides a built-in `GlobalEventEmitter` available on the background thread:
+
+```ts
+const emitter = lynx.getJSModule('GlobalEventEmitter');
+emitter.addListener('my-event', handler);
+emitter.trigger('my-event', data);
+emitter.removeListener('my-event', handler);
+```
+
+This is a native-level event bus that broadcasts across all components in the page. It is also used internally by Lynx for system-level events.
+
+---
+
+## System global events: `keyboardstatuschanged` and `onWindowResize`
+
+### What you'd expect (web)
+Keyboard visibility is tracked with `visualViewport.addEventListener('resize', ...)` or `window.addEventListener('resize', ...)`. `window.resize` fires when the window size changes.
+
+### What Lynx does
+Global events are dispatched through the `GlobalEventEmitter`:
+- **`keyboardstatuschanged`** — fires when the software keyboard appears or disappears. Payload: `{ status: 'show' | 'hide', height, compatHeight }`. There is no web `resize` equivalent that is reliable for keyboard detection on mobile.
+- **`onWindowResize`** — fires when the Lynx view container is resized. Payload: `{ width, height }`.
+
+Subscribe via:
+```ts
+lynx.getJSModule('GlobalEventEmitter').addListener('keyboardstatuschanged', handler);
+```
+
+---
+
+## `fetch` is available but without CORS, FormData, Blob, or redirect support
+
+### What you'd expect (web)
+The Fetch API is available with CORS enforcement, `FormData`, `Blob`, redirects, and `keepalive`.
+
+### What Lynx does
+`fetch()` IS available in Lynx, but with important differences:
+- **No CORS** — Lynx runs as a native client, not a browser origin. All requests are allowed regardless of `Access-Control-Allow-Origin` headers.
+- **No `FormData`** — cannot send multipart form data.
+- **No `Blob`** — binary data handling is limited.
+- **No redirect** — redirect behavior may differ from web.
+- **Streaming IS supported** — `response.body.getReader()` works for server-sent streams.
+- **EventSource IS supported** — for Server-Sent Events.
+
+---
+
+## `TextEncoder` and `TextDecoder` are not available in PrimJS — use `TextCodecHelper`
+
+### What you'd expect (web)
+`TextEncoder` and `TextDecoder` are standard globals for encoding/decoding UTF-8 strings to/from `Uint8Array`.
+
+### What Lynx does
+PrimJS does not provide `TextEncoder` or `TextDecoder`. Use Lynx's **`TextCodecHelper`** module instead:
+
+```ts
+const helper = lynx.requireModule('TextCodecHelper');
+const encoded = helper.encode('hello'); // returns Uint8Array
+const decoded = helper.decode(uint8Array); // returns string
+```
+
+---
+
+## `text-maxline` attribute limits visible lines (no CSS equivalent)
+
+### What you'd expect (web)
+Multi-line truncation requires `-webkit-line-clamp` (a non-standard prefix) combined with `display: -webkit-box` and `overflow: hidden`.
+
+### What Lynx does
+Lynx provides a first-class `text-maxline` attribute on `<x-text>` that limits the number of visible lines. Combine with `overflow: hidden` and `text-overflow: ellipsis` to add an ellipsis:
+
+```html
+<x-text style="text-overflow: ellipsis; overflow: hidden;" text-maxline="3">
+  Long content that will be truncated at 3 lines...
+</x-text>
+```
+
+The `<inline-truncation>` child element can be used instead of `...` as a fully custom truncation indicator (e.g., a "Read more" button).
+
+---
+
+## `<x-text>` exposes a `layout` event with per-line geometry
+
+### What you'd expect (web)
+There is no native DOM event that tells you the line layout of a text element. You must use `Range` + `getBoundingClientRect()` workarounds.
+
+### What Lynx does
+`<x-text>` fires a `layout` event after each render containing detailed line information:
+- `lineCount` — total number of lines rendered
+- `lines` array — each entry contains the character start/end position and `ellipsisCount` for truncated lines
+
+This is useful for implementing "Show more" logic or aligning decorations to specific lines.
+
+---
+
+## `<x-text>` supports programmatic text selection via attributes and methods
+
+### What you'd expect (web)
+`window.getSelection()`, `Range`, and `Selection` API handle text selection. CSS `user-select` controls selectability.
+
+### What Lynx does
+Text selection uses Lynx-specific APIs:
+- Set **`text-selection="true"`** (plus `flatten={false}`) on `<x-text>` to enable selection.
+- **`setTextSelection(startX, startY, endX, endY, showStartHandle, showEndHandle)`** — programmatically set the selection by coordinate.
+- **`getTextBoundingRect(startOffset, endOffset)`** — returns the bounding boxes for a character range (useful for custom highlight overlays).
+- **`getSelectedText()`** — returns the currently selected string.
+- **`selectionchange`** event fires when the selection range changes.
+- **`custom-text-selection="true"`** delegates all selection gesture handling to the developer (no default selection handles).
+
+---
+
+## `<x-image>` has native attributes with no CSS equivalents: `tint-color`, `blur-radius`, `cap-insets`
+
+### What you'd expect (web)
+Image effects use CSS (`filter: blur()`, CSS blend modes). 9-patch scaling requires the actual Android `.9.png` format.
+
+### What Lynx does
+`<x-image>` supports several native image features without CSS equivalents:
+- **`tint-color`** — changes all non-transparent pixels to the specified color (like CSS `fill` for SVG but for raster images). No web equivalent.
+- **`blur-radius`** — applies a native Gaussian blur to the image source (distinct from CSS `filter: blur()` which blurs the rendered element). Useful for blurred placeholder effects.
+- **`cap-insets="top right bottom left"`** — enables 9-patch-like scaling: the specified inset regions are not stretched while the center scales. Does NOT require the Android `.9.png` format. No direct web equivalent (CSS `border-image-slice` is the closest).
+- **`auto-size`** — after the image loads, automatically resizes the element to match the image's intrinsic aspect ratio. Unlike web intrinsic sizing, this requires the explicit attribute and is triggered post-load.
+- **`image-config`** (Android only) — set to `'RGB_565'` to use 16-bit color (lower memory) or `'ARGB_8888'` for 32-bit with transparency. Note: `RGB_565` may affect `border-radius` rendering.
+
+---
+
+## `<x-list>` supports waterfall (masonry), scroll snapping, and update animations — no CSS equivalents
+
+### What you'd expect (web)
+CSS Grid provides multi-column and masonry (experimental `grid-template-rows: masonry`). Scroll snap uses `scroll-snap-type`. Data-change animations require custom JavaScript.
+
+### What Lynx does
+`<x-list>` has three native layout types:
+- **`list-type="single"`** — single-column scroll list
+- **`list-type="flow"`** — grid layout with aligned row tops (all items same height per row)
+- **`list-type="waterfall"`** — masonry layout: items fill the shortest column, so variable-height items don't leave gaps
+
+Additional features:
+- **`item-snap`** — page-snap scrolling: `{ factor: 0-1, offset: px }` where `factor=0` snaps item to list top and `factor=1` to list bottom. More precise than CSS `scroll-snap-type`.
+- **`preload-buffer-count`** — pre-renders N items outside the visible area to reduce pop-in. Set to approximately one screen's worth of items.
+- **`update-animation`** — when `"default"`, list animates item insertions and deletions when `update-list-info` changes. `"none"` disables this. No web equivalent.
+- **`reuse-identifier`** on `<list-item>` — groups item templates so that only compatible layouts are reused during recycling (prevents wrong-size items from being recycled into wrong slots).
+
+---
+
+## Accessibility uses `accessibility-*` attributes instead of ARIA
+
+### What you'd expect (web)
+Accessibility is implemented via `role`, `aria-label`, `aria-hidden`, `aria-live`, `tabindex`, etc.
+
+### What Lynx does
+Lynx uses its own attribute system:
+- **`accessibility-element="true/false"`** — marks an element as an accessible node (default `true` for `<text>`/`<image>`, `false` for `<view>`).
+- **`accessibility-label`** — equivalent to `aria-label`.
+- **`accessibility-trait`** — element type hint: `'button' | 'image' | 'text'` (simpler than ARIA roles).
+- **`accessibility-elements`** — comma-separated IDs controlling focus order and limiting which children are accessible (no ARIA equivalent; closest is `aria-flowto`).
+- **`accessibility-elements-hidden`** — equivalent to `aria-hidden="true"` on a subtree.
+- **`accessibility-exclusive-focus`** — traps focus within the element (like a modal dialog's focus trap). No direct ARIA equivalent; ARIA requires `aria-modal` + JavaScript focus management.
+- **`lynx.accessibilityAnnounce(message)`** — programmatically sends an announcement to the screen reader (equivalent to an `aria-live` region update).
+
+There is no equivalent to `role`, `tabindex`, `aria-expanded`, `aria-selected`, or most other ARIA attributes.
+
+---
+
+## `performance.now()` is not available; use `lynx.performance` trace API instead
+
+### What you'd expect (web)
+`performance.now()` returns a high-resolution timestamp in milliseconds for fine-grained timing measurements.
+
+### What Lynx does
+`performance.now()` is **not available** in Lynx. For profiling and performance tracing, use `lynx.performance`:
+- `lynx.performance.profileStart(label)` — begin a named trace span
+- `lynx.performance.profileEnd(label)` — end the span
+- `lynx.performance.profileMark(label)` — instant marker
+
+These emit trace events in Perfetto format, not the Web Performance Timeline model. For simple timing, `Date.now()` is available as a lower-resolution alternative.
+
+---
+
+## `page` is the CSS selector for the root element, not `html` or `body`
+
+### What you'd expect (web)
+`html { ... }` or `body { ... }` styles the root/document element.
+
+### What Lynx does
+In Lynx, the root element is `<page>`. Use the **`page`** type selector or **`:root`** pseudo-class to style it:
+
+```css
+page { background-color: white; }
+:root { background-color: white; } /* also works */
+```
+
+`html`, `body`, and `*` selectors do not apply to the Lynx root element.
+
+---
+
+## `require()` is synchronous and can appear anywhere; no CommonJS/ESModule boundary restriction
+
+### What you'd expect (web/Node.js)
+`import` statements must be at the top level of a module. `require()` is synchronous but node-specific.
+
+### What Lynx does
+Lynx supports both CommonJS and ESModule in the same codebase. Notably:
+- **`require()`** can appear **anywhere** in the code — inside functions, conditionals, loops — and is **synchronous** with module caching.
+- **`import()`** is asynchronous (returns a Promise) for dynamic imports.
+- CommonJS and ESModule can be mixed freely within a bundle.
+- No C++ addons or Node.js built-in modules (`fs`, `path`, etc.) are available.
+
+This means lazy loading patterns using `require()` inside functions work, which is unusual compared to both browser ESModule environments and strict Node.js setups.
+
+---
+
+## App backgrounding freezes the JS thread — `setTimeout` delays become inaccurate
+
+### What you'd expect (web)
+Browser tabs that are backgrounded throttle timers but don't freeze them completely.
+
+### What Lynx does
+When the native app is **sent to background** (user presses home button), the Lynx JS thread may **freeze entirely**. Any pending `setTimeout` or `setInterval` callbacks will not fire until the app is foregrounded again — and when they do fire, the elapsed time will be longer than the requested delay. Do not rely on timer precision for time-sensitive logic, and consider using app lifecycle events to pause/resume work.
+
+---
+
+## `lynx.getSystemInfo()` provides platform/device data (no `navigator` equivalent)
+
+### What you'd expect (web)
+`navigator.userAgent`, `navigator.platform`, `screen.width`, `screen.height`, `window.devicePixelRatio` provide device information.
+
+### What Lynx does
+Use `lynx.getSystemInfo()` to get platform information:
+- `platform` — `'Android' | 'iOS' | 'macOS' | 'windows' | 'headless'`
+- `osVersion` — OS version string (iOS) or SDK_INT (Android)
+- `pixelWidth`, `pixelHeight` — physical pixel dimensions
+- `pixelRatio` — device pixel ratio
+- `engineVersion` — Lynx engine version
+- `runtimeType` — `'v8' | 'jsc' | 'quickjs'` (background thread only)
+
+There is no `navigator` global and no `window.screen` object.
+
+---
+
+## CSS structural pseudo-classes and attribute selectors are not supported
+
+### What you'd expect (web)
+CSS selectors like `:nth-child(2n)`, `:first-child`, `:last-child`, `:empty`, `:only-child`, `[data-type]`, `[href^="https"]` are standard and widely used.
+
+### What Lynx does
+The only supported pseudo-classes are **`:not()`**, **`:root`**, and **`:active`**. Everything else is absent:
+- `:nth-child()`, `:nth-of-type()`, `:first-child`, `:last-child`, `:nth-last-child()` — not supported
+- `:empty`, `:only-child`, `:only-of-type` — not supported
+- Attribute selectors (`[attr]`, `[attr=value]`, `[attr^=value]`, etc.) — not supported
+- `:is()`, `:where()`, `:has()` — not supported
+
+Standard combinators **do** work: descendant (` `), child (`>`), adjacent sibling (`+`), and general sibling (`~`). Universal selector (`*`), type selectors, class selectors, ID selectors, and multiple class selectors (`.a.b`) all work.
+
+---
+
+## `inherit`, `initial`, `unset`, and `revert` global CSS keywords are not supported
+
+### What you'd expect (web)
+Every CSS property accepts `inherit`, `initial`, `unset`, and `revert` as values to reset or override the cascade.
+
+### What Lynx does
+These global keywords are **not supported** in Lynx. Many individual property docs explicitly list them as unsupported values. You cannot use `color: inherit` or `display: initial` — each property must always be set to a concrete value. This compounds with the earlier documented absence of CSS inheritance: there is no way to opt in to inheriting a value from a parent.
+
+---
+
+## `calc()` is supported; `min()`, `max()`, `clamp()`, and `env()` are not
+
+### What you'd expect (web)
+`calc()`, `min()`, `max()`, `clamp()`, and `env()` (for safe area insets) are all available for responsive sizing.
+
+### What Lynx does
+- **`calc()`** — supported with basic arithmetic (`+`, `-`, `*`, `/`, parentheses). Works with CSS variables via `var()`.
+- **`min()`, `max()`, `clamp()`** — not supported. Calculate responsive bounds in JavaScript and set them via signals or inline styles.
+- **`env()`** — not supported. Safe area insets (`env(safe-area-inset-top)`) are not available via CSS. Use `lynx.getSystemInfo()` or native bridge APIs to get device inset data.
+
+---
+
+## `@supports`, `@layer`, `@container`, `@property` at-rules are not supported
+
+### What you'd expect (web)
+Modern CSS at-rules enable feature queries (`@supports`), cascade layers (`@layer`), container queries (`@container`), and custom property typing (`@property`).
+
+### What Lynx does
+None of these are supported:
+- **`@supports`** — cannot conditionally apply styles based on feature support
+- **`@layer`** — no cascade layer control
+- **`@container`** — no container queries for responsive components
+- **`@property`** — cannot define typed custom properties or animation behavior for CSS variables
+
+Supported at-rules: `@font-face`, `@keyframes`, `@import` only.
+
+---
+
+## `@font-face` does not support `font-style`, `font-weight`, or `font-variant` descriptors
+
+### What you'd expect (web)
+`@font-face` declarations include `font-family`, `src`, `font-style`, `font-weight`, `font-display`, `font-variant`, `unicode-range`, etc.
+
+### What Lynx does
+Only `font-family` and `src` are supported. **`font-style`**, **`font-weight`**, and **`font-variant`** descriptors are not supported in `@font-face`. This means you cannot load multiple font faces for different weights/styles under the same family name — each variant must use a different `font-family` name, or you must load a variable font.
+
+Supported font formats differ by platform:
+- Android: TTF, OTF, TTC
+- iOS: TTF, OTF, WOFF (10+), WOFF2 (10+)
+
+---
+
+## CSS `<time>` values require units even for zero (`0ms`, not `0`)
+
+### What you'd expect (web)
+`transition-duration: 0` is valid shorthand for `0s` in most browsers.
+
+### What Lynx does
+`<time>` values always require explicit units. `0` without a unit is **invalid** — use `0ms` or `0s`. This applies to `transition-duration`, `transition-delay`, `animation-duration`, `animation-delay`, and any other time-valued property.
+
+---
+
+## Gradient color stops cannot have multiple positions per stop
+
+### What you'd expect (web)
+`linear-gradient(red 10% 30%, blue 70% 90%)` assigns two positions to each color stop, creating hard color bands.
+
+### What Lynx does
+Each color stop can have at most **one** position value. Multi-position stops (e.g., `red 10% 30%`) are not supported. To create hard-edge gradients, use two adjacent stops at the same color with different positions.
+
+---
+
+## `contain`, `backface-visibility`, `scroll-snap-*`, `overscroll-behavior`, `caret-color`, `hyphens`, `inset`, and `appearance` are not supported
+
+### What you'd expect (web)
+These are useful CSS properties for rendering optimization, 3D transforms, scroll UX, form styling, and text layout.
+
+### What Lynx does
+None are supported:
+- **`contain`** — no CSS containment for rendering optimization (Lynx manages this natively)
+- **`backface-visibility`** — cannot hide the back face of 3D-transformed elements
+- **`scroll-snap-type` / `scroll-snap-align`** — no CSS scroll snapping; use `<x-list item-snap>` attribute instead
+- **`overscroll-behavior`** — no overscroll containment; use `bounces` attribute on `<x-scroll-view>` instead
+- **`caret-color`** — cannot style the text input cursor color
+- **`hyphens`** — no automatic hyphenation
+- **`inset`** shorthand — use `top`, `right`, `bottom`, `left` individually
+- **`appearance`** — cannot reset native form control styling (moot since Lynx has its own form elements)
+- **CSS nesting** — not supported in the native CSS engine (use PostCSS/Sass at build time)
+
+---
+
+## Lynx has a platform gesture layer separate from the event system — with dedicated interception controls
+
+### What you'd expect (web)
+Touch/gesture events are unified. `touch-action` CSS property is the primary way to control gesture behavior. There is no concept of a "platform gesture layer" separate from the DOM event system.
+
+### What Lynx does
+Lynx separates gestures into two independent layers:
+1. **Lynx touch events** (`touchstart`, `touchmove`, `touchend`, `tap`, `longpress`) — controlled by `user-interaction-enabled` and `pointer-events`
+2. **Platform gestures** (native scroll, iOS back-swipe, system pan) — controlled by a completely different set of attributes
+
+Platform gesture control attributes (no web equivalents):
+
+| Attribute | Purpose |
+|---|---|
+| `native-interaction-enabled` | Toggle whether the element consumes platform gestures (defaults differ per platform: `true` on iOS, `false` on Android) |
+| `pan-intercept-direction` | Block platform scroll gestures in a specific direction: `0` = horizontal, `1` = vertical, `2` = none |
+| `pan-intercept-scope` | Which nodes' gestures are affected: `0`=self, `1`=ancestors, `2`=descendants, through `5`=all, `6`=none |
+| `block-native-event` | Blocks platform-layer gestures entirely (e.g., iOS right-swipe-to-go-back) |
+| `block-native-event-areas` | Limits `block-native-event` to specific rectangular regions: `[['0px','0px','50%','100%']]` |
+| `consume-slide-event` | Blocks platform scroll based on swipe angle (degrees): `[[-45, 45]]` blocks rightward swipes |
+
+These have no CSS or DOM equivalents. On web, `touch-action` and `preventDefault()` are the only gesture controls. In Lynx, the platform gesture recognizer runs independently at the native layer and must be managed through these element attributes.
+
+---
+
+## `event-through`: touch passthrough to the native platform layer
+
+### What you'd expect (web)
+`pointer-events: none` makes an element transparent to all pointer events; underlying elements receive them.
+
+### What Lynx does
+`event-through` is a boolean attribute that makes Lynx **not consume** touch events, allowing them to pass through to the native platform layer below. This is distinct from `pointer-events: none`:
+- `pointer-events: none` — prevents the element from receiving Lynx touch events (other Lynx elements can still receive them)
+- `event-through=true` — Lynx itself stops consuming the touch event, so the **native platform** (e.g., a native Android view behind the Lynx view) receives it
+
+`event-through` has **inheritance** — child nodes inherit the parent's value unless they set their own. Use `event-through-active-regions` (`[['0px','0px','50%','50%']]`) to limit the passthrough to specific rectangular areas.
+
+---
+
+## `hit-slop`: expand touch target area without affecting layout
+
+### What you'd expect (web)
+To expand a touch target, add `padding` (affects layout) or use a pseudo-element overlay (requires `::before`/`::after`, which Lynx doesn't support).
+
+### What Lynx does
+The `hit-slop` attribute expands the element's touch-responsive area without changing its visual size or layout. It accepts a string (`'10px'`) for uniform expansion or an object (`{ top: '10px', left: '20px', right: '20px', bottom: '10px' }`) for per-side control.
+
+Limitations: `hit-slop` does not affect platform gestures — only Lynx touch events. It can also be clipped by parent `overflow: hidden`, `z-index` ordering, `translateZ`, or `position: fixed`.
+
+---
+
+## `flatten` (Android): forces native View creation for specific features
+
+### What you'd expect (web)
+Every DOM element always corresponds to a renderable object. There is no concept of "flattened" vs "unflattened" rendering.
+
+### What Lynx does
+On **Android only**, Lynx may "flatten" element rendering — drawing the element's content directly into its parent's canvas without creating a separate native Android `View`. This is a performance optimization but breaks certain features.
+
+Set `flatten={false}` on elements that need:
+- Text selection (`text-selection=true`)
+- Screenshot capture
+- `sticky` positioning inside `<x-scroll-view>`
+- Element method calls via `SelectorQuery`
+
+This attribute has no effect on iOS. There is no web equivalent because web always creates renderable objects for all elements.
+
+---
+
+## `:active` pseudo-class bubbles up the event response chain (unlike web)
+
+### What you'd expect (web)
+`:active` applies only to the element being pressed and its ancestors in the DOM tree. It does not "propagate" — ancestors independently match `:active` based on the event target being a descendant.
+
+### What Lynx does
+In Lynx, `:active` **propagates up the event response chain** by default. This means touching a deeply nested element applies `:active` styles to all its ancestors in the chain. Set `enable-touch-pseudo-propagation=false` on an element to prevent `:active` from propagating through it — making it behave more like web.
+
+---
+
+## `ignore-focus`: prevent keyboard focus stealing on tap
+
+### What you'd expect (web)
+Tapping a non-focusable element may blur the current focus target (implementation-dependent). There's no way to prevent this without JavaScript `preventDefault()`.
+
+### What Lynx does
+`ignore-focus=true` prevents the element from stealing keyboard focus when tapped. This is inherited — children also won't steal focus unless they override it. Use case: tapping an overlay toolbar button while keeping the keyboard open for a text input below.
+
+---
+
+## Angular Renderer2 ignores namespaces, listener options, and style flags
+
+### What you'd expect (Angular web)
+`Renderer2.createElement()` supports SVG namespaces. `Renderer2.listen()` supports passive, capture, and once options. `Renderer2.setStyle()` supports `RendererStyleFlags2` for sanitization.
+
+### What Lynx does
+The Lynx `Renderer2` implementation passes through element creation and style changes to Lynx native functions, but:
+- **Namespace parameters** are silently ignored in `createElement()`, `setAttribute()`, and `removeAttribute()`. SVG element creation via namespace does not work through Angular's API (use the `<svg>` Lynx element directly).
+- **Listener options** (`passive`, `capture`, `once`) are ignored in `listen()`. All events are registered with default behavior.
+- **`RendererStyleFlags2`** flags (sanitization, important) are ignored in `setStyle()` and `removeStyle()`. No CSS sanitization is applied.
+- **`setValue(node, value)`** sets `node.setAttribute('text', value)` rather than `node.textContent = value`. This works because Lynx text nodes use a `text` attribute internally.
+
+---
+
+## CSS style property names are NOT transformed between camelCase and kebab-case
+
+### What you'd expect (web)
+`element.style.backgroundColor = 'red'` automatically maps to `background-color` in CSS. Angular's `setStyle('backgroundColor', value)` is equivalent to `setStyle('background-color', value)`.
+
+### What Lynx does
+The Angular Lynx renderer passes style property names to `__AddInlineStyle()` **without any transformation**. There is no camelCase-to-kebab-case conversion. If you use Angular's `[style.backgroundColor]="'red'"`, the property name `backgroundColor` is passed as-is to the Lynx native layer. Whether Lynx's CSS engine accepts camelCase names is implementation-dependent — use **kebab-case** (`background-color`) in all style bindings and CSS declarations to be safe.
+
+---
+
+## Unrecognized event name prefixes silently produce no-op listeners
+
+### What you'd expect (web)
+`element.addEventListener('click', handler)` always registers the listener. Invalid event names still register (they just never fire).
+
+### What Lynx does
+Event listener registration requires names to match specific prefixes: `bind`, `catch`, `capture-bind`, `capture-catch`, or `global-bind`. If the event name does not start with one of these prefixes, `addEventListener()` returns an **empty unsubscribe function** and the listener is never registered. No error is thrown. This means standard DOM event names like `click`, `focus`, `input` silently fail — you must use `bindtap`, `bindfocus`, `bindinput` instead.
+
+---
+
+## `order` does not affect rendering/paint order — only layout order
+
+### What you'd expect (web)
+`order` reorders both the **layout position** and **visual painting order** of flex/grid items. An item with higher `order` visually appears after items with lower `order`.
+
+### What Lynx does
+`order` affects layout positioning (which item appears where in the flex/grid sequence) but does **not affect rendering/paint order**. Elements are still painted in DOM source order regardless of their `order` value. Additionally, `order` is not supported on children with `position: absolute`, `position: fixed`, or `position: sticky`.
+
+---
+
+## `min-width`/`min-height` default to `0px` (not `auto`); `max-*` wins over `min-*` (reversed from web)
+
+### What you'd expect (web)
+- `min-width` defaults to `auto` (which resolves to the content's intrinsic minimum)
+- When `min-width` and `max-width` conflict, `min-width` wins (min overrides max)
+
+### What Lynx does
+- Default `min-width`/`min-height` is **`0px`**, not `auto`. The `auto` keyword is not supported. This means flex items can shrink to zero by default (no intrinsic minimum protection).
+- Keywords `max-content`, `min-content`, `fit-content` are not supported.
+- **`max-width` takes precedence over `min-width`** — the opposite of web. If `max-width < min-width`, then `min-width` is ignored. This reversal is critical for responsive layouts.
+
+---
+
+## `flex-basis` is not affected by `box-sizing`
+
+### What you'd expect (web)
+When `box-sizing: border-box`, `flex-basis` includes padding and border in its calculation (like `width`).
+
+### What Lynx does
+`flex-basis` always measures the **content area only**, regardless of the element's `box-sizing` value. Padding and border are never included in `flex-basis` calculations. This means an element with `flex-basis: 100px; padding: 20px; box-sizing: border-box` will occupy 140px total in Lynx (100px content + 40px padding), whereas on web it would occupy 100px total.
+
+---
+
+## `text-transform` is not supported
+
+### What you'd expect (web)
+`text-transform: uppercase` / `lowercase` / `capitalize` transforms text casing via CSS.
+
+### What Lynx does
+The `text-transform` property **does not exist** in Lynx. Text case transformations must be done in JavaScript/TypeScript before rendering:
+```ts
+text = text.toUpperCase(); // must transform in JS
+```
+
+---
+
+## `background` shorthand does not support `<attachment>`, and gradient types are limited in the shorthand
+
+### What you'd expect (web)
+The `background` shorthand accepts: `background: url(...) no-repeat center / cover fixed red` — including attachment, repeating gradients, conic gradients, etc.
+
+### What Lynx does
+- **`background-attachment`** — not supported at all (no `fixed`, `scroll`, or `local`). Backgrounds always scroll with the element.
+- In the `background` shorthand, **gradient types are limited to** `linear-gradient()` and `radial-gradient()` only. `repeating-linear-gradient()`, `repeating-radial-gradient()`, and `conic-gradient()` are **not supported in the shorthand** (they may work in `background-image` longhand but not in the unified `background` shorthand).
+- Color must be the **last** value in the shorthand; if placed elsewhere, the parser treats the entire declaration as invalid.
+
+---
+
+## `background-size: auto` with gradient backgrounds causes display errors
+
+### What you'd expect (web)
+`background-size: auto` scales the background to its intrinsic size. For gradients (which have no intrinsic size), it fills the element.
+
+### What Lynx does
+Using `background-size: auto` or specifying only one dimension (e.g., `background-size: 50%`) with a **gradient** `background-image` may cause display errors or unexpected rendering. Always specify both dimensions explicitly when using gradients: `background-size: 100% 100%` or use `cover`/`contain`.
+
+---
+
+## `column-gap` and `row-gap` do not support the `normal` keyword
+
+### What you'd expect (web)
+`column-gap: normal` and `row-gap: normal` use the browser's default gap (typically `0` for flex, `1em` for multi-column).
+
+### What Lynx does
+The `normal` keyword is not supported. Only explicit `<length>` and `<percentage>` values are accepted. Use `0px` when you want no gap.
+
+---
+
+## `display: relative` is a Lynx-proprietary layout mode with its own positioning system
+
+### What you'd expect (web)
+`display: relative` is not valid CSS. Web uses `position: relative` for relative positioning within flow layout.
+
+### What Lynx does
+`display: relative` activates a proprietary layout mode inspired by Android's `RelativeLayout`. Children are positioned relative to the parent or to each other using dedicated properties:
+
+| Property | Purpose |
+|---|---|
+| `relative-id` | Integer identifier for the element (must be unique among siblings, `-1` = skip as reference) |
+| `relative-center` | Center within parent: `both`, `vertical`, `horizontal`, `none` |
+| `relative-align-top` / `-bottom` / `-left` / `-right` | Align edge with parent (`parent`) or sibling (by `relative-id`) |
+| `relative-top-of` / `-bottom-of` / `-left-of` / `-right-of` | Position adjacent to a sibling (by `relative-id`) |
+| `relative-align-inline-start` / `-inline-end` | Logical alignment (respects RTL) |
+| `relative-inline-start-of` / `-inline-end-of` | Logical positioning (respects RTL) |
+| `relative-layout-once` | Performance: `true` (default) = fast single-pass layout; `false` = supports circular cross-axis dependencies |
+
+This has no web equivalent. Use it for complex positioning that would require multiple nested flex containers or absolute positioning on web.
+
+---
+
+## iOS polyfills for `Map`, `Set`, `WeakMap`, `WeakSet` — these are only polyfilled on iOS, not Android
+
+### What you'd expect (web)
+`Map`, `Set`, `WeakMap`, `WeakSet` are universally available in all modern environments.
+
+### What Lynx does
+On **Android** (which uses PrimJS on both threads), these ES6 collections are natively available. On **iOS** (which uses JavaScriptCore for the background thread), they are **polyfilled** by the Lynx runtime. The polyfills cover correct behavior but may have subtle performance differences from native implementations. Other iOS-only polyfills include: `Array` methods (`flat`, `flatMap`, `includes`, etc.), `Object.fromEntries`, `Promise` methods, `Reflect`, `String` methods, and `Symbol`.
+
+This is generally transparent unless you're doing feature detection or relying on specific implementation details of these collections.
+
+---
+
+## WebAssembly is limited: background thread only, Android 3.8+, no streaming/static APIs
+
+### What you'd expect (web)
+`WebAssembly.compile()`, `WebAssembly.instantiate()`, `WebAssembly.validate()`, streaming compilation, and all Wasm APIs are available on any thread in all modern browsers.
+
+### What Lynx does
+WebAssembly support is **severely restricted**:
+- Only available on the **background thread** (not the main/rendering thread)
+- Only on **Android** with Lynx SDK **3.8+** (not iOS, not older versions)
+- **Static APIs not supported**: `WebAssembly.compile()`, `WebAssembly.instantiate()`, `WebAssembly.validate()` — use the object-based APIs instead (`new WebAssembly.Module()`, `new WebAssembly.Instance()`)
+- **Streaming variants not supported**: `WebAssembly.compileStreaming()`, `WebAssembly.instantiateStreaming()`
+- Reflection APIs only partially supported
+
+---
+
+## No `<canvas>`, `<video>`, `<audio>`, or `<iframe>` elements
+
+### What you'd expect (web)
+`<canvas>` for 2D/WebGL drawing, `<video>` and `<audio>` for media playback, `<iframe>` for embedded pages are fundamental HTML elements.
+
+### What Lynx does
+None of these elements exist in Lynx:
+- **`<canvas>`** — not supported. There is no 2D drawing surface or Canvas API. For custom drawing, use native bridge modules or SVG (limited).
+- **`<video>` / `<audio>`** — not supported as built-in elements. Media playback requires native bridge integration via `lynx.requireModule()`.
+- **`<iframe>`** — replaced by the Lynx-specific `<frame>` element (which embeds another Lynx page, not arbitrary web content). There is no way to embed web URLs.
+
+---
+
+## No drag-and-drop, clipboard, file system, or Web Worker APIs
+
+### What you'd expect (web)
+`DataTransfer`, `navigator.clipboard`, File API, `showOpenFilePicker()`, `Worker`, `SharedWorker` are standard browser APIs.
+
+### What Lynx does
+None of these web APIs exist in Lynx:
+- **Drag and drop** — no `DragEvent`, no `draggable` attribute, no `DataTransfer`. Implement custom drag via touch events.
+- **Clipboard** — no `navigator.clipboard`. Copy/paste must go through native bridge modules.
+- **File system** — no File API, no `<input type="file">`, no `showOpenFilePicker()`. File access requires native bridge.
+- **Web Workers** — not supported. Lynx already has a dual-thread model (main + background), but you cannot spawn additional threads from JS. Use the built-in background thread instead.
+- **SharedWorker / ServiceWorker** — not supported. No offline caching, no background sync.
+
+---
+
+## Cross-thread data serialization converts `undefined` to `null`
+
+### What you'd expect (web)
+In a single-threaded environment, `undefined` and `null` remain distinct through all operations.
+
+### What Lynx does
+When data crosses the thread boundary (background → main thread or vice versa), it is **JSON-serialized**. `JSON.stringify()` converts `undefined` values to `null` (or omits them from objects). This means:
+- An attribute set to `undefined` on one thread arrives as `null` on the other
+- Array slots containing `undefined` become `null` after serialization
+- This can cause false-positive dirty checks when comparing old vs new values
+
+When writing code that sets attributes or passes data cross-thread, treat `undefined` and `null` as equivalent. Avoid using `undefined` as a meaningful distinct value.
+
+---
+
+## `lynx.getTextInfo()` only works with built-in platform fonts, not custom `@font-face` fonts
+
+### What you'd expect (web)
+Font metrics (via `canvas.measureText()` or `FontFace` API) work with any loaded font, including custom `@font-face` declarations.
+
+### What Lynx does
+`lynx.getTextInfo(config)` measures text dimensions (width, height, line count), but the `fontFamily` parameter **only supports built-in platform fonts** — not fonts loaded via `@font-face` or `lynx.addFont()`. If you pass a custom font family name, the measurement will fall back to a default font and return inaccurate dimensions. Measure text only after confirming the font is a system font, or use the element's actual rendered dimensions (via exposure events or layout callbacks) instead.
+
+---
+
+## Gradient color stop: bare numbers without units are treated as percentages
+
+### What you'd expect (web)
+In gradients, color stop positions require explicit units: `linear-gradient(red 20%, blue 80%)`. A bare number like `0.5` is invalid.
+
+### What Lynx does
+In Lynx gradient definitions, a bare number without a unit is interpreted as a **percentage expressed as a decimal**: `0.5` is treated as `50%`, `1` is treated as `100%`. While this is convenient, it means `linear-gradient(red 0, blue 1)` in Lynx produces `red 0%, blue 100%` — which would be invalid on web. Always use explicit `%` suffix for portability.
+
+---
+
+## `__SetAttribute` vs `__SetConfig`: Lynx distinguishes between attributes and config
+
+### What you'd expect (web)
+DOM elements have a single `setAttribute()` method and properties. There is no separate "config" concept.
+
+### What Lynx does
+Lynx elements have **two** ways to set properties:
+- **`__SetAttribute(element, name, value)`** — for dynamic properties that can change at any time (scroll-orientation, enable-scroll, item-key, etc.)
+- **`__SetConfig(element, configObject)`** — for initial configuration set once at creation time (image mode, list recycleEnabled, list estimatedItemSize, etc.)
+
+The distinction matters because `__SetConfig` is only effective during element creation. Setting config properties later via `__SetAttribute` may not work or may require a full element recreation. The Angular Lynx renderer handles this by setting config in `LynxDocument.createElement()` and attributes via template bindings.
+
+---
+
+## Default `position` is `relative`, not `static`
+
+### What you'd expect (web)
+All elements default to `position: static` — they are positioned according to the normal flow, and `top`/`left`/`right`/`bottom` have no effect.
+
+### What Lynx does
+The default `position` is **`relative`**. This means `top`/`left`/`right`/`bottom` offsets are active by default on every element. While this rarely causes visible differences (offset defaults are `0`), it changes how stacking contexts and `z-index` behave: every Lynx element is already a positioned element, so `z-index` applies to every element by default (on web, `z-index` only applies to positioned elements).
+
+---
+
+## `Intl` API is not available — i18n libraries require polyfills
+
+### What you'd expect (web)
+`Intl.NumberFormat`, `Intl.DateTimeFormat`, `Intl.PluralRules`, `Intl.Collator`, etc. are standard globals in all modern browsers and Node.js.
+
+### What Lynx does
+The `Intl` API is **not implemented** in Lynx's PrimJS runtime. This breaks any i18n or localization library that relies on it:
+- **i18next v24+** requires `Intl.PluralRules` — use v23 with `compatibilityJSON: 'v3'` or polyfill `@formatjs/intl-pluralrules`.
+- **Angular `@angular/common` pipes** (`DatePipe`, `DecimalPipe`, `CurrencyPipe`) use `Intl` internally — they will throw at runtime without polyfills.
+- Polyfills needed: `@formatjs/intl-numberformat`, `@formatjs/intl-datetimeformat`, `@formatjs/intl-pluralrules`, etc.
+
+---
+
+## `border-image` is not supported
+
+### What you'd expect (web)
+`border-image` (and its longhands `border-image-source`, `border-image-slice`, `border-image-width`, `border-image-outset`, `border-image-repeat`) render a custom image as the element's border.
+
+### What Lynx does
+`border-image` is **not supported** (still in development according to Lynx docs). Use standard `border` properties with solid colors, or use a background image with `background-clip: border-area` as a workaround for decorative borders.
+
+---
+
+## CSS inheritance can be explicitly enabled — with a fixed list of inheritable properties
+
+### What you'd expect (web)
+Many CSS properties (color, font-*, line-height, text-*, etc.) inherit from parent to child by default without any configuration.
+
+### What Lynx does
+CSS inheritance is **off by default** (as documented earlier), but it can be **explicitly enabled** via the build config option `enableCSSInheritance: true` in the Lynx template plugin. When enabled, only these properties inherit:
+
+`direction`, `color`, `font-family`, `font-size`, `font-style`, `font-weight`, `letter-spacing`, `line-height`, `text-align`, `text-decoration`, `text-shadow`
+
+Individual properties can also be added to the inheritable list via `customCSSInheritanceList` in the build config.
+
+Additionally, even with inheritance enabled, **`position: fixed` elements only inherit CSS from the `<page>` root**, not from their DOM ancestors — because Lynx treats `position: fixed` elements as direct children of the page node.
+
+---
+
+## `justify-items` and `justify-self` exist but with limited values
+
+### What you'd expect (web)
+`justify-items` and `justify-self` support: `normal`, `stretch`, `center`, `start`, `end`, `flex-start`, `flex-end`, `self-start`, `self-end`, `left`, `right`, `baseline`, etc.
+
+### What Lynx does
+- **`justify-items`**: Does not support `normal` (default is `stretch`), `flex-start`, `flex-end`, `self-start`, `self-end`, `left`, `right`.
+- **`justify-self`**: Does not support `normal` (default is `auto`), `flex-start`, `flex-end`, `self-start`, `self-end`, `left`, `right`.
+
+Both only work in grid layout — they have no effect in flex or linear layouts.
+
+---
+
+## Angular components must use `CUSTOM_ELEMENTS_SCHEMA` for Lynx elements
+
+### What you'd expect (Angular web)
+Angular validates element names against its schema of known HTML/SVG elements. Unknown elements cause template compilation errors.
+
+### What Lynx does
+Lynx elements (`x-view`, `x-text`, `x-image`, `x-scroll-view`, `x-list`, etc.) are not known to Angular's element schema. Every component that uses Lynx elements in its template must include `schemas: [CUSTOM_ELEMENTS_SCHEMA]` in its `@Component` decorator — otherwise Angular throws template errors during compilation.
+
+---
+
+## Zone.js is incompatible with Lynx — `provideZonelessChangeDetection()` is required
+
+### What you'd expect (Angular web)
+Angular uses Zone.js by default to automatically detect changes and trigger rendering after asynchronous operations.
+
+### What Lynx does
+Zone.js patches browser APIs (`setTimeout`, `Promise`, `addEventListener`, etc.) that either don't exist or work differently in Lynx's dual-thread runtime. Using Zone.js causes crashes or silent failures. The Lynx Angular renderer requires **`provideZonelessChangeDetection()`** in the application config. This means:
+- All state that drives templates must use Angular **signals** or call `ChangeDetectorRef.markForCheck()` explicitly.
+- Async operations (HTTP calls, timers) do not automatically trigger change detection — you must update a signal or mark for check.
+
+---
+
+## Main-thread JavaScript must be a single monolithic chunk — no code splitting
+
+### What you'd expect (web)
+Webpack/Rspack can freely split any bundle into multiple async chunks for lazy loading.
+
+### What Lynx does
+The Lynx runtime expects the main-thread JavaScript to be a **single file** (`main-thread.js`). The build system explicitly prevents code splitting on main-thread chunks:
+
+```ts
+splitChunks.chunks = (chunk) => !chunk.name?.includes('__main-thread');
+```
+
+Background-thread code can still be split normally. This means main-thread bundle size must be carefully managed — all main-thread code is loaded eagerly on startup.
+
+---
+
+## `fetch` streaming requires an explicit `enableFetchAPIStandardStreaming` flag
+
+### What you'd expect (web)
+`response.body.getReader()` for streaming fetch responses works out of the box.
+
+### What Lynx does
+While `fetch()` is available, **streaming body reading** via `response.body.getReader()` requires the build-time flag `enableFetchAPIStandardStreaming` to be set to `true`. Without this flag, `response.body` may not support the Readable Streams API. Additionally, third-party HTTP libraries may need adjustments due to subtle differences in Lynx's fetch implementation compared to the web spec (no CORS, no FormData/Blob, no redirect support).
+
+---
+
+## `width` and `height` do not support `min-content`; measurements include border and padding by default
+
+### What you'd expect (web)
+`width: min-content` sizes the element to its minimum intrinsic width. Default `width`/`height` measure the content area only (when `box-sizing: content-box`).
+
+### What Lynx does
+- `min-content` keyword is **not supported** for `width` or `height` (use explicit sizes or flex/linear layout with `linear-weight` instead).
+- Because `box-sizing` defaults to `border-box`, `width: 100px` means the element's **total size** (including padding and border) is 100px — not 100px of content with padding and border added on top.
+
+---
+
+## CSS is scoped per lazy-loaded bundle — lazy chunks have isolated CSS scope
+
+### What you'd expect (web)
+CSS loaded from lazy-loaded chunks merges into the same global stylesheet. A class defined in a lazy module can accidentally affect elements in other modules.
+
+### What Lynx does
+Lynx scopes CSS **per bundle**. When a component is lazy-loaded, its CSS lives in its own isolated scope. Styles from the main bundle do **not** affect lazy-loaded components, and vice versa. This is enforced by the Lynx template engine's CSS scoping mechanism (not CSS Modules or Shadow DOM). While this prevents accidental style leakage, it also means:
+- Global utility classes defined in the main bundle are **not available** in lazy-loaded components.
+- Each lazy bundle must include or import its own copy of shared styles.
+- The `__SetCSSId` and `entryName` parameters on elements control which CSS scope applies.
+
+---
+
+## `justify-content: start` / `end` always behave like `flex-start` / `flex-end`
+
+### What you'd expect (web)
+`start` and `flex-start` can differ: `start` aligns to the writing-mode start edge, while `flex-start` aligns to the flex container's main-start edge (which can differ with `flex-direction: row-reverse`).
+
+### What Lynx does
+Since Lynx does not support `writing-mode`, `start` always behaves identically to `flex-start`, and `end` behaves identically to `flex-end`. Additionally, `left` and `right` keywords are not supported — use `flex-start`/`flex-end` or `start`/`end` instead.
+
+---
+
+## `text-align` default is `start`, not `left`
+
+### What you'd expect (web)
+Default `text-align` is `start` (which resolves to `left` in LTR contexts). Supports `justify`, `match-parent`, and other values.
+
+### What Lynx does
+Default `text-align` is also `start`, but because Lynx supports `direction: rtl`, `start` resolves based on the element's text direction. The key difference is what's **missing**: `justify`, `justify-all`, and `match-parent` are not supported (documented earlier). This also means you cannot create justified paragraphs in Lynx.
+
+---
+
+## `z-index` auto state is implicit: determined by whether the property is set at all
+
+### What you'd expect (web)
+`z-index: auto` is the explicit default. An element with `z-index: auto` participates in its parent's stacking context and does not create its own.
+
+### What Lynx does
+Lynx determines `auto` vs non-auto stacking **by whether `z-index` is set at all**, not by its value. Since the default `position` is `relative` (not `static`), every Lynx element is already positioned — but only elements that **explicitly set `z-index`** create stacking contexts. Setting `z-index: 0` explicitly creates a stacking context (useful for `<x-scroll-view>` clipping), while an element without any `z-index` declaration behaves as auto. This subtle distinction matters for scroll-view child clipping and list item rendering (see earlier `z-index: 0` on scroll-view entry).
+
+---
+
+## `MouseEvent.button` values use non-standard numbering
+
+### What you'd expect (web)
+W3C standard: `button` value `0` = left/primary, `1` = middle/wheel, `2` = right/secondary.
+
+### What Lynx does
+Lynx uses different button numbering (as of Lynx 3.7): `1` = left, `2` = right, `3` = middle. The Lynx docs note that `MouseEvent` behavior is **not yet fully aligned with W3C**; alignment is planned for Lynx 3.8. If you're handling mouse/pointer events, remap button values or wait for the 3.8 alignment.
+
+---
+
+## `animationcancel` and `transitioncancel` events do not fire if the animated element is destroyed
+
+### What you'd expect (web)
+When an element is removed from the DOM during an animation, the browser fires `animationcancel` or `transitioncancel` to allow cleanup.
+
+### What Lynx does
+If the animated element is destroyed (removed from the native tree) mid-animation, the `animationcancel` and `transitioncancel` events **will not fire**. Any cleanup logic relying on these events will be silently skipped. Use Angular lifecycle hooks (`ngOnDestroy` / `DestroyRef`) to handle cleanup instead of relying on animation cancel events.
+
+---
+
+## `__OnLowMemory` event: native memory pressure notifications (no web equivalent)
+
+### What you'd expect (web)
+Browsers have no standard API to notify JavaScript of system memory pressure (though `navigator.deviceMemory` exists for static info).
+
+### What Lynx does
+Lynx dispatches `__OnLowMemory` as a global event with three severity levels:
+- `NONE` — memory pressure resolved
+- `MODERATE` — system is under moderate memory pressure
+- `CRITICAL` — system is critically low on memory; free resources immediately or risk being killed
+
+Listen via `GlobalEventEmitter`:
+```ts
+lynx.getJSModule('GlobalEventEmitter').addListener('__OnLowMemory', (level) => {
+  if (level === 'CRITICAL') { /* free caches, release images */ }
+});
+```
+
+Use this to proactively release caches, large images, or off-screen component state to avoid the OS killing the app.
+
+---
+
+## `lynx.reload()` preserves global props and JS global variables — unlike `location.reload()`
+
+### What you'd expect (web)
+`location.reload()` fully resets the page: all JavaScript state is lost, all modules re-evaluated, all network requests re-sent.
+
+### What Lynx does
+`lynx.reload()` re-initializes the Lynx page but:
+- **Global props are preserved** — `lynx.__globalProps` retains its values
+- **JS global variables are preserved** — anything set on `globalThis` survives
+- **Does NOT trigger DataProcessor functions** — initial data processing is skipped
+- **Does trigger unmount** — all component `componentWillUnmount`/`onDetach` lifecycle hooks fire
+
+This means `lynx.reload()` is a "soft reload" rather than a full page reset. If you need a clean slate, the native host must recreate the entire LynxView.
+
+---
+
+## IntersectionObserver distinguishes `relativeToScreen()` vs `relativeToViewport()` — web only has viewport
+
+### What you'd expect (web)
+`IntersectionObserver` observes intersections relative to the viewport (or a specified root element). The viewport is the browser window.
+
+### What Lynx does
+Lynx has **two** distinct reference frames:
+- **`relativeToViewport(margins)`** — observes relative to the LynxView container (the native view that hosts the Lynx page). This is analogous to web's viewport.
+- **`relativeToScreen(margins)`** — observes relative to the **device physical screen**. The LynxView may be smaller than the screen (e.g., embedded in a native app with toolbars), so screen-relative observation captures when elements become visible on the actual device display, not just the Lynx container.
+
+Both accept margin parameters for expanding/contracting the detection area. Web has no equivalent to `relativeToScreen()` — the viewport IS the screen in a browser.
+
+---
+
+## Non-zero `<length>` values always require units — unitless numbers are invalid
+
+### What you'd expect (web)
+Some CSS contexts accept unitless numbers: `line-height: 1.5`, `flex-grow: 2`, `opacity: 0.5`. In `<length>` contexts, `0` can be unitless but non-zero values require units.
+
+### What Lynx does
+Lynx is **stricter**: in any `<length>` context, only `0` is allowed without a unit. All non-zero values must have explicit units (`px`, `rpx`, `em`, `rem`, `%`, `vh`, `vw`). Writing `margin: 5` instead of `margin: 5px` is invalid and silently ignored. Similarly, `<time>` values require units even for zero (`0ms`, not `0`).
+
+---
+
+## Grid line numbers cannot be `0` — `grid-column-start: 0` is invalid
+
+### What you'd expect (web)
+Grid line numbers can be any integer including negative values. `0` is technically invalid per spec but browsers handle it gracefully.
+
+### What Lynx does
+Grid line number values **cannot be `0`**. Setting `grid-column-start: 0`, `grid-column-end: 0`, `grid-row-start: 0`, or `grid-row-end: 0` is explicitly invalid in Lynx. Use `1` for the first line, `-1` for the last line.
+
+---
+
+## `font-style` does not support `oblique <angle>` — only `normal`, `italic`, `oblique`
+
+### What you'd expect (web)
+`font-style: oblique 14deg` specifies the exact angle of oblique text.
+
+### What Lynx does
+Only keyword values are supported: `normal`, `italic`, `oblique`. The `oblique <angle>` syntax (e.g., `oblique 14deg`) is **not supported**. Lynx renders `oblique` at the platform's default slant angle.
+
+---
+
+## Native module bridge: Lynx can call iOS/Android/HarmonyOS native code directly from JS
+
+### What you'd expect (web)
+JavaScript in a browser cannot access native OS APIs. Communication with native requires WebView bridges or hybrid frameworks.
+
+### What Lynx does
+Lynx provides a first-class **native module bridge** with typed parameter mapping between JS and native code (Java/Kotlin, Objective-C/Swift, ArkTS). Modules are registered natively and accessed via `lynx.requireModule('ModuleName')`. A type conversion system maps JS types to native types:
+- `string` ↔ `NSString` / `String`
+- `number` ↔ `NSNumber` / `int`/`double`
+- `object` ↔ `NSDictionary` / `Map`
+- `array` ↔ `NSArray` / `List`
+- Callbacks and Promises for async operations
+
+Lynx 3.5+ adds a module auth validator that restricts which frontend code can access which native modules — a security model with no web equivalent.
+
+---
+
+## `setNativeProps()` for direct imperative element mutation (bypasses state management)
+
+### What you'd expect (web)
+DOM manipulation is done via `element.style.property = value` or framework abstractions. There is no special "native props" API.
+
+### What Lynx does
+`nodesRef.setNativeProps({ style: { color: 'red' }, ... })` allows **direct imperative mutation** of element properties, bypassing Angular's change detection and state management entirely. This is a performance optimization for rapid updates (e.g., scroll-driven animations) but has caveats:
+- Cannot set `style` as a whole object — must set individual CSS properties within it
+- Makes code harder to reason about (the docs explicitly call it "a crude method")
+- State and view can get out of sync if not managed carefully
+
+Use Angular signals and template bindings for normal updates; reserve `setNativeProps()` for performance-critical paths only.
+
+---
+
+## `font-optical-sizing` defaults to `none`, not `auto`
+
+### What you'd expect (web)
+`font-optical-sizing` defaults to `auto` — the browser automatically adjusts the optical size axis (`opsz`) of variable fonts based on `font-size`.
+
+### What Lynx does
+The default is **`none`** — optical sizing adjustments are not applied automatically. If you're using a variable font with an `opsz` axis and want optical sizing, you must set `font-optical-sizing: auto` explicitly or use `font-variation-settings: 'opsz' <value>`.
+
+---
+
+## `ppx` (physical pixel) unit — maps to actual device pixels
+
+### What you'd expect (web)
+Common length units: `px` (CSS pixel), `em`, `rem`, `%`, `vw`, `vh`. There is no unit for physical device pixels (CSS pixels are already device-independent).
+
+### What Lynx does
+Lynx adds **`ppx`** (physical pixel) in addition to `px` and `rpx`:
+- **`px`** — CSS logical pixel (device-independent, like web `px`)
+- **`rpx`** — responsive pixel (750rpx = screen width)
+- **`ppx`** — actual physical device pixel
+
+On a 2x display (e.g., iPhone 6): `750rpx = 375px = 750ppx`. So `1rpx = 0.5px = 1ppx`. Use `ppx` when you need pixel-perfect rendering at the hardware level (e.g., 1-pixel hairline borders that don't get scaled up on high-DPI screens).
+
+---
+
+## CSS combinator selectors don't react to dynamic class changes without `enableCSSInvalidation`
+
+### What you'd expect (web)
+When you dynamically change an element's class, all CSS selectors (including descendant combinators like `.parent .child`) are immediately re-evaluated and styles update.
+
+### What Lynx does
+By default, CSS combinators (descendant ` `, child `>`, sibling `+`/`~`) **only match during the initial class assignment**. If you dynamically change an element's class at runtime (e.g., toggling a `.dark-theme` class on a parent), descendant selectors like `.dark-theme .content` will **not** trigger style recalculation on child `.content` elements.
+
+To fix this, enable `enableCSSInvalidation: true` in the build config. This tells the Lynx CSS engine to re-evaluate combinator matches when DOM classes change — matching web behavior, but with a performance cost (it must walk the subtree on every class change).
+
+Without this flag, use inline styles or CSS variables (which are inheritable by default) for dynamic theming instead of class-based descendant selectors.
+
+---
+
+## Default `display` can be switched from `linear` to `flex` via `defaultDisplayLinear` config
+
+### What you'd expect (web)
+Default `display` is always `block` for block-level elements. Not configurable.
+
+### What Lynx does
+Lynx's default `display: linear` can be changed to `display: flex` globally by setting `defaultDisplayLinear: false` in the Lynx template plugin configuration. When disabled:
+- All elements default to `display: flex` instead of `display: linear`
+- Existing `flex-direction`, `flex-wrap`, `justify-content`, `align-items` properties work as the primary layout mechanism
+- Linear-specific properties (`linear-weight`, `linear-direction`, `linear-gravity`) become opt-in via `display: linear`
+
+This can simplify migration from web CSS (where flexbox is common) but changes the layout semantics of every element in the app.
+
+---
+
+## `<x-input>` does not auto-avoid the software keyboard — manual repositioning required
+
+### What you'd expect (web/mobile)
+On mobile web (iOS Safari, Android Chrome), when a text input is focused and the software keyboard appears, the browser automatically scrolls the page to keep the focused input visible above the keyboard.
+
+### What Lynx does
+`<input>` does **not** auto-avoid the keyboard. When the keyboard appears, it covers whatever is behind it — including the focused input. You must manually listen to the `keyboardstatuschanged` global event, read the keyboard height from the event payload, and reposition the input (or its scroll container) yourself:
+
+```ts
+lynx.getJSModule('GlobalEventEmitter').addListener('keyboardstatuschanged', (e) => {
+  if (e.status === 'on') {
+    // manually offset the input by e.height pixels
+  }
+});
+```
+
+This is a common source of bugs in Lynx apps — always implement keyboard avoidance for any form input.
+
+---
+
+## Nested scroll views cannot be directly composed — use `<scroll-coordinator>` instead
+
+### What you'd expect (web)
+Nested scrollable containers work naturally: an inner `overflow: scroll` div inside an outer `overflow: scroll` div handles scroll delegation automatically (inner scrolls first, then outer).
+
+### What Lynx does
+Directly nesting `<x-scroll-view>` inside another `<x-scroll-view>` (or inside `<x-list>`) **does not work** — scroll gesture delegation between nested scrollable containers is not handled automatically. You must use the Lynx-specific `<scroll-coordinator>` element to coordinate nested scrolling:
+
+```html
+<!-- WRONG — nested scroll views don't coordinate -->
+<x-scroll-view>
+  <x-list /> <!-- inner scroll won't hand off to outer -->
+</x-scroll-view>
+
+<!-- CORRECT — use scroll-coordinator -->
+<scroll-coordinator>
+  <scroll-coordinator-header><!-- collapsible header --></scroll-coordinator-header>
+  <scroll-coordinator-slot>
+    <x-list /> <!-- inner scroll, coordinates with header -->
+  </scroll-coordinator-slot>
+</scroll-coordinator>
+```
+
+`<scroll-coordinator>` handles:
+- Outer scrolls to bottom → automatically hands scroll to inner list
+- Inner scrolls to top → automatically hands scroll back to outer header
+- Smooth handoff with no gesture interruption
+
+This pattern is common in apps with collapsible headers and tabbed list content.
+
+---
+
+## `<x-image>` will not load if its size is 0×0 — set `prefetch-width`/`prefetch-height` to force loading
+
+### What you'd expect (web)
+`<img>` begins loading its `src` regardless of its CSS size. Even a hidden or zero-sized image downloads the resource.
+
+### What Lynx does
+`<x-image>` skips loading entirely if its computed width or height is `0`. This is a performance optimization (don't download images the user can't see), but it means:
+- Images inside collapsed containers or before layout completes won't prefetch
+- Images with `display: none` on their container won't load
+- Setting `prefetch-width` and/or `prefetch-height` attributes overrides this behavior and forces the image to load even at size 0
+
+If you need to preload images for later display, set explicit `prefetch-width`/`prefetch-height` attributes.
+
+---
+
+## `font-optical-sizing` defaults to `none`, not `auto` (documented above) — and `cap-insets` only accepts integers
+
+### Additional image quirk: `cap-insets` values must be concrete integers
+
+The `cap-insets` attribute (9-patch scaling regions) only accepts concrete integer values for top, right, bottom, left. Percentage values (`%`) and decimal values (`0.5`) are **not supported**. Use whole pixel values only:
+
+```html
+<!-- CORRECT -->
+<x-image cap-insets="10 10 10 10" />
+
+<!-- WRONG — percentages and decimals invalid -->
+<x-image cap-insets="10% 10% 10% 10%" />
+<x-image cap-insets="5.5 5.5 5.5 5.5" />
+```
+
+---
+
+## Main-thread Element objects (PAPI) cannot have JavaScript getters/setters — only FFI parameter passing
+
+### What you'd expect (web)
+DOM element objects have full JavaScript property access: `element.style`, `element.classList`, `element.dataset` all work as getter/setter properties.
+
+### What Lynx does
+On the main thread, element references returned by PrimJS's high-performance FFI are **opaque native objects**, not standard JavaScript objects. The PrimJS engine **cannot bind getter/setter methods** to these FFI-returned objects. You cannot do `element.style.color` or `element.textContent` — you can only pass these objects as parameters to other FFI functions (like `__SetAttribute(element, key, value)`).
+
+This is why all element manipulation in Lynx goes through global `__*` functions rather than object methods. On the background thread, elements don't exist at all (only virtual placeholders). This fundamentally differs from web DOM where elements are rich JavaScript objects with properties, methods, and event targets.
+
+---
+
+## `fetch()` and network calls only work on the background thread — main thread cannot make HTTP requests
+
+### What you'd expect (web)
+`fetch()` is available in any execution context — main thread, web workers, service workers.
+
+### What Lynx does
+`fetch()` is **only available on the background thread**. The main thread runs minimal JavaScript (element creation and worklet execution) and has **no network access**. Attempting to call `fetch()` on the main thread will fail silently or throw. This means:
+- Event handlers prefixed with `main-thread:` cannot make network calls
+- Any HTTP logic must run on the background thread (the default for Angular code)
+- The `lynx` global may also expose a `lynx.fetch` binding on the background thread as an alternative to `globalThis.fetch`
+
+---
+
+## `filter` CSS property only works on `<x-view>` elements — not on `<x-image>` or `<x-text>`
+
+### What you'd expect (web)
+`filter: blur(5px)` works on any element — `<div>`, `<img>`, `<span>`, etc.
+
+### What Lynx does
+The `filter` property only applies to **`<view>`** elements. It has no effect on `<text>`, `<image>`, or other element types. For image blur, use the `blur-radius` attribute directly on `<x-image>` instead of CSS `filter`. For text blur, there is no direct solution — wrap the text in a `<x-view>` and apply the filter to the view.
+
+---
+
+## `@keyframes` on Android require explicit `0%` and `100%` values — no computed fallbacks
+
+### What you'd expect (web)
+If `@keyframes` omit `0%` or `100%`, the browser uses the element's computed property values as implicit start/end keyframes.
+
+### What Lynx does
+On Android, missing `0%` or `100%` keyframes can cause **transform animations to malfunction** — the animation may snap, flicker, or not run at all. Always specify explicit starting and ending values for all animated properties:
+
+```css
+/* WRONG on Android — missing 0% may malfunction */
+@keyframes slide { 100% { transform: translateX(100px); } }
+
+/* CORRECT — explicit 0% and 100% */
+@keyframes slide {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(100px); }
+}
+```
+
+---
+
+## `translateZ` on Android can break parent `overflow: hidden` clipping
+
+### What you'd expect (web)
+`transform: translateZ(...)` creates a new stacking context but does not affect parent `overflow: hidden` clipping.
+
+### What Lynx does
+On Android, using `translateZ` on a child element can cause the parent's `overflow: hidden` to **stop clipping**. Content that should be hidden visually overflows. Workarounds:
+- Set `flatten={false}` on the parent element
+- Set `transform: translateZ(0)` on sibling elements to normalize the stacking context
+- Avoid using `translateZ` when the parent needs `overflow: hidden` clipping
+
+---
+
+## `text-shadow` with `blur-radius: 0` may fail to render on some Android devices
+
+### What you'd expect (web)
+`text-shadow: 2px 2px 0px red` renders a sharp, non-blurred shadow.
+
+### What Lynx does
+On some Android platforms, a `blur-radius` of exactly `0` causes the shadow to **not render at all**. Use a very small blur value instead (e.g., `0.1px`) to ensure the shadow appears:
+
+```css
+/* May fail on some Android devices */
+text-shadow: 2px 2px 0px red;
+
+/* Workaround — use minimal blur */
+text-shadow: 2px 2px 0.1px red;
+```
+
+---
+
+## `console.*` methods work but pipe to native logging — not a visible console panel
+
+### What you'd expect (web)
+`console.log()`, `console.warn()`, `console.error()` output to the browser's Developer Tools console.
+
+### What Lynx does
+`console.log()` and other `console.*` methods **do work** and are captured by Lynx's native logging system (alog on Android, os_log on iOS, LynxInspector for DevTool). However:
+- There is **no on-device console panel** visible to the user
+- Logs can be viewed via Lynx DevTool's remote debugging or native platform log viewers (adb logcat, Xcode console)
+- In development, a remote dev logger can intercept `console.*` calls and forward them to the rspeedy dev server via `fetch()` (background thread only)
+- For on-device error visibility, the Angular Lynx renderer captures unhandled errors to `globalThis.__lynxLastError` for rendering in the UI
+
+---
+
+## `globalProps` changes trigger a full page re-render — not component-scoped
+
+### What you'd expect (web)
+State changes typically re-render only the affected component subtree (via Angular signals, React state, etc.).
+
+### What Lynx does
+When the native host updates `lynx.__globalProps` (e.g., for theme switching or locale changes), the `onGlobalPropsChanged` event fires and triggers a **full page re-render** of the entire Lynx page — not just components that read the changed prop. This can be expensive if `globalProps` changes frequently. For fine-grained updates, prefer CSS variables (which only re-style affected elements) or Angular signals (which only re-render subscribed components) over `globalProps`.
+
+---
+
+## `top` defaults to `0`, not `auto`
+
+### What you'd expect (web)
+`top` defaults to `auto` — positioned elements with `top: auto` remain in their normal flow position.
+
+### What Lynx does
+Because Lynx defaults `position` to `relative`, and `top` defaults to **`0`** (not `auto`), every element starts at offset `0` from its natural position. On web, `top: auto` means "don't apply any offset." In practice this rarely causes visual differences (since `0` offset = no visual shift), but it matters when computing layout: `top: 0` in Lynx is an explicit value, not the absence of one. If you need web-like "no offset" behavior, `top: 0` already provides it — but be aware this is a set value, not `auto`.
+
+---
+
+## `justify-content: space-around` and `space-evenly` behave like `start` in linear layout
+
+### What you'd expect (web)
+`space-around` distributes equal spacing around each item; `space-evenly` distributes equal spacing between all items and edges. These work identically in flexbox.
+
+### What Lynx does
+In **linear layout** (`display: linear`, the Lynx default), `space-around` and `space-evenly` are accepted but **behave identically to `start`** — items are packed to the start of the main axis with no distribution. These values only work correctly in **flex layout** (`display: flex`) and **grid layout** (`display: grid`). If you need `space-around`/`space-evenly` behavior, switch to `display: flex`.
+
+---
+
+## `color` property with gradient values only works on `<x-text>` elements
+
+### What you'd expect (web)
+The `color` property accepts a `<color>` value and applies to all text content. Gradient text requires workarounds (`-webkit-background-clip: text`).
+
+### What Lynx does
+Lynx extends the `color` property to accept gradient values — but this extension **only works on `<text>` elements**. On `<view>` or other elements, gradient `color` values are ignored. This means you can create gradient-colored text natively in Lynx (simpler than the web workaround), but only on `<x-text>`.
+
+---
+
+## Main-thread scripts are compiled to bytecode — no source-level debugging on main thread
+
+### What you'd expect (web)
+JavaScript is interpreted or JIT-compiled from source text. Debuggers can always access the original source.
+
+### What Lynx does
+Main-thread scripts are pre-compiled to **PrimJS bytecode format** at build time, not shipped as text. This provides ~4x faster loading (no runtime parsing), but means:
+- Source-level debugging is not possible on the main thread
+- Main-thread errors show bytecode offsets, not source line numbers
+- Background-thread scripts remain as text and are debuggable
+
+For debugging main-thread code, rely on logging, Lynx DevTool's CDP protocol, or switch logic to the background thread during development.
+
+---
+
+## Values captured in main-thread functions must be JSON-serializable
+
+### What you'd expect (web)
+JavaScript closures capture any value — functions, DOM elements, WeakRef, Symbol, etc.
+
+### What Lynx does
+When a background-thread function captures variables for use on the main thread (via `runOnMainThread()` or main-thread event handlers), the captured values are **serialized and sent across threads**. Only JSON-serializable values survive:
+- Strings, numbers, booleans, null — work
+- Plain objects and arrays — work (deep-cloned)
+- Functions, DOM element refs, Symbols, WeakRef, Map/Set — silently become `undefined` or `null`
+
+Failures happen **at sync time**, not at the call site — making them hard to debug. If you need to reference an element cross-thread, use `ref` with `__GetElementUniqueID()` to pass an ID, then look it up on the other thread.
+
+---
+
+## `lynx.beforePublishEvent` — intercept events before they fire
+
+### What you'd expect (web)
+Events fire and propagate through the DOM. There is no way to intercept events globally before they reach handlers (without a capture-phase listener on the root).
+
+### What Lynx does
+`lynx.beforePublishEvent.add(interceptor)` registers a global event interceptor that runs **before** any event handler fires. This allows:
+- Logging/analytics on all events
+- Conditionally blocking events
+- Modifying event data before handlers see it
+
+This is more powerful than a capture-phase root listener because it runs before the event even enters the propagation chain. No web equivalent exists.
+
+---
+
+## Instant First-Frame Rendering (IFR): synchronous first-screen rendering
+
+### What you'd expect (web)
+Page rendering is always asynchronous — the browser parses HTML, builds the DOM, loads CSS, and paints progressively. First meaningful paint depends on network and parsing speed.
+
+### What Lynx does
+Lynx supports **Instant First-Frame Rendering (IFR)**: if initial data is available at page creation time, the main thread renders the first screen **synchronously** in the same call frame as page initialization. The user sees content immediately with no white screen flash. This is fundamentally different from web SSR/SSG:
+- **Web SSR**: Server renders HTML → client downloads → client hydrates → interactive
+- **Lynx IFR**: Data available → main thread renders synchronously → visible on first frame → background thread hydrates for interactivity
+
+IFR imposes constraints: main-thread code must be synchronous (no async/await), side effects must be deferred to background thread, and all captured values must be serializable.
