@@ -1,12 +1,12 @@
 import { createHash } from 'node:crypto';
 
-export function generateComponentScopeId(
+export const generateComponentScopeId = (
   className: string,
   containingFile: string,
-): string {
+): string => {
   const hash = createHash('sha256')
-    .update(className + '|' + containingFile)
+    .update(`${className}|${containingFile}`)
     .digest('hex')
     .slice(0, 10);
-  return 'l' + hash;
-}
+  return `l${hash}`;
+};

@@ -45,7 +45,7 @@ export class LynxLocationStrategy extends LocationStrategy {
     url: string,
     queryParams: string,
   ): void {
-    const fullUrl = url + (queryParams ? '?' + queryParams : '');
+    const fullUrl = url + (queryParams ? `?${queryParams}` : '');
     // Discard forward history when pushing a new entry
     this.#history.length = this.#historyIndex + 1;
     this.#history.push({ state, url: fullUrl });
@@ -59,7 +59,7 @@ export class LynxLocationStrategy extends LocationStrategy {
     url: string,
     queryParams: string,
   ): void {
-    const fullUrl = url + (queryParams ? '?' + queryParams : '');
+    const fullUrl = url + (queryParams ? `?${queryParams}` : '');
     this.#history[this.#historyIndex] = { state, url: fullUrl };
     this.#path = fullUrl;
   }

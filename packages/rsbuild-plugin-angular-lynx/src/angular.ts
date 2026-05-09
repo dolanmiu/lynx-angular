@@ -5,7 +5,6 @@ import {
   DiagnosticModes,
 } from '@angular/build/src/tools/angular/compilation';
 import { JavaScriptTransformer } from '@angular/build/src/tools/esbuild/javascript-transformer';
-import { encapsulateStyle } from '@angular/compiler';
 import type { RsbuildPluginAPI } from '@lynx-js/rspeedy';
 import { applyAngularConfig } from './utils/angular/angular-config.js';
 import { generateComponentScopeId } from './utils/angular/component-scope-id.js';

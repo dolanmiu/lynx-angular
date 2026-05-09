@@ -31,16 +31,16 @@ const LEVEL_LABELS: Record<string, string> = {
   debug: 'DBG',
 };
 
-function formatTimestamp(ts: number): string {
+const formatTimestamp = (ts: number): string => {
   const d = new Date(ts);
   const h = String(d.getHours()).padStart(2, '0');
   const m = String(d.getMinutes()).padStart(2, '0');
   const s = String(d.getSeconds()).padStart(2, '0');
   const ms = String(d.getMilliseconds()).padStart(3, '0');
   return `${h}:${m}:${s}.${ms}`;
-}
+};
 
-function formatArg(arg: unknown): string {
+const formatArg = (arg: unknown): string => {
   if (arg === null || arg === undefined) return String(arg);
   if (typeof arg === 'string') return arg;
   if (
@@ -55,31 +55,31 @@ function formatArg(arg: unknown): string {
   } catch {
     return String(arg);
   }
-}
+};
 
-interface LogEntry {
+type LogEntry = {
   level: string;
   timestamp: number;
   args: unknown[];
-}
+};
 
 let logFile: fs.WriteStream | null = null;
 let logFilePath = '';
 
-export function getLogFilePath(): string {
+export const getLogFilePath = (): string => {
   return logFilePath;
-}
+};
 
-function ensureLogFile(): fs.WriteStream {
+const ensureLogFile = (): fs.WriteStream => {
   if (!logFile) {
     logFilePath = path.resolve(process.cwd(), '.dev-logs');
     // Truncate on each dev server start so old logs don't accumulate
     logFile = fs.createWriteStream(logFilePath, { flags: 'w' });
   }
   return logFile;
-}
+};
 
-function writeLog(entry: LogEntry): void {
+const writeLog = (entry: LogEntry): void => {
   const stream = ensureLogFile();
   const color = LEVEL_COLORS[entry.level] || WHITE;
   const label = LEVEL_LABELS[entry.level] || entry.level.toUpperCase();
@@ -87,17 +87,17 @@ function writeLog(entry: LogEntry): void {
   const args = entry.args.map(formatArg).join(' ');
 
   stream.write(`${GRAY}${time}${RESET} ${color}${label}${RESET} ${args}\n`);
-}
+};
 
 /**
  * Creates a connect-style middleware that handles POST /__dev_logs.
  * Other requests are passed through to the next middleware.
  */
-export function createDevLoggerMiddleware(): (
+export const createDevLoggerMiddleware = (): ((
   req: IncomingMessage,
   res: ServerResponse,
   next: () => void,
-) => void {
+) => void) => {
   return (req, res, next) => {
     // Handle CORS preflight
     if (req.method === 'OPTIONS' && req.url === '/__dev_logs') {
@@ -133,4 +133,4 @@ export function createDevLoggerMiddleware(): (
       }
     });
   };
-}
+};

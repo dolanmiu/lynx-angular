@@ -284,9 +284,11 @@ declare global {
       triggerLayout?: boolean;
       triggerDataUpdated?: boolean;
       operationID?: number;
+      operationIDs?: number[];
       nativeUpdateDataOrder?: number;
       __lynx_timing_flag?: string;
       elementID?: number;
+      elementIDs?: number[];
       reloadTemplate?: boolean;
       listID?: number;
       pipelineOptions?: Record<string, any>;

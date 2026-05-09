@@ -12,11 +12,11 @@ import { Injectable } from '@angular/core';
 
 type LogLevel = 'log' | 'warn' | 'error' | 'info' | 'debug';
 
-interface LogEntry {
+type LogEntry = {
   level: LogLevel;
   timestamp: number;
   args: string[];
-}
+};
 
 @Injectable({ providedIn: 'root' })
 export class LynxLoggerService {

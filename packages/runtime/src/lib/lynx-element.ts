@@ -206,16 +206,16 @@ const pendingListUpdates = new Set<LynxListElement>();
 // The page element, set by LynxDocument.createRootElement() so the microtask
 // fallback in _scheduleUpdate can flush it without a reference to LynxDocument.
 let _pageElement: ElementRef | null = null;
-export function setPageElement(el: ElementRef): void {
+export const setPageElement = (el: ElementRef): void => {
   _pageElement = el;
-}
+};
 
 /**
  * Process all pending list updates. Called from LynxRendererFactory2.end()
  * before __FlushElementTree() so list updates are flushed as part of the
  * normal Angular CD cycle — never from setTimeout (which crashes native).
  */
-export function processPendingListUpdates(): void {
+export const processPendingListUpdates = (): void => {
   if (pendingListUpdates.size === 0) return;
   // Copy & clear before iterating — a processUpdate could theoretically
   // trigger further mutations, though unlikely.
@@ -224,7 +224,7 @@ export function processPendingListUpdates(): void {
   for (const list of lists) {
     list._processUpdate();
   }
-}
+};
 
 export class LynxListElement extends LynxElement {
   private _firstVirtualChild: LynxElement | null = null;
@@ -398,7 +398,7 @@ export class LynxListElement extends LynxElement {
     if (this._destroyed) return;
     const uiChildren = this.getUIChildren();
     (globalThis as any).__dbg =
-      ((globalThis as any).__dbg || '') + `proc:${uiChildren.length}\n`;
+      `${(globalThis as any).__dbg || ''}proc:${uiChildren.length}\n`;
 
     // item-key is required on each list-item — the native x-list reads
     // it from the element when processing update-list-info.
@@ -423,7 +423,8 @@ export class LynxListElement extends LynxElement {
         position: i,
         type: '__angular_list_item',
         'item-key':
-          __GetAttributeByName(child, 'item-key') ?? __GetElementUniqueID(child),
+          __GetAttributeByName(child, 'item-key') ??
+          __GetElementUniqueID(child),
         'estimated-main-axis-size-px':
           __GetAttributeByName(child, 'estimated-main-axis-size-px') ?? 50,
       })),

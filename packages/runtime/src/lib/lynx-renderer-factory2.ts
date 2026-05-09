@@ -7,7 +7,7 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 import { EmulatedLynxRenderer } from './emulated-lynx-renderer';
-import type { LynxDocument, LynxDocumentBase } from './lynx-document';
+import type { LynxDocumentBase } from './lynx-document';
 import { processPendingListUpdates } from './lynx-element';
 import { LynxRenderer } from './renderer';
 import { LYNX_DOCUMENT } from './token';
