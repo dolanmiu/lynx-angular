@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, it, vi } from 'vitest';
 import { LynxBackgroundElement } from './lynx-background-element';
 
 describe('LynxBackgroundElement', () => {

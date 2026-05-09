@@ -12,9 +12,14 @@ export const applyAngularConfig = (
   api.modifyRsbuildConfig((config) => {
     // output
     config.output = config.output ?? {};
-    config.output.distPath ??= {};
     if (buildOptions.outputPath) {
-      config.output.distPath.root = buildOptions.outputPath;
+      // distPath can be string | DistPathConfig in newer rspeedy; always use object form
+      config.output.distPath = {
+        ...(typeof config.output.distPath === 'object'
+          ? config.output.distPath
+          : {}),
+        root: buildOptions.outputPath,
+      };
     }
     config.output.cleanDistPath = true;
     // const hashFormat = getOutputHashFormat(OutputHashing.None, 8);

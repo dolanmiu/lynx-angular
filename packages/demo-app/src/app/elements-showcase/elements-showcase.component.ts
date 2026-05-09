@@ -70,7 +70,7 @@ import lynxLogo from '../../assets/lynx-logo.png';
           <x-view class="element-example">
             <x-list class="mini-list">
               @for (i of [1, 2, 3]; track i) {
-              <list-item class="list-item">
+              <list-item class="list-item" item-key="{{ i }}">
                 <x-text>List Item {{ i }}</x-text>
               </list-item>
               }
