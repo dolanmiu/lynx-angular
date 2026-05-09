@@ -1,4 +1,4 @@
-import type { LynxDocumentBase } from './lynx-document';
+import type { LynxDocumentBase } from '../lynx-document';
 import { LynxRenderer } from './renderer';
 
 export class EmulatedLynxRenderer extends LynxRenderer {

@@ -5,8 +5,8 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 import { describe, expect, it } from 'vitest';
+import { LynxBackgroundDocument } from '../lynx-document';
 import { EmulatedLynxRenderer } from './emulated-lynx-renderer';
-import { LynxBackgroundDocument } from './lynx-document';
 import { LynxRendererFactory2 } from './lynx-renderer-factory2';
 import { LynxRenderer } from './renderer';
 import { LYNX_DOCUMENT } from './token';

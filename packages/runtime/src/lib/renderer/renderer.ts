@@ -3,8 +3,8 @@ import type {
   Renderer2,
   RendererStyleFlags2,
 } from '@angular/core';
-import type { LynxDocumentBase } from './lynx-document';
-import type { BaseLynxElement } from './lynx-element';
+import type { LynxDocumentBase } from '../lynx-document';
+import type { BaseLynxElement } from '../lynx-element';
 
 export class LynxRenderer implements Renderer2 {
   readonly #document: LynxDocumentBase;

@@ -5,7 +5,7 @@ import {
   makeEnvironmentProviders,
   RendererFactory2,
 } from '@angular/core';
-import { LynxBackgroundDocument, LynxDocument } from './lynx-document';
+import { LynxBackgroundDocument, LynxDocument } from '../lynx-document';
 import { LynxRendererFactory2 } from './lynx-renderer-factory2';
 import { LYNX_DOCUMENT } from './token';
 

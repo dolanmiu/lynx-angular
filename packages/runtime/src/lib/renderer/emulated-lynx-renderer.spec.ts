@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
+import { LynxBackgroundDocument } from '../lynx-document';
+import { LynxBackgroundElement } from '../lynx-element';
 import { EmulatedLynxRenderer } from './emulated-lynx-renderer';
-import { LynxBackgroundDocument } from './lynx-document';
-import { LynxBackgroundElement } from './lynx-element';
 
 describe('EmulatedLynxRenderer', () => {
   const createRenderer = (componentId: string) => {
