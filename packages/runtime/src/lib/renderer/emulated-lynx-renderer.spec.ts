@@ -12,7 +12,7 @@ describe('EmulatedLynxRenderer', () => {
   it('createElement does not add any scope class', () => {
     const spy = vi.spyOn(LynxBackgroundElement.prototype, 'addClass');
     const renderer = createRenderer('abc123');
-    renderer.createElement('x-view');
+    renderer.createElement('view');
 
     expect(spy).not.toHaveBeenCalledWith('_ngscope-abc123');
     expect(spy).not.toHaveBeenCalledWith('_nghost-abc123');

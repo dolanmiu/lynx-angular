@@ -7,147 +7,147 @@ import lynxLogo from '../../assets/lynx-logo.png';
   standalone: true,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
-    <x-view class="container">
-      <x-text class="title">Lynx Elements Showcase</x-text>
+    <view class="container">
+      <text class="title">Lynx Elements Showcase</text>
 
       <!-- Basic Elements Section -->
-      <!-- <x-view class="section">
-        <x-text class="section-title">Basic Elements</x-text>
+      <!-- <view class="section">
+        <text class="section-title">Basic Elements</text>
 
-        <x-view class="card">
-          <x-text class="element-name">x-view</x-text>
-          <x-view class="element-example">
-            <x-view class="colored-box"></x-view>
-          </x-view>
-          <x-text class="description"
-            >Basic container element, similar to a div</x-text
+        <view class="card">
+          <text class="element-name">view</text>
+          <view class="element-example">
+            <view class="colored-box"></view>
+          </view>
+          <text class="description"
+            >Basic container element, similar to a div</text
           >
-        </x-view>
+        </view>
 
-        <x-view class="card">
-          <x-text class="element-name">x-text</x-text>
-          <x-view class="element-example">
-            <x-text class="styled-text">Hello, World!</x-text>
-          </x-view>
-          <x-text class="description"
-            >Text element for displaying content</x-text
+        <view class="card">
+          <text class="element-name">text</text>
+          <view class="element-example">
+            <text class="styled-text">Hello, World!</text>
+          </view>
+          <text class="description"
+            >Text element for displaying content</text
           >
-        </x-view>
+        </view>
 
-        <x-view class="card">
-          <x-text class="element-name">x-image</x-text>
-          <x-view class="element-example">
-            <x-image [src]="images.lynx" class="logo-image"></x-image>
-          </x-view>
-          <x-text class="description"
-            >Image element for displaying images</x-text
+        <view class="card">
+          <text class="element-name">image</text>
+          <view class="element-example">
+            <image [src]="images.lynx" class="logo-image"></image>
+          </view>
+          <text class="description"
+            >Image element for displaying images</text
           >
-        </x-view>
-      </x-view> -->
+        </view>
+      </view> -->
 
       <!-- Layout Elements Section -->
-      <x-view class="section">
-        <x-text class="section-title">Layout Elements</x-text>
+      <view class="section">
+        <text class="section-title">Layout Elements</text>
 
-        <!-- <x-view class="card">
-          <x-text class="element-name">x-scroll-view</x-text>
-          <x-view class="element-example">
-            <x-scroll-view class="mini-scroll" scroll-orientation="horizontal">
-              <x-view class="scroll-content">
+        <!-- <view class="card">
+          <text class="element-name">scroll-view</text>
+          <view class="element-example">
+            <scroll-view class="mini-scroll" scroll-orientation="horizontal">
+              <view class="scroll-content">
                 @for (i of [1, 2, 3, 4, 5]; track i) {
-                <x-view class="scroll-item">
-                  <x-text>Item {{ i }}</x-text>
-                </x-view>
+                <view class="scroll-item">
+                  <text>Item {{ i }}</text>
+                </view>
                 }
-              </x-view>
-            </x-scroll-view>
-          </x-view>
-          <x-text class="description">Scrollable container for content</x-text>
-        </x-view> -->
+              </view>
+            </scroll-view>
+          </view>
+          <text class="description">Scrollable container for content</text>
+        </view> -->
 
-        <x-view class="card">
-          <x-text class="element-name">x-list</x-text>
-          <x-view class="element-example">
-            <x-list class="mini-list">
+        <view class="card">
+          <text class="element-name">list</text>
+          <view class="element-example">
+            <list class="mini-list">
               @for (i of [1, 2, 3]; track i) {
               <list-item class="list-item" item-key="{{ i }}">
-                <x-text>List Item {{ i }}</x-text>
+                <text>List Item {{ i }}</text>
               </list-item>
               }
-            </x-list>
-          </x-view>
-          <x-text class="description"
-            >Optimized container for list items</x-text
+            </list>
+          </view>
+          <text class="description"
+            >Optimized container for list items</text
           >
-        </x-view>
-      </x-view>
+        </view>
+      </view>
 
       <!-- Structural Elements -->
-      <!-- <x-view class="section">
-        <x-text class="section-title">Structural Elements</x-text>
+      <!-- <view class="section">
+        <text class="section-title">Structural Elements</text>
 
-        <x-view class="card">
-          <x-text class="element-name">x-view (grouping)</x-text>
-          <x-view class="element-example">
-            <x-view class="block-example">
-              <x-view class="block-item"></x-view>
-              <x-view class="block-item"></x-view>
-            </x-view>
-          </x-view>
-          <x-text class="description">Using x-view as a container for grouping elements</x-text>
-        </x-view>
+        <view class="card">
+          <text class="element-name">view (grouping)</text>
+          <view class="element-example">
+            <view class="block-example">
+              <view class="block-item"></view>
+              <view class="block-item"></view>
+            </view>
+          </view>
+          <text class="description">Using view as a container for grouping elements</text>
+        </view>
 
-        <x-view class="card">
-          <x-text class="element-name">Conditional Rendering</x-text>
-          <x-view class="element-example">
-            <x-view class="toggle-container" (bindtap)="toggleVisibility()">
-              <x-text>Toggle</x-text>
-            </x-view>
+        <view class="card">
+          <text class="element-name">Conditional Rendering</text>
+          <view class="element-example">
+            <view class="toggle-container" (bindtap)="toggleVisibility()">
+              <text>Toggle</text>
+            </view>
 
             @if (isVisible) {
-            <x-view class="conditional-element">
-              <x-text>I'm visible!</x-text>
-            </x-view>
+            <view class="conditional-element">
+              <text>I'm visible!</text>
+            </view>
             }
-          </x-view>
-          <x-text class="description"
-            >Using Angular's if control flow for conditionals</x-text
+          </view>
+          <text class="description"
+            >Using Angular's if control flow for conditionals</text
           >
-        </x-view>
+        </view>
 
-        <x-view class="card">
-          <x-text class="element-name">List Rendering</x-text>
-          <x-view class="element-example">
-            <x-view class="list-render-example">
+        <view class="card">
+          <text class="element-name">List Rendering</text>
+          <view class="element-example">
+            <view class="list-render-example">
               @for (item of listItems; track item; let i = $index) {
-              <x-view class="list-render-item">
-                <x-text>{{ i + 1 }}. {{ item }}</x-text>
-              </x-view>
+              <view class="list-render-item">
+                <text>{{ i + 1 }}. {{ item }}</text>
+              </view>
               }
-            </x-view>
-          </x-view>
-          <x-text class="description"
-            >Using Angular's for control flow for lists</x-text
+            </view>
+          </view>
+          <text class="description"
+            >Using Angular's for control flow for lists</text
           >
-        </x-view>
-      </x-view> -->
+        </view>
+      </view> -->
 
       <!-- Events Demo -->
-      <x-view class="section">
-        <x-text class="section-title">Event Handling</x-text>
+      <view class="section">
+        <text class="section-title">Event Handling</text>
 
-        <x-view class="card">
-          <x-text class="element-name">Tap Event</x-text>
-          <x-view class="element-example">
-            <x-view class="event-button" (bindtap)="handleTap()">
-              <x-text>Tap Me</x-text>
-            </x-view>
-            <x-text class="tap-count">Taps: {{ tapCount() }}</x-text>
-          </x-view>
-          <x-text class="description">Using bindtap event handler</x-text>
-        </x-view>
-      </x-view>
-    </x-view>
+        <view class="card">
+          <text class="element-name">Tap Event</text>
+          <view class="element-example">
+            <view class="event-button" (bindtap)="handleTap()">
+              <text>Tap Me</text>
+            </view>
+            <text class="tap-count">Taps: {{ tapCount() }}</text>
+          </view>
+          <text class="description">Using bindtap event handler</text>
+        </view>
+      </view>
+    </view>
   `,
   styles: [
     `
@@ -241,7 +241,7 @@ import lynxLogo from '../../assets/lynx-logo.png';
         align-items: center;
       }
 
-      .scroll-item x-text {
+      .scroll-item text {
         color: white;
       }
 
@@ -276,7 +276,7 @@ import lynxLogo from '../../assets/lynx-logo.png';
         align-self: flex-start;
       }
 
-      .toggle-container x-text {
+      .toggle-container text {
         color: white;
       }
 
@@ -304,7 +304,7 @@ import lynxLogo from '../../assets/lynx-logo.png';
         align-self: flex-start;
       }
 
-      .event-button x-text {
+      .event-button text {
         color: white;
       }
 

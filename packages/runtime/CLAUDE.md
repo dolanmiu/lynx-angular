@@ -32,11 +32,11 @@ Provides everything needed to run Angular on the Lynx runtime. Maps Angular's `R
 
 ## Supported Lynx Elements
 
-`page`, `x-view`, `x-text`, `x-image`, `x-scroll-view`, `x-list`, `x-block`, `x-if`, `x-for`, `x-raw-text`, `frame`, `input`, `textarea`, `overlay`, `svg`
+`page`, `view`, `text`, `image`, `scroll-view`, `list`, `block`, `if`, `for`, `raw-text`, `frame`, `input`, `textarea`, `overlay`, `svg`
 
 `page` is special — it returns the existing root page element (created by `createRootElement()`), not a new element. Only one `<page>` is allowed per app. The element has `_isRootPageElement = true` which prevents Angular from reparenting or removing it.
 
-Unknown tags fall back to `x-view` with a console warning.
+Unknown tags fall back to `view` with a console warning.
 
 ## Key Files
 

@@ -5,39 +5,39 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, signal } from '@angular/core';
   standalone: true,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
-    <x-scroll-view class="list-container" scroll-orientation="vertical">
-      <x-text class="title">List Example</x-text>
+    <scroll-view class="list-container" scroll-orientation="vertical">
+      <text class="title">List Example</text>
       <!-- Simple list example -->
-      <x-view class="button-container">
-        <x-view class="button" (bindtap)="toggleItems()">
-          <x-text class="button-text">Toggle Items ({{ showItems() }})</x-text>
-        </x-view>
-        <x-view class="button" (bindtap)="addItem()">
-          <x-text class="button-text">Add Item</x-text>
-        </x-view>
-      </x-view>
-      <x-text style="font-size: 10px; color: #333; white-space: pre-wrap">{{ dbg }}</x-text>
-      <x-list class="list" list-type="single" span-count="1" scroll-orientation="vertical">
+      <view class="button-container">
+        <view class="button" (bindtap)="toggleItems()">
+          <text class="button-text">Toggle Items ({{ showItems() }})</text>
+        </view>
+        <view class="button" (bindtap)="addItem()">
+          <text class="button-text">Add Item</text>
+        </view>
+      </view>
+      <text style="font-size: 10px; color: #333; white-space: pre-wrap">{{ dbg }}</text>
+      <list class="list" list-type="single" span-count="1" scroll-orientation="vertical">
         <!-- @if (showItems()) {
           @for (item of items(); track item.id) {
           <list-item class="list-item" item-key="{{ item.id }}">
-            <x-text class="item-text">{{ item.text }}</x-text>
+            <text class="item-text">{{ item.text }}</text>
           </list-item>
           }
         } -->
         <!-- <list-item class="list-item" item-key="1">
-          <x-text class="item-text">Test 1</x-text>
+          <text class="item-text">Test 1</text>
         </list-item>
         <list-item class="list-item" item-key="2">
-          <x-text class="item-text">Test 2</x-text>
+          <text class="item-text">Test 2</text>
         </list-item>
         <list-item class="list-item" item-key="3">
-          <x-text class="item-text">Test 3</x-text>
+          <text class="item-text">Test 3</text>
         </list-item> -->
-      </x-list>
+      </list>
 
 
-    </x-scroll-view>
+    </scroll-view>
   `,
   styles: [
     `

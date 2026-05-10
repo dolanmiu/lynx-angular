@@ -16,7 +16,7 @@ export class LynxElement implements BaseLynxElement {
   _isRootPageElement = false;
 
   // Virtual tree tracking — used when parent manages children outside the
-  // native element tree (e.g., x-list manages children via componentAtIndex
+  // native element tree (e.g., list manages children via componentAtIndex
   // callbacks rather than __AppendElement)
   _virtualParent: LynxElement | null = null;
   _virtualPrev: LynxElement | null = null;
@@ -90,7 +90,7 @@ export class LynxElement implements BaseLynxElement {
   remove() {
     if (this._isRootPageElement) return;
     if (this._virtualParent) {
-      // Remove from virtual tree (e.g., when parent is an x-list).
+      // Remove from virtual tree (e.g., when parent is an list).
       // Duck-typed to avoid a circular import with LynxListElement.
       const vp = this._virtualParent as any;
       if (typeof vp.removeVirtualChild === 'function') {

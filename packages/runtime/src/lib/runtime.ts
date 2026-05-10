@@ -3,7 +3,7 @@ import { bootstrapApplication } from '@angular/platform-browser';
 import { firstValueFrom, Subject } from 'rxjs';
 
 // On-device diagnostic: capture the last unhandled error/rejection so Angular
-// components can render it via <x-text>. There is no console on the Lynx device,
+// components can render it via <text>. There is no console on the Lynx device,
 // so this is the only way to see what is crashing.
 (globalThis as any).__lynxLastError = '';
 if (typeof (globalThis as any).onerror !== 'function') {

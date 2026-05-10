@@ -19,77 +19,83 @@ import lynxLogo from '../assets/lynx-logo.png';
          scroll gesture recognizer even with pointer-events: none. As a sibling that
          comes first in DOM order, it has lower stacking context and the scroll-view
          (rendered after) sits on top and receives all platform gestures. -->
-    <x-view class="background" />
-    <x-scroll-view class="app-container" scroll-orientation="vertical">
-      <x-view class="app">
-        <x-view class="banner">
-          <x-view class="logo" (bindtap)="onTap($event)">
+    <view class="background" />
+    <scroll-view class="app-container" scroll-orientation="vertical">
+      <view class="app">
+        <view class="banner">
+          <view class="logo" (bindtap)="onTap($event)">
             @if (alterLogo()) {
-              <x-image [src]="angularLogo" class="logo--angular" />
+              <image [src]="angularLogo" class="logo--angular" />
             } @else {
-              <x-image [src]="lynxLogo" class="logo--lynx" />
+              <image [src]="lynxLogo" class="logo--lynx" />
             }
-          </x-view>
-          <x-text class="title">Angular</x-text>
-          <x-text class="subtitle">on Lynx</x-text>
-        </x-view>
+          </view>
+          <text class="title">Angular</text>
+          <text class="subtitle">on Lynx</text>
+        </view>
         <input placeholder="Enter text" type="text" (bindinput)="onInput($any($event))" />
         <textarea placeholder="Enter multi-line text" (bindinput)="onInput($any($event))"></textarea>
-        <x-view class="content">
-          <x-image [src]="arrow" class="arrow" />
-          <x-text class="description">Tap the logo and have fun!</x-text>
-          <x-text class="hint">
-            Edit<x-text style="font-style: italic">
-              src/app/app.components.ts</x-text
+        <view class="content">
+          <image [src]="arrow" class="arrow" />
+          <text class="description">Tap the logo and have fun!</text>
+          <text class="hint">
+            Edit<text style="font-style: italic">
+              src/app/app.components.ts</text
             >
-          </x-text>
-        </x-view>
+          </text>
+        </view>
 
-        <x-view style="height: 300px; overflow: hidden;">
+        <view style="height: 300px; overflow: hidden;">
           <router-outlet />
-        </x-view>
+        </view>
 
         @if (lastError()) {
-          <x-view style="background-color: red; padding: 8px; margin: 8px;">
-            <x-text style="color: white; font-size: 12px; word-break: break-all;">{{ lastError() }}</x-text>
-          </x-view>
+          <view style="background-color: red; padding: 8px; margin: 8px;">
+            <text style="color: white; font-size: 12px; word-break: break-all;">{{ lastError() }}</text>
+          </view>
         }
 
         <overlay [attr.visible]="showOverlay()" style="position: fixed; overflow: visible;">
-          <x-view style="width: 100%; height: 100%; z-index: 0; justify-content: center; align-items: center; background-color: rgba(0,0,0,0.5);" (bindtap)="closeOverlay()">
-            <x-view style="background-color: white; padding: 24px; border-radius: 12px; width: 80%;">
-              <x-text style="font-size: 18px; font-weight: bold; margin-bottom: 12px;">Overlay Demo</x-text>
-              <x-text style="font-size: 14px; margin-bottom: 16px;">This modal is rendered outside the Lynx document flow using the native overlay element.</x-text>
-              <x-view style="background-color: #6200ee; padding: 12px; border-radius: 8px; align-items: center;" (catchtap)="closeOverlay()">
-                <x-text style="color: white; font-size: 14px;">Close</x-text>
-              </x-view>
-            </x-view>
-          </x-view>
+          <view style="width: 100%; height: 100%; z-index: 0; justify-content: center; align-items: center; background-color: rgba(0,0,0,0.5);" (bindtap)="closeOverlay()">
+            <view style="background-color: white; padding: 24px; border-radius: 12px; width: 80%;">
+              <text style="font-size: 18px; font-weight: bold; margin-bottom: 12px;">Overlay Demo</text>
+              <text style="font-size: 14px; margin-bottom: 16px;">This modal is rendered outside the Lynx document flow using the native overlay element.</text>
+              <view style="background-color: #6200ee; padding: 12px; border-radius: 8px; align-items: center;" (catchtap)="closeOverlay()">
+                <text style="color: white; font-size: 14px;">Close</text>
+              </view>
+            </view>
+          </view>
         </overlay>
 
-        <svg [attr.content]="svgContent" style="width: 80px; height: 80px; margin: 16px 0;" />
+        <!-- <svg [attr.content]="svgContent" style="width: 80px; height: 80px; margin: 16px 0;" /> -->
 
-        <x-view class="nav-button" style="margin-bottom: 12px; background-color: #6200ee;" (bindtap)="openOverlay()">
-          <x-text class="nav-button-text" style="color: white;">Open Overlay</x-text>
-        </x-view>
+        <!-- frame element: set src to a .lynx.bundle URL to embed a nested Lynx page -->
+        <frame
+          style="width: 100%; height: 200px; border: 2px solid #6200ee; margin: 8px 0;"
+          (bindload)="onFrameLoad($any($event))"
+        ></frame>
 
-        <x-view class="navigation">
-          <x-text class="nav-title">Examples:</x-text>
-          <x-view class="nav-links">
-            <x-view class="nav-button" (bindtap)="navigateTo('showcase')">
-              <x-text class="nav-button-text">Elements Showcase</x-text>
-            </x-view>
-            <x-view class="nav-button" (bindtap)="navigateTo('list-example')">
-              <x-text class="nav-button-text">List Example</x-text>
-            </x-view>
-            <x-view class="nav-button" (bindtap)="navigateTo('scroll-example')">
-              <x-text class="nav-button-text">Scroll Example</x-text>
-            </x-view>
-          </x-view>
-        </x-view>
+        <view class="nav-button" style="margin-bottom: 12px; background-color: #6200ee;" (bindtap)="openOverlay()">
+          <text class="nav-button-text" style="color: white;">Open Overlay</text>
+        </view>
 
-      </x-view>
-    </x-scroll-view>
+        <view class="navigation">
+          <text class="nav-title">Examples:</text>
+          <view class="nav-links">
+            <view class="nav-button" (bindtap)="navigateTo('showcase')">
+              <text class="nav-button-text">Elements Showcase</text>
+            </view>
+            <view class="nav-button" (bindtap)="navigateTo('list-example')">
+              <text class="nav-button-text">List Example</text>
+            </view>
+            <view class="nav-button" (bindtap)="navigateTo('scroll-example')">
+              <text class="nav-button-text">Scroll Example</text>
+            </view>
+          </view>
+        </view>
+
+      </view>
+    </scroll-view>
   `,
   styleUrl: './app.component.css',
   imports: [RouterOutlet],
@@ -147,6 +153,15 @@ export class AppComponent {
 
   get angularLogo() {
     return angularLogo;
+  }
+
+  onFrameLoad(event: {
+    detail: { url: string; statusCode: number; statusMessage: string };
+  }) {
+    this.#logger.log(
+      'frame loaded',
+      `${event.detail.url} (${event.detail.statusCode})`,
+    );
   }
 
   // Simple star SVG to demonstrate the <svg> element

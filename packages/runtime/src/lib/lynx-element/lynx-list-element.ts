@@ -2,9 +2,9 @@ import type { ElementRef } from '../types/lynx';
 import { LynxElement } from './lynx-element';
 
 /**
- * Manages x-list children in a virtual tree instead of the native element tree.
+ * Manages list children in a virtual tree instead of the native element tree.
  *
- * Lynx's native x-list is a virtualized list driven by engine callbacks
+ * Lynx's native list is a virtualized list driven by engine callbacks
  * (componentAtIndex / enqueueComponent). Children must NOT be appended via
  * __AppendElement at render time — the list calls componentAtIndex to request
  * items by index on demand, and update-list-info tells it which indices exist.

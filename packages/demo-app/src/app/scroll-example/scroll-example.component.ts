@@ -5,27 +5,27 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
   standalone: true,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
-    <x-view class="container">
-      <x-text class="title">Scroll View Example</x-text>
+    <view class="container">
+      <text class="title">Scroll View Example</text>
       <!-- Horizontal scroll example -->
-      <x-text class="subtitle">Horizontal Scroll</x-text>
-      <x-scroll-view class="horizontal-scroll" scroll-orientation="horizontal">
+      <text class="subtitle">Horizontal Scroll</text>
+      <scroll-view class="horizontal-scroll" scroll-orientation="horizontal">
         @for (item of horizontalItems; track item) {
-        <x-view class="horizontal-item">
-          <x-text class="item-text">{{ item }}</x-text>
-        </x-view>
+        <view class="horizontal-item">
+          <text class="item-text">{{ item }}</text>
+        </view>
         }
-      </x-scroll-view>
+      </scroll-view>
       <!-- Vertical scroll example -->
-      <x-text class="subtitle">Vertical Scroll</x-text>
-      <x-scroll-view class="vertical-scroll" scroll-orientation="vertical">
+      <text class="subtitle">Vertical Scroll</text>
+      <scroll-view class="vertical-scroll" scroll-orientation="vertical">
         @for (item of verticalItems; track item) {
-        <x-view class="vertical-item">
-          <x-text class="item-text">{{ item }}</x-text>
-        </x-view>
+        <view class="vertical-item">
+          <text class="item-text">{{ item }}</text>
+        </view>
         }
-      </x-scroll-view>
-    </x-view>
+      </scroll-view>
+    </view>
   `,
   styles: [
     `

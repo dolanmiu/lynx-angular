@@ -7,7 +7,7 @@ export class LynxDocument implements LynxDocumentBase {
   page!: LynxElement;
   #pageId = 0;
   #pageElementRequested = false;
-  // Track NoneElements (Angular comment markers from @for/@if) so x-list can skip them
+  // Track NoneElements (Angular comment markers from @for/@if) so list can skip them
   readonly #nonElements = new WeakSet<ElementRef>();
 
   constructor() {
@@ -25,11 +25,11 @@ export class LynxDocument implements LynxDocumentBase {
   createElement(tag: string, value?: string): LynxElement | LynxListElement {
     let element: ElementRef;
     switch (tag) {
-      case 'x-view': {
+      case 'view': {
         element = __CreateView(this.#pageId);
         break;
       }
-      case 'x-image': {
+      case 'image': {
         element = __CreateImage(this.#pageId);
 
         // Set default image properties
@@ -41,40 +41,40 @@ export class LynxDocument implements LynxDocumentBase {
 
         break;
       }
-      case 'x-text': {
+      case 'text': {
         element = __CreateText(this.#pageId);
         break;
       }
-      case 'x-raw-text': {
+      case 'raw-text': {
         element = __CreateRawText(value ?? '');
         break;
       }
-      case 'x-scroll-view': {
+      case 'scroll-view': {
         // No __SetConfig needed — bounces defaults to true per the API.
         // All scroll-view properties (scroll-orientation, enable-scroll, etc.)
         // are attributes, set via __SetAttribute by Angular template bindings.
         element = __CreateScrollView(this.#pageId);
         break;
       }
-      case 'x-list': {
+      case 'list': {
         return createListElement(this.#pageId, this.#nonElements);
       }
       case 'list-item': {
-        // x-list requires native list-item elements via __CreateElement, not plain views.
+        // list requires native list-item elements via __CreateElement, not plain views.
         // The native componentAtIndex callback returns this element ID to the engine,
         // which expects a list-item type — using __CreateView crashes the native side.
         element = __CreateElement('list-item', this.#pageId);
         break;
       }
-      case 'x-block': {
+      case 'block': {
         element = __CreateBlock(this.#pageId);
         break;
       }
-      case 'x-if': {
+      case 'if': {
         element = __CreateIf(this.#pageId);
         break;
       }
-      case 'x-for': {
+      case 'for': {
         element = __CreateFor(this.#pageId);
         break;
       }
@@ -145,7 +145,7 @@ export class LynxDocument implements LynxDocumentBase {
     // (createComponent, @if, @for, @switch). They must be valid tree
     // participants — supporting __InsertElementBefore, __GetParent,
     // __NextElement. __CreateNonElement crashes on these operations,
-    // so we use an invisible x-view instead.
+    // so we use an invisible view instead.
     const element = __CreateView(this.#pageId);
     __AddInlineStyle(element, 'display', 'none');
     this.#nonElements.add(element);

@@ -8,7 +8,7 @@ Example app demonstrating the runtime library. Uses standalone components, zonel
 - **Zoneless change detection** via `provideExperimentalZonelessChangeDetection()`
 - **Signals** for reactive state
 - **Lazy-loaded routes** — all route components use `loadComponent`
-- Templates use Lynx elements: `<x-view>`, `<x-text>`, `<x-image>`, etc.
+- Templates use Lynx elements: `<view>`, `<text>`, `<image>`, etc.
 
 ## Routes
 
@@ -30,8 +30,8 @@ src/
     app.routes.ts                  # Route definitions (all lazy-loaded)
     app.component.ts               # Root component
     elements-showcase/             # Showcases all supported Lynx elements
-    list-example/                  # x-list usage example
-    scroll-example/                # x-scroll-view usage example
+    list-example/                  # list usage example
+    scroll-example/                # scroll-view usage example
 ```
 
 ## Run

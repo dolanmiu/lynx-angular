@@ -4,7 +4,7 @@ Angular renderer for [Lynx](https://lynxjs.org/) — a cross-platform native UI 
 
 ## Architecture
 
-Lynx uses a dual-thread model: **main thread** (native UI rendering) and **background thread** (JS execution/layout). Elements are manipulated via global `__*` functions (`__CreateElement`, `__AppendElement`, `__SetAttribute`, `__AddInlineStyle`, `__AddEvent`, `__RemoveElement`, etc.) instead of browser DOM. Native elements: `x-view`, `x-text`, `x-image`, `x-scroll-view`, `x-list`, `x-block`, `x-if`, `x-for`.
+Lynx uses a dual-thread model: **main thread** (native UI rendering) and **background thread** (JS execution/layout). Elements are manipulated via global `__*` functions (`__CreateElement`, `__AppendElement`, `__SetAttribute`, `__AddInlineStyle`, `__AddEvent`, `__RemoveElement`, etc.) instead of browser DOM. Native elements: `view`, `text`, `image`, `scroll-view`, `list`, `block`, `if`, `for`.
 
 ## Monorepo Structure
 
@@ -22,7 +22,7 @@ Near-1:1 Angular parity — partial support isn't acceptable. Every Angular API 
 
 - `bootstrapLynxApplication(AppComponent, config)` replaces Angular's browser bootstrap
 - `provideLynxRenderer()` + zoneless change detection in app config
-- Templates use Lynx elements: `<x-view>`, `<x-text>`, not HTML
+- Templates use Lynx elements: `<view>`, `<text>`, not HTML
 - Standalone components, signals, `@if`/`@for` control flow, lazy-loaded routes all work
 
 ## Code Style
@@ -38,7 +38,7 @@ npm run demo                   # Start demo dev server (rspeedy)
 
 ## Debugging
 
-The demo runs on-device (iPhone) — there is no browser console. To debug, render logs on screen using `<x-text>` elements instead of `console.log`.
+The demo runs on-device (iPhone) — there is no browser console. To debug, render logs on screen using `<text>` elements instead of `console.log`.
 
 ## Lynx vs Web Differences
 

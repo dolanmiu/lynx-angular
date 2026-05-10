@@ -9,7 +9,7 @@ export class LynxBackgroundDocument implements LynxDocumentBase {
   }
   createRootElement(): LynxBackgroundElement {
     const page = new LynxBackgroundElement();
-    page.setAttribute('tagName', 'x-page');
+    page.setAttribute('tagName', 'page');
     page._isRootPageElement = true;
     this._page = page;
     return this._page;
@@ -35,13 +35,13 @@ export class LynxBackgroundDocument implements LynxDocumentBase {
   }
   createText(value: string): LynxBackgroundElement {
     const element = new LynxBackgroundElement();
-    element.setAttribute('tagName', 'x-text');
+    element.setAttribute('tagName', 'text');
     element.setAttribute('textContent', value);
     return element;
   }
   createComment(): LynxBackgroundElement {
     const element = new LynxBackgroundElement();
-    element.setAttribute('tagName', 'x-comment');
+    element.setAttribute('tagName', 'comment');
     return element;
   }
   appendChild(newChild: LynxBackgroundElement): void {

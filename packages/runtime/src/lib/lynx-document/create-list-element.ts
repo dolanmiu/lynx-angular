@@ -2,9 +2,9 @@ import { LynxListElement } from '../lynx-element';
 import type { ElementRef, ListElementRef } from '../types/lynx';
 
 /**
- * Factory for the x-list native element.
+ * Factory for the list native element.
  *
- * x-list in Lynx is a virtualized list driven by engine callbacks.
+ * list in Lynx is a virtualized list driven by engine callbacks.
  * Angular's rendering builds children into a virtual JS-level linked list
  * (LynxListElement). The native engine calls componentAtIndex for each
  * visible index; we append the pre-built element and flush with asyncFlush.
@@ -101,7 +101,7 @@ export const createListElement = (
   );
 
   // list-type, span-count, and scroll-orientation should be set via template
-  // bindings (e.g. <x-list list-type="single" span-count="1" ...>), NOT
+  // bindings (e.g. <list list-type="single" span-count="1" ...>), NOT
   // programmatically here. Vue Lynx does not set any attributes after
   // __CreateList — they flow through the normal attribute-setting path.
 
