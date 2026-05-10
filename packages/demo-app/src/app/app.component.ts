@@ -33,6 +33,7 @@ import lynxLogo from '../assets/lynx-logo.png';
           <x-text class="title">Angular</x-text>
           <x-text class="subtitle">on Lynx</x-text>
         </x-view>
+        <input placeholder="Enter text" type="text" (bindinput)="onInput($any($event))" />
         <x-view class="content">
           <x-image [src]="arrow" class="arrow" />
           <x-text class="description">Tap the logo and have fun!</x-text>
@@ -80,6 +81,10 @@ export class AppComponent {
   #logger = inject(LynxLoggerService);
   alterLogo = signal(false);
   lastError = signal('');
+
+  onInput(event: { detail: { value: string } }) {
+    this.#logger.log('input', event.detail.value);
+  }
 
   onTap(event: TouchEvent) {
     this.#logger.log('tap', event);

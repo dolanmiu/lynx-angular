@@ -292,6 +292,8 @@ declare global {
       reloadTemplate?: boolean;
       listID?: number;
       pipelineOptions?: Record<string, any>;
+      /** Delegate async scheduling to the native engine (used in componentAtIndexes batch path). */
+      asyncFlush?: boolean;
     },
   ): void;
 

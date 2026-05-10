@@ -1,10 +1,10 @@
 import type { RsbuildPlugin } from '@lynx-js/rspeedy';
 import { applyAngularRules } from './angular.js';
 import { applyCSS } from './css.js';
-import { applyDevLogger } from './dev-logger.js';
 import { applyEntry } from './entry.js';
 import { applyGenerator } from './generator.js';
 import { applyLayers } from './layers.js';
+import { applyDevLogger } from './logger/dev-logger.js';
 import { applySplitChunksRule } from './split-chunks.js';
 import {
   normalizeOptions,

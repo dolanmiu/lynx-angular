@@ -394,14 +394,176 @@ Wrapping in an array (our Attempts 6–12) stopped the crash but also stopped th
 - Per-item flush restored: `__FlushElementTree(child, { triggerLayout: true, operationID: opId, elementID, listID: listId })`
 - Added `isAppendedToNativeList()` + `markAppendedToNativeList()` helpers to `LynxListElement`
 
-**Result:** TBD
+**Result:** Crash ~50% of the time. Same as Attempt 13. Per-item flush does NOT cause the crash (Attempt 13 crashed without it too).
 
 ---
 
-## What We Know For Certain (updated)
+## Attempt 15: Full rewrite matching React/Vue Lynx architecture
+
+**Changes:**
+- Rewrote `create-list-element.ts` and `lynx-list-element.ts` from scratch
+- Synchronous flush in `componentAtIndex` (matching React/Vue Lynx)
+- Diff-based `update-list-info` (tracks `_committedUIChildren`, computes insert/remove delta)
+- `asyncFlush` support in `componentAtIndexes`
+- Changed `__CreateList` to 5-arg form (`pageId, componentAtIndex, enqueueComponent, {}, componentAtIndexes`)
+- Removed `__dbg` debug logging
+- Removed dead code (`setPageElement`, `appendChildToNativeList`)
+
+**Result:** CRASH. Same ~50% intermittent pattern.
+
+---
+
+## Attempt 16: Match Vue Lynx more closely
+
+**Changes:**
+- Removed `__UpdateListCallbacks` from `_processUpdate()` (Vue registers callbacks once at creation, never re-registers)
+- Removed programmatic default attributes (`list-type`, `span-count`, `scroll-orientation`) from `createListElement()` — Vue sets these via template bindings
+- Added `list-type="single" span-count="1" scroll-orientation="vertical"` to demo template
+- Changed insertAction `type` from `'__angular_list_item'` to `'list-item'` (matching Vue and the actual native element type)
+
+**Result:** CRASH. Same pattern.
+
+---
+
+## Attempt 17: Diagnostic build — isolate crash point
+
+**Changes:**
+- Split `end()` into two flushes: `__FlushElementTree()` → `processPendingListUpdates()` → `__FlushElementTree()`
+  - Flush 1 renders all UI (debug text visible) before list processing
+  - Flush 2 processes list updates (may crash)
+- Made list items conditional: `showItems = false` by default, toggle button to enable
+- Added `__dbg` breadcrumbs at: list creation, `_processUpdate`, `componentAtIndex` entry/append/flush
+
+**Result:** KEY DIAGNOSTIC FINDINGS:
+```
+Debug text on load (showItems=false):
+  pre-createList
+  post-createList
+  procUpd
+  kids:new=0,old=0
+  setULI:ins=0,rem=0
+  ULI-set
+```
+
+1. **Empty list does NOT crash** — list creation + empty update-list-info + flush all succeed
+2. **Toggle items ON crashes intermittently** (~50%) — going from 0 to 3 items
+3. **Add item does NOT crash** — going from 3 to 4 items (incremental, after successful toggle)
+4. **When toggle doesn't crash, items sometimes don't render** (depends on flush approach)
+5. **`componentAtIndex` breadcrumbs never visible** — because they're written after Flush 1 renders the debug text, and Flush 2 crashes before the next CD cycle
+
+---
+
+## Attempt 18: Remove per-item flush from componentAtIndex entirely
+
+**Hypothesis:** The re-entrant `__FlushElementTree(child, {...})` inside `componentAtIndex` (called during outer `__FlushElementTree()`) crashes the engine.
+
+**Changes:**
+- `componentAtIndex` only does `__AppendElement(listRef, child)` + returns `__GetElementUniqueID(child)`
+- NO `__FlushElementTree` call inside `componentAtIndex` at all
+
+**Result:** STILL CRASHES on toggle (~50%). Items don't render when toggle succeeds (confirms per-item flush IS needed for rendering, but crash is NOT caused by per-item flush).
+
+**Key insight:** The crash is NOT in `componentAtIndex`. It happens during the outer `__FlushElementTree()` processing of `update-list-info`, regardless of what `componentAtIndex` does.
+
+---
+
+## Attempt 19: asyncFlush in componentAtIndex + single flush
+
+**Changes:**
+- Reverted to single flush in `end()`: `processPendingListUpdates()` → `__FlushElementTree()`
+- `componentAtIndex` uses `__FlushElementTree(child, { asyncFlush: true })` — delegates scheduling to native engine, avoids re-entrant synchronous flush
+
+**Result:** CRASH. Same ~50% intermittent pattern.
+
+---
+
+## Attempt 20: Skip empty update-list-info + minimal insertAction format
+
+**Hypothesis:** Sending empty `update-list-info` (`{insertAction: [], removeAction: [], updateAction: []}`) on first render puts the native list in a bad state. Vue Lynx's `flushListUpdates()` skips updates when nothing new (`if (items.length <= reported) continue`).
+
+**Changes:**
+- Added early return in `_processUpdate()` when `insertAction.length === 0 && removeAction.length === 0`
+- Simplified insertAction to minimal Vue format: only `position`, `type`, `item-key` (removed `estimated-main-axis-size-px` and `recyclable`)
+- `item-key` fallback uses `String(__GetElementUniqueID(child))` (string, not number)
+
+**Result:** CRASH. Same ~50% intermittent pattern.
+
+**Debug text after toggle + add-item (when toggle didn't crash):**
+```
+procUpd
+kids:new=0,old=0
+skip-empty
+procUpd
+kids:new=4,old=3
+setULI:ins=1,rem=0
+ULI-set
+procUpd
+kids:new=5,old=4
+setULI:ins=1,rem=0
+```
+The initial empty update IS skipped (`skip-empty`). But toggle still crashes.
+
+---
+
+## What We Know For Certain (updated after Attempts 15–20)
 
 1. **`update-list-info` must be a plain object** — array wrapper prevents `componentAtIndex` from being called
-2. **The test mock auto-wraps** — `(e.props[key] ??= []).push(value)` makes it look like array format is expected, but that's the mock's accumulation behavior
-3. **`componentAtIndex` IS called** by the engine with plain object format (Attempt 13 confirmed)
-4. **Pre-appending outside `componentAtIndex` crashes** — only valid inside the callback
-5. **Missing per-item flush may cause instability** — the engine may expect `__FlushElementTree` to be called inside each `componentAtIndex` invocation
+2. **`componentAtIndex` IS called** by the engine with plain object format
+3. **Pre-appending outside `componentAtIndex` crashes** — only valid inside the callback
+4. **The crash is NOT in `componentAtIndex`** — removing all code from the callback (Attempt 18) still crashes
+5. **The crash is NOT in per-item `__FlushElementTree`** — removing it doesn't help (Attempt 18)
+6. **The crash is NOT in `asyncFlush` vs sync flush** — asyncFlush still crashes (Attempt 19)
+7. **The crash is NOT in `__UpdateListCallbacks`** — removing it doesn't help (Attempt 16)
+8. **The crash is NOT in insertAction format** — minimal Vue format still crashes (Attempt 20)
+9. **The crash is NOT in empty update-list-info** — skipping it doesn't help (Attempt 20)
+10. **Empty list (no items) NEVER crashes** — confirmed across all attempts
+11. **First population (0→N items) crashes ~50%** — intermittent, native-level crash
+12. **Incremental additions (N→N+1) NEVER crash** — only the first batch of items triggers it
+13. **The crash is in `__FlushElementTree()` processing a list with update-list-info containing insertActions**
+
+## Current Architecture
+
+### `create-list-element.ts`
+- `__CreateList(pageId, componentAtIndex, enqueueComponent, {}, componentAtIndexes)` — 5 args
+- `componentAtIndex`: `__AppendElement(listRef, child)` + `__FlushElementTree(child, { asyncFlush: true })` + return elementID
+- `componentAtIndexes`: batch version, delegates to same append logic
+- No programmatic default attributes (list-type etc. come from template)
+
+### `lynx-list-element.ts`
+- Virtual linked list for children (appendChild/insertBefore intercepted)
+- `_processUpdate()`: diff-based update-list-info (insert/remove delta), skips empty updates
+- `processPendingListUpdates()`: called from `end()`, drains pending set
+- `_scheduleUpdate()`: adds to pending set + queueMicrotask safety net
+
+### `lynx-renderer-factory2.ts`
+- `end()`: `processPendingListUpdates()` → `__FlushElementTree()` (single bare flush)
+
+### Demo (`list-example.component.ts`)
+- `showItems = false` by default, toggle button to enable
+- Items: `[{id:1}, {id:2}, {id:3}]`, "Add Item" button appends more
+
+---
+
+## Remaining Hypotheses
+
+### H1: First update-list-info timing — list not ready for items during same CD cycle as creation
+
+The list element is created AND first populated in the same CD cycle (when `showItems` starts as `true`, or when toggle fires). The `__CreateList()` call and the `__SetAttribute(list, 'update-list-info', ...)` both happen before the same `__FlushElementTree()`. Maybe the native list engine needs a flush between creation and first population — it needs to "initialize" before accepting items.
+
+**Evidence:** Empty list works (creation + empty/no update-list-info + flush). Incremental adds work (list already initialized from a previous flush). Only the FIRST population crashes.
+
+**Potential fix:** Force a flush after `__CreateList()` before allowing `update-list-info` to be set. E.g., create the list in one CD cycle, populate it in the next.
+
+### H2: The intermittent nature suggests a race condition in the native engine
+
+The ~50% crash rate suggests the native engine has a race between list initialization (triggered by `__CreateList` during flush) and item processing (triggered by `update-list-info` during the same flush). Sometimes initialization finishes first and items work; sometimes items are processed before initialization completes and it crashes.
+
+**Potential fix:** Same as H1 — separate creation flush from population flush.
+
+### H3: `__FlushElementTree()` bare call vs `__FlushElementTree(page)` for list processing
+
+Earlier attempts showed that `__FlushElementTree(this.element, { triggerLayout: true, listID })` (targeted flush on list element) does NOT crash but also doesn't render items. Maybe the page-level flush approach matters.
+
+### H4: Need `__FlushElementTree(page, pipelineOptions)` with native-provided options
+
+React Lynx's page-level flush uses options from the native `renderPage`/`updatePage` callback. Our bare flush may be missing required metadata. The `__GeneratePipelineOptions()` API exists but we don't use it.
