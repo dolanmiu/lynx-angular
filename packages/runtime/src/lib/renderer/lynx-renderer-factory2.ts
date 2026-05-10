@@ -47,16 +47,14 @@ export class LynxRendererFactory2 implements RendererFactory2 {
   begin?(): void {}
   end?(): void {
     if (__MAIN_THREAD__) {
-      // Process pending x-list updates before flushing — list elements
-      // need update-list-info set before the native engine processes the
-      // element tree. This replaces the old setTimeout-based approach
-      // which crashed because __FlushElementTree can't be called from
-      // macrotask contexts.
-      processPendingListUpdates();
-      // Bare __FlushElementTree() (no args) is what the native engine uses to
-      // process update-list-info and trigger componentAtIndex. Passing page.element
-      // with options uses a different code path that skips list processing.
+      // Bare flush first: commits all element creation/attribute changes.
+      // Lists have no update-list-info yet, so the engine skips list processing.
       __FlushElementTree();
+
+      // Now process pending lists: sets update-list-info + targeted flush
+      // per list element. Targeted flush avoids the intermittent native crash
+      // that bare __FlushElementTree() causes when processing lists.
+      processPendingListUpdates();
     }
   }
 }

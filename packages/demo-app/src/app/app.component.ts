@@ -34,6 +34,7 @@ import lynxLogo from '../assets/lynx-logo.png';
           <x-text class="subtitle">on Lynx</x-text>
         </x-view>
         <input placeholder="Enter text" type="text" (bindinput)="onInput($any($event))" />
+        <textarea placeholder="Enter multi-line text" (bindinput)="onInput($any($event))"></textarea>
         <x-view class="content">
           <x-image [src]="arrow" class="arrow" />
           <x-text class="description">Tap the logo and have fun!</x-text>
@@ -53,6 +54,24 @@ import lynxLogo from '../assets/lynx-logo.png';
             <x-text style="color: white; font-size: 12px; word-break: break-all;">{{ lastError() }}</x-text>
           </x-view>
         }
+
+        <overlay [attr.visible]="showOverlay()" style="position: fixed; overflow: visible;">
+          <x-view style="width: 100%; height: 100%; z-index: 0; justify-content: center; align-items: center; background-color: rgba(0,0,0,0.5);" (bindtap)="closeOverlay()">
+            <x-view style="background-color: white; padding: 24px; border-radius: 12px; width: 80%;">
+              <x-text style="font-size: 18px; font-weight: bold; margin-bottom: 12px;">Overlay Demo</x-text>
+              <x-text style="font-size: 14px; margin-bottom: 16px;">This modal is rendered outside the Lynx document flow using the native overlay element.</x-text>
+              <x-view style="background-color: #6200ee; padding: 12px; border-radius: 8px; align-items: center;" (catchtap)="closeOverlay()">
+                <x-text style="color: white; font-size: 14px;">Close</x-text>
+              </x-view>
+            </x-view>
+          </x-view>
+        </overlay>
+
+        <svg [attr.content]="svgContent" style="width: 80px; height: 80px; margin: 16px 0;" />
+
+        <x-view class="nav-button" style="margin-bottom: 12px; background-color: #6200ee;" (bindtap)="openOverlay()">
+          <x-text class="nav-button-text" style="color: white;">Open Overlay</x-text>
+        </x-view>
 
         <x-view class="navigation">
           <x-text class="nav-title">Examples:</x-text>
@@ -80,7 +99,16 @@ export class AppComponent {
   #router = inject(Router);
   #logger = inject(LynxLoggerService);
   alterLogo = signal(false);
+  showOverlay = signal(false);
   lastError = signal('');
+
+  openOverlay(): void {
+    setTimeout(() => this.showOverlay.set(true), 0);
+  }
+
+  closeOverlay(): void {
+    setTimeout(() => this.showOverlay.set(false), 0);
+  }
 
   onInput(event: { detail: { value: string } }) {
     this.#logger.log('input', event.detail.value);
@@ -120,4 +148,16 @@ export class AppComponent {
   get angularLogo() {
     return angularLogo;
   }
+
+  // Simple star SVG to demonstrate the <svg> element
+  svgContent = `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="starGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#6200ee"/>
+        <stop offset="100%" stop-color="#03dac6"/>
+      </linearGradient>
+    </defs>
+    <polygon points="40,8 50,30 74,30 54,46 62,70 40,56 18,70 26,46 6,30 30,30"
+      fill="url(#starGrad)" stroke="white" stroke-width="1.5"/>
+  </svg>`;
 }

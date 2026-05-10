@@ -5,7 +5,7 @@ Provides everything needed to run Angular on the Lynx runtime. Maps Angular's `R
 ## Architecture Layers
 
 **Document** (`lynx-document.ts`):
-- `LynxDocument` (main thread) — wraps Lynx global `__Create*` functions (`__CreatePage`, `__CreateView`, `__CreateText`, `__CreateImage`, `__CreateScrollView`, `__CreateList`, `__CreateBlock`, `__CreateIf`, `__CreateFor`, `__CreateRawText`, `__CreateNonElement`)
+- `LynxDocument` (main thread) — wraps Lynx global `__Create*` functions (`__CreatePage`, `__CreateView`, `__CreateText`, `__CreateImage`, `__CreateScrollView`, `__CreateList`, `__CreateBlock`, `__CreateIf`, `__CreateFor`, `__CreateRawText`, `__CreateFrame`, `__CreateNonElement`)
 - `LynxBackgroundDocument` (background thread) — creates virtual `LynxBackgroundElement` nodes with tag metadata
 - `LynxDocumentBase` interface — shared contract for both
 
@@ -32,7 +32,9 @@ Provides everything needed to run Angular on the Lynx runtime. Maps Angular's `R
 
 ## Supported Lynx Elements
 
-`x-view`, `x-text`, `x-image`, `x-scroll-view`, `x-list`, `x-block`, `x-if`, `x-for`, `x-raw-text`
+`page`, `x-view`, `x-text`, `x-image`, `x-scroll-view`, `x-list`, `x-block`, `x-if`, `x-for`, `x-raw-text`, `frame`, `input`, `textarea`, `overlay`, `svg`
+
+`page` is special — it returns the existing root page element (created by `createRootElement()`), not a new element. Only one `<page>` is allowed per app. The element has `_isRootPageElement = true` which prevents Angular from reparenting or removing it.
 
 Unknown tags fall back to `x-view` with a console warning.
 

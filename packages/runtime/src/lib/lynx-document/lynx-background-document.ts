@@ -10,10 +10,16 @@ export class LynxBackgroundDocument implements LynxDocumentBase {
   createRootElement(): LynxBackgroundElement {
     const page = new LynxBackgroundElement();
     page.setAttribute('tagName', 'x-page');
+    page._isRootPageElement = true;
     this._page = page;
     return this._page;
   }
   createElement(tag: string, value?: string): LynxBackgroundElement {
+    // Returns the existing root page element — same singleton semantics as main thread.
+    if (tag === 'page') {
+      return this._page!;
+    }
+
     // In the background thread, we create virtual elements but store their tag name
     // to help with debugging and potential future synchronization
     const element = new LynxBackgroundElement();

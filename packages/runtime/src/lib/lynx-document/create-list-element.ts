@@ -5,76 +5,42 @@ import type { ElementRef, ListElementRef } from '../types/lynx';
  * Factory for the x-list native element.
  *
  * x-list in Lynx is a virtualized list driven by engine callbacks.
- * Angular's rendering calls LynxListElement.appendChild() for each child;
- * we intercept this and store children in a virtual JS-level linked list.
+ * Angular's rendering builds children into a virtual JS-level linked list
+ * (LynxListElement). The native engine calls componentAtIndex for each
+ * visible index; we append the pre-built element and flush with asyncFlush.
  *
- * _scheduleUpdate pre-appends all children to the native list tree, sets
- * update-list-info, then calls __FlushElementTree() to trigger rendering.
- * The engine calls componentAtIndex for each visible index; we just return
- * the element ID since children are already appended.
- *
- * NOTE: React Lynx appends + flushes per-item inside componentAtIndex,
- * but that causes re-entrant __FlushElementTree crashes when triggered
- * from setTimeout (Angular's async scheduling). Pre-appending avoids this
- * because Angular already fully builds all children before the list update.
+ * CRITICAL: This Lynx engine version crashes intermittently on re-entrant
+ * synchronous __FlushElementTree calls. componentAtIndex runs DURING the
+ * outer __FlushElementTree() in end(). To avoid re-entrancy, we use
+ * { asyncFlush: true } which delegates flush scheduling to the native
+ * engine. This is the same flag React Lynx uses in its batch path.
  */
-export function createListElement(
+export const createListElement = (
   pageId: number,
   nonElements: WeakSet<ElementRef>,
-): LynxListElement {
-  // Forward-declared so componentAtIndex closure can reference it
+): LynxListElement => {
+  // Forward-declared so callbacks can close over the fully-initialized instance.
   let listEl: LynxListElement;
 
-  // Deferred flush queue — populated inside componentAtIndex, drained by
-  // a microtask that runs after the outer page-level flush completes.
-  // This avoids the re-entrant __FlushElementTree crash (calling flush
-  // while the engine is already inside a flush triggering componentAtIndex).
-  let flushScheduled = false;
-  const pendingItemFlushes: Array<() => void> = [];
-
+  // componentAtIndex is called by the native engine during the targeted
+  // __FlushElementTree(listElement, ...) in _processUpdate(). We append the
+  // pre-built element and return its ID. No per-item flush — the element
+  // subtree was already committed by the bare __FlushElementTree() in end()
+  // which runs BEFORE processPendingListUpdates().
   const componentAtIndex = (
-    _listRef: ListElementRef,
-    listId: number,
+    listRef: ListElementRef,
+    _listId: number,
     cellIndex: number,
-    opId: number,
-  ) => {
-    (globalThis as any).__dbg =
-      ((globalThis as any).__dbg || '') + `cAI:cell=${cellIndex},op=${opId}\n`;
+    _opId: number,
+  ): number | undefined => {
     const uiChildren = listEl.getUIChildren();
-    if (cellIndex < uiChildren.length) {
-      const child = uiChildren[cellIndex];
-      // Use _listRef (engine-provided) not the stored listEl.element —
-      // React Lynx always appends to the ref the engine passes in.
-      if (!listEl.isAppendedToNativeList(child)) {
-        __AppendElement(_listRef, child);
-        listEl.markAppendedToNativeList(child);
-      }
-      const elementID = __GetElementUniqueID(child);
-      // Queue the per-item flush to run after the outer page-level flush
-      // completes. Calling __FlushElementTree synchronously here (re-entrant)
-      // crashes the engine ~50% of the time.
-      pendingItemFlushes.push(() => {
-        // No operationID — it's a one-time token from the engine's componentAtIndex
-        // call. By the time this microtask fires, the opId is stale and passing it
-        // crashes the engine ~50% of the time. elementID + listID are sufficient.
-        __FlushElementTree(child, {
-          triggerLayout: true,
-          operationID: opId,
-          elementID,
-          listID: listId,
-        });
-      });
-      if (!flushScheduled) {
-        flushScheduled = true;
-        queueMicrotask(() => {
-          flushScheduled = false;
-          const toFlush = pendingItemFlushes.splice(0);
-          for (const fn of toFlush) fn();
-        });
-      }
-      return elementID;
+    if (cellIndex >= uiChildren.length) return undefined;
+    const child = uiChildren[cellIndex]!;
+    if (!listEl.isAppendedToNativeList(child)) {
+      __AppendElement(listRef, child);
+      listEl.markAppendedToNativeList(child);
     }
-    return undefined;
+    return __GetElementUniqueID(child);
   };
 
   const enqueueComponent = (
@@ -82,48 +48,64 @@ export function createListElement(
     _listId: number,
     _eleId: number,
   ) => {
-    // enqueueComponent signals that the native list is done with an item
-    // (i.e., it scrolled off-screen and can be recycled). We don't implement
-    // a recycle pool — items stay in the native list tree permanently.
+    // enqueueComponent signals that an item scrolled offscreen and can be
+    // recycled. We don't implement a recycle pool — items stay in the native
+    // list tree permanently.
   };
 
-  // Batch version of componentAtIndex — the native engine may call this
-  // instead of the single-item version. Required as 5th arg to __CreateList
-  // (React Lynx always provides it, see list.ts componentAtIndexFactory).
+  // Batch version called by the native engine when it needs multiple items.
+  // Same no-flush approach as componentAtIndex — items are already committed.
+  // If the engine passes asyncFlush: true, we use it since that path delegates
+  // scheduling to native (no re-entrancy). The !asyncFlush batch path collects
+  // all elementIDs and does a single non-re-entrant flush at the end.
   const componentAtIndexes = (
     listRef: ListElementRef,
     listId: number,
     cellIndexes: number[],
     opIds: number[],
+    _enableReuseNotification: boolean,
+    asyncFlush: boolean,
   ) => {
-    (globalThis as any).__dbg =
-      ((globalThis as any).__dbg || '') +
-      `cAIbatch:${JSON.stringify(cellIndexes)}\n`;
+    const uiChildren = listEl.getUIChildren();
+    const elementIDs: number[] = [];
     for (let i = 0; i < cellIndexes.length; i++) {
-      componentAtIndex(listRef, listId, cellIndexes[i]!, opIds[i]!);
+      const child = uiChildren[cellIndexes[i]!];
+      if (!child) continue;
+      if (!listEl.isAppendedToNativeList(child)) {
+        __AppendElement(listRef, child);
+        listEl.markAppendedToNativeList(child);
+      }
+      const elementID = __GetElementUniqueID(child);
+      elementIDs.push(elementID);
+      if (asyncFlush) {
+        // Native engine owns the async schedule — safe, no re-entrancy.
+        __FlushElementTree(child, { asyncFlush: true });
+      }
+    }
+    if (!asyncFlush) {
+      __FlushElementTree(listRef, {
+        triggerLayout: true,
+        operationIDs: opIds,
+        elementIDs,
+        listID: listId,
+      });
     }
   };
 
-  // Test mock signature: __CreateList(pageId, componentAtIndex, enqueueComponent, componentAtIndexes)
-  // — 4 args, NO info object. The type declaration has info as 4th and componentAtIndexes
-  // as 5th, but the real native engine may match the test mock (4 args).
-  // Passing {} as 4th arg means componentAtIndexes is never registered.
   const nativeList = __CreateList(
     pageId,
     componentAtIndex,
     enqueueComponent,
-    componentAtIndexes as any,
+    {},
+    componentAtIndexes,
   );
 
-  // list-type, span-count, and scroll-orientation are all required by the
-  // native list engine (per Lynx docs). Without them the native side crashes
-  // at render time. Defaults to a single-column vertical list; users can
-  // override via template attributes.
-  __SetAttribute(nativeList, 'list-type', 'single');
-  __SetAttribute(nativeList, 'span-count', 1);
-  __SetAttribute(nativeList, 'scroll-orientation', 'vertical');
+  // list-type, span-count, and scroll-orientation should be set via template
+  // bindings (e.g. <x-list list-type="single" span-count="1" ...>), NOT
+  // programmatically here. Vue Lynx does not set any attributes after
+  // __CreateList — they flow through the normal attribute-setting path.
 
   listEl = new LynxListElement(nativeList, nonElements);
   listEl.setCallbacks(componentAtIndex, enqueueComponent, componentAtIndexes);
   return listEl;
-}
+};

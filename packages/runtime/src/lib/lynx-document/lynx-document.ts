@@ -1,8 +1,4 @@
-import {
-  LynxElement,
-  type LynxListElement,
-  setPageElement,
-} from '../lynx-element';
+import { LynxElement, type LynxListElement } from '../lynx-element';
 import type { ElementRef } from '../types/lynx';
 import { createListElement } from './create-list-element';
 import type { LynxDocumentBase } from './types';
@@ -10,6 +6,7 @@ import type { LynxDocumentBase } from './types';
 export class LynxDocument implements LynxDocumentBase {
   page!: LynxElement;
   #pageId = 0;
+  #pageElementRequested = false;
   // Track NoneElements (Angular comment markers from @for/@if) so x-list can skip them
   readonly #nonElements = new WeakSet<ElementRef>();
 
@@ -19,9 +16,10 @@ export class LynxDocument implements LynxDocumentBase {
   createRootElement(): LynxElement {
     const pageElement = __CreatePage('0', 0);
     this.page = new LynxElement(pageElement);
+    // Prevent Angular from reparenting or removing the root page element
+    // during normal component lifecycle (appendChild/remove calls).
+    this.page._isRootPageElement = true;
     this.#pageId = __GetElementUniqueID(pageElement);
-    // Publish the page element so the list microtask fallback can flush it.
-    setPageElement(pageElement);
     return this.page;
   }
   createElement(tag: string, value?: string): LynxElement | LynxListElement {
@@ -79,6 +77,54 @@ export class LynxDocument implements LynxDocumentBase {
       case 'x-for': {
         element = __CreateFor(this.#pageId);
         break;
+      }
+      case 'frame': {
+        // Native frame element — embeds a nested Lynx page (similar to HTML iframe).
+        // Attributes (src, data, global-props) and events (bindload) are set via
+        // standard __SetAttribute/__AddEvent by Angular template bindings.
+        element = __CreateFrame(this.#pageId);
+        break;
+      }
+      case 'input':
+      case 'textarea': {
+        // XElements — use generic __CreateElement (no dedicated creation functions).
+        // Require native-side input plugin to be registered by the app host.
+        element = __CreateElement(tag, this.#pageId);
+        // Native Lynx inputs have no intrinsic height or border (unlike HTML inputs),
+        // so provide sensible defaults so the element is always visible.
+        __AddInlineStyle(
+          element,
+          'height',
+          tag === 'textarea' ? '80px' : '40px',
+        );
+        __AddInlineStyle(element, 'border', '1px solid');
+        break;
+      }
+      case 'overlay': {
+        // Native overlay — renders outside the Lynx document flow on a separate
+        // rendering layer. Used for modals, bottom sheets, and dialogs that need
+        // to cover the entire embedded page. Controlled via the `visible` attribute.
+        element = __CreateElement('overlay', this.#pageId);
+        break;
+      }
+      case 'svg': {
+        // SVG is a native Lynx element — the engine parses the SVG content
+        // (set via the `content` attribute) on a background thread and renders
+        // it as a single native view. No individual SVG child nodes are created.
+        element = __CreateElement('svg', this.#pageId);
+        break;
+      }
+      case 'page': {
+        // Returns the existing root page element — does NOT create a new one.
+        // Only one <page> element is allowed per application. The page element's
+        // _isRootPageElement guard prevents Angular from reparenting or removing it.
+        if (this.#pageElementRequested) {
+          console.warn(
+            'Multiple <page> elements detected. Only one <page> is allowed per application.',
+          );
+        }
+        this.#pageElementRequested = true;
+        return this.page;
       }
       default: {
         console.warn(

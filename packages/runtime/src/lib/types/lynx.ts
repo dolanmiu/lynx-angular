@@ -31,6 +31,8 @@ export interface ForElementRef extends ElementRef {}
 
 export interface BlockElementRef extends ElementRef {}
 
+export interface FrameElementRef extends ElementRef {}
+
 export type ElementInfo = Record<string, any>;
 
 export type SelectorParams = {
@@ -152,6 +154,11 @@ declare global {
       asyncFlush: boolean,
     ) => void | null,
   ): void;
+
+  function __CreateFrame(
+    parentComponentUniId: number,
+    info?: ElementInfo,
+  ): FrameElementRef;
 
   function __CreateElement(
     tag: string,
