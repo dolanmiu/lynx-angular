@@ -11,18 +11,18 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
       <text class="subtitle">Horizontal Scroll</text>
       <scroll-view class="horizontal-scroll" scroll-orientation="horizontal">
         @for (item of horizontalItems; track item) {
-        <view class="horizontal-item">
-          <text class="item-text">{{ item }}</text>
-        </view>
+          <view class="horizontal-item">
+            <text class="item-text">{{ item }}</text>
+          </view>
         }
       </scroll-view>
       <!-- Vertical scroll example -->
       <text class="subtitle">Vertical Scroll</text>
       <scroll-view class="vertical-scroll" scroll-orientation="vertical">
         @for (item of verticalItems; track item) {
-        <view class="vertical-item">
-          <text class="item-text">{{ item }}</text>
-        </view>
+          <view class="vertical-item">
+            <text class="item-text">{{ item }}</text>
+          </view>
         }
       </scroll-view>
     </view>

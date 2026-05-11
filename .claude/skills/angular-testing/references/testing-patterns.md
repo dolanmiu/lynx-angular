@@ -20,7 +20,11 @@ import { describe, it, expect } from 'vitest';
 describe('UserCard', () => {
   it('should match snapshot', () => {
     const fixture = TestBed.createComponent(UserCard);
-    fixture.componentRef.setInput('user', { id: '1', name: 'John', email: 'john@example.com' });
+    fixture.componentRef.setInput('user', {
+      id: '1',
+      name: 'John',
+      email: 'john@example.com',
+    });
     fixture.detectChanges();
 
     expect(fixture.nativeElement.innerHTML).toMatchSnapshot();
@@ -133,7 +137,12 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
-      exclude: ['node_modules/', 'src/test-setup.ts', '**/*.spec.ts', '**/*.d.ts'],
+      exclude: [
+        'node_modules/',
+        'src/test-setup.ts',
+        '**/*.spec.ts',
+        '**/*.d.ts',
+      ],
       thresholds: {
         statements: 80,
         branches: 80,
@@ -248,9 +257,13 @@ export class CounterHarn extends ComponentHarness {
 
   // Filter factory
   static with(options: { count?: number } = {}): HarnessPredicate<CounterHarn> {
-    return new HarnessPredicate(CounterHarn, options).addOption('count', options.count, async (harness, count) => {
-      return (await harness.getCount()) === count;
-    });
+    return new HarnessPredicate(CounterHarn, options).addOption(
+      'count',
+      options.count,
+      async (harness, count) => {
+        return (await harness.getCount()) === count;
+      },
+    );
   }
 }
 ```
@@ -290,7 +303,9 @@ describe('Counter with Harness', () => {
     await counter.increment();
 
     // Find counter with count of 2
-    const counterWith2 = await loader.getHarness(CounterHarn.with({ count: 2 }));
+    const counterWith2 = await loader.getHarness(
+      CounterHarn.with({ count: 2 }),
+    );
     expect(counterWith2).toBeTruthy();
   });
 });
@@ -669,12 +684,20 @@ test.describe('Login', () => {
 
 ```typescript
 // test-utils.ts
-export function setSignalInput<T>(fixture: ComponentFixture<any>, inputName: string, value: T): void {
+export function setSignalInput<T>(
+  fixture: ComponentFixture<any>,
+  inputName: string,
+  value: T,
+): void {
   fixture.componentRef.setInput(inputName, value);
   fixture.detectChanges();
 }
 
-export async function waitForSignal<T>(signal: () => T, predicate: (value: T) => boolean, timeout = 5000): Promise<T> {
+export async function waitForSignal<T>(
+  signal: () => T,
+  predicate: (value: T) => boolean,
+  timeout = 5000,
+): Promise<T> {
   const start = Date.now();
   while (Date.now() - start < timeout) {
     const value = signal();

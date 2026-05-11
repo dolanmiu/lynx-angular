@@ -177,7 +177,16 @@ this.form().dirty();
 ### Built-in Validators
 
 ```typescript
-import { form, required, email, min, max, minLength, maxLength, pattern } from '@angular/forms/signals';
+import {
+  form,
+  required,
+  email,
+  min,
+  max,
+  minLength,
+  maxLength,
+  pattern,
+} from '@angular/forms/signals';
 
 const userForm = form(this.userModel, (schemaPath) => {
   // Required field
@@ -291,7 +300,10 @@ const profileForm = form(this.profileModel, (schemaPath) => {
 import { disabled } from '@angular/forms/signals';
 
 const orderForm = form(this.orderModel, (schemaPath) => {
-  disabled(schemaPath.couponCode, ({ valueOf }) => valueOf(schemaPath.total) < 50);
+  disabled(
+    schemaPath.couponCode,
+    ({ valueOf }) => valueOf(schemaPath.total) < 50,
+  );
 });
 ```
 

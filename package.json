@@ -2,24 +2,27 @@
   "name": "@blotch/angular-lynx",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "keywords": [],
+  "license": "ISC",
+  "author": "",
   "workspaces": [
     "packages/*"
   ],
-  "devDependencies": {
-    "@biomejs/biome": "^2.4.8",
-    "cspell": "^9.7.0",
-    "vitest": "^4.0.8"
-  },
+  "main": "index.js",
   "scripts": {
     "build": "npm run build -w packages/rsbuild-plugin-angular-lynx && npm run build -w packages/runtime && npm run build -w packages/demo-app",
     "test": "vitest run",
     "demo": "npm run build && npm run start --workspace=packages/demo-app",
-    "lint": "biome check .",
-    "lint:fix": "biome check --fix .",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check .",
     "cspell": "cspell ."
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "devDependencies": {
+    "cspell": "^9.7.0",
+    "oxfmt": "^0.48.0",
+    "oxlint": "^1.63.0",
+    "vitest": "^4.0.8"
+  }
 }

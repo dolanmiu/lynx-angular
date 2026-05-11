@@ -23,10 +23,10 @@
     "@angular-devkit/build-angular": "^21.0.0",
     "@angular/cli": "^21.0.0",
     "@angular/compiler-cli": "^21.0.0",
+    "@blotch/rsbuild-plugin-angular-lynx": "*",
     "@lynx-js/qrcode-rsbuild-plugin": "^0.4.6",
     "@lynx-js/rspeedy": "^0.14.3",
     "@lynx-js/types": "^3.7.0",
-    "@blotch/rsbuild-plugin-angular-lynx": "*",
     "typescript": "~5.9.0"
   }
 }

@@ -60,13 +60,15 @@ export const routes: Routes = [
   // Lazy load entire feature
   {
     path: 'admin',
-    loadChildren: () => import('./admin/admin.routes').then((m) => m.adminRoutes),
+    loadChildren: () =>
+      import('./admin/admin.routes').then((m) => m.adminRoutes),
   },
 
   // Lazy load single component
   {
     path: 'settings',
-    loadComponent: () => import('./settings/settings.component').then((m) => m.Settings),
+    loadComponent: () =>
+      import('./settings/settings.component').then((m) => m.Settings),
   },
 ];
 

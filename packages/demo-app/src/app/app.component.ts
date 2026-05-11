@@ -33,8 +33,15 @@ import lynxLogo from '../assets/lynx-logo.png';
           <text class="title">Angular</text>
           <text class="subtitle">on Lynx</text>
         </view>
-        <input placeholder="Enter text" type="text" (bindinput)="onInput($any($event))" />
-        <textarea placeholder="Enter multi-line text" (bindinput)="onInput($any($event))"></textarea>
+        <input
+          placeholder="Enter text"
+          type="text"
+          (bindinput)="onInput($any($event))"
+        />
+        <textarea
+          placeholder="Enter multi-line text"
+          (bindinput)="onInput($any($event))"
+        ></textarea>
         <view class="content">
           <image [src]="arrow" class="arrow" />
           <text class="description">Tap the logo and have fun!</text>
@@ -51,16 +58,36 @@ import lynxLogo from '../assets/lynx-logo.png';
 
         @if (lastError()) {
           <view style="background-color: red; padding: 8px; margin: 8px;">
-            <text style="color: white; font-size: 12px; word-break: break-all;">{{ lastError() }}</text>
+            <text
+              style="color: white; font-size: 12px; word-break: break-all;"
+              >{{ lastError() }}</text
+            >
           </view>
         }
 
-        <overlay [attr.visible]="showOverlay()" style="position: fixed; overflow: visible;">
-          <view style="width: 100%; height: 100%; z-index: 0; justify-content: center; align-items: center; background-color: rgba(0,0,0,0.5);" (bindtap)="closeOverlay()">
-            <view style="background-color: white; padding: 24px; border-radius: 12px; width: 80%;">
-              <text style="font-size: 18px; font-weight: bold; margin-bottom: 12px;">Overlay Demo</text>
-              <text style="font-size: 14px; margin-bottom: 16px;">This modal is rendered outside the Lynx document flow using the native overlay element.</text>
-              <view style="background-color: #6200ee; padding: 12px; border-radius: 8px; align-items: center;" (catchtap)="closeOverlay()">
+        <overlay
+          [attr.visible]="showOverlay()"
+          style="position: fixed; overflow: visible;"
+        >
+          <view
+            style="width: 100%; height: 100%; z-index: 0; justify-content: center; align-items: center; background-color: rgba(0,0,0,0.5);"
+            (bindtap)="closeOverlay()"
+          >
+            <view
+              style="background-color: white; padding: 24px; border-radius: 12px; width: 80%;"
+            >
+              <text
+                style="font-size: 18px; font-weight: bold; margin-bottom: 12px;"
+                >Overlay Demo</text
+              >
+              <text style="font-size: 14px; margin-bottom: 16px;"
+                >This modal is rendered outside the Lynx document flow using the
+                native overlay element.</text
+              >
+              <view
+                style="background-color: #6200ee; padding: 12px; border-radius: 8px; align-items: center;"
+                (catchtap)="closeOverlay()"
+              >
                 <text style="color: white; font-size: 14px;">Close</text>
               </view>
             </view>
@@ -75,8 +102,14 @@ import lynxLogo from '../assets/lynx-logo.png';
           (bindload)="onFrameLoad($any($event))"
         ></frame>
 
-        <view class="nav-button" style="margin-bottom: 12px; background-color: #6200ee;" (bindtap)="openOverlay()">
-          <text class="nav-button-text" style="color: white;">Open Overlay</text>
+        <view
+          class="nav-button"
+          style="margin-bottom: 12px; background-color: #6200ee;"
+          (bindtap)="openOverlay()"
+        >
+          <text class="nav-button-text" style="color: white;"
+            >Open Overlay</text
+          >
         </view>
 
         <view class="navigation">
@@ -93,7 +126,6 @@ import lynxLogo from '../assets/lynx-logo.png';
             </view>
           </view>
         </view>
-
       </view>
     </scroll-view>
   `,

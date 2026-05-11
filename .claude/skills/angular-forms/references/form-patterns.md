@@ -23,7 +23,9 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
   template: `
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <input formControlName="email" />
-      @if (form.controls.email.errors?.['required'] && form.controls.email.touched) {
+      @if (
+        form.controls.email.errors?.['required'] && form.controls.email.touched
+      ) {
         <span class="error">Email is required</span>
       }
 
@@ -301,9 +303,11 @@ form.valueChanges.subscribe((value) => {
 });
 
 // Single control with debounce
-form.controls.email.valueChanges.pipe(debounceTime(300), distinctUntilChanged()).subscribe((email) => {
-  this.validateEmail(email);
-});
+form.controls.email.valueChanges
+  .pipe(debounceTime(300), distinctUntilChanged())
+  .subscribe((email) => {
+    this.validateEmail(email);
+  });
 
 // Status changes
 form.statusChanges.subscribe((status) => {

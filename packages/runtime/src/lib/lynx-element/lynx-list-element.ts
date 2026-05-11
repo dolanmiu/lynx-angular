@@ -37,21 +37,21 @@ export const processPendingListUpdates = (): void => {
 };
 
 export class LynxListElement extends LynxElement {
-  private _firstVirtualChild: LynxElement | null = null;
-  private _lastVirtualChild: LynxElement | null = null;
-  private readonly _nonElements: WeakSet<ElementRef>;
-  private _destroyed = false;
+  #firstVirtualChild: LynxElement | null = null;
+  #lastVirtualChild: LynxElement | null = null;
+  readonly #nonElements: WeakSet<ElementRef>;
+  #destroyed = false;
   // Tracks which list-item elements have been appended to the native list tree.
   // We append once (lazily in componentAtIndex) and never again —
   // __AppendElement is not idempotent.
-  private _appendedToNativeList = new WeakSet<ElementRef>();
+  #appendedToNativeList = new WeakSet<ElementRef>();
   // Tracks what was last committed to native via update-list-info so we can
   // compute a diff (insertAction / removeAction) on the next update.
-  private _committedUIChildren: ElementRef[] = [];
+  #committedUIChildren: ElementRef[] = [];
 
   constructor(element: ElementRef, nonElements: WeakSet<ElementRef>) {
     super(element);
-    this._nonElements = nonElements;
+    this.#nonElements = nonElements;
   }
 
   /** Store the list callbacks so they can be re-registered before each flush. */
@@ -66,7 +66,7 @@ export class LynxListElement extends LynxElement {
   }
 
   override remove(): void {
-    this._destroyed = true;
+    this.#destroyed = true;
     pendingListUpdates.delete(this);
     super.remove();
   }
@@ -74,18 +74,18 @@ export class LynxListElement extends LynxElement {
   override appendChild(newChild: LynxElement): void {
     if (newChild._isRootPageElement) return;
     newChild._virtualParent = this;
-    newChild._virtualPrev = this._lastVirtualChild;
+    newChild._virtualPrev = this.#lastVirtualChild;
     newChild._virtualNext = null;
 
-    if (this._lastVirtualChild) {
-      this._lastVirtualChild._virtualNext = newChild;
+    if (this.#lastVirtualChild) {
+      this.#lastVirtualChild._virtualNext = newChild;
     }
-    if (!this._firstVirtualChild) {
-      this._firstVirtualChild = newChild;
+    if (!this.#firstVirtualChild) {
+      this.#firstVirtualChild = newChild;
     }
-    this._lastVirtualChild = newChild;
+    this.#lastVirtualChild = newChild;
 
-    this._scheduleUpdate();
+    this.#scheduleUpdate();
   }
 
   override insertBefore(
@@ -105,23 +105,23 @@ export class LynxListElement extends LynxElement {
     if (refChild._virtualPrev) {
       refChild._virtualPrev._virtualNext = newChild;
     } else {
-      this._firstVirtualChild = newChild;
+      this.#firstVirtualChild = newChild;
     }
     refChild._virtualPrev = newChild;
 
-    this._scheduleUpdate();
+    this.#scheduleUpdate();
   }
 
   removeVirtualChild(child: LynxElement): void {
     if (child._virtualPrev) {
       child._virtualPrev._virtualNext = child._virtualNext;
     } else {
-      this._firstVirtualChild = child._virtualNext;
+      this.#firstVirtualChild = child._virtualNext;
     }
     if (child._virtualNext) {
       child._virtualNext._virtualPrev = child._virtualPrev;
     } else {
-      this._lastVirtualChild = child._virtualPrev;
+      this.#lastVirtualChild = child._virtualPrev;
     }
 
     child._virtualParent = null;
@@ -134,15 +134,15 @@ export class LynxListElement extends LynxElement {
     // same as direct __AppendElement outside componentAtIndex crashes.
     // Calling both __RemoveElement AND removeAction double-removes and crashes.
 
-    this._scheduleUpdate();
+    this.#scheduleUpdate();
   }
 
   /** Returns ElementRefs of real UI children (excludes NoneElements / comment markers). */
   getUIChildren(): ElementRef[] {
     const children: ElementRef[] = [];
-    let child = this._firstVirtualChild;
+    let child = this.#firstVirtualChild;
     while (child) {
-      if (!this._nonElements.has(child.element)) {
+      if (!this.#nonElements.has(child.element)) {
         children.push(child.element);
       }
       child = child._virtualNext;
@@ -151,11 +151,11 @@ export class LynxListElement extends LynxElement {
   }
 
   isAppendedToNativeList(child: ElementRef): boolean {
-    return this._appendedToNativeList.has(child);
+    return this.#appendedToNativeList.has(child);
   }
 
   markAppendedToNativeList(child: ElementRef): void {
-    this._appendedToNativeList.add(child);
+    this.#appendedToNativeList.add(child);
   }
 
   /**
@@ -165,8 +165,8 @@ export class LynxListElement extends LynxElement {
    * flushed as part of the normal Angular CD cycle — calling
    * __FlushElementTree from setTimeout crashes the native engine.
    */
-  private _scheduleUpdate(): void {
-    if (this._destroyed) return;
+  #scheduleUpdate(): void {
+    if (this.#destroyed) return;
     const wasEmpty = pendingListUpdates.size === 0;
     pendingListUpdates.add(this);
     if (wasEmpty) {
@@ -195,11 +195,11 @@ export class LynxListElement extends LynxElement {
    * This matches the React Lynx ListUpdateInfoRecording format.
    */
   _processUpdate(): void {
-    if (this._destroyed) return;
+    if (this.#destroyed) return;
     const g = globalThis as any;
     g.__dbg = `${g.__dbg || ''}procUpd\n`;
     const newChildren = this.getUIChildren();
-    const oldChildren = this._committedUIChildren;
+    const oldChildren = this.#committedUIChildren;
     g.__dbg += `kids:new=${newChildren.length},old=${oldChildren.length}\n`;
 
     const oldSet = new Set(oldChildren);
@@ -232,7 +232,7 @@ export class LynxListElement extends LynxElement {
     // subsequent updates with items to crash intermittently.
     if (insertAction.length === 0 && removeAction.length === 0) {
       g.__dbg += 'skip-empty\n';
-      this._committedUIChildren = newChildren;
+      this.#committedUIChildren = newChildren;
       return;
     }
 
@@ -240,7 +240,7 @@ export class LynxListElement extends LynxElement {
     // re-appended fresh if re-added to the list later.
     for (const idx of removeAction) {
       const removed = oldChildren[idx];
-      if (removed) this._appendedToNativeList.delete(removed);
+      if (removed) this.#appendedToNativeList.delete(removed);
     }
 
     g.__dbg += `setULI:ins=${insertAction.length},rem=${removeAction.length}\n`;
@@ -267,6 +267,6 @@ export class LynxListElement extends LynxElement {
       updateAction: [],
     });
 
-    this._committedUIChildren = newChildren;
+    this.#committedUIChildren = newChildren;
   }
 }

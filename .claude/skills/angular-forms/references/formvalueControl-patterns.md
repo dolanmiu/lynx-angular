@@ -11,7 +11,13 @@ interface Rating {
   rating: number;
 }
 
-import { form, FormField, FormValueControl, ValidationError, WithOptionalField } from '@angular/forms/signals';
+import {
+  form,
+  FormField,
+  FormValueControl,
+  ValidationError,
+  WithOptionalField,
+} from '@angular/forms/signals';
 import { MatIconModule } from '@angular/material/icon';
 import { MatError } from '@angular/material/form-field';
 
@@ -46,9 +52,8 @@ export class Rating implements FormValueControl<number> {
   // Optional: Bindings for other form control states.
   readonly readonly = input<boolean>(false);
   readonly invalid = input<boolean>(false);
-  readonly errors: InputSignal<readonly WithOptionalField<ValidationError>[]> = input<
-    readonly WithOptionalField<ValidationError>[]
-  >([]);
+  readonly errors: InputSignal<readonly WithOptionalField<ValidationError>[]> =
+    input<readonly WithOptionalField<ValidationError>[]>([]);
 
   starArray: Signal<number[]> = signal(
     Array(5)

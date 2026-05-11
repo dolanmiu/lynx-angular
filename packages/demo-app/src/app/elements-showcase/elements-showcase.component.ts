@@ -70,15 +70,13 @@ import lynxLogo from '../../assets/lynx-logo.png';
           <view class="element-example">
             <list class="mini-list">
               @for (i of [1, 2, 3]; track i) {
-              <list-item class="list-item" item-key="{{ i }}">
-                <text>List Item {{ i }}</text>
-              </list-item>
+                <list-item class="list-item" item-key="{{ i }}">
+                  <text>List Item {{ i }}</text>
+                </list-item>
               }
             </list>
           </view>
-          <text class="description"
-            >Optimized container for list items</text
-          >
+          <text class="description">Optimized container for list items</text>
         </view>
       </view>
 

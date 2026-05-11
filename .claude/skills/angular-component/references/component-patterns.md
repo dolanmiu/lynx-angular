@@ -83,7 +83,13 @@ export class Gallery {
 Query projected content:
 
 ```typescript
-import { Component, contentChild, contentChildren, effect, signal } from '@angular/core';
+import {
+  Component,
+  contentChild,
+  contentChildren,
+  effect,
+  signal,
+} from '@angular/core';
 
 @Component({
   selector: 'app-tabs',
@@ -225,7 +231,9 @@ export class Cart {
   private items = signal<CartItem[]>([]);
 
   readonly items$ = this.items.asReadonly();
-  readonly total = computed(() => this.items().reduce((sum, item) => sum + item.price, 0));
+  readonly total = computed(() =>
+    this.items().reduce((sum, item) => sum + item.price, 0),
+  );
 
   addItem(item: CartItem) {
     this.items.update((items) => [...items, item]);

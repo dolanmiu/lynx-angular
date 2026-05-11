@@ -48,7 +48,10 @@ import { appConfig } from './app.config';
 import { serverRoutes } from './app.routes.server';
 
 const serverConfig: ApplicationConfig = {
-  providers: [provideServerRendering(), provideServerRoutesConfig(serverRoutes)],
+  providers: [
+    provideServerRendering(),
+    provideServerRoutesConfig(serverRoutes),
+  ],
 };
 
 export const config = mergeApplicationConfig(appConfig, serverConfig);
@@ -163,7 +166,10 @@ export class Post {
 Capture user events before hydration completes:
 
 ```typescript
-import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
+import {
+  provideClientHydration,
+  withEventReplay,
+} from '@angular/platform-browser';
 
 export const appConfig: ApplicationConfig = {
   providers: [provideClientHydration(withEventReplay())],
@@ -235,13 +241,16 @@ export const WINDOW = new InjectionToken<Window | null>('Window', {
   },
 });
 
-export const LOCAL_STORAGE = new InjectionToken<Storage | null>('LocalStorage', {
-  providedIn: 'root',
-  factory: () => {
-    const platformId = inject(PLATFORM_ID);
-    return isPlatformBrowser(platformId) ? localStorage : null;
+export const LOCAL_STORAGE = new InjectionToken<Storage | null>(
+  'LocalStorage',
+  {
+    providedIn: 'root',
+    factory: () => {
+      const platformId = inject(PLATFORM_ID);
+      return isPlatformBrowser(platformId) ? localStorage : null;
+    },
   },
-});
+);
 
 // Usage
 @Injectable({ providedIn: 'root' })
@@ -317,7 +326,10 @@ export const serverRoutes: ServerRoute[] = [
 Automatically transfer HTTP responses from server to client:
 
 ```typescript
-import { provideClientHydration, withHttpTransferCacheOptions } from '@angular/platform-browser';
+import {
+  provideClientHydration,
+  withHttpTransferCacheOptions,
+} from '@angular/platform-browser';
 
 export const appConfig: ApplicationConfig = {
   providers: [

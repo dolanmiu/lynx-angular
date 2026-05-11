@@ -15,20 +15,24 @@ Lynx is a **card-based multi-page platform**, not a web browser. Navigation exis
 The native app (iOS/Android) manages a stack of Lynx "cards". Each card is a separate Lynx bundle with its own JS runtime. The native app controls transitions between them.
 
 **Host app API (from native SDK):**
+
 - `LynxView.loadTemplate(url, { initialData, globalProps })` — load a new Lynx bundle
 - `LynxView.updateData(data)` — push new data to the current page
 - `LynxView.updateGlobalProps(props)` — update app-wide shared state
 
 **JS-side API (called by Lynx runtime, not by user code):**
+
 - `renderPage(data)` — native calls this to initialize a page
 - `updatePage(data, options)` — native calls this to push data updates
 - `updateGlobalProps(data)` — native calls this for app-wide state changes
 
 **JS reads this via:**
+
 - `useInitData()` / `useInitDataChanged()` — current page data hooks (React Lynx)
 - `lynx.__globalProps` + `onGlobalPropsChanged` event
 
 **Cross-page navigation from JS:**
+
 - `NativeModules.openSchema(url)` — calls into the native layer via JS bridge
 - The native app then opens a new Lynx bundle at that URL
 - **Must be called from the background thread** (not main thread) — event handlers and `useEffect` are safe; main thread scripts are not
@@ -44,6 +48,7 @@ Standard in-memory routing within a single Lynx bundle — one JS runtime, one A
 Lynx has **no browser History API** (`window.history`, `window.location`, `pushState`, etc.) and no `document` object. Routers designed for the web cannot run unmodified.
 
 **Solution used by React Lynx ecosystem:**
+
 - **React Router v6** — use `<MemoryRouter>` instead of `<BrowserRouter>`
 - **TanStack Router** — use `createMemoryHistory()` + `isServer: false`
   - `isServer: false` is required because Lynx has no `document`, which makes routers think they're server-side rendering
@@ -64,12 +69,12 @@ React Lynx doesn't do navigation transitions out of the box. No built-in `Animat
 
 `provideLynxRouter()` is the Angular equivalent of `createRouter({ history: createMemoryHistory(), isServer: false })` in TanStack. The implementation is validated by official Lynx documentation.
 
-| TanStack Router on Lynx | lynx-angular |
-|---|---|
-| `createMemoryHistory()` | `LynxLocationStrategy` — in-memory history stack |
-| `isServer: false` | `LynxPlatformLocation` — prevents fallback to `BrowserPlatformLocation` |
-| `URLSearchParams` polyfill | `LynxPlatformLocation.#parseUrl()` — manual URL parsing, avoids `new URL()` |
-| `<RouterProvider router={router} />` | `<router-outlet>` + `LynxRouterOutlet` |
+| TanStack Router on Lynx              | lynx-angular                                                                |
+| ------------------------------------ | --------------------------------------------------------------------------- |
+| `createMemoryHistory()`              | `LynxLocationStrategy` — in-memory history stack                            |
+| `isServer: false`                    | `LynxPlatformLocation` — prevents fallback to `BrowserPlatformLocation`     |
+| `URLSearchParams` polyfill           | `LynxPlatformLocation.#parseUrl()` — manual URL parsing, avoids `new URL()` |
+| `<RouterProvider router={router} />` | `<router-outlet>` + `LynxRouterOutlet`                                      |
 
 ---
 
@@ -105,6 +110,7 @@ Embed sub-pages as nested Lynx bundles within a shell app. Extremely heavy — e
 Lynx has the building blocks but no pre-built navigation transition system.
 
 **Available primitives:**
+
 - CSS `transition` and `@keyframes` — standard CSS animations on elements
 - `animate()` JS API — imperative, returns an Animation object with play/pause/cancel
 - `@lynx-js/gesture-runtime` — `PanGesture`, `FlingGesture`, `TapGesture`, `LongPressGesture`
@@ -112,6 +118,7 @@ Lynx has the building blocks but no pre-built navigation transition system.
 - Main Thread Script (`'main thread'` directive) — runs gesture/animation handlers on the UI thread synchronously at 60fps, bypassing the background thread latency
 
 **What's missing:**
+
 - No shared element transitions / hero animations
 - No View Transition API
 - No route-aware transition component (no `AnimatePresence` equivalent)
@@ -132,18 +139,18 @@ This is what every mobile navigation framework does internally (React Navigation
 
 ## Files Reference
 
-| File | Purpose |
-|------|---------|
-| `packages/runtime/src/lib/lynx-router.ts` | `provideLynxRouter()` — wraps `provideRouter()` with memory-based location strategies |
-| `packages/runtime/src/lib/lynx-location-strategy.ts` | `LynxLocationStrategy` — in-memory `LocationStrategy` (equivalent to `createMemoryHistory()`) |
-| `packages/runtime/src/lib/lynx-platform-location.ts` | `LynxPlatformLocation` — in-memory `PlatformLocation`, manual URL parsing (no `new URL()`) |
-| `packages/runtime/src/lib/lynx-router-outlet.ts` | `LynxRouterOutlet` — content projection + `@switch` for rendering matched routes |
-| `references/lynx-website-main/docs/en/react/routing/react-router.mdx` | Official React Router on Lynx docs |
-| `references/lynx-website-main/docs/en/react/routing/tanstack-router.mdx` | Official TanStack Router on Lynx docs |
-| `references/lynx-website-main/docs/en/guide/use-data-from-host-platform.mdx` | `initData` / `globalProps` / native page data flow |
-| `references/lynx-website-main/docs/en/api/lynx-native-api/lynx-view/lynx-view.mdx` | `<lynx-view>` — host-side API for loading and updating pages |
-| `references/lynx-website-main/docs/en/api/elements/built-in/frame.mdx` | `<frame>` element — embedded sub-pages |
-| `references/lynx-website-main/docs/en/guide/styling/animation.mdx` | CSS animation guide |
-| `references/lynx-website-main/docs/en/react/main-thread-script.mdx` | Main thread scripting — key for 60fps gesture-driven animations |
-| `references/lynx-stack-main/packages/lynx/gesture-runtime/` | `@lynx-js/gesture-runtime` — PanGesture, FlingGesture, etc. |
-| `references/lynx-stack-main/packages/motion/` | `@lynx-js/motion` — Framer Motion port, spring animations |
+| File                                                                               | Purpose                                                                                       |
+| ---------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `packages/runtime/src/lib/lynx-router.ts`                                          | `provideLynxRouter()` — wraps `provideRouter()` with memory-based location strategies         |
+| `packages/runtime/src/lib/lynx-location-strategy.ts`                               | `LynxLocationStrategy` — in-memory `LocationStrategy` (equivalent to `createMemoryHistory()`) |
+| `packages/runtime/src/lib/lynx-platform-location.ts`                               | `LynxPlatformLocation` — in-memory `PlatformLocation`, manual URL parsing (no `new URL()`)    |
+| `packages/runtime/src/lib/lynx-router-outlet.ts`                                   | `LynxRouterOutlet` — content projection + `@switch` for rendering matched routes              |
+| `references/lynx-website-main/docs/en/react/routing/react-router.mdx`              | Official React Router on Lynx docs                                                            |
+| `references/lynx-website-main/docs/en/react/routing/tanstack-router.mdx`           | Official TanStack Router on Lynx docs                                                         |
+| `references/lynx-website-main/docs/en/guide/use-data-from-host-platform.mdx`       | `initData` / `globalProps` / native page data flow                                            |
+| `references/lynx-website-main/docs/en/api/lynx-native-api/lynx-view/lynx-view.mdx` | `<lynx-view>` — host-side API for loading and updating pages                                  |
+| `references/lynx-website-main/docs/en/api/elements/built-in/frame.mdx`             | `<frame>` element — embedded sub-pages                                                        |
+| `references/lynx-website-main/docs/en/guide/styling/animation.mdx`                 | CSS animation guide                                                                           |
+| `references/lynx-website-main/docs/en/react/main-thread-script.mdx`                | Main thread scripting — key for 60fps gesture-driven animations                               |
+| `references/lynx-stack-main/packages/lynx/gesture-runtime/`                        | `@lynx-js/gesture-runtime` — PanGesture, FlingGesture, etc.                                   |
+| `references/lynx-stack-main/packages/motion/`                                      | `@lynx-js/motion` — Framer Motion port, spring animations                                     |

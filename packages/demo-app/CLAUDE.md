@@ -12,12 +12,12 @@ Example app demonstrating the runtime library. Uses standalone components, zonel
 
 ## Routes
 
-| Path              | Component                  |
-|-------------------|----------------------------|
-| `/`               | `AppComponent`             |
-| `/list-example`   | `ListExampleComponent`     |
-| `/scroll-example` | `ScrollExampleComponent`   |
-| `/showcase`       | `ElementsShowcaseComponent`|
+| Path              | Component                   |
+| ----------------- | --------------------------- |
+| `/`               | `AppComponent`              |
+| `/list-example`   | `ListExampleComponent`      |
+| `/scroll-example` | `ScrollExampleComponent`    |
+| `/showcase`       | `ElementsShowcaseComponent` |
 
 ## Key Files
 

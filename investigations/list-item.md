@@ -41,6 +41,7 @@ After initial fixes (adding `scroll-orientation`, removing invalid `__SetConfig`
 ## Attempt 3: Move to `end()` lifecycle — pre-append + bare flush
 
 **Change:** Eliminated setTimeout entirely. Created `processPendingListUpdates()` called from `LynxRendererFactory2.end()` before `__FlushElementTree()`. The flow:
+
 1. `_scheduleUpdate()` adds list to a module-level `Set<LynxListElement>`
 2. `end()` drains the set, calling `_processUpdate()` on each list
 3. `_processUpdate()` pre-appends children + sets `update-list-info`
@@ -57,6 +58,7 @@ After initial fixes (adding `scroll-orientation`, removing invalid `__SetConfig`
 ## Attempt 4: React Lynx pattern — append + per-item flush inside componentAtIndex
 
 **Change:** Removed pre-append from `_processUpdate()`. Moved append + flush into `componentAtIndex`:
+
 ```typescript
 const componentAtIndex = (_listRef, listId, cellIndex, opId) => {
   const uiChildren = listEl.getUIChildren();
@@ -142,24 +144,31 @@ end?(): void {
 ### H1: `update-list-info` format is wrong
 
 Our format:
+
 ```json
 {
-  "insertAction": [{"position": 0, "type": "__angular_list_item", "item-key": "123"}],
+  "insertAction": [
+    { "position": 0, "type": "__angular_list_item", "item-key": "123" }
+  ],
   "removeAction": [],
   "updateAction": []
 }
 ```
 
 React Lynx test example format:
+
 ```json
 {
-  "insertAction": [{"position": 0, "type": "__Card__:__snapshot_f75b7_test_2", "item-key": 0}],
+  "insertAction": [
+    { "position": 0, "type": "__Card__:__snapshot_f75b7_test_2", "item-key": 0 }
+  ],
   "removeAction": [],
   "updateAction": []
 }
 ```
 
 Differences:
+
 - React Lynx uses numeric `item-key` (0, 1, 2), we use string (`"123"`)
 - React Lynx `type` is more specific, ours is generic
 - Maybe additional fields are required (e.g., `estimated-main-axis-size-px`)
@@ -169,6 +178,7 @@ Differences:
 Maybe bare `__FlushElementTree()` doesn't handle lists. React Lynx calls `__FlushElementTree(__page, flushOptions)` with the page element. Our `end()` calls it with no arguments.
 
 **Potential fix:** Pass the page element to `__FlushElementTree`:
+
 ```typescript
 __FlushElementTree(this.lynxDocument.page.element);
 ```
@@ -191,9 +201,10 @@ React Lynx sets `update-list-info` during `__pendingListUpdates.flush()` which i
 
 ---
 
-## Attempt 6: Fix update-list-info format (array wrap) + __UpdateListCallbacks before flush
+## Attempt 6: Fix update-list-info format (array wrap) + \_\_UpdateListCallbacks before flush
 
 **Changes:**
+
 - Wrapped `update-list-info` value in an array: `[{ insertAction, removeAction, updateAction }]` instead of plain object
 - Called `__UpdateListCallbacks(element, componentAtIndex, enqueueComponent)` after setting `update-list-info` (matching React Lynx `listUpdateInfo.ts flush()`)
 - Changed `__FlushElementTree()` (bare) → `__FlushElementTree(page.element)` in `end()`
@@ -207,15 +218,18 @@ React Lynx sets `update-list-info` during `__pendingListUpdates.flush()` which i
 ## Attempt 7: Add componentAtIndexes (batch callback) + microtask timing fix
 
 **Observation via on-screen debug logging:**
+
 - `_processUpdate` does NOT run on first page load — only after navigating away and back
 - `componentAtIndex` is **never called** by the native engine even when `_processUpdate` does run
 
 **Root causes identified:**
+
 1. `__CreateList` is missing the 5th arg (`componentAtIndexes`) and 4th arg (`info: {}`). React Lynx always passes `{}, componentAtIndexes` — the engine may require the batch callback to activate list processing.
 2. `__UpdateListCallbacks` was missing its 4th arg (`componentAtIndexes`). React Lynx passes all 4 args.
 3. First-render timing gap: list items are created during lazy route loading, after the initial `end()` fires. The `pendingListUpdates` set is populated but `end()` never fires again to drain it — causing `_processUpdate` to not run until next navigation.
 
 **Changes:**
+
 - Added `componentAtIndexes` batch callback (iterates cellIndexes, delegates to `componentAtIndex`)
 - Passed `{}` + `componentAtIndexes` as 4th/5th args to `__CreateList`
 - Passed `componentAtIndexes` as 4th arg to `__UpdateListCallbacks`
@@ -241,16 +255,35 @@ React Lynx sets `update-list-info` during `__pendingListUpdates.flush()` which i
 ### H1: `update-list-info` format is wrong (still)
 
 Our format:
+
 ```json
-[{"insertAction": [{"position": 0, "type": "__angular_list_item", "item-key": "123"}], "removeAction": [], "updateAction": []}]
+[
+  {
+    "insertAction": [
+      { "position": 0, "type": "__angular_list_item", "item-key": "123" }
+    ],
+    "removeAction": [],
+    "updateAction": []
+  }
+]
 ```
 
 React Lynx test example format:
+
 ```json
-[{"insertAction": [{"position": 0, "type": "__snapshot_f75b7_test_2", "item-key": 0}], "removeAction": [], "updateAction": []}]
+[
+  {
+    "insertAction": [
+      { "position": 0, "type": "__snapshot_f75b7_test_2", "item-key": 0 }
+    ],
+    "removeAction": [],
+    "updateAction": []
+  }
+]
 ```
 
 Differences still present:
+
 - React Lynx uses **numeric** `item-key` (0, 1, 2), we use string (`"123"`)
 - React Lynx `type` matches the snapshot class name, ours is generic `"__angular_list_item"`
 
@@ -279,6 +312,7 @@ React Lynx's per-item flush uses `{ triggerLayout: true }`. Maybe the page-level
 ## Attempt 8: Numeric item-key + triggerLayout + targeted list flush + componentAtIndexes
 
 **Changes (all combined):**
+
 - Changed `item-key` to numeric (`__GetElementUniqueID(child)` number, not string)
 - Added `{ triggerLayout: true }` to both page-level flush and microtask flush
 - Added targeted flush `__FlushElementTree(listElement, { triggerLayout: true, listID })` at the end of `_processUpdate()`
@@ -324,16 +358,28 @@ Also removed `__SetAttribute(child, 'item-key', ...)` from the loop (React Lynx 
 
 ---
 
-## Attempt 12: __CreateList with 4 args (no info object, componentAtIndexes as 4th)
+## Attempt 12: \_\_CreateList with 4 args (no info object, componentAtIndexes as 4th)
 
 **Hypothesis:** The test mock signature for `__CreateList` is 4 args: `(pageId, componentAtIndex, enqueueComponent, componentAtIndexes)` — no `info` object. The real native engine may match the test mock. By passing `{}` as 4th arg, `componentAtIndexes` lands in the wrong position and is never registered.
 
 **Change:**
+
 ```typescript
 // Before:
-__CreateList(pageId, componentAtIndex, enqueueComponent, {}, componentAtIndexes)
+__CreateList(
+  pageId,
+  componentAtIndex,
+  enqueueComponent,
+  {},
+  componentAtIndexes,
+);
 // After:
-__CreateList(pageId, componentAtIndex, enqueueComponent, componentAtIndexes as any)
+__CreateList(
+  pageId,
+  componentAtIndex,
+  enqueueComponent,
+  componentAtIndexes as any,
+);
 ```
 
 **Result:** No crash. `componentAtIndex` and `componentAtIndexes` still never called. `cAI:` and `cAIbatch:` never appear.
@@ -343,16 +389,19 @@ __CreateList(pageId, componentAtIndex, enqueueComponent, componentAtIndexes as a
 ## Current State of Code
 
 ### `lynx-document.ts`
+
 - `__CreateList(pageId, componentAtIndex, enqueueComponent, componentAtIndexes)` — 4 args
 - `componentAtIndex`: appends child + per-item flush + returns ID
 - `componentAtIndexes`: logs `cAIbatch:`, iterates and calls `componentAtIndex`
 
 ### `lynx-element.ts`
+
 - `_processUpdate()`: sets `item-key` (numeric) + `estimated-main-axis-size-px: 50` in insertAction; `update-list-info` is `[{insertAction, removeAction: [], updateAction: []}]`
 - `__UpdateListCallbacks(element, componentAtIndex, enqueueComponent, componentAtIndexes)` — 4 args
 - `_scheduleUpdate()`: adds to `pendingListUpdates` + queues `queueMicrotask` fallback
 
 ### `lynx-renderer-factory2.ts`
+
 - `end()`: calls `processPendingListUpdates()` then bare `__FlushElementTree()`
 
 ---
@@ -364,9 +413,11 @@ __CreateList(pageId, componentAtIndex, enqueueComponent, componentAtIndexes as a
 **The test mock misled us.** The mock does `(e.props[key] ??= []).push(value)` — it auto-wraps each `__SetAttribute` call into an accumulating array. So when React Lynx passes a plain object, the mock stores `[plainObject]` which looks like an array format.
 
 **The real native engine expects a plain object directly:**
+
 ```json
 {"insertAction": [...], "removeAction": [], "updateAction": []}
 ```
+
 NOT wrapped in `[...]`.
 
 Wrapping in an array (our Attempts 6–12) stopped the crash but also stopped the engine from calling `componentAtIndex` — it silently processed the outer array as "no operations".
@@ -386,10 +437,12 @@ Wrapping in an array (our Attempts 6–12) stopped the crash but also stopped th
 ## Attempt 14: Use `_listRef` for append + add per-item flush back
 
 **Hypothesis:**
+
 1. We should use `_listRef` (engine-provided first arg to `componentAtIndex`) for the append, not the stored `listEl.element` — React Lynx always uses the engine-provided ref.
 2. The per-item `__FlushElementTree(child, { triggerLayout: true, operationID: opId, elementID, listID })` is required. The original crash in Attempt 4 was due to the array format, not the nested flush itself.
 
 **Changes:**
+
 - `componentAtIndex` uses `__AppendElement(_listRef, child)` instead of `__AppendElement(listEl.element, child)`
 - Per-item flush restored: `__FlushElementTree(child, { triggerLayout: true, operationID: opId, elementID, listID: listId })`
 - Added `isAppendedToNativeList()` + `markAppendedToNativeList()` helpers to `LynxListElement`
@@ -401,6 +454,7 @@ Wrapping in an array (our Attempts 6–12) stopped the crash but also stopped th
 ## Attempt 15: Full rewrite matching React/Vue Lynx architecture
 
 **Changes:**
+
 - Rewrote `create-list-element.ts` and `lynx-list-element.ts` from scratch
 - Synchronous flush in `componentAtIndex` (matching React/Vue Lynx)
 - Diff-based `update-list-info` (tracks `_committedUIChildren`, computes insert/remove delta)
@@ -416,6 +470,7 @@ Wrapping in an array (our Attempts 6–12) stopped the crash but also stopped th
 ## Attempt 16: Match Vue Lynx more closely
 
 **Changes:**
+
 - Removed `__UpdateListCallbacks` from `_processUpdate()` (Vue registers callbacks once at creation, never re-registers)
 - Removed programmatic default attributes (`list-type`, `span-count`, `scroll-orientation`) from `createListElement()` — Vue sets these via template bindings
 - Added `list-type="single" span-count="1" scroll-orientation="vertical"` to demo template
@@ -428,6 +483,7 @@ Wrapping in an array (our Attempts 6–12) stopped the crash but also stopped th
 ## Attempt 17: Diagnostic build — isolate crash point
 
 **Changes:**
+
 - Split `end()` into two flushes: `__FlushElementTree()` → `processPendingListUpdates()` → `__FlushElementTree()`
   - Flush 1 renders all UI (debug text visible) before list processing
   - Flush 2 processes list updates (may crash)
@@ -435,6 +491,7 @@ Wrapping in an array (our Attempts 6–12) stopped the crash but also stopped th
 - Added `__dbg` breadcrumbs at: list creation, `_processUpdate`, `componentAtIndex` entry/append/flush
 
 **Result:** KEY DIAGNOSTIC FINDINGS:
+
 ```
 Debug text on load (showItems=false):
   pre-createList
@@ -458,6 +515,7 @@ Debug text on load (showItems=false):
 **Hypothesis:** The re-entrant `__FlushElementTree(child, {...})` inside `componentAtIndex` (called during outer `__FlushElementTree()`) crashes the engine.
 
 **Changes:**
+
 - `componentAtIndex` only does `__AppendElement(listRef, child)` + returns `__GetElementUniqueID(child)`
 - NO `__FlushElementTree` call inside `componentAtIndex` at all
 
@@ -470,6 +528,7 @@ Debug text on load (showItems=false):
 ## Attempt 19: asyncFlush in componentAtIndex + single flush
 
 **Changes:**
+
 - Reverted to single flush in `end()`: `processPendingListUpdates()` → `__FlushElementTree()`
 - `componentAtIndex` uses `__FlushElementTree(child, { asyncFlush: true })` — delegates scheduling to native engine, avoids re-entrant synchronous flush
 
@@ -482,6 +541,7 @@ Debug text on load (showItems=false):
 **Hypothesis:** Sending empty `update-list-info` (`{insertAction: [], removeAction: [], updateAction: []}`) on first render puts the native list in a bad state. Vue Lynx's `flushListUpdates()` skips updates when nothing new (`if (items.length <= reported) continue`).
 
 **Changes:**
+
 - Added early return in `_processUpdate()` when `insertAction.length === 0 && removeAction.length === 0`
 - Simplified insertAction to minimal Vue format: only `position`, `type`, `item-key` (removed `estimated-main-axis-size-px` and `recyclable`)
 - `item-key` fallback uses `String(__GetElementUniqueID(child))` (string, not number)
@@ -489,6 +549,7 @@ Debug text on load (showItems=false):
 **Result:** CRASH. Same ~50% intermittent pattern.
 
 **Debug text after toggle + add-item (when toggle didn't crash):**
+
 ```
 procUpd
 kids:new=0,old=0
@@ -501,6 +562,7 @@ procUpd
 kids:new=5,old=4
 setULI:ins=1,rem=0
 ```
+
 The initial empty update IS skipped (`skip-empty`). But toggle still crashes.
 
 ---
@@ -524,21 +586,25 @@ The initial empty update IS skipped (`skip-empty`). But toggle still crashes.
 ## Current Architecture
 
 ### `create-list-element.ts`
+
 - `__CreateList(pageId, componentAtIndex, enqueueComponent, {}, componentAtIndexes)` — 5 args
 - `componentAtIndex`: `__AppendElement(listRef, child)` + `__FlushElementTree(child, { asyncFlush: true })` + return elementID
 - `componentAtIndexes`: batch version, delegates to same append logic
 - No programmatic default attributes (list-type etc. come from template)
 
 ### `lynx-list-element.ts`
+
 - Virtual linked list for children (appendChild/insertBefore intercepted)
 - `_processUpdate()`: diff-based update-list-info (insert/remove delta), skips empty updates
 - `processPendingListUpdates()`: called from `end()`, drains pending set
 - `_scheduleUpdate()`: adds to pending set + queueMicrotask safety net
 
 ### `lynx-renderer-factory2.ts`
+
 - `end()`: `processPendingListUpdates()` → `__FlushElementTree()` (single bare flush)
 
 ### Demo (`list-example.component.ts`)
+
 - `showItems = false` by default, toggle button to enable
 - Items: `[{id:1}, {id:2}, {id:3}]`, "Add Item" button appends more
 

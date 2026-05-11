@@ -1,19 +1,19 @@
 {
   "name": "@blotch/rsbuild-plugin-angular-lynx",
   "version": "0.0.0",
+  "files": [
+    "dist",
+    "patch"
+  ],
   "type": "module",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     }
   },
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "dist",
-    "patch"
-  ],
   "scripts": {
     "build": "rslib build",
     "dev": "rslib build --watch",

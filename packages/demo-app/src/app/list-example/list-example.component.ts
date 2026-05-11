@@ -16,8 +16,15 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, signal } from '@angular/core';
           <text class="button-text">Add Item</text>
         </view>
       </view>
-      <text style="font-size: 10px; color: #333; white-space: pre-wrap">{{ dbg }}</text>
-      <list class="list" list-type="single" span-count="1" scroll-orientation="vertical">
+      <text style="font-size: 10px; color: #333; white-space: pre-wrap">{{
+        dbg
+      }}</text>
+      <list
+        class="list"
+        list-type="single"
+        span-count="1"
+        scroll-orientation="vertical"
+      >
         <!-- @if (showItems()) {
           @for (item of items(); track item.id) {
           <list-item class="list-item" item-key="{{ item.id }}">
@@ -35,8 +42,6 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, signal } from '@angular/core';
           <text class="item-text">Test 3</text>
         </list-item> -->
       </list>
-
-
     </scroll-view>
   `,
   styles: [

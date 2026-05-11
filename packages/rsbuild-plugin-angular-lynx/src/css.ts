@@ -39,9 +39,8 @@ export const applyCSS = (
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
   api.modifyBundlerChain(async (chain, { CHAIN_ID, environment }) => {
-    const { CssExtractRspackPlugin, CssExtractWebpackPlugin } = await import(
-      '@lynx-js/css-extract-webpack-plugin'
-    );
+    const { CssExtractRspackPlugin, CssExtractWebpackPlugin } =
+      await import('@lynx-js/css-extract-webpack-plugin');
     const CssExtractPlugin =
       api.context.bundlerType === 'rspack'
         ? CssExtractRspackPlugin

@@ -293,7 +293,11 @@ export class Validation {
 ```typescript
 // Interceptors use multi providers internally
 export const appConfig: ApplicationConfig = {
-  providers: [provideHttpClient(withInterceptors([authInterceptor, loggingInterceptor, errorInterceptor]))],
+  providers: [
+    provideHttpClient(
+      withInterceptors([authInterceptor, loggingInterceptor, errorInterceptor]),
+    ),
+  ],
 };
 ```
 
@@ -335,7 +339,11 @@ providers: [
 Create injectors programmatically:
 
 ```typescript
-import { createEnvironmentInjector, EnvironmentInjector, inject } from '@angular/core';
+import {
+  createEnvironmentInjector,
+  EnvironmentInjector,
+  inject,
+} from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class Plugin {
@@ -352,7 +360,11 @@ export class Plugin {
 Run code with injection context:
 
 ```typescript
-import { runInInjectionContext, EnvironmentInjector, inject } from '@angular/core';
+import {
+  runInInjectionContext,
+  EnvironmentInjector,
+  inject,
+} from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class Utility {

@@ -77,7 +77,9 @@ export class Auth {
 
   async login(credentials: Credentials): Promise<boolean> {
     try {
-      const response = await firstValueFrom(this.http.post<AuthResponse>('/api/login', credentials));
+      const response = await firstValueFrom(
+        this.http.post<AuthResponse>('/api/login', credentials),
+      );
 
       this._token.set(response.token);
       this._user.set(response.user);
@@ -183,7 +185,11 @@ export class Breadcrumb {
     { initialValue: [] },
   );
 
-  private buildBreadcrumbs(route: ActivatedRoute, url: string = '', breadcrumbs: Breadcrumb[] = []): Breadcrumb[] {
+  private buildBreadcrumbs(
+    route: ActivatedRoute,
+    url: string = '',
+    breadcrumbs: Breadcrumb[] = [],
+  ): Breadcrumb[] {
     const children = route.children;
 
     if (children.length === 0) {
@@ -191,7 +197,9 @@ export class Breadcrumb {
     }
 
     for (const child of children) {
-      const routeUrl = child.snapshot.url.map((segment) => segment.path).join('/');
+      const routeUrl = child.snapshot.url
+        .map((segment) => segment.path)
+        .join('/');
 
       if (routeUrl) {
         url += `/${routeUrl}`;
@@ -326,7 +334,12 @@ this.router.navigate([{ outlets: { modal: null } }]);
 ### Built-in Strategies
 
 ```typescript
-import { provideRouter, withPreloading, PreloadAllModules, NoPreloading } from '@angular/router';
+import {
+  provideRouter,
+  withPreloading,
+  PreloadAllModules,
+  NoPreloading,
+} from '@angular/router';
 
 // Preload all lazy modules
 provideRouter(routes, withPreloading(PreloadAllModules));
@@ -437,7 +450,11 @@ export class AppMain {
 
 ```typescript
 // app.config.ts
-import { provideRouter, withInMemoryScrolling, withRouterConfig } from '@angular/router';
+import {
+  provideRouter,
+  withInMemoryScrolling,
+  withRouterConfig,
+} from '@angular/router';
 
 provideRouter(
   routes,

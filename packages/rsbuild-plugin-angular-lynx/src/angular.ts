@@ -166,7 +166,7 @@ export const applyAngularRules = async (
       //   !!initializationResult.compilerOptions.inlineSourceMap;
       // referencedFiles = initializationResult.referencedFiles;
       // externalStylesheets = initializationResult.externalStylesheets;
-    } catch (_error) {}
+    } catch {}
     try {
       for (const {
         filename,
@@ -174,7 +174,7 @@ export const applyAngularRules = async (
       } of await compilation.emitAffectedFiles()) {
         typeScriptFileCache.set(path.normalize(filename), contents);
       }
-    } catch (_error) {}
+    } catch {}
     const diagnostics = await compilation.diagnoseFiles(
       useTypeChecking
         ? DiagnosticModes.All

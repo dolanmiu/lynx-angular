@@ -24,20 +24,18 @@ describe('LynxLoggerService', () => {
       expect(fetchMock).not.toHaveBeenCalled();
     });
 
-    it.each([
-      'warn',
-      'error',
-      'info',
-      'debug',
-    ] as const)('%s() is a no-op', (method) => {
-      const fetchMock = vi.fn().mockResolvedValue({});
-      vi.stubGlobal('fetch', fetchMock);
+    it.each(['warn', 'error', 'info', 'debug'] as const)(
+      '%s() is a no-op',
+      (method) => {
+        const fetchMock = vi.fn().mockResolvedValue({});
+        vi.stubGlobal('fetch', fetchMock);
 
-      const service = new LynxLoggerService();
-      service[method]('msg');
+        const service = new LynxLoggerService();
+        service[method]('msg');
 
-      expect(fetchMock).not.toHaveBeenCalled();
-    });
+        expect(fetchMock).not.toHaveBeenCalled();
+      },
+    );
   });
 
   describe('dev mode — no URL configured', () => {
@@ -81,19 +79,16 @@ describe('LynxLoggerService', () => {
       );
     });
 
-    it.each([
-      'log',
-      'warn',
-      'error',
-      'info',
-      'debug',
-    ] as const)('%s() includes the correct level in the request body', (method) => {
-      const service = new LynxLoggerService();
-      service[method]('msg');
+    it.each(['log', 'warn', 'error', 'info', 'debug'] as const)(
+      '%s() includes the correct level in the request body',
+      (method) => {
+        const service = new LynxLoggerService();
+        service[method]('msg');
 
-      const body = JSON.parse(fetchMock.mock.calls[0][1].body as string);
-      expect(body.logs[0].level).toBe(method);
-    });
+        const body = JSON.parse(fetchMock.mock.calls[0][1].body as string);
+        expect(body.logs[0].level).toBe(method);
+      },
+    );
 
     it('serializes all args as strings', () => {
       const service = new LynxLoggerService();

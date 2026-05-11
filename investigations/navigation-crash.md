@@ -21,6 +21,7 @@ This is a classic use-after-free: the native element is freed in step 2, but the
 ### Fix Applied
 
 `packages/runtime/src/lib/lynx-element.ts` — `LynxListElement`:
+
 - Added `_destroyed` flag and `_updateTimer` tracking
 - Override `remove()` to set `_destroyed = true` and cancel the pending `setTimeout` via `clearTimeout`
 - `_scheduleUpdate()` checks `_destroyed` at both scheduling time and callback time
@@ -41,11 +42,13 @@ When `navigateTo(path)` is called from a `(bindtap)` event handler, it runs **in
 - `__CreateView`, `__AppendElement`, `__InsertElementBefore` — new component's elements
 
 **React Lynx never does this.** In React Lynx:
+
 - Event handlers only update React state
 - All DOM mutations happen in a deferred render cycle after the event handler returns
 - `__FlushElementTree()` is always deferred via `Promise.resolve().then(...)`, never called synchronously
 
 Evidence from React Lynx reference:
+
 - `worklet-runtime/api/element.ts`: `flushElementTree()` always defers via `Promise.resolve().then()`
 - `lifecycle/patch/updateMainThread.ts`: Uses `setEomShouldFlushElementTree(false)` during batched worklet execution
 - `worklet-runtime/utils/mainThreadFlushLoopGuard.ts`: Exists to detect re-entrant flush loops — proving this is a known Lynx hazard
@@ -53,6 +56,7 @@ Evidence from React Lynx reference:
 ### Fix Applied
 
 `packages/demo-app/src/app/app.component.ts`:
+
 ```typescript
 navigateTo(path: string): void {
   setTimeout(() => this.#router.navigateByUrl(path), 0);
@@ -64,6 +68,7 @@ This moves all DOM mutations into a `setTimeout` macrotask, after the worklet ca
 ### Diagnostics Added
 
 Since there is no console on the Lynx device, added on-screen error rendering:
+
 - `packages/runtime/src/lib/runtime.ts`: `globalThis.onerror` and `globalThis.onunhandledrejection` handlers store errors in `globalThis.__lynxLastError`
 - `packages/demo-app/src/app/app.component.ts`: Red `<x-text>` panel displays `lastError` signal when non-empty
 
@@ -78,6 +83,7 @@ Since there is no console on the Lynx device, added on-screen error rendering:
 Angular's default `RouteReuseStrategy` destroys components on every navigation, creating fresh native elements each time. Destroyed elements stay in the pool. With `ScrollExampleComponent` creating ~50 elements per visit, after 5 scroll visits (= 9 total navigations back and forth with list), the pool exceeds capacity → **hard native crash** (app returns to home screen, no JS error caught).
 
 Evidence:
+
 - Crash is always on the **9th navigation** — deterministic, not a race condition
 - `__ReleaseElement` exists in React Lynx source but is **commented out everywhere** — API is not finalized
 - Our `lynx.ts` types have no destroy/free API beyond `__RemoveElement`
@@ -86,6 +92,7 @@ Evidence:
 ### Fix Applied
 
 `packages/runtime/src/lib/lynx-route-reuse-strategy.ts` — `LynxRouteReuseStrategy`:
+
 - `shouldDetach()` returns `true` — always detach instead of destroy
 - `store()` / `retrieve()` keep the `DetachedRouteHandle` alive in a Map
 - On revisit, `shouldAttach()` / `retrieve()` return the stored handle → Angular re-inserts the existing native elements (reusing pool slots, no new allocations)
@@ -101,13 +108,13 @@ Fix applied. Testing on device required.
 
 ## Key Architecture Context
 
-| API | Where called | When |
-|-----|-------------|------|
-| `__RemoveElement` | `LynxElement.remove()` | During router deactivation |
-| `__CreateView` | `LynxDocument.createElement()` | During router activation |
-| `__AppendElement` | `LynxElement.appendChild()` | During template rendering |
-| `__InsertElementBefore` | `LynxElement.insertBefore()` | During ViewContainerRef insertion |
-| `__FlushElementTree()` | `LynxRendererFactory2.end()` | End of Angular CD cycle (deferred via `markForCheck`) |
+| API                     | Where called                   | When                                                  |
+| ----------------------- | ------------------------------ | ----------------------------------------------------- |
+| `__RemoveElement`       | `LynxElement.remove()`         | During router deactivation                            |
+| `__CreateView`          | `LynxDocument.createElement()` | During router activation                              |
+| `__AppendElement`       | `LynxElement.appendChild()`    | During template rendering                             |
+| `__InsertElementBefore` | `LynxElement.insertBefore()`   | During ViewContainerRef insertion                     |
+| `__FlushElementTree()`  | `LynxRendererFactory2.end()`   | End of Angular CD cycle (deferred via `markForCheck`) |
 
 Angular's `RendererFactory2.begin()`/`end()` are called by `detectChangesInternal()` which runs in the scheduled CD cycle — NOT during the synchronous `navigateByUrl()` call. So `__FlushElementTree()` is NOT called during the worklet event handler.
 
@@ -117,8 +124,8 @@ However, `__RemoveElement`, `__CreateView`, etc. ARE called during the synchrono
 
 ## Files Modified
 
-| File | Change |
-|------|--------|
-| `packages/runtime/src/lib/lynx-element.ts` | `LynxListElement`: `_destroyed` flag, cancel pending `_scheduleUpdate` on remove |
-| `packages/runtime/src/lib/runtime.ts` | Global `onerror`/`onunhandledrejection` diagnostics |
-| `packages/demo-app/src/app/app.component.ts` | Defer navigation via `setTimeout`, show `lastError` on screen |
+| File                                         | Change                                                                           |
+| -------------------------------------------- | -------------------------------------------------------------------------------- |
+| `packages/runtime/src/lib/lynx-element.ts`   | `LynxListElement`: `_destroyed` flag, cancel pending `_scheduleUpdate` on remove |
+| `packages/runtime/src/lib/runtime.ts`        | Global `onerror`/`onunhandledrejection` diagnostics                              |
+| `packages/demo-app/src/app/app.component.ts` | Defer navigation via `setTimeout`, show `lastError` on screen                    |

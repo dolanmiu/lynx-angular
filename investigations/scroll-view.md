@@ -7,6 +7,7 @@ Ensure `<x-scroll-view>` works correctly in the Angular Lynx renderer with prope
 ## Starting State
 
 `x-scroll-view` already had partial support:
+
 - Element creation via `__CreateScrollView` in `lynx-document.ts` — working
 - Attributes and events flow through generic `LynxElement` paths (`__SetAttribute`, `__AddEvent`) — working
 - `__SetConfig` call contained **invalid properties** that don't exist in the Lynx scroll-view API
@@ -21,6 +22,7 @@ Referenced `references/lynx-website-main/docs/en/api/elements/built-in/scroll-vi
 **Valid `__SetConfig` properties:** `bounces` only. Other properties are attributes, not config.
 
 **Valid attributes (set via `__SetAttribute`):**
+
 - `scroll-orientation` — `"vertical"` (default) or `"horizontal"` (replaces deprecated `scroll-x`/`scroll-y`, v3.0+)
 - `enable-scroll` — boolean, enables/disables scrolling
 - `scroll-bar-enable` — boolean, show/hide scrollbar
@@ -29,6 +31,7 @@ Referenced `references/lynx-website-main/docs/en/api/elements/built-in/scroll-vi
 - `upper-threshold` / `lower-threshold` — number, thresholds for scroll boundary events
 
 **Valid events (set via `__AddEvent`):**
+
 - `bindscroll`, `bindscrollend`, `bindscrolltoupper`, `bindscrolltolower`, `bindcontentsizechanged`
 
 ### Root cause: attribute naming
@@ -36,11 +39,15 @@ Referenced `references/lynx-website-main/docs/en/api/elements/built-in/scroll-vi
 **Lynx uses kebab-case for all element attributes.** The native runtime does NOT recognize camelCase.
 
 The demo had:
+
 ```html
-<x-scroll-view scrollX="true" scrollY="false">  <!-- camelCase — NOT recognized -->
+<x-scroll-view scrollX="true" scrollY="false">
+  <!-- camelCase — NOT recognized --></x-scroll-view
+>
 ```
 
 React Lynx tests and examples consistently use kebab-case:
+
 ```jsx
 <scroll-view scroll-x scroll-y={true}>           <!-- kebab-case — correct -->
 <scroll-view scroll-orientation="horizontal">     <!-- kebab-case — correct -->
@@ -51,6 +58,7 @@ The attribute flow is: Angular template → `Renderer2.setAttribute()` → `Lynx
 ### Layout model
 
 From `display.mdx`:
+
 > `<scroll-view>` is forced to be a linear layout. `scroll-x`/`scroll-y` will change the main axis to horizontal and vertical respectively.
 
 Scroll-view's linear layout arranges direct children in a single direction. Items should be direct children (no wrapper view needed) — scroll-view handles the linear arrangement itself.
@@ -70,10 +78,10 @@ The `__SetConfig` call set properties that don't exist in the Lynx scroll-view A
 ```ts
 __SetConfig(element, {
   bounces: true,
-  showScrollIndicator: true,   // NOT a Lynx API
-  pagingEnabled: false,         // NOT a Lynx API
-  scrollsToTop: true,           // NOT a Lynx API
-  decelerationRate: 'normal',   // NOT a Lynx API
+  showScrollIndicator: true, // NOT a Lynx API
+  pagingEnabled: false, // NOT a Lynx API
+  scrollsToTop: true, // NOT a Lynx API
+  decelerationRate: 'normal', // NOT a Lynx API
 });
 ```
 
@@ -108,6 +116,7 @@ case 'x-scroll-view': {
 Two changes:
 
 **a) Fixed attribute names:**
+
 - `scrollX="true" scrollY="false"` → `scroll-orientation="horizontal"` (kebab-case, v3.0+)
 - `scrollX="false" scrollY="true"` → `scroll-orientation="vertical"` (kebab-case, v3.0+)
 
@@ -115,10 +124,14 @@ Two changes:
 Items are now direct children of `<x-scroll-view>` instead of wrapped in a `<x-view class="horizontal-content">` / `<x-view class="vertical-content">`. Scroll-view uses its own linear layout in the scroll direction — no wrapper needed.
 
 React Lynx examples confirm this pattern:
+
 ```jsx
-<scroll-view scroll-orientation='vertical' style={{width: '100%', height: '100px'}}>
+<scroll-view
+  scroll-orientation="vertical"
+  style={{ width: '100%', height: '100px' }}
+>
   {Array.from({ length: 10 }).map((item, i) => (
-    <view key={i} style={{width: '100%', height: '50px'}}>
+    <view key={i} style={{ width: '100%', height: '50px' }}>
       <text>Inner Item {i}</text>
     </view>
   ))}
@@ -132,6 +145,7 @@ React Lynx examples confirm this pattern:
 The scroll-view in `app.component.ts` had `class="app-container"` but NO CSS defined `.app-container`. In Lynx's linear layout, elements without explicit height **expand to fit their content** — meaning no overflow, meaning no scrolling.
 
 Evidence:
+
 - Every React Lynx example gives scroll-view explicit dimensions: `style={{height: '600px'}}` or `height: 100vh`
 - Lynx `display.mdx`: "scroll-view is forced to be a linear layout" — linear layout children size to content without constraints
 - The scroll-view's child (`.app` with `min-height: 100vh` + navigation) is taller than the viewport, but the scroll-view expanded to match, so nothing overflowed
@@ -148,16 +162,24 @@ The Lynx scroll-view API lists `bounces` under "Attributes" (set via `__SetAttri
 ## If Still Not Working
 
 ### Fallback: use `scroll-x`/`scroll-y` instead of `scroll-orientation`
+
 `scroll-orientation` is v3.0+. If the Lynx runtime is pre-3.0, try the older kebab-case attributes:
+
 ```html
-<x-scroll-view scroll-x>         <!-- horizontal -->
-<x-scroll-view scroll-y>         <!-- vertical (default) -->
+<x-scroll-view scroll-x>
+  <!-- horizontal -->
+  <x-scroll-view scroll-y>
+    <!-- vertical (default) --></x-scroll-view
+  ></x-scroll-view
+>
 ```
 
 ### Check `@for` comment nodes
+
 Angular's `@for` creates invisible 0x0 views as anchors inside scroll-view. If these interfere with scroll-view's linear layout (despite being 0x0), we may need to restructure the demo to avoid `@for` inside scroll-view, or implement scroll-view-aware child filtering similar to `LynxListElement.getUIChildren()`.
 
 ### Check runtime version
+
 If `scroll-orientation` isn't recognized and `scroll-x`/`scroll-y` also don't work, the attribute names might differ. Check the Lynx runtime version and compare against the API docs.
 
 ## Verification

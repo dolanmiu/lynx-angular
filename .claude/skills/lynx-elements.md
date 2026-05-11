@@ -21,16 +21,19 @@ export class ExampleComponent {}
 ## Elements
 
 ### Basic
+
 - **`<x-view>`** — Container (like div). Basic building block for layouts.
 - **`<x-text>`** — Text display. All visible text must be inside `<x-text>`.
 - **`<x-image>`** — Image display. Use `[src]="imageUrl"`.
 - **`<x-raw-text>`** — Raw text without processing.
 
 ### Layout
+
 - **`<x-scroll-view>`** — Scrollable container. Use `scrollY="true"` or `scrollX="true"`.
 - **`<x-list>`** — Optimized list container for rendering many items.
 
 ### Structural
+
 - **`<x-block>`** — Grouping container.
 - **`<x-if>`** / **`<x-for>`** — Conditional/loop rendering (prefer Angular's `@if`/`@for` instead).
 
@@ -99,9 +102,7 @@ export class UserProfileComponent {
   user = {
     name: 'Jane Doe',
     avatarUrl: 'assets/avatar.png',
-    posts: [
-      { id: 1, title: 'First Post', content: 'This is my first post' },
-    ],
+    posts: [{ id: 1, title: 'First Post', content: 'This is my first post' }],
   };
 
   likePost(postId: number) {

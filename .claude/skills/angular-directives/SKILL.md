@@ -145,7 +145,9 @@ export class Shortcut {
 
   onKeydown(event: KeyboardEvent) {
     const keyMatch = event.key.toLowerCase() === this.key().toLowerCase();
-    const ctrlMatch = this.ctrl() ? event.ctrlKey || event.metaKey : !event.ctrlKey && !event.metaKey;
+    const ctrlMatch = this.ctrl()
+      ? event.ctrlKey || event.metaKey
+      : !event.ctrlKey && !event.metaKey;
     const shiftMatch = this.shift() ? event.shiftKey : !event.shiftKey;
     const altMatch = this.alt() ? event.altKey : !event.altKey;
 
@@ -168,7 +170,15 @@ Use structural directives for DOM manipulation beyond control flow (portals, ove
 Render content in a different DOM location:
 
 ```typescript
-import { Directive, inject, TemplateRef, ViewContainerRef, OnInit, OnDestroy, input } from '@angular/core';
+import {
+  Directive,
+  inject,
+  TemplateRef,
+  ViewContainerRef,
+  OnInit,
+  OnDestroy,
+  input,
+} from '@angular/core';
 
 @Directive({
   selector: '[appPortal]',
@@ -256,7 +266,9 @@ export class TemplateOutlet<T> {
   private viewContainer = inject(ViewContainerRef);
   private currentView: EmbeddedViewRef<TemplateContext<T>> | null = null;
 
-  template = input.required<TemplateRef<TemplateContext<T>>>({ alias: 'appTemplateOutlet' });
+  template = input.required<TemplateRef<TemplateContext<T>>>({
+    alias: 'appTemplateOutlet',
+  });
   context = input.required<T>({ alias: 'appTemplateOutletContext' });
   index = input(0, { alias: 'appTemplateOutletIndex' });
 

@@ -25,7 +25,16 @@ schematics blank --name=my-schematics
 
 ```typescript
 // src/my-component/index.ts
-import { Rule, SchematicContext, Tree, apply, url, template, move, mergeWith } from '@angular-devkit/schematics';
+import {
+  Rule,
+  SchematicContext,
+  Tree,
+  apply,
+  url,
+  template,
+  move,
+  mergeWith,
+} from '@angular-devkit/schematics';
 import { strings } from '@angular-devkit/core';
 
 export function myComponent(options: { name: string; path: string }): Rule {
@@ -98,11 +107,13 @@ last 2 Edge versions
 export const routes: Routes = [
   {
     path: 'admin',
-    loadChildren: () => import('./admin/admin.routes').then((m) => m.adminRoutes),
+    loadChildren: () =>
+      import('./admin/admin.routes').then((m) => m.adminRoutes),
   },
   {
     path: 'reports',
-    loadComponent: () => import('./reports/reports.component').then((m) => m.Reports),
+    loadComponent: () =>
+      import('./reports/reports.component').then((m) => m.Reports),
   },
 ];
 ```
@@ -123,7 +134,11 @@ import * as rxjs from 'rxjs';
 
 ```typescript
 // app.config.ts
-import { provideRouter, withPreloading, PreloadAllModules } from '@angular/router';
+import {
+  provideRouter,
+  withPreloading,
+  PreloadAllModules,
+} from '@angular/router';
 
 export const appConfig: ApplicationConfig = {
   providers: [provideRouter(routes, withPreloading(PreloadAllModules))],

@@ -3,14 +3,16 @@
 // LICENSE file in the root directory of this source tree.
 
 import { RuntimeGlobals as LynxRuntimeGlobals } from '@lynx-js/webpack-runtime-globals';
-import type { RuntimeModule } from '@rspack/core';
+import type { RuntimeModule, rspack } from '@rspack/core';
 
 type LynxProcessEvalResultRuntimeModule = new () => RuntimeModule;
 
 export const createLynxProcessEvalResultRuntimeModule = (
-  webpack: typeof import('@rspack/core').rspack,
+  webpack: typeof rspack,
 ): LynxProcessEvalResultRuntimeModule => {
-  return class LynxProcessEvalResultRuntimeModule extends webpack.RuntimeModule {
+  return class LynxProcessEvalResultRuntimeModule
+    extends webpack.RuntimeModule
+  {
     constructor() {
       super('Lynx process eval result', webpack.RuntimeModule.STAGE_ATTACH);
     }

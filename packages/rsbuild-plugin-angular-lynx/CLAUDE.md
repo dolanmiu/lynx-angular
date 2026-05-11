@@ -16,6 +16,7 @@ Bridges Angular's build system with the Lynx runtime. Configures webpack/rspack 
 ## Threading Model
 
 Each entry is duplicated into two webpack entries with different layers:
+
 - `{name}__main-thread` → layer `"main"`, target ES2019, gets `globalThis["__MAIN_THREAD__"]=true` banner
 - `{name}` (background) → layer `"background"`, target ES2015, gets `globalThis["__MAIN_THREAD__"]=false` banner
 

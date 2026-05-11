@@ -25,7 +25,7 @@ declare global {
 }
 
 declare global {
-  // biome-ignore lint/style/useConsistentTypeDefinitions: interface required for global augmentation
+  // oxlint-disable-next-line typescript/consistent-type-definitions -- interface required for global augmentation
   interface HTMLElementEventMap {
     bindtap: TouchEvent;
     catchtap: TouchEvent;

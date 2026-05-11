@@ -3,6 +3,7 @@
 Elements from the Lynx platform (official docs + web-platform reference implementation) that are **not yet supported** by the Angular Lynx renderer (`packages/runtime/src/lib/lynx-document.ts`).
 
 Sources:
+
 - Official Lynx docs: `references/lynx-website-main/docs/en/api/elements/`
 - Compat data: `references/lynx-website-main/packages/lynx-compat-data/elements/`
 - React Lynx: `references/lynx-stack-main/packages/react/`
@@ -12,19 +13,19 @@ Sources:
 
 ## Currently Supported
 
-| Element | Creation API | Notes |
-|---------|-------------|-------|
-| `x-view` | `__CreateView` | Container/layout |
-| `x-text` | `__CreateText` | Text display |
-| `x-image` | `__CreateImage` | Image display |
-| `x-scroll-view` | `__CreateScrollView` | Scrollable container |
-| `x-list` | `__CreateList` | Virtualized list (has special `LynxListElement` handling) |
-| `list-item` | `__CreateElement('list-item')` | Direct child of `x-list` |
-| `x-raw-text` | `__CreateRawText` | Raw text node |
-| `x-block` | `__CreateBlock` | Block container |
-| `x-if` | `__CreateIf` | Structural conditional (Lynx-native, not used by Angular) |
-| `x-for` | `__CreateFor` | Structural loop (Lynx-native, not used by Angular) |
-| `x-page` | `__CreatePage` | Root page element (internal) |
+| Element         | Creation API                   | Notes                                                     |
+| --------------- | ------------------------------ | --------------------------------------------------------- |
+| `x-view`        | `__CreateView`                 | Container/layout                                          |
+| `x-text`        | `__CreateText`                 | Text display                                              |
+| `x-image`       | `__CreateImage`                | Image display                                             |
+| `x-scroll-view` | `__CreateScrollView`           | Scrollable container                                      |
+| `x-list`        | `__CreateList`                 | Virtualized list (has special `LynxListElement` handling) |
+| `list-item`     | `__CreateElement('list-item')` | Direct child of `x-list`                                  |
+| `x-raw-text`    | `__CreateRawText`              | Raw text node                                             |
+| `x-block`       | `__CreateBlock`                | Block container                                           |
+| `x-if`          | `__CreateIf`                   | Structural conditional (Lynx-native, not used by Angular) |
+| `x-for`         | `__CreateFor`                  | Structural loop (Lynx-native, not used by Angular)        |
+| `x-page`        | `__CreatePage`                 | Root page element (internal)                              |
 
 ---
 
@@ -57,12 +58,14 @@ Sources:
 **Priority:** High — essential for any app with user input (forms, search, login).
 
 **Key differences from HTML `<input>`:**
+
 - No `.value` property — must use `SelectorQuery` with `.getValue()` / `.setValue()`
 - Events: `bindfocus`, `bindblur`, `bindconfirm`, `bindinput`, `bindselection`
 - Attributes: `confirm-type`, `input-filter` (regex), `show-soft-input-on-focus`
 - Keyboard avoidance built-in
 
 **Implementation considerations:**
+
 - Needs `__CreateElement('input', pageId)`
 - May need a specialized `LynxInputElement` class for Angular forms integration (`ControlValueAccessor`)
 - Event handling must map `bindinput` → Angular reactive forms
@@ -88,6 +91,7 @@ Sources:
 **Platform:** All (requires native dependency)
 
 **Constraints:**
+
 - Can only have one direct child node
 - Child must set `position: fixed`
 - For full-Lynx pages, `position: fixed` on a regular view works instead
@@ -127,6 +131,7 @@ Sources:
 **Methods:** `autoStartRefresh()`, `finishRefresh()`
 
 **Implementation:**
+
 - `__CreateElement('refresh', pageId)` for the container
 - `__CreateElement('refresh-header', pageId)` for the header child
 - May need method access via `SelectorQuery`
@@ -144,6 +149,7 @@ Sources:
 **Priority:** Medium — common for tabbed UIs and onboarding flows.
 
 **Implementation:**
+
 - `__CreateElement('viewpager', pageId)` for the container
 - `__CreateElement('viewpager-item', pageId)` for each page
 
@@ -154,6 +160,7 @@ Sources:
 **What it does:** Coordinates scrolling between multiple nested scrollable containers. Implements smooth handover of scroll control between outer and inner scroll views.
 
 **Children:**
+
 - `<scroll-coordinator-header>` — sticky header
 - `<scroll-coordinator-toolbar>` — fixed toolbar (stays visible)
 - `<scroll-coordinator-slot>` — scrollable content area
@@ -163,6 +170,7 @@ Sources:
 **Priority:** Low-Medium — used for complex sticky-header patterns (profile pages, product detail pages). Can be approximated with simpler layouts.
 
 **Implementation:**
+
 - `__CreateElement('scroll-coordinator', pageId)` + child elements
 - Layout constraint: container height == slot height + toolbar height
 
@@ -184,13 +192,13 @@ Sources:
 
 These only make sense in the context of their parent XElements:
 
-| Element | Parent | Purpose |
-|---------|--------|---------|
-| `viewpager-item` | `<viewpager>` | Individual page in pager |
-| `refresh-header` | `<refresh>` | Pull-to-refresh header view |
-| `scroll-coordinator-header` | `<scroll-coordinator>` | Sticky header |
-| `scroll-coordinator-toolbar` | `<scroll-coordinator>` | Fixed toolbar |
-| `scroll-coordinator-slot` | `<scroll-coordinator>` | Scrollable content |
+| Element                      | Parent                 | Purpose                     |
+| ---------------------------- | ---------------------- | --------------------------- |
+| `viewpager-item`             | `<viewpager>`          | Individual page in pager    |
+| `refresh-header`             | `<refresh>`            | Pull-to-refresh header view |
+| `scroll-coordinator-header`  | `<scroll-coordinator>` | Sticky header               |
+| `scroll-coordinator-toolbar` | `<scroll-coordinator>` | Fixed toolbar               |
+| `scroll-coordinator-slot`    | `<scroll-coordinator>` | Scrollable content          |
 
 ---
 
@@ -292,25 +300,25 @@ These elements exist in the Lynx web-platform implementation (`@lynx-js/web-elem
 
 The Clay platform (Lynx on web/desktop) uses alternative element names for some XElements. These are functionally equivalent to their counterparts but have different tag names in the web-platform implementation:
 
-| Clay tag | Equivalent official element | Notes |
-|----------|----------------------------|-------|
-| `x-refresh-view` | `<refresh>` | Same pull-to-refresh, different name |
-| `x-viewpager-ng` | `<viewpager>` | "Next gen" viewpager variant |
-| `x-foldview-ng` | `<scroll-coordinator>` | Foldable header/toolbar/content layout |
-| `x-overlay-ng` | `<overlay>` | "Next gen" overlay variant |
+| Clay tag         | Equivalent official element | Notes                                  |
+| ---------------- | --------------------------- | -------------------------------------- |
+| `x-refresh-view` | `<refresh>`                 | Same pull-to-refresh, different name   |
+| `x-viewpager-ng` | `<viewpager>`               | "Next gen" viewpager variant           |
+| `x-foldview-ng`  | `<scroll-coordinator>`      | Foldable header/toolbar/content layout |
+| `x-overlay-ng`   | `<overlay>`                 | "Next gen" overlay variant             |
 
 ### Child elements of Clay variants
 
-| Element | Parent | Purpose |
-|---------|--------|---------|
-| `x-foldview-header-ng` | `x-foldview-ng` | Collapsible header |
-| `x-foldview-toolbar-ng` | `x-foldview-ng` | Fixed toolbar (stays visible) |
-| `x-foldview-slot-ng` | `x-foldview-ng` | Scrollable content area |
-| `x-foldview-slot-drag-ng` | `x-foldview-ng` | Drag-enabled scrollable content area |
-| `x-refresh-header` | `x-refresh-view` | Pull-to-refresh header |
-| `x-refresh-footer` | `x-refresh-view` | Pull-to-load-more footer |
-| `x-viewpager-item-ng` | `x-viewpager-ng` | Individual page |
-| `x-swiper-item` | `x-swiper` | Individual slide |
+| Element                   | Parent           | Purpose                              |
+| ------------------------- | ---------------- | ------------------------------------ |
+| `x-foldview-header-ng`    | `x-foldview-ng`  | Collapsible header                   |
+| `x-foldview-toolbar-ng`   | `x-foldview-ng`  | Fixed toolbar (stays visible)        |
+| `x-foldview-slot-ng`      | `x-foldview-ng`  | Scrollable content area              |
+| `x-foldview-slot-drag-ng` | `x-foldview-ng`  | Drag-enabled scrollable content area |
+| `x-refresh-header`        | `x-refresh-view` | Pull-to-refresh header               |
+| `x-refresh-footer`        | `x-refresh-view` | Pull-to-load-more footer             |
+| `x-viewpager-item-ng`     | `x-viewpager-ng` | Individual page                      |
+| `x-swiper-item`           | `x-swiper`       | Individual slide                     |
 
 > **Note:** It's unclear whether the Angular renderer should support both naming conventions (official + Clay) or just one. The web-platform uses the `x-*-ng` names; official docs use bare names (`refresh`, `viewpager`, `scroll-coordinator`). The native Lynx runtime likely uses the official names. Need to test which `__CreateElement` tag string the native runtime accepts.
 
@@ -320,14 +328,14 @@ The Clay platform (Lynx on web/desktop) uses alternative element names for some 
 
 These elements exist **only in the web-platform** implementation and are NOT native Lynx elements. They are web-specific internal shims. The Angular renderer targets native Lynx, so these should NOT be implemented — they're listed here for completeness to avoid future confusion.
 
-| Element | Purpose | Why not needed |
-|---------|---------|---------------|
-| `filter-image` | Image with `blur-radius` and `drop-shadow` CSS filter effects | Web-only shim. Native Lynx handles `blur-radius`/`tint-color` on `<image>` directly. |
-| `inline-text` | Inline text inside `<text>` | **Deprecated.** Use `<x-text>` inside `<x-text>` instead. |
-| `inline-image` | Inline image inside `<text>` | **Deprecated.** Use `<x-image>` inside `<x-text>` instead. |
-| `lynx-wrapper` | Framework-internal wrapper element | Internal to React Lynx's component model. Angular doesn't need it — Angular has its own component hosting. Maps to `__CreateWrapperElement`. |
-| `x-svg` | Web custom element for `<svg>` | Web-platform tag name for `svg`. Native Lynx uses bare `svg` tag. |
-| `x-input-ng` | "Next gen" input variant | Referenced in some test fixtures but not a distinct element. |
+| Element        | Purpose                                                       | Why not needed                                                                                                                               |
+| -------------- | ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `filter-image` | Image with `blur-radius` and `drop-shadow` CSS filter effects | Web-only shim. Native Lynx handles `blur-radius`/`tint-color` on `<image>` directly.                                                         |
+| `inline-text`  | Inline text inside `<text>`                                   | **Deprecated.** Use `<x-text>` inside `<x-text>` instead.                                                                                    |
+| `inline-image` | Inline image inside `<text>`                                  | **Deprecated.** Use `<x-image>` inside `<x-text>` instead.                                                                                   |
+| `lynx-wrapper` | Framework-internal wrapper element                            | Internal to React Lynx's component model. Angular doesn't need it — Angular has its own component hosting. Maps to `__CreateWrapperElement`. |
+| `x-svg`        | Web custom element for `<svg>`                                | Web-platform tag name for `svg`. Native Lynx uses bare `svg` tag.                                                                            |
+| `x-input-ng`   | "Next gen" input variant                                      | Referenced in some test fixtures but not a distinct element.                                                                                 |
 
 ---
 
@@ -345,7 +353,7 @@ These elements exist **only in the web-platform** implementation and are NOT nat
 
 ## Pending: Inline Nested Elements
 
-These are documented in the compat data as special element variants when used *inside* `<text>`:
+These are documented in the compat data as special element variants when used _inside_ `<text>`:
 
 ### `<nested-text>` (text inside text)
 
@@ -428,15 +436,15 @@ case 'x-overlay-ng': {
 
 ### Elements needing special handling
 
-| Element | Why |
-|---------|-----|
-| `<input>` | Angular forms integration (`ControlValueAccessor`), value access via `SelectorQuery` |
-| `<textarea>` | Same as `<input>` |
-| `<refresh>` / `<x-refresh-view>` | Method calls (`finishRefresh()`), lifecycle events |
-| `<viewpager>` / `<x-viewpager-ng>` | May need index tracking / page change event coordination |
-| `<x-canvas>` | Canvas 2D context API needs bridge — drawing happens via node methods, not attributes |
-| `<x-audio-tt>` | Playback state management, media events |
-| `<x-swiper>` | Auto-scroll, circular mode, indicator state — potentially complex like `<x-list>` |
+| Element                            | Why                                                                                   |
+| ---------------------------------- | ------------------------------------------------------------------------------------- |
+| `<input>`                          | Angular forms integration (`ControlValueAccessor`), value access via `SelectorQuery`  |
+| `<textarea>`                       | Same as `<input>`                                                                     |
+| `<refresh>` / `<x-refresh-view>`   | Method calls (`finishRefresh()`), lifecycle events                                    |
+| `<viewpager>` / `<x-viewpager-ng>` | May need index tracking / page change event coordination                              |
+| `<x-canvas>`                       | Canvas 2D context API needs bridge — drawing happens via node methods, not attributes |
+| `<x-audio-tt>`                     | Playback state management, media events                                               |
+| `<x-swiper>`                       | Auto-scroll, circular mode, indicator state — potentially complex like `<x-list>`     |
 
 ### Native dependency requirement
 
@@ -448,18 +456,18 @@ None of the XElements will work unless the native app host includes the appropri
 
 The snapshot compiler (`lib.rs`) reveals which elements have **dedicated** creation functions vs the generic fallback:
 
-| Element tag | Creation function | Status |
-|-------------|------------------|--------|
-| `view` | `__CreateView(pageId)` | ✅ Implemented |
-| `scroll-view` | `__CreateScrollView(pageId)` | ✅ Implemented |
-| `x-scroll-view` | `__CreateScrollView(pageId)` | ✅ Implemented (alias) |
-| `image` | `__CreateImage(pageId)` | ✅ Implemented |
-| `text` | `__CreateText(pageId)` | ✅ Implemented |
-| `wrapper` | `__CreateWrapperElement(pageId)` | N/A (React Lynx internal) |
-| `list` | special `snapshotCreateList(...)` | ✅ Implemented |
-| `frame` | `__CreateFrame(pageId)` | ❌ **Missing** — needs type decl + implementation |
-| `page` | `__CreatePage(componentId, cssId)` | ✅ Implemented (internal) |
-| *everything else* | `__CreateElement(tag, pageId)` | ❌ **Missing** — generic fallback |
+| Element tag       | Creation function                  | Status                                            |
+| ----------------- | ---------------------------------- | ------------------------------------------------- |
+| `view`            | `__CreateView(pageId)`             | ✅ Implemented                                    |
+| `scroll-view`     | `__CreateScrollView(pageId)`       | ✅ Implemented                                    |
+| `x-scroll-view`   | `__CreateScrollView(pageId)`       | ✅ Implemented (alias)                            |
+| `image`           | `__CreateImage(pageId)`            | ✅ Implemented                                    |
+| `text`            | `__CreateText(pageId)`             | ✅ Implemented                                    |
+| `wrapper`         | `__CreateWrapperElement(pageId)`   | N/A (React Lynx internal)                         |
+| `list`            | special `snapshotCreateList(...)`  | ✅ Implemented                                    |
+| `frame`           | `__CreateFrame(pageId)`            | ❌ **Missing** — needs type decl + implementation |
+| `page`            | `__CreatePage(componentId, cssId)` | ✅ Implemented (internal)                         |
+| _everything else_ | `__CreateElement(tag, pageId)`     | ❌ **Missing** — generic fallback                 |
 
 ### Key insight: `__CreateBlock`, `__CreateIf`, `__CreateFor` are NOT in React Lynx
 
@@ -471,27 +479,27 @@ These functions don't appear anywhere in the React Lynx reference implementation
 
 ### Total: 39 pending elements (+ 1 alias)
 
-| Category | Count | Elements |
-|----------|-------|----------|
-| Core built-in | 1 | `frame` |
-| Official XElements | 8 | `input`, `textarea`, `overlay`, `svg`, `refresh`, `viewpager`, `scroll-coordinator`, `title-bar-view` |
-| Official child elements | 6 | `viewpager-item`, `refresh-header`, `scroll-coordinator-header`, `scroll-coordinator-toolbar`, `scroll-coordinator-slot`, `inline-truncation` |
-| Web-platform extras | 6 | `x-swiper`, `x-blur-view`, `x-canvas`, `x-audio-tt`, `x-webview`, `x-markdown` |
-| Web-platform child elements | 1 | `x-swiper-item` |
-| Clay-platform variants | 4 | `x-refresh-view`, `x-viewpager-ng`, `x-foldview-ng`, `x-overlay-ng` |
-| Clay child elements | 8 | `x-foldview-header-ng`, `x-foldview-toolbar-ng`, `x-foldview-slot-ng`, `x-foldview-slot-drag-ng`, `x-refresh-header`, `x-refresh-footer`, `x-viewpager-item-ng`, `x-swiper-item` |
-| Aliases (already work) | 1 | `x-scroll-view` → maps to same `__CreateScrollView` as `scroll-view` |
-| Already work (no changes needed) | 2 | `nested-text` (= `x-text` in `x-text`), `nested-image` (= `x-image` in `x-text`) |
-| Web-platform only (NOT needed) | 6 | `filter-image`, `inline-text`, `inline-image`, `lynx-wrapper`, `x-svg`, `x-input-ng` |
+| Category                         | Count | Elements                                                                                                                                                                         |
+| -------------------------------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Core built-in                    | 1     | `frame`                                                                                                                                                                          |
+| Official XElements               | 8     | `input`, `textarea`, `overlay`, `svg`, `refresh`, `viewpager`, `scroll-coordinator`, `title-bar-view`                                                                            |
+| Official child elements          | 6     | `viewpager-item`, `refresh-header`, `scroll-coordinator-header`, `scroll-coordinator-toolbar`, `scroll-coordinator-slot`, `inline-truncation`                                    |
+| Web-platform extras              | 6     | `x-swiper`, `x-blur-view`, `x-canvas`, `x-audio-tt`, `x-webview`, `x-markdown`                                                                                                   |
+| Web-platform child elements      | 1     | `x-swiper-item`                                                                                                                                                                  |
+| Clay-platform variants           | 4     | `x-refresh-view`, `x-viewpager-ng`, `x-foldview-ng`, `x-overlay-ng`                                                                                                              |
+| Clay child elements              | 8     | `x-foldview-header-ng`, `x-foldview-toolbar-ng`, `x-foldview-slot-ng`, `x-foldview-slot-drag-ng`, `x-refresh-header`, `x-refresh-footer`, `x-viewpager-item-ng`, `x-swiper-item` |
+| Aliases (already work)           | 1     | `x-scroll-view` → maps to same `__CreateScrollView` as `scroll-view`                                                                                                             |
+| Already work (no changes needed) | 2     | `nested-text` (= `x-text` in `x-text`), `nested-image` (= `x-image` in `x-text`)                                                                                                 |
+| Web-platform only (NOT needed)   | 6     | `filter-image`, `inline-text`, `inline-image`, `lynx-wrapper`, `x-svg`, `x-input-ng`                                                                                             |
 
 ---
 
 ## Priority Summary
 
-| Priority | Elements |
-|----------|----------|
-| **High** | `input`, `textarea` |
-| **Medium** | `overlay`, `svg`, `refresh` (+ `refresh-header`), `viewpager` (+ `viewpager-item`), `x-swiper` (+ `x-swiper-item`) |
-| **Low-Medium** | `scroll-coordinator` (+ children), `x-blur-view`, `x-canvas`, `x-webview` |
-| **Low** | `frame`, `inline-truncation`, `x-audio-tt` |
-| **Very Low** | `title-bar-view`, `x-markdown`, Clay-platform variants (if not targeting Clay) |
+| Priority       | Elements                                                                                                           |
+| -------------- | ------------------------------------------------------------------------------------------------------------------ |
+| **High**       | `input`, `textarea`                                                                                                |
+| **Medium**     | `overlay`, `svg`, `refresh` (+ `refresh-header`), `viewpager` (+ `viewpager-item`), `x-swiper` (+ `x-swiper-item`) |
+| **Low-Medium** | `scroll-coordinator` (+ children), `x-blur-view`, `x-canvas`, `x-webview`                                          |
+| **Low**        | `frame`, `inline-truncation`, `x-audio-tt`                                                                         |
+| **Very Low**   | `title-bar-view`, `x-markdown`, Clay-platform variants (if not targeting Clay)                                     |

@@ -30,9 +30,9 @@ import type {
  */
 @Injectable()
 export class LynxRouteReuseStrategy implements RouteReuseStrategy {
-  private readonly _stored = new Map<string, DetachedRouteHandle>();
+  readonly #stored = new Map<string, DetachedRouteHandle>();
 
-  private _key(route: ActivatedRouteSnapshot): string {
+  #key(route: ActivatedRouteSnapshot): string {
     // Use the full path from root to this route so nested routes don't collide.
     return route.pathFromRoot.map((r) => r.routeConfig?.path ?? '').join('/');
   }
@@ -47,18 +47,18 @@ export class LynxRouteReuseStrategy implements RouteReuseStrategy {
     handle: DetachedRouteHandle | null,
   ): void {
     if (handle) {
-      this._stored.set(this._key(route), handle);
+      this.#stored.set(this.#key(route), handle);
     } else {
-      this._stored.delete(this._key(route));
+      this.#stored.delete(this.#key(route));
     }
   }
 
   shouldAttach(route: ActivatedRouteSnapshot): boolean {
-    return this._stored.has(this._key(route));
+    return this.#stored.has(this.#key(route));
   }
 
   retrieve(route: ActivatedRouteSnapshot): DetachedRouteHandle | null {
-    return this._stored.get(this._key(route)) ?? null;
+    return this.#stored.get(this.#key(route)) ?? null;
   }
 
   shouldReuseRoute(

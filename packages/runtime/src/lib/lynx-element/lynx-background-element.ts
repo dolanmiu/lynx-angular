@@ -5,33 +5,33 @@ export class LynxBackgroundElement implements BaseLynxElement {
   // re-parented or removed from the tree.
   _isRootPageElement = false;
 
-  private props = new Map<string, any>();
-  private styles = new Map<string, any>();
-  private classes = new Set<string>();
-  private events = new Map<string, (event: any) => any>();
-  private _parent: LynxBackgroundElement | null = null;
-  private firstChild: LynxBackgroundElement | null = null;
-  private lastChild: LynxBackgroundElement | null = null;
-  private _previousSibling: LynxBackgroundElement | null = null;
-  private _nextSibling: LynxBackgroundElement | null = null;
+  #props = new Map<string, any>();
+  #styles = new Map<string, any>();
+  #classes = new Set<string>();
+  #events = new Map<string, (event: any) => any>();
+  #parent: LynxBackgroundElement | null = null;
+  #firstChild: LynxBackgroundElement | null = null;
+  #lastChild: LynxBackgroundElement | null = null;
+  #previousSibling: LynxBackgroundElement | null = null;
+  #nextSibling: LynxBackgroundElement | null = null;
 
   setProperty(name: string, value: any): void {
-    this.props.set(name, value);
+    this.#props.set(name, value);
   }
   setAttribute(name: string, value: any): void {
-    this.props.set(name, value);
+    this.#props.set(name, value);
   }
   getAttribute(name: string): string | null {
-    return this.props.get(name) ?? null;
+    return this.#props.get(name) ?? null;
   }
   removeAttribute(name: string): void {
-    this.props.delete(name);
+    this.#props.delete(name);
   }
   setStyle(key: string, value: unknown): void {
-    this.styles.set(key, value);
+    this.#styles.set(key, value);
   }
   removeStyle(key: string): void {
-    this.styles.delete(key);
+    this.#styles.delete(key);
   }
   setInlineStyles(inlineStyle: string): void {
     const styles = inlineStyle
@@ -53,66 +53,66 @@ export class LynxBackgroundElement implements BaseLynxElement {
       this.appendChild(newChild);
       return;
     }
-    if (!refChild._previousSibling) {
-      this.firstChild = newChild;
+    if (!refChild.#previousSibling) {
+      this.#firstChild = newChild;
     } else {
-      refChild._previousSibling._nextSibling = newChild;
+      refChild.#previousSibling.#nextSibling = newChild;
     }
-    newChild._previousSibling = refChild._previousSibling;
-    refChild._previousSibling = newChild;
-    newChild._nextSibling = refChild;
-    newChild._parent = this;
+    newChild.#previousSibling = refChild.#previousSibling;
+    refChild.#previousSibling = newChild;
+    newChild.#nextSibling = refChild;
+    newChild.#parent = this;
   }
 
   appendChild(newChild: LynxBackgroundElement): void {
     if (newChild._isRootPageElement) return;
-    if (!this.firstChild) {
-      this.firstChild = newChild;
-      this.lastChild = newChild;
+    if (!this.#firstChild) {
+      this.#firstChild = newChild;
+      this.#lastChild = newChild;
     } else {
-      if (!this.lastChild) {
+      if (!this.#lastChild) {
         throw new Error(
           'Invariant violation: lastChild is null while firstChild is not null.',
         );
       }
-      this.lastChild._nextSibling = newChild;
-      newChild._previousSibling = this.lastChild;
-      this.lastChild = newChild;
+      this.#lastChild.#nextSibling = newChild;
+      newChild.#previousSibling = this.#lastChild;
+      this.#lastChild = newChild;
     }
-    newChild._parent = this;
+    newChild.#parent = this;
   }
 
   addClass(name: string): void {
-    this.classes.add(name);
+    this.#classes.add(name);
   }
   removeClass(name: string): void {
-    this.classes.delete(name);
+    this.#classes.delete(name);
   }
   remove(): void {
     if (this._isRootPageElement) return;
-    if (!this._parent) {
+    if (!this.#parent) {
       return;
     }
-    if (this._previousSibling) {
-      this._previousSibling._nextSibling = this._nextSibling;
+    if (this.#previousSibling) {
+      this.#previousSibling.#nextSibling = this.#nextSibling;
     } else {
-      this._parent.firstChild = this._nextSibling;
+      this.#parent.#firstChild = this.#nextSibling;
     }
-    if (this._nextSibling) {
-      this._nextSibling._previousSibling = this._previousSibling;
+    if (this.#nextSibling) {
+      this.#nextSibling.#previousSibling = this.#previousSibling;
     } else {
-      this._parent.lastChild = this._previousSibling;
+      this.#parent.#lastChild = this.#previousSibling;
     }
-    this._nextSibling = null;
-    this._previousSibling = null;
-    this._parent = null;
+    this.#nextSibling = null;
+    this.#previousSibling = null;
+    this.#parent = null;
   }
 
   parentNode(): BaseLynxElement | null {
-    return this._parent;
+    return this.#parent;
   }
   nextSibling(): BaseLynxElement | null {
-    return this._nextSibling;
+    return this.#nextSibling;
   }
   querySelector(_selector: string): BaseLynxElement | null {
     throw new Error('Method not implemented.');
@@ -121,9 +121,9 @@ export class LynxBackgroundElement implements BaseLynxElement {
     throw new Error('Method not implemented.');
   }
   addEventListener(name: string, cb: (event: any) => any): () => void {
-    this.events.set(name, cb);
+    this.#events.set(name, cb);
     return () => {
-      this.events.delete(name);
+      this.#events.delete(name);
     };
   }
 }

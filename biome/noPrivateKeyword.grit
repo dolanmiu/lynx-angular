@@ -1,6 +1,0 @@
-engine biome(1.0)
-language js(typescript)
-
-`private $name` as $decl where {
-  register_diagnostic(span=$decl, message="Use # private field notation instead of the private keyword.", severity="error")
-}

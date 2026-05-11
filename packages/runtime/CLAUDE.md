@@ -5,29 +5,36 @@ Provides everything needed to run Angular on the Lynx runtime. Maps Angular's `R
 ## Architecture Layers
 
 **Document** (`lynx-document.ts`):
+
 - `LynxDocument` (main thread) — wraps Lynx global `__Create*` functions (`__CreatePage`, `__CreateView`, `__CreateText`, `__CreateImage`, `__CreateScrollView`, `__CreateList`, `__CreateBlock`, `__CreateIf`, `__CreateFor`, `__CreateRawText`, `__CreateFrame`, `__CreateNonElement`)
 - `LynxBackgroundDocument` (background thread) — creates virtual `LynxBackgroundElement` nodes with tag metadata
 - `LynxDocumentBase` interface — shared contract for both
 
 **Element** (`lynx-element.ts`):
+
 - `BaseLynxElement` interface — common element API (setAttribute, setStyle, appendChild, insertBefore, remove, etc.)
 - `LynxElement` (main thread) — wraps `ElementRef`, delegates to global `__*` functions (`__SetAttribute`, `__AddInlineStyle`, `__AppendElement`, `__InsertElementBefore`, `__RemoveElement`, `__AddEvent`, `__AddClass`, `__GetParent`, `__NextElement`, etc.)
 - `LynxBackgroundElement` (background thread) — in-memory linked-list tree (no native calls), stores props/styles/classes in Maps/Sets
 
 **Renderer** (`renderer.ts`):
+
 - `LynxRenderer` implements `Renderer2` — delegates all DOM operations to `LynxDocumentBase`/`BaseLynxElement`
 
 **Factory** (`lynx-renderer-factory2.ts`):
+
 - `LynxRendererFactory2` implements `RendererFactory2` — injects `LYNX_DOCUMENT`, creates `LynxRenderer`
 
 **Bootstrap** (`runtime.ts`):
+
 - `bootstrapLynxApplication(rootComponent, config?)` — on main thread, waits for `renderPage` callback before bootstrapping; on background thread, bootstraps immediately
 - Registers global Lynx callbacks: `renderPage`, `updatePage`, `processData`, `runWorklet`
 
 **Providers** (`providers.ts`):
+
 - `provideLynxRenderer()` — returns `EnvironmentProviders` that sets up `LYNX_DOCUMENT` (thread-aware factory: `LynxDocument` if `__MAIN_THREAD__`, else `LynxBackgroundDocument`) and `LynxRendererFactory2` as `RendererFactory2`
 
 **DI Token** (`token.ts`):
+
 - `LYNX_DOCUMENT` — `InjectionToken<LynxDocumentBase>` for thread-aware document injection
 
 ## Supported Lynx Elements

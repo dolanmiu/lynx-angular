@@ -10,7 +10,13 @@ Create standalone components for Angular v20+. Components are standalone by defa
 ## Component Structure
 
 ```typescript
-import { Component, ChangeDetectionStrategy, input, output, computed } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  input,
+  output,
+  computed,
+} from '@angular/core';
 
 @Component({
   selector: 'app-user-card',
@@ -219,7 +225,9 @@ Components MUST:
     '(keydown.enter)': 'toggle()',
     '(keydown.space)': 'toggle(); $event.preventDefault()',
   },
-  template: `<span class="toggle-track"><span class="toggle-thumb"></span></span>`,
+  template: `<span class="toggle-track"
+    ><span class="toggle-thumb"></span
+  ></span>`,
 })
 export class Toggle {
   label = input.required<string>();
@@ -254,8 +262,8 @@ Use native control flow—do NOT use `*ngIf`, `*ngFor`, `*ngSwitch`.
 }
 
 <!-- Switch -->
-@switch (status()) { @case ('pending') { <span>Pending</span> } @case ('active') { <span>Active</span> } @default {
-<span>Unknown</span> } }
+@switch (status()) { @case ('pending') { <span>Pending</span> } @case ('active')
+{ <span>Active</span> } @default { <span>Unknown</span> } }
 ```
 
 ## Class and Style Bindings

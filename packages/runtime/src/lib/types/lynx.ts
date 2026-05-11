@@ -5,33 +5,33 @@
 
 export type ElementRef = {};
 
-export interface ComponentElementRef extends ElementRef {}
+export type ComponentElementRef = {} & ElementRef;
 
-export interface PageElementRef extends ComponentElementRef {}
+export type PageElementRef = {} & ComponentElementRef;
 
-export interface ListElementRef extends ElementRef {}
+export type ListElementRef = {} & ElementRef;
 
-export interface ViewElementRef extends ElementRef {}
+export type ViewElementRef = {} & ElementRef;
 
-export interface TextElementRef extends ElementRef {}
+export type TextElementRef = {} & ElementRef;
 
-export interface RawTextElementRef extends ElementRef {}
+export type RawTextElementRef = {} & ElementRef;
 
-export interface ImageElementRef extends ElementRef {}
+export type ImageElementRef = {} & ElementRef;
 
-export interface ScrollElementRef extends ElementRef {}
+export type ScrollElementRef = {} & ElementRef;
 
-export interface WrapperElementRef extends ElementRef {}
+export type WrapperElementRef = {} & ElementRef;
 
-export interface NoneElementRef extends ElementRef {}
+export type NoneElementRef = {} & ElementRef;
 
-export interface IfElementRef extends ElementRef {}
+export type IfElementRef = {} & ElementRef;
 
-export interface ForElementRef extends ElementRef {}
+export type ForElementRef = {} & ElementRef;
 
-export interface BlockElementRef extends ElementRef {}
+export type BlockElementRef = {} & ElementRef;
 
-export interface FrameElementRef extends ElementRef {}
+export type FrameElementRef = {} & ElementRef;
 
 export type ElementInfo = Record<string, any>;
 
