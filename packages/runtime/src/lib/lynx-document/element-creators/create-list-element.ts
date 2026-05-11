@@ -1,5 +1,5 @@
-import { LynxListElement } from '../lynx-element';
-import type { ElementRef, ListElementRef } from '../types/lynx';
+import { LynxListElement } from '../../lynx-element';
+import type { ElementRef, ListElementRef } from '../../types/lynx';
 
 /**
  * Factory for the list native element.

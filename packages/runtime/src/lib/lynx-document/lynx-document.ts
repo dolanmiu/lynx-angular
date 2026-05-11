@@ -1,6 +1,23 @@
 import { LynxElement, type LynxListElement } from '../lynx-element';
 import type { ElementRef } from '../types/lynx';
-import { createListElement } from './create-list-element';
+import {
+  createBlockElement,
+  createDefaultElement,
+  createForElement,
+  createFrameElement,
+  createIfElement,
+  createImageElement,
+  createInputElement,
+  createListElement,
+  createListItemElement,
+  createOverlayElement,
+  createPageElement,
+  createRawTextElement,
+  createScrollViewElement,
+  createSvgElement,
+  createTextElement,
+  createViewElement,
+} from './element-creators';
 import type { LynxDocumentBase } from './types';
 
 export class LynxDocument implements LynxDocumentBase {
@@ -26,111 +43,68 @@ export class LynxDocument implements LynxDocumentBase {
     let element: ElementRef;
     switch (tag) {
       case 'view': {
-        element = __CreateView(this.#pageId);
+        element = createViewElement(this.#pageId);
         break;
       }
       case 'image': {
-        element = __CreateImage(this.#pageId);
-
-        // Set default image properties
-        __SetConfig(element, {
-          mode: 'aspectFit', // Default to maintaining aspect ratio
-          fadeIn: true, // Enable image fade-in effect
-          loadingPlaceholder: '', // No default placeholder
-        });
-
+        element = createImageElement(this.#pageId);
         break;
       }
       case 'text': {
-        element = __CreateText(this.#pageId);
+        element = createTextElement(this.#pageId);
         break;
       }
       case 'raw-text': {
-        element = __CreateRawText(value ?? '');
+        element = createRawTextElement(value ?? '');
         break;
       }
       case 'scroll-view': {
-        // No __SetConfig needed — bounces defaults to true per the API.
-        // All scroll-view properties (scroll-orientation, enable-scroll, etc.)
-        // are attributes, set via __SetAttribute by Angular template bindings.
-        element = __CreateScrollView(this.#pageId);
+        element = createScrollViewElement(this.#pageId);
         break;
       }
       case 'list': {
         return createListElement(this.#pageId, this.#nonElements);
       }
       case 'list-item': {
-        // list requires native list-item elements via __CreateElement, not plain views.
-        // The native componentAtIndex callback returns this element ID to the engine,
-        // which expects a list-item type — using __CreateView crashes the native side.
-        element = __CreateElement('list-item', this.#pageId);
+        element = createListItemElement(this.#pageId);
         break;
       }
       case 'block': {
-        element = __CreateBlock(this.#pageId);
+        element = createBlockElement(this.#pageId);
         break;
       }
       case 'if': {
-        element = __CreateIf(this.#pageId);
+        element = createIfElement(this.#pageId);
         break;
       }
       case 'for': {
-        element = __CreateFor(this.#pageId);
+        element = createForElement(this.#pageId);
         break;
       }
       case 'frame': {
-        // Native frame element — embeds a nested Lynx page (similar to HTML iframe).
-        // Attributes (src, data, global-props) and events (bindload) are set via
-        // standard __SetAttribute/__AddEvent by Angular template bindings.
-        element = __CreateFrame(this.#pageId);
+        element = createFrameElement(this.#pageId);
         break;
       }
       case 'input':
       case 'textarea': {
-        // XElements — use generic __CreateElement (no dedicated creation functions).
-        // Require native-side input plugin to be registered by the app host.
-        element = __CreateElement(tag, this.#pageId);
-        // Native Lynx inputs have no intrinsic height or border (unlike HTML inputs),
-        // so provide sensible defaults so the element is always visible.
-        __AddInlineStyle(
-          element,
-          'height',
-          tag === 'textarea' ? '80px' : '40px',
-        );
-        __AddInlineStyle(element, 'border', '1px solid');
+        element = createInputElement(tag, this.#pageId);
         break;
       }
       case 'overlay': {
-        // Native overlay — renders outside the Lynx document flow on a separate
-        // rendering layer. Used for modals, bottom sheets, and dialogs that need
-        // to cover the entire embedded page. Controlled via the `visible` attribute.
-        element = __CreateElement('overlay', this.#pageId);
+        element = createOverlayElement(this.#pageId);
         break;
       }
       case 'svg': {
-        // SVG is a native Lynx element — the engine parses the SVG content
-        // (set via the `content` attribute) on a background thread and renders
-        // it as a single native view. No individual SVG child nodes are created.
-        element = __CreateElement('svg', this.#pageId);
+        element = createSvgElement(this.#pageId);
         break;
       }
       case 'page': {
-        // Returns the existing root page element — does NOT create a new one.
-        // Only one <page> element is allowed per application. The page element's
-        // _isRootPageElement guard prevents Angular from reparenting or removing it.
-        if (this.#pageElementRequested) {
-          console.warn(
-            'Multiple <page> elements detected. Only one <page> is allowed per application.',
-          );
-        }
-        this.#pageElementRequested = true;
-        return this.page;
+        const result = createPageElement(this.page, this.#pageElementRequested);
+        this.#pageElementRequested = result.pageElementRequested;
+        return result.element;
       }
       default: {
-        console.warn(
-          `Unknown element tag "${tag}". Falling back to view element.`,
-        );
-        element = __CreateView(this.#pageId);
+        element = createDefaultElement(tag, this.#pageId);
       }
     }
     return new LynxElement(element);
