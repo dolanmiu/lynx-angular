@@ -28,7 +28,7 @@ export class LynxDocument implements LynxDocumentBase {
   readonly #nonElements = new WeakSet<ElementRef>();
 
   constructor() {
-    console.log('main thread lynx document');
+    if (__DEV__) console.log('main thread lynx document');
   }
   createRootElement(): LynxElement {
     const pageElement = __CreatePage('0', 0);

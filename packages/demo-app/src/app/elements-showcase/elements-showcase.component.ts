@@ -1,11 +1,12 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
+import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 import angularLogo from '../../assets/angular-logo.png';
 import lynxLogo from '../../assets/lynx-logo.png';
 
 @Component({
   selector: 'app-elements-showcase',
   standalone: true,
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  imports: [LYNX_ELEMENTS],
   template: `
     <view class="container">
       <text class="title">Lynx Elements Showcase</text>

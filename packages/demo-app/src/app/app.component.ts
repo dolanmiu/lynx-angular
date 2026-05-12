@@ -1,11 +1,6 @@
-import {
-  Component,
-  CUSTOM_ELEMENTS_SCHEMA,
-  inject,
-  signal,
-} from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
-import { LynxLoggerService } from '@blotch/angular-lynx';
+import { LYNX_ELEMENTS, LynxLoggerService } from '@blotch/angular-lynx';
 import type { TouchEvent } from '@lynx-js/types';
 import angularLogo from '../assets/angular-logo.png';
 import arrow from '../assets/arrow.png';
@@ -130,8 +125,7 @@ import lynxLogo from '../assets/lynx-logo.png';
     </scroll-view>
   `,
   styleUrl: './app.component.css',
-  imports: [RouterOutlet],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  imports: [RouterOutlet, LYNX_ELEMENTS],
 })
 export class AppComponent {
   #router = inject(Router);

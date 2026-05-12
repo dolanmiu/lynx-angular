@@ -2,6 +2,23 @@
  * Public API Surface of @blotch/angular-lynx
  */
 
+export {
+  LYNX_ELEMENTS,
+  LynxBlock,
+  LynxFor,
+  LynxFrame,
+  LynxIf,
+  LynxImage,
+  LynxInput,
+  LynxList,
+  LynxListItem,
+  LynxOverlay,
+  LynxScrollView,
+  LynxSvg,
+  LynxText,
+  LynxTextarea,
+  LynxView,
+} from './lib/lynx-elements';
 export { LynxLoggerService } from './lib/lynx-logger';
 export { provideLynxRenderer } from './lib/renderer/providers';
 export { LynxLocationStrategy } from './lib/router/lynx-location-strategy';

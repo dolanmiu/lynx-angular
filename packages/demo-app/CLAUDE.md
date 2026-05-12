@@ -4,7 +4,7 @@ Example app demonstrating the runtime library. Uses standalone components, zonel
 
 ## Patterns
 
-- **Standalone components** with `CUSTOM_ELEMENTS_SCHEMA` (required for Lynx elements)
+- **Standalone components** importing `LYNX_ELEMENTS` from `@blotch/angular-lynx` for IDE support (the rsbuild plugin injects CUSTOM_ELEMENTS_SCHEMA automatically at build time)
 - **Zoneless change detection** via `provideExperimentalZonelessChangeDetection()`
 - **Signals** for reactive state
 - **Lazy-loaded routes** — all route components use `loadComponent`

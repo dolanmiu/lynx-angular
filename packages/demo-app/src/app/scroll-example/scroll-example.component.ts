@@ -1,9 +1,10 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component } from '@angular/core';
+import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
 @Component({
   selector: 'app-scroll-example',
   standalone: true,
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  imports: [LYNX_ELEMENTS],
   template: `
     <view class="container">
       <text class="title">Scroll View Example</text>

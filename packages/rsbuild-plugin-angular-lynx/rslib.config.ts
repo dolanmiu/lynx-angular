@@ -15,4 +15,10 @@ export default defineConfig({
       index: './src/index.ts',
     },
   },
+  output: {
+    // typescript must not be bundled into the ESM output — TypeScript's CJS code
+    // uses __filename which is unavailable in ES module scope. It is loaded at
+    // runtime from the installed package instead.
+    externals: { typescript: 'typescript' },
+  },
 });

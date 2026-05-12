@@ -6,6 +6,7 @@ import {
 } from '@angular/build/src/tools/angular/compilation';
 import { JavaScriptTransformer } from '@angular/build/src/tools/esbuild/javascript-transformer';
 import type { RsbuildPluginAPI } from '@lynx-js/rspeedy';
+import * as ts from 'typescript';
 import { applyAngularConfig } from './utils/angular/angular-config.js';
 import { generateComponentScopeId } from './utils/angular/component-scope-id.js';
 import { maxWorkers, useTypeChecking } from './utils/angular/env.js';
@@ -14,6 +15,7 @@ import {
   getAngularWorkspace,
   getProjectByCwd,
 } from './utils/angular/read-workspace.js';
+import { injectLynxSchema } from './utils/inject-lynx-schema.js';
 
 export const applyAngularRules = async (
   api: RsbuildPluginAPI,
@@ -72,10 +74,18 @@ export const applyAngularRules = async (
     // In watch mode, previous build state will be reused.
     // let referencedFiles;
     // let externalStylesheets;
+
+    // Pre-populate Angular's sourceFileCache with schema-injected TypeScript source
+    // so that Angular's template type-checker never errors on Lynx native elements
+    // (<view>, <text>, <scroll-view>, etc.) — users don't need CUSTOM_ELEMENTS_SCHEMA
+    // in every component.
+    const sourceFileCache = buildLynxSchemaSourceFileCache(tsconfig);
+
     try {
       await compilation.initialize(
         tsconfig,
         {
+          sourceFileCache,
           processWebWorker: (workerFile, _containingFile) => {
             return workerFile;
           },
@@ -180,7 +190,19 @@ export const applyAngularRules = async (
         ? DiagnosticModes.All
         : DiagnosticModes.All & ~DiagnosticModes.Semantic,
     );
-    console.log(diagnostics);
+    // Only log diagnostics that aren't suppressed by the schema injection — i.e. real errors
+    // the user should know about, not "unknown element" noise for Lynx native elements.
+    // diagnoseFiles returns { errors?: PartialMessage[], warnings?: PartialMessage[] }
+    // where PartialMessage.text holds the message string.
+    const actionableErrors = diagnostics.errors?.filter(
+      (e: { text?: string }) => !isLynxUnknownElementMessage(e.text),
+    );
+    const actionableWarnings = diagnostics.warnings?.filter(
+      (w: { text?: string }) => !isLynxUnknownElementMessage(w.text),
+    );
+    if (actionableErrors?.length || actionableWarnings?.length) {
+      console.log({ errors: actionableErrors, warnings: actionableWarnings });
+    }
     await compilation.close?.();
   });
 
@@ -237,3 +259,79 @@ export const applyAngularRules = async (
     },
   );
 };
+
+/**
+ * Reads the tsconfig to enumerate all project TypeScript files, then returns a
+ * Map<filePath, SourceFile> where every file containing an @Component decorator
+ * has had CUSTOM_ELEMENTS_SCHEMA injected. Angular's compiler host checks this
+ * cache before reading from disk, so the template type-checker never sees unknown
+ * Lynx element errors without the user having to add the schema manually.
+ *
+ * Returns Map<string, any> to avoid TypeScript instance mismatch: the plugin's
+ * local `typescript` package and `@angular/build`'s TypeScript resolve to different
+ * module instances in the monorepo, making their SourceFile types structurally
+ * incompatible at the type level even though they're identical at runtime.
+ */
+const buildLynxSchemaSourceFileCache = (
+  tsconfig: string,
+): Map<string, any> => {
+  const sourceFileCache = new Map<string, any>();
+
+  let fileNames: string[];
+  try {
+    const configFile = ts.readConfigFile(tsconfig, (p) =>
+      fs.readFileSync(p, 'utf-8'),
+    );
+    const parsedConfig = ts.parseJsonConfigFileContent(
+      configFile.config,
+      ts.sys,
+      path.dirname(tsconfig),
+    );
+    fileNames = parsedConfig.fileNames;
+  } catch {
+    // If we can't parse the tsconfig, skip cache population — Angular will read
+    // files from disk normally and the user's explicit schemas (if any) apply.
+    return sourceFileCache;
+  }
+
+  for (const filePath of fileNames) {
+    // Skip library files — only project source needs the schema injection.
+    if (filePath.includes('node_modules')) continue;
+
+    let source: string;
+    try {
+      source = fs.readFileSync(filePath, 'utf-8');
+    } catch {
+      continue;
+    }
+
+    // Quick bail-out: files without @Component don't need transformation.
+    if (!source.includes('@Component')) continue;
+
+    const transformed = injectLynxSchema(source);
+    // Even if injectLynxSchema returned the source unchanged (already has a schema),
+    // we still cache it so Angular uses a consistent file view during the build.
+    sourceFileCache.set(
+      filePath,
+      ts.createSourceFile(filePath, transformed, ts.ScriptTarget.Latest, true),
+    );
+  }
+
+  return sourceFileCache;
+}
+
+/**
+ * Returns true for Angular template diagnostic messages that are expected noise
+ * for Lynx native elements and should not be shown to the user:
+ *
+ * - "is not a known element" — suppressed by sourceFileCache schema injection but may
+ *   still appear for files not in the tsconfig file list
+ * - "isn't a known property of" — Lynx element stubs don't declare @Input() for every
+ *   platform-specific attribute (src, item-key, scroll-orientation, etc.) so Angular
+ *   reports these as unknown property bindings on the stub components; the renderer
+ *   handles them at runtime via setAttribute
+ */
+const isLynxUnknownElementMessage = (text: string | undefined): boolean =>
+  (text?.includes('is not a known element') ||
+    text?.includes("isn't a known property of")) ??
+  false;

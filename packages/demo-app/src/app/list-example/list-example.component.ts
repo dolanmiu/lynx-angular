@@ -1,9 +1,11 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
+
+import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
 @Component({
   selector: 'app-list-example',
   standalone: true,
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  imports: [LYNX_ELEMENTS],
   template: `
     <scroll-view class="list-container" scroll-orientation="vertical">
       <text class="title">List Example</text>
@@ -22,7 +24,7 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, signal } from '@angular/core';
       <list
         class="list"
         list-type="single"
-        span-count="1"
+        [span-count]="1"
         scroll-orientation="vertical"
       >
         <!-- @if (showItems()) {

@@ -12,11 +12,11 @@ declare global {
   /**
    * Determines if running in dev mode
    */
-  let __DEV__: boolean; //TODO: implement
+  let __DEV__: boolean;
   /**
    * Determines if running in profile mode
    */
-  let __PROFILE__: boolean; //TODO: implement
+  let __PROFILE__: boolean;
   /**
    * Full URL of the dev log server (e.g. http://192.168.1.91:3001/__dev_logs).
    * Injected by the rsbuild plugin's DefinePlugin in dev builds only.

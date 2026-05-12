@@ -1,21 +1,26 @@
-import type {
-  ListenerOptions,
-  Renderer2,
-  RendererStyleFlags2,
-} from '@angular/core';
+import type { ListenerOptions, Renderer2 } from '@angular/core';
+import { RendererStyleFlags2 } from '@angular/core';
 import type { LynxDocumentBase } from '../lynx-document';
 import type { BaseLynxElement } from '../lynx-element';
 
 export class LynxRenderer implements Renderer2 {
   readonly #document: LynxDocumentBase;
+  // Stable storage for Angular's per-renderer metadata (e.g. component styles).
+  // Must be the same object reference across calls — Angular reads back what it writes.
+  readonly #data: { [key: string]: unknown } = {};
+
   constructor(document: LynxDocumentBase) {
     this.#document = document;
   }
 
   get data(): { [key: string]: any } {
-    return {};
+    return this.#data;
   }
-  destroy(): void {}
+
+  destroy(): void {
+    // No-op: this renderer does not own the document (it is injected via DI)
+    // and holds no other resources that require explicit cleanup.
+  }
   createElement(name: string, _namespace?: string | null): BaseLynxElement {
     return this.#document.createElement(name);
   }
@@ -83,16 +88,31 @@ export class LynxRenderer implements Renderer2 {
     el: BaseLynxElement,
     style: string,
     value: any,
-    _flags?: RendererStyleFlags2,
+    flags?: RendererStyleFlags2,
   ): void {
-    el.setStyle(style, value);
+    // Angular passes style names in camelCase unless DashCase flag is set.
+    // Lynx expects CSS property names in dash-case (e.g. background-color).
+    const cssKey =
+      flags != null && flags & RendererStyleFlags2.DashCase
+        ? style
+        : style.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
+    // Important flag signals [style.foo.important] binding — append !important.
+    const cssValue =
+      flags != null && flags & RendererStyleFlags2.Important
+        ? `${String(value)} !important`
+        : value;
+    el.setStyle(cssKey, cssValue);
   }
   removeStyle(
     el: BaseLynxElement,
     style: string,
-    _flags?: RendererStyleFlags2,
+    flags?: RendererStyleFlags2,
   ): void {
-    el.removeStyle(style);
+    const cssKey =
+      flags != null && flags & RendererStyleFlags2.DashCase
+        ? style
+        : style.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
+    el.removeStyle(cssKey);
   }
   setProperty(el: BaseLynxElement, name: string, value: any): void {
     el.setProperty(name, value);

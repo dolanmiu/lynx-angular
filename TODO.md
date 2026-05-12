@@ -3,13 +3,13 @@
 ## Runtime
 
 - [x] Emulated view encapsulation (`ViewEncapsulation.Emulated`)
-- [ ] `x-list` virtualization — `componentAtIndex` and `enqueueComponent` callbacks are stubs (`lynx-document.ts:67-93`)
-- [ ] Background-thread `querySelector`/`querySelectorAll` — currently throw "not implemented" (`lynx-element.ts`)
-- [ ] `__DEV__` and `__PROFILE__` globals — marked TODO in `runtime-types.ts`
-- [ ] Comment node creation — TODO about whether it should be raw text (`lynx-document.ts:133`)
-- [ ] `RendererStyleFlags2` flags ignored in `setStyle`/`removeStyle` (`renderer.ts:79,87`)
-- [ ] Renderer `destroy()` is a no-op, `data` returns `{}` (`renderer.ts:13-15`)
-- [ ] Debug `console.log`s should be gated behind `__DEV__`
+- [x] `x-list` virtualization — `componentAtIndex`, `enqueueComponent`, and `componentAtIndexes` fully implemented (`create-list-element.ts`)
+- [ ] Background-thread `querySelector`/`querySelectorAll` — currently throw "not implemented" (`lynx-background-element.ts`)
+- [x] `__DEV__` and `__PROFILE__` globals — injected by `DefinePlugin` in `angular-webpack-plugin.ts`; stale TODO comments removed from `runtime-types.ts`
+- [x] Comment node creation — uses `__CreateView` with `display: none` as anchor; invisible to native, participates in tree ops (`lynx-document.ts`)
+- [x] `RendererStyleFlags2` flags — `DashCase` converts camelCase→dash-case; `Important` appends `!important` to value (`renderer.ts`)
+- [x] Renderer `destroy()` is a no-op, `data` returns `{}` (`renderer.ts:13-15`)
+- [x] Debug `console.log`s gated behind `__DEV__` (document constructor logs); `console.warn`s left ungated — they signal real issues
 
 ## Build Plugin
 
