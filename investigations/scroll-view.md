@@ -111,7 +111,7 @@ case 'x-scroll-view': {
 }
 ```
 
-### 2. Updated demo template (`packages/demo-app/src/app/scroll-example/scroll-example.component.ts`)
+### 2. Updated demo template (`packages/kitchen-sink-app/src/app/scroll-example/scroll-example.component.ts`)
 
 Two changes:
 

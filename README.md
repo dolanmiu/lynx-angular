@@ -13,7 +13,7 @@ The project is a monorepo with three packages that map to the build-time and run
 graph TB
     subgraph build ["Build Time"]
         direction TB
-        src["demo-app<br/><i>Angular components using<br/>Lynx elements (x-view, x-text, ...)</i>"]
+        src["kitchen-sink-app<br/><i>Angular components using<br/>Lynx elements (x-view, x-text, ...)</i>"]
         plugin["@blotch/rsbuild-plugin-angular-lynx<br/><i>RSpeedy/Rsbuild plugin +<br/>Angular compiler (webpack)</i>"]
         bundle[".lynx.bundle<br/><i>main-thread JS + background-thread JS<br/>+ CSS + template</i>"]
 
@@ -62,7 +62,7 @@ graph TB
 | ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
 | **`packages/rsbuild-plugin-angular-lynx`** (`@blotch/rsbuild-plugin-angular-lynx`) | RSpeedy build plugin — configures webpack with Angular compiler, splits code into main-thread and background-thread layers | `pluginAngularLynx.ts`, `entry.ts`, `layers.ts`      |
 | **`packages/runtime`**                                                             | Angular `Renderer2` implementation that bridges to Lynx's global `__*` element APIs                                        | `renderer.ts`, `lynx-element.ts`, `lynx-document.ts` |
-| **`packages/demo-app`**                                                            | Demo app with routing, signals, and Lynx native elements                                                                   | `lynx.config.ts`, `app.component.ts`                 |
+| **`packages/kitchen-sink-app`**                                                    | Kitchen sink app with routing, signals, and Lynx native elements                                                           | `lynx.config.ts`, `app.component.ts`                 |
 
 ## Getting Started
 

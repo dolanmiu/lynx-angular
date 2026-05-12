@@ -10,9 +10,9 @@
   ],
   "main": "index.js",
   "scripts": {
-    "build": "npm run build -w packages/rsbuild-plugin-angular-lynx && npm run build -w packages/runtime && npm run build -w packages/demo-app",
+    "build": "npm run build -w packages/rsbuild-plugin-angular-lynx && npm run build -w packages/runtime && npm run build -w packages/kitchen-sink-app",
     "test": "vitest run",
-    "demo": "npm run build && npm run start --workspace=packages/demo-app",
+    "demo": "npm run build && npm run start --workspace=packages/kitchen-sink-app",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "format": "oxfmt --write .",

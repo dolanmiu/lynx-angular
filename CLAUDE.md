@@ -9,7 +9,7 @@ Lynx uses a dual-thread model: **main thread** (native UI rendering) and **backg
 ## Monorepo Structure
 
 - `packages/runtime` — Core Angular renderer for Lynx (the main library)
-- `packages/demo-app` — Demo Angular app running on Lynx
+- `packages/kitchen-sink-app` — Kitchen sink Angular app running on Lynx
 - `packages/rsbuild-plugin-angular-lynx` — Rsbuild plugin for building Angular Lynx apps
 - `references/lynx-stack-main/packages/react` — **React Lynx** (production-proven reference implementation). Always refer to how React Lynx does things — it's battle-tested and used in production. When unsure about renderer design, element handling, or Lynx API usage, check this reference first.
 - `references/lynx-website-main` — **Lynx official documentation website**. Contains API docs, guides, element/CSS/native API compatibility data, and examples. Reference for understanding Lynx platform capabilities, supported elements, CSS properties, and API status across platforms.

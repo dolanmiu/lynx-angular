@@ -114,11 +114,115 @@ export class LynxBackgroundElement implements BaseLynxElement {
   nextSibling(): BaseLynxElement | null {
     return this.#nextSibling;
   }
-  querySelector(_selector: string): BaseLynxElement | null {
-    throw new Error('Method not implemented.');
+  querySelector(selector: string): BaseLynxElement | null {
+    // Depth-first search: check each child, then recurse into its subtree.
+    // This matches browser semantics — the first pre-order match wins.
+    let child = this.#firstChild;
+    while (child) {
+      if (child.#matchesSelector(selector)) {
+        return child;
+      }
+      const found = child.querySelector(selector);
+      if (found) return found;
+      child = child.#nextSibling;
+    }
+    return null;
   }
-  querySelectorAll(_selector: string): BaseLynxElement[] {
-    throw new Error('Method not implemented.');
+
+  querySelectorAll(selector: string): BaseLynxElement[] {
+    const results: LynxBackgroundElement[] = [];
+    this.#collectMatches(selector, results);
+    return results;
+  }
+
+  // Collects all descendants (pre-order DFS) that match the selector.
+  #collectMatches(
+    selector: string,
+    results: LynxBackgroundElement[],
+  ): void {
+    let child = this.#firstChild;
+    while (child) {
+      if (child.#matchesSelector(selector)) {
+        results.push(child);
+      }
+      child.#collectMatches(selector, results);
+      child = child.#nextSibling;
+    }
+  }
+
+  // Supports the CSS selector subset Angular actually needs: tag names, class
+  // selectors, ID selectors, and simple attribute selectors — all combinable
+  // as a compound selector (e.g. "view.active[id=foo]").
+  // Combinators (space, >, ~, +) are not supported on the background thread
+  // because Angular's renderer doesn't use them at this layer.
+  #matchesSelector(selector: string): boolean {
+    let remaining = selector.trim();
+
+    // Reject any selector that contains a combinator we cannot handle.
+    if (/[\s>~+]/.test(remaining)) return false;
+
+    let tagName: string | null = null;
+    const classes: string[] = [];
+    const attrs: [string, string | null][] = [];
+
+    // Optional leading tag name (e.g. "view", "scroll-view").
+    const tagMatch = remaining.match(/^([a-zA-Z][a-zA-Z0-9_-]*)/);
+    if (tagMatch) {
+      tagName = tagMatch[1];
+      remaining = remaining.slice(tagMatch[0].length);
+    }
+
+    // Parse the rest as class / id / attribute tokens.
+    while (remaining.length > 0) {
+      const classMatch = remaining.match(/^\.([a-zA-Z0-9_-]+)/);
+      if (classMatch) {
+        classes.push(classMatch[1]);
+        remaining = remaining.slice(classMatch[0].length);
+        continue;
+      }
+
+      const idMatch = remaining.match(/^#([a-zA-Z0-9_-]+)/);
+      if (idMatch) {
+        // #id is sugar for [id="…"]
+        attrs.push(['id', idMatch[1]]);
+        remaining = remaining.slice(idMatch[0].length);
+        continue;
+      }
+
+      // [attr] or [attr=value] or [attr="value"]
+      const attrMatch = remaining.match(
+        /^\[([a-zA-Z0-9_-]+)(?:=["']?([^"'\]]*)["']?)?\]/,
+      );
+      if (attrMatch) {
+        attrs.push([attrMatch[1], attrMatch[2] ?? null]);
+        remaining = remaining.slice(attrMatch[0].length);
+        continue;
+      }
+
+      // Unrecognised token — no match.
+      return false;
+    }
+
+    // Empty selector matches nothing.
+    if (!tagName && classes.length === 0 && attrs.length === 0) return false;
+
+    if (tagName && this.#props.get('tagName') !== tagName) return false;
+
+    for (const cls of classes) {
+      if (!this.#classes.has(cls)) return false;
+    }
+
+    for (const [attr, value] of attrs) {
+      const stored = this.#props.get(attr);
+      if (value === null) {
+        // [attr] presence check — element must have the attribute set.
+        if (stored === undefined || stored === null) return false;
+      } else {
+        if (String(stored) !== value) return false;
+      }
+    }
+
+    return true;
   }
   addEventListener(name: string, cb: (event: any) => any): () => void {
     this.#events.set(name, cb);

@@ -55,7 +55,7 @@ Evidence from React Lynx reference:
 
 ### Fix Applied
 
-`packages/demo-app/src/app/app.component.ts`:
+`packages/kitchen-sink-app/src/app/app.component.ts`:
 
 ```typescript
 navigateTo(path: string): void {
@@ -70,7 +70,7 @@ This moves all DOM mutations into a `setTimeout` macrotask, after the worklet ca
 Since there is no console on the Lynx device, added on-screen error rendering:
 
 - `packages/runtime/src/lib/runtime.ts`: `globalThis.onerror` and `globalThis.onunhandledrejection` handlers store errors in `globalThis.__lynxLastError`
-- `packages/demo-app/src/app/app.component.ts`: Red `<x-text>` panel displays `lastError` signal when non-empty
+- `packages/kitchen-sink-app/src/app/app.component.ts`: Red `<x-text>` panel displays `lastError` signal when non-empty
 
 ---
 
@@ -128,4 +128,4 @@ However, `__RemoveElement`, `__CreateView`, etc. ARE called during the synchrono
 | -------------------------------------------- | -------------------------------------------------------------------------------- |
 | `packages/runtime/src/lib/lynx-element.ts`   | `LynxListElement`: `_destroyed` flag, cancel pending `_scheduleUpdate` on remove |
 | `packages/runtime/src/lib/runtime.ts`        | Global `onerror`/`onunhandledrejection` diagnostics                              |
-| `packages/demo-app/src/app/app.component.ts` | Defer navigation via `setTimeout`, show `lastError` on screen                    |
+| `packages/kitchen-sink-app/src/app/app.component.ts` | Defer navigation via `setTimeout`, show `lastError` on screen                    |

@@ -28,7 +28,7 @@ case 'x-new-element': {
 
 4. **Update ELEMENTS.md** — Add documentation for the element in `packages/runtime/docs/ELEMENTS.md` including what it does, example usage, supported attributes/properties, and common use cases.
 
-5. **Create an example component** — Add a demo component in `packages/demo-app/` showing how to use the element. Use `CUSTOM_ELEMENTS_SCHEMA` and standalone components:
+5. **Create an example component** — Add a demo component in `packages/kitchen-sink-app/` showing how to use the element. Use `CUSTOM_ELEMENTS_SCHEMA` and standalone components:
 
 ```typescript
 @Component({

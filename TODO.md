@@ -4,7 +4,7 @@
 
 - [x] Emulated view encapsulation (`ViewEncapsulation.Emulated`)
 - [x] `x-list` virtualization — `componentAtIndex`, `enqueueComponent`, and `componentAtIndexes` fully implemented (`create-list-element.ts`)
-- [ ] Background-thread `querySelector`/`querySelectorAll` — currently throw "not implemented" (`lynx-background-element.ts`)
+- [x] Background-thread `querySelector`/`querySelectorAll` — DFS traversal with tag/class/id/attribute selector support (`lynx-background-element.ts`)
 - [x] `__DEV__` and `__PROFILE__` globals — injected by `DefinePlugin` in `angular-webpack-plugin.ts`; stale TODO comments removed from `runtime-types.ts`
 - [x] Comment node creation — uses `__CreateView` with `display: none` as anchor; invisible to native, participates in tree ops (`lynx-document.ts`)
 - [x] `RendererStyleFlags2` flags — `DashCase` converts camelCase→dash-case; `Important` appends `!important` to value (`renderer.ts`)

@@ -12,12 +12,18 @@
 // FunctionDeclaration/FunctionExpression because those create their own `this`
 // scope. ArrowFunctionExpression does NOT create its own `this`, so we
 // continue into those.
-const usesThis = (node) => {
+// visited guards against circular references in the AST (e.g. parent back-pointers
+// that some linter runtimes attach to nodes), which would otherwise cause infinite recursion.
+const usesThis = (node, visited = new WeakSet()) => {
   if (!node || typeof node !== 'object') return false;
+  if (visited.has(node)) return false;
+  visited.add(node);
   if (node.type === 'ThisExpression') return true;
   if (node.type === 'FunctionDeclaration' || node.type === 'FunctionExpression') return false;
   return Object.values(node).some((child) =>
-    Array.isArray(child) ? child.some(usesThis) : usesThis(child),
+    Array.isArray(child)
+      ? child.some((item) => usesThis(item, visited))
+      : usesThis(child, visited),
   );
 };
 
