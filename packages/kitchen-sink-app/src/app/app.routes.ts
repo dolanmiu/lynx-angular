@@ -1,6 +1,7 @@
 import type { Routes } from '@angular/router';
 import { ElementsShowcaseComponent } from './elements-showcase/elements-showcase.component';
 import { ListExampleComponent } from './list-example/list-example.component';
+import { QuerySelectorDemoComponent } from './query-selector-demo/query-selector-demo.component';
 import { ScrollExampleComponent } from './scroll-example/scroll-example.component';
 
 export const routes: Routes = [
@@ -10,4 +11,5 @@ export const routes: Routes = [
   { path: 'list-example', component: ListExampleComponent },
   { path: 'scroll-example', component: ScrollExampleComponent },
   { path: 'showcase', component: ElementsShowcaseComponent },
+  { path: 'query-selector-demo', component: QuerySelectorDemoComponent },
 ];

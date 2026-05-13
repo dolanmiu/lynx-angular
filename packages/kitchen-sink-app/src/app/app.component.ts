@@ -119,6 +119,12 @@ import lynxLogo from '../assets/lynx-logo.png';
             <view class="nav-button" (bindtap)="navigateTo('scroll-example')">
               <text class="nav-button-text">Scroll Example</text>
             </view>
+            <view
+              class="nav-button"
+              (bindtap)="navigateTo('query-selector-demo')"
+            >
+              <text class="nav-button-text">querySelector Demo</text>
+            </view>
           </view>
         </view>
       </view>
