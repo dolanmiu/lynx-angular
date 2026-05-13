@@ -152,6 +152,16 @@ export const applyAngularRules = async (
           },
         },
         (compilerOptions) => {
+          // Do NOT set _enableHmr here. That flag is for Angular's esbuild build path:
+          // it makes the AOT compiler emit AppComponent_HmrLoad() functions that call
+          // ɵɵgetReplaceMetadataURL(), which constructs `new URL('...', 'file:///src/...')`.
+          // Lynx's URL implementation rejects file:// as a base URL, crashing on startup.
+          // Additionally, _enableHmr requires the dev server to serve Angular's HMR update
+          // modules at /__angular_hmr/* endpoints — infrastructure we don't yet provide.
+          // Component-level Angular HMR would need a custom endpoint in the Lynx dev server
+          // and a runtime that applies templateUpdates from compilation.initialize().
+          // Live reload works without this: webpack falls back to a full CDP Page.reload
+          // when no module calls module.hot.accept().
           return {
             ...compilerOptions,
             noEmitOnError: false,
@@ -161,9 +171,6 @@ export const applyAngularRules = async (
             mapRoot: undefined,
             sourceRoot: undefined,
             preserveSymlinks: false,
-            // externalRuntimeStyles: pluginOptions.externalRuntimeStyles,
-            // _enableHmr: !!pluginOptions.templateUpdates,
-            // supportTestBed: !!pluginOptions.includeTestMetadata,
           };
         },
       );

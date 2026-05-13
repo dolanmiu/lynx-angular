@@ -125,6 +125,9 @@ import lynxLogo from '../assets/lynx-logo.png';
             >
               <text class="nav-button-text">querySelector Demo</text>
             </view>
+            <view class="nav-button" (bindtap)="navigateTo('tailwind-demo')">
+              <text class="nav-button-text">Tailwind Demo</text>
+            </view>
           </view>
         </view>
       </view>

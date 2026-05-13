@@ -9,9 +9,45 @@ describe('LynxElement', () => {
   beforeEach(() => {
     fakeRef = {} as ElementRef;
 
+    globalThis.__AddClass = vi.fn();
+    globalThis.__SetClasses = vi.fn();
+    globalThis.__GetClasses = vi.fn(() => []);
     globalThis.__AddEvent = vi.fn();
     globalThis.__GetEvents = vi.fn(() => ({}));
     globalThis.__SetEvents = vi.fn();
+  });
+
+  describe('setAttribute("class", ...)', () => {
+    it('calls __SetClasses with a single class name', () => {
+      element = new LynxElement(fakeRef);
+      element.setAttribute('class', 'text-white');
+      expect(globalThis.__SetClasses).toHaveBeenCalledWith(fakeRef, 'text-white');
+      expect(globalThis.__AddClass).not.toHaveBeenCalled();
+    });
+
+    it('calls __SetClasses with a space-separated class list', () => {
+      // Regression: __AddClass treats its argument as a single class name, so
+      // passing 'bg-blue-500 p-4 rounded-lg' would set one literal class
+      // 'bg-blue-500 p-4 rounded-lg' and no CSS rule would ever match.
+      element = new LynxElement(fakeRef);
+      element.setAttribute('class', 'bg-blue-500 p-4 rounded-lg');
+      expect(globalThis.__SetClasses).toHaveBeenCalledWith(fakeRef, 'bg-blue-500 p-4 rounded-lg');
+      expect(globalThis.__AddClass).not.toHaveBeenCalled();
+    });
+
+    it('calls __SetClasses with empty string when value is null', () => {
+      element = new LynxElement(fakeRef);
+      element.setAttribute('class', null);
+      expect(globalThis.__SetClasses).toHaveBeenCalledWith(fakeRef, '');
+    });
+  });
+
+  describe('addClass', () => {
+    it('calls __AddClass with the class name', () => {
+      element = new LynxElement(fakeRef);
+      element.addClass('active');
+      expect(globalThis.__AddClass).toHaveBeenCalledWith(fakeRef, 'active');
+    });
   });
 
   it('addEventListener with bindtap calls __AddEvent with bindEvent', () => {

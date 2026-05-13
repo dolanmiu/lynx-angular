@@ -2799,3 +2799,58 @@ This is the same mechanism React Lynx uses internally for `runOnBackground()`. S
 | ----------------- | ---------------------------------------- | -------------------------------------------------- |
 | Main thread       | `lynx.getJSContext().dispatchEvent(e)`   | `lynx.getJSContext().addEventListener(type, cb)`   |
 | Background thread | `lynx.getCoreContext().dispatchEvent(e)` | `lynx.getCoreContext().addEventListener(type, cb)` |
+
+## Tailwind CSS with Angular Lynx
+
+### Setup
+
+Use `rsbuild-plugin-tailwindcss` (not a bare `postcss.config.js`). Add `pluginTailwindCSS()` after `pluginAngularLynx()` in `lynx.config.ts`. No changes to the CSS pipeline (`css.ts`) are needed — Tailwind's PostCSS step runs upstream of the CSS extractor.
+
+**Always use `@lynx-js/tailwind-preset`** — it strips every Tailwind plugin that generates CSS Lynx cannot parse: `hover:*`, `focus:*`, `@media`, `::before`/`::after`, `pointer-events`, `calc()`, etc.
+
+**Tailwind v3 only** — `tailwindcss@^3`. Tailwind v4 (`@tailwindcss/postcss`, `@tailwindcss/vite`) is incompatible with `@lynx-js/tailwind-preset`.
+
+### `content:` must target `.ts` files, not `.html`
+
+Angular templates in this project are inline TypeScript string literals — there are no `.html` template files. Use:
+
+```ts
+content: ['./src/**/*.ts'],
+```
+
+### Text color classes must go on `<text>` elements directly
+
+Lynx CSS inheritance is **off by default**. `text-white` on a parent `<view>` does not cascade to child `<text>` elements — each element is its own isolated style scope.
+
+**Wrong:**
+```html
+<view class="text-white">
+  <text>This is NOT white</text>
+</view>
+```
+
+**Correct:**
+```html
+<view>
+  <text class="text-white">This is white</text>
+</view>
+```
+
+### CSS variables require `enableCSSInheritance: true`
+
+If `tailwind.config.ts` extends colors via `var(--color-*)`, the cascade must be enabled for the variables to reach child elements:
+
+```ts
+// lynx.config.ts
+pluginAngularLynx({ enableCSSInheritance: true })
+```
+
+For runtime theme switching via Angular style bindings (`[style]="themeVars()"`), also add `enableCSSInlineVariables: true`.
+
+## `__AddClass` takes a single class name, not a space-separated list
+
+`__AddClass(element, className)` adds one CSS class. Passing a space-separated string like `'foo bar baz'` does NOT add three classes — Lynx treats the entire string as one class name literal, so no CSS rule will ever match.
+
+**Always use `__SetClasses(element, classString)` when replacing the entire `class` attribute**, as it correctly parses space-separated class lists. `__AddClass` should only be called with a single class name at a time.
+
+This is why the Angular renderer's `setAttribute('class', value)` must call `__SetClasses`, not `__AddClass`. React Lynx does the same: it calls `__SetClasses(element, className)` when applying the `className` prop.

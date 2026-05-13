@@ -51,6 +51,12 @@ export const applyEntry = (
   api.modifyBundlerChain((chain, { environment, isDev }) => {
     const isLynx = environment.name === 'lynx';
     const isWeb = environment.name === 'web';
+    // Mirror React Lynx's HMR/live-reload flag logic (rspeedy/plugin-react/src/entry.ts).
+    // HMR requires both the hot dev server and the transport client running before user code.
+    // Live-reload only needs the transport client (it triggers a full page reload via CDP).
+    const { hmr, liveReload } = environment.config.dev ?? {};
+    const enabledHMR = isDev && !isWeb && hmr !== false;
+    const enabledLiveReload = isDev && !isWeb && liveReload !== false;
 
     //split entries
     const entries = chain.entryPoints.entries() ?? {};
@@ -90,17 +96,25 @@ export const applyEntry = (
           import: imports,
           filename: backgroundThreadName,
         })
-        .when(isDev && !isWeb, (entry) => {
-          entry
-            // This is aliased in `@lynx-js/rspeedy`
-            .add({
-              layer: LAYERS.BACKGROUND,
-              import: '@rspack/core/hot/dev-server',
-            })
-            .add({
-              layer: LAYERS.BACKGROUND,
-              import: '@lynx-js/webpack-dev-transport/client',
-            });
+        .when(enabledHMR, (entry) => {
+          // Use prepend so the webpack HMR runtime executes before user code.
+          // Adding after user code (with .add()) would mean module.hot is not yet
+          // installed when components first run, breaking hot update acceptance.
+          entry.prepend({
+            layer: LAYERS.BACKGROUND,
+            // This is aliased to the correct path by rspeedy's dev plugin
+            import: '@rspack/core/hot/dev-server',
+          });
+        })
+        .when(enabledHMR || enabledLiveReload, (entry) => {
+          // Transport client connects to the rspeedy dev server WebSocket and either
+          // triggers webpack's webpackHotUpdate event (HMR) or CDP Page.reload (live reload).
+          // Must be prepended first so the connection is established before anything else runs.
+          entry.prepend({
+            layer: LAYERS.BACKGROUND,
+            // This is aliased with hostname/port query params by rspeedy's dev plugin
+            import: '@lynx-js/webpack-dev-transport/client',
+          });
         })
         .end();
       // apply lynx plugins

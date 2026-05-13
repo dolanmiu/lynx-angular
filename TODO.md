@@ -13,7 +13,8 @@
 
 ## Build Plugin
 
-- [ ] HMR and live reload
+- [x] Live reload — transport client + hot dev server entries fixed to use `prepend()` so they run before user code; webpack falls back to CDP `Page.reload` when no module accepts the hot update
+- [ ] Component-level HMR — `_enableHmr` generates `ɵɵgetReplaceMetadataURL()` which calls `new URL('...', 'file:///src/...')`; Lynx's URL rejects `file://` as base; also needs `/__angular_hmr/*` endpoint in dev server to serve `templateUpdates` from `compilation.initialize()`
 - [ ] JIT compilation support (`options.ts:132`)
 - [ ] `?common` CSS query parameter (`css.ts:180`)
 - [ ] `splitChunks.chunks: 'async'` support (`split-chunks.ts:59`)

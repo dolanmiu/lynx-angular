@@ -31,7 +31,13 @@ export class LynxElement implements BaseLynxElement {
   }
   setAttribute(name: string, value: any): void {
     if (name === 'class') {
-      this.addClass(value);
+      // Use __SetClasses (not __AddClass) because setAttribute replaces the
+      // entire class attribute with a space-separated list. __AddClass treats
+      // its argument as a single class name — passing 'foo bar baz' would set
+      // the literal class 'foo bar baz' rather than three separate classes,
+      // so no CSS rule would ever match. __SetClasses correctly parses the
+      // space-separated list. This matches how React Lynx handles className.
+      __SetClasses(this.element, value ?? '');
     } else if (name === 'style') {
       this.setInlineStyles(value);
     } else if (name === 'id') {
