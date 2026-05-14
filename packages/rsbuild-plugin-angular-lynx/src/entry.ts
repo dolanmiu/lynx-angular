@@ -62,7 +62,6 @@ export const applyEntry = (
     const entries = chain.entryPoints.entries() ?? {};
     chain.entryPoints.clear();
     const mainThreadChunks: string[] = [];
-    const backgroundChunks: string[] = [];
     for (const [entryName, entryPoint] of Object.entries(entries)) {
       const { imports } = getChunks(entryName, entryPoint.values());
 
@@ -79,7 +78,6 @@ export const applyEntry = (
       );
 
       mainThreadChunks.push(mainThreadName);
-      backgroundChunks.push(backgroundThreadName);
       chain
         .entry(mainThreadEntry)
         .add({
@@ -174,7 +172,6 @@ export const applyEntry = (
       .use(AngularWebpackPlugin, [
         {
           mainThreadChunks,
-          backgroundChunks,
         },
       ]);
   });

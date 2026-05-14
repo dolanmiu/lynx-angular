@@ -55,10 +55,29 @@ export const applySplitChunksRule = (api: RsbuildPluginAPI): void => {
     if (!rspackConfig.optimization.splitChunks) {
       return rspackConfig;
     }
+    // Preserve the user's original `chunks` setting (e.g. 'async', 'initial', 'all', or a function)
+    // so we can compose it with the main-thread exclusion below.
+    const originalChunks = rspackConfig.optimization.splitChunks.chunks;
+
     rspackConfig.optimization.splitChunks.chunks = (chunk) => {
-      // TODO: support `splitChunks.chunks: 'async'`
-      // We don't want main thread to be splitted
-      return !chunk.name?.includes('__main-thread');
+      // Main-thread chunks must never be split — they run on the native UI thread
+      // and must remain as single bundles.
+      if (chunk.name?.includes('__main-thread')) {
+        return false;
+      }
+
+      // Apply the original chunks filter so user settings like 'async' are respected.
+      if (typeof originalChunks === 'function') {
+        return originalChunks(chunk);
+      }
+      if (originalChunks === 'async') {
+        return !chunk.canBeInitial();
+      }
+      if (originalChunks === 'initial') {
+        return chunk.canBeInitial();
+      }
+      // 'all' or unset — include all non-main-thread chunks
+      return true;
     };
     return rspackConfig;
   });

@@ -124,8 +124,8 @@ However, `__RemoveElement`, `__CreateView`, etc. ARE called during the synchrono
 
 ## Files Modified
 
-| File                                         | Change                                                                           |
-| -------------------------------------------- | -------------------------------------------------------------------------------- |
-| `packages/runtime/src/lib/lynx-element.ts`   | `LynxListElement`: `_destroyed` flag, cancel pending `_scheduleUpdate` on remove |
-| `packages/runtime/src/lib/runtime.ts`        | Global `onerror`/`onunhandledrejection` diagnostics                              |
+| File                                                 | Change                                                                           |
+| ---------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `packages/runtime/src/lib/lynx-element.ts`           | `LynxListElement`: `_destroyed` flag, cancel pending `_scheduleUpdate` on remove |
+| `packages/runtime/src/lib/runtime.ts`                | Global `onerror`/`onunhandledrejection` diagnostics                              |
 | `packages/kitchen-sink-app/src/app/app.component.ts` | Defer navigation via `setTimeout`, show `lastError` on screen                    |

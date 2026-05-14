@@ -19,7 +19,8 @@ const usesThis = (node, visited = new WeakSet()) => {
   if (visited.has(node)) return false;
   visited.add(node);
   if (node.type === 'ThisExpression') return true;
-  if (node.type === 'FunctionDeclaration' || node.type === 'FunctionExpression') return false;
+  if (node.type === 'FunctionDeclaration' || node.type === 'FunctionExpression')
+    return false;
   return Object.values(node).some((child) =>
     Array.isArray(child)
       ? child.some((item) => usesThis(item, visited))
@@ -31,7 +32,8 @@ export default {
   meta: {
     type: 'suggestion',
     docs: {
-      description: 'Enforce arrow function expressions over function declarations and anonymous function expressions',
+      description:
+        'Enforce arrow function expressions over function declarations and anonymous function expressions',
     },
     messages: {
       useArrow:

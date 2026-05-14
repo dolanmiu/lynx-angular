@@ -2823,6 +2823,7 @@ content: ['./src/**/*.ts'],
 Lynx CSS inheritance is **off by default**. `text-white` on a parent `<view>` does not cascade to child `<text>` elements — each element is its own isolated style scope.
 
 **Wrong:**
+
 ```html
 <view class="text-white">
   <text>This is NOT white</text>
@@ -2830,6 +2831,7 @@ Lynx CSS inheritance is **off by default**. `text-white` on a parent `<view>` do
 ```
 
 **Correct:**
+
 ```html
 <view>
   <text class="text-white">This is white</text>
@@ -2842,7 +2844,7 @@ If `tailwind.config.ts` extends colors via `var(--color-*)`, the cascade must be
 
 ```ts
 // lynx.config.ts
-pluginAngularLynx({ enableCSSInheritance: true })
+pluginAngularLynx({ enableCSSInheritance: true });
 ```
 
 For runtime theme switching via Angular style bindings (`[style]="themeVars()"`), also add `enableCSSInlineVariables: true`.

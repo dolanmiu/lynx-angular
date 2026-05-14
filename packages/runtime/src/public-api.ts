@@ -2,6 +2,8 @@
  * Public API Surface of @blotch/angular-lynx
  */
 
+export { LynxAnimation } from './lib/animation/animation';
+export type { LynxAnimationOptions } from './lib/animation/animation';
 export {
   LYNX_ELEMENTS,
   LynxBlock,

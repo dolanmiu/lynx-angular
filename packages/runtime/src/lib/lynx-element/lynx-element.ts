@@ -1,3 +1,7 @@
+import {
+  LynxAnimation,
+  type LynxAnimationOptions,
+} from '../animation/animation';
 import type { ElementRef } from '../types/lynx';
 import {
   type BaseLynxElement,
@@ -136,6 +140,15 @@ export class LynxElement implements BaseLynxElement {
       (e) => new LynxElement(e),
     );
   }
+  animate(
+    keyframes: Record<string, string | number>[],
+    options?: number | LynxAnimationOptions,
+  ): LynxAnimation {
+    const normalizedOptions =
+      typeof options === 'number' ? { duration: options } : (options ?? {});
+    return new LynxAnimation(this.element, keyframes, normalizedOptions);
+  }
+
   addEventListener(name: string, cb: (event: any) => any) {
     let eventName = '';
     let eventType: LynxEventType | undefined;

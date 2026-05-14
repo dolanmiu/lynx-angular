@@ -34,4 +34,4 @@ export const injectLynxSchema = (source: string): string => {
   }
 
   return importLine + patched;
-}
+};

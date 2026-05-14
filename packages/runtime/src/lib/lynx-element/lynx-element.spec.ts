@@ -21,7 +21,10 @@ describe('LynxElement', () => {
     it('calls __SetClasses with a single class name', () => {
       element = new LynxElement(fakeRef);
       element.setAttribute('class', 'text-white');
-      expect(globalThis.__SetClasses).toHaveBeenCalledWith(fakeRef, 'text-white');
+      expect(globalThis.__SetClasses).toHaveBeenCalledWith(
+        fakeRef,
+        'text-white',
+      );
       expect(globalThis.__AddClass).not.toHaveBeenCalled();
     });
 
@@ -31,7 +34,10 @@ describe('LynxElement', () => {
       // 'bg-blue-500 p-4 rounded-lg' and no CSS rule would ever match.
       element = new LynxElement(fakeRef);
       element.setAttribute('class', 'bg-blue-500 p-4 rounded-lg');
-      expect(globalThis.__SetClasses).toHaveBeenCalledWith(fakeRef, 'bg-blue-500 p-4 rounded-lg');
+      expect(globalThis.__SetClasses).toHaveBeenCalledWith(
+        fakeRef,
+        'bg-blue-500 p-4 rounded-lg',
+      );
       expect(globalThis.__AddClass).not.toHaveBeenCalled();
     });
 

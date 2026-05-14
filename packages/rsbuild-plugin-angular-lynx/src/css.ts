@@ -176,8 +176,8 @@ export const applyCSS = (
           .resourceQuery({
             and: [
               /cssId/,
-              // TODO: support ?common
-              // { not: /common/ },
+              // Global CSS (?common) must always be emitted — exclude it from tree-shaking
+              { not: /common/ },
             ],
           })
           .sideEffects(false),

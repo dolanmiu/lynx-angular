@@ -16,6 +16,13 @@ import {
   getProjectByCwd,
 } from './utils/angular/read-workspace.js';
 import { injectLynxSchema } from './utils/inject-lynx-schema.js';
+import {
+  reportLynxDiagnostics,
+  scanCompiledOutputForHtmlElements,
+  scanCompiledOutputForStructuralIssues,
+  scanSourcesForUnsupportedCss,
+  scanSourcesForUnsupportedPatterns,
+} from './lynx-diagnostics.js';
 
 export const applyAngularRules = async (
   api: RsbuildPluginAPI,
@@ -30,9 +37,6 @@ export const applyAngularRules = async (
     throw new Error(`Project "${project}" not found in workspace`);
   }
   const buildOptions = await readBuildOptions(projectDefinition, basePath);
-  if (!buildOptions) {
-    throw new Error(`Failed to read build options for project "${project}"`);
-  }
   applyAngularConfig(api, buildOptions);
   const sourcemap = !!(
     !!buildOptions.sourcemapOptions.scripts &&
@@ -40,18 +44,19 @@ export const applyAngularRules = async (
   );
   const thirdPartySourcemaps = buildOptions.sourcemapOptions.vendor;
   const advancedOptimizations = buildOptions.advancedOptimizations;
+  const aot = buildOptions.aot;
   const javascriptTransformer = new JavaScriptTransformer(
     {
       sourcemap,
       thirdPartySourcemaps,
       advancedOptimizations,
-      jit: false,
+      jit: !aot,
     },
     maxWorkers,
     undefined,
   );
   const tsconfig = buildOptions.tsconfig;
-  const compilation = await createAngularCompilation(false, true);
+  const compilation = await createAngularCompilation(false, aot);
   const typeScriptFileCache = new Map<string, string | Uint8Array>();
   // Determines if TypeScript should process JavaScript files based on tsconfig `allowJs` option
   // let shouldTsIgnoreJs = true;
@@ -79,7 +84,8 @@ export const applyAngularRules = async (
     // so that Angular's template type-checker never errors on Lynx native elements
     // (<view>, <text>, <scroll-view>, etc.) — users don't need CUSTOM_ELEMENTS_SCHEMA
     // in every component.
-    const sourceFileCache = buildLynxSchemaSourceFileCache(tsconfig);
+    const { sourceFileCache, fileNames } =
+      buildLynxSchemaSourceFileCache(tsconfig);
 
     try {
       await compilation.initialize(
@@ -192,6 +198,14 @@ export const applyAngularRules = async (
         typeScriptFileCache.set(path.normalize(filename), contents);
       }
     } catch {}
+
+    reportLynxDiagnostics([
+      ...scanCompiledOutputForHtmlElements(typeScriptFileCache),
+      ...scanCompiledOutputForStructuralIssues(typeScriptFileCache),
+      ...scanSourcesForUnsupportedPatterns(fileNames),
+      ...scanSourcesForUnsupportedCss(fileNames),
+    ]);
+
     const diagnostics = await compilation.diagnoseFiles(
       useTypeChecking
         ? DiagnosticModes.All
@@ -260,6 +274,16 @@ export const applyAngularRules = async (
       if (scopeInfo) {
         code += `\n;${scopeInfo.className}.\u0275cmp.id = '${scopeInfo.scopeId}';\n`;
       }
+      // In dev mode, inject HMR self-accept in entry files so webpack doesn't
+      // trigger a full page reload. The entry re-evaluates on any dependency
+      // update, calling bootstrapLynxApplication again (which handles
+      // re-bootstrap by destroying the previous app and creating a fresh one).
+      if (
+        process.env['NODE_ENV'] !== 'production' &&
+        code.includes('bootstrapLynxApplication')
+      ) {
+        code += `\n;if (module.hot) { module.hot.accept(); }`;
+      }
       return {
         code,
       };
@@ -281,7 +305,7 @@ export const applyAngularRules = async (
  */
 const buildLynxSchemaSourceFileCache = (
   tsconfig: string,
-): Map<string, any> => {
+): { sourceFileCache: Map<string, any>; fileNames: string[] } => {
   const sourceFileCache = new Map<string, any>();
 
   let fileNames: string[];
@@ -298,7 +322,7 @@ const buildLynxSchemaSourceFileCache = (
   } catch {
     // If we can't parse the tsconfig, skip cache population — Angular will read
     // files from disk normally and the user's explicit schemas (if any) apply.
-    return sourceFileCache;
+    return { sourceFileCache, fileNames: [] };
   }
 
   for (const filePath of fileNames) {
@@ -324,8 +348,8 @@ const buildLynxSchemaSourceFileCache = (
     );
   }
 
-  return sourceFileCache;
-}
+  return { sourceFileCache, fileNames };
+};
 
 /**
  * Returns true for Angular template diagnostic messages that are expected noise

@@ -234,10 +234,10 @@ If Angular's native Router can't be made to work:
 | `packages/runtime/src/lib/renderer.ts`                  | `LynxRenderer` — Renderer2 implementation                                     |
 | `packages/runtime/src/lib/lynx-renderer-factory2.ts`    | `end()` calls `__FlushElementTree()`                                          |
 | `packages/runtime/src/lib/lynx-element.ts`              | `LynxElement` — wraps native elements                                         |
-| `packages/kitchen-sink-app/src/app/app.config.ts`               | App config — currently uses flat `provideRouter()`                            |
-| `packages/kitchen-sink-app/src/app/app.routes.ts`               | Route definitions                                                             |
-| `packages/kitchen-sink-app/src/app/app.component.ts`            | Root component — currently has debug diagnostics                              |
-| `packages/kitchen-sink-app/src/main.ts`                         | Entry point — `bootstrapLynxApplication()`                                    |
+| `packages/kitchen-sink-app/src/app/app.config.ts`       | App config — currently uses flat `provideRouter()`                            |
+| `packages/kitchen-sink-app/src/app/app.routes.ts`       | Route definitions                                                             |
+| `packages/kitchen-sink-app/src/app/app.component.ts`    | Root component — currently has debug diagnostics                              |
+| `packages/kitchen-sink-app/src/main.ts`                 | Entry point — `bootstrapLynxApplication()`                                    |
 | `packages/rsbuild-plugin-angular-lynx/src/polyfills.js` | Pre-entry polyfills (runs before Angular)                                     |
 
 ---

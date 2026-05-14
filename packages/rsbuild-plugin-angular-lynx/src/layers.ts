@@ -1,8 +1,18 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { RsbuildPluginAPI, Rspack } from '@lynx-js/rspeedy';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 export const LAYERS = {
   BACKGROUND: 'background',
   MAIN_THREAD: 'main',
 };
+
+const threadGlobalsLoaderPath = path.resolve(
+  __dirname,
+  './loaders/thread-globals-loader',
+);
 
 export const applyLayers = (api: RsbuildPluginAPI): void => {
   api.modifyBundlerChain((chain) => {
@@ -30,6 +40,10 @@ export const applyLayers = (api: RsbuildPluginAPI): void => {
           },
         },
       })
+      .end()
+      .use('thread-globals')
+      .loader(threadGlobalsLoaderPath)
+      .options({ isMainThread: false })
       .end();
 
     // Configure main layer
@@ -48,6 +62,10 @@ export const applyLayers = (api: RsbuildPluginAPI): void => {
           },
         },
       })
+      .end()
+      .use('thread-globals')
+      .loader(threadGlobalsLoaderPath)
+      .options({ isMainThread: true })
       .end();
     // // https://lynxjs.org/guide/scripting-runtime/index.html#javascript-syntax-transformers
     // setTarget(LAYERS.MAIN_THREAD, 'es2015');

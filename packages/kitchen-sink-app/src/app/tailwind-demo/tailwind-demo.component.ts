@@ -10,7 +10,6 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   template: `
     <scroll-view class="w-full" scroll-orientation="vertical">
       <view class="p-4 flex flex-col">
-
         <text class="text-xl font-bold mb-4 text-white">Tailwind CSS Demo</text>
 
         <!-- Color palette -->
@@ -51,7 +50,9 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
           <text class="text-sm mb-1 text-slate-400">text-sm</text>
           <text class="text-base mb-1 text-white">text-base</text>
           <text class="text-lg mb-1 text-white">text-lg</text>
-          <text class="text-xl mb-1 font-bold text-white">text-xl font-bold</text>
+          <text class="text-xl mb-1 font-bold text-white"
+            >text-xl font-bold</text
+          >
           <text class="text-2xl font-bold text-white">text-2xl font-bold</text>
         </view>
 
@@ -74,7 +75,6 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
             </view>
           </view>
         </view>
-
       </view>
     </scroll-view>
   `,

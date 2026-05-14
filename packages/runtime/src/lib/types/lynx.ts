@@ -362,6 +362,25 @@ declare global {
     value: unknown,
   ): void;
 
+  // ── Animation API ──────────────────────────────────────────────────
+  // Controls element animations via the native Lynx animation engine.
+  // Mirrors the PAPI defined in @lynx-js/react's worklet-runtime.
+
+  function __ElementAnimate(
+    element: ElementRef,
+    args:
+      | [
+          operation: 0, // START
+          name: string,
+          keyframes: Record<string, string | number>[],
+          options?: Record<string, unknown>,
+        ]
+      | [
+          operation: 1 | 2 | 3, // PLAY | PAUSE | CANCEL
+          name: string,
+        ],
+  ): void;
+
   function __GetAttributeByName(e: ElementRef, name: string): any;
 
   function __GetAttributeNames(e: ElementRef): string[];

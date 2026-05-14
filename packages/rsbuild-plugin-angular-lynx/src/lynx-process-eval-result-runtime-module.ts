@@ -25,15 +25,29 @@ export const createLynxProcessEvalResultRuntimeModule = (
         return '';
       }
 
+      const chunkGroup = chunk._groupsIterable[0];
+      const modules = compilation.chunkGraph.getChunkModules(chunk);
+      // Sort modules by pre-order traversal index so dependencies execute before dependents
+      modules.sort((a, b) => {
+        const aIdx = chunkGroup?.getModulePreOrderIndex(a) ?? 0;
+        const bIdx = chunkGroup?.getModulePreOrderIndex(b) ?? 0;
+        return aIdx - bIdx;
+      });
+      const sortedIds = modules
+        .map((m) => compilation.chunkGraph.getModuleId(m))
+        .filter((id) => id != null);
+      const moduleOrder = JSON.stringify(sortedIds);
+
       return `
 ${LynxRuntimeGlobals.lynxProcessEvalResult} = function (result, schema) {
   var chunk = result && result(schema);
   if (chunk && chunk.ids && chunk.modules) {
-    // We only deal with webpack chunk
     ${webpack.RuntimeGlobals.externalInstallChunk}(chunk);
-    // TODO: sort with preOrderIndex. See: https://github.com/web-infra-dev/rspack/pull/8588
-    for (var moduleId in chunk.modules) {
-      ${webpack.RuntimeGlobals.require}(moduleId);
+    var moduleOrder = ${moduleOrder};
+    for (var i = 0; i < moduleOrder.length; i++) {
+      if (chunk.modules[moduleOrder[i]]) {
+        ${webpack.RuntimeGlobals.require}(moduleOrder[i]);
+      }
     }
     return chunk;
   }

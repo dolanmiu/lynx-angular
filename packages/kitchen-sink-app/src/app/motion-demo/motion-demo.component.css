@@ -1,0 +1,114 @@
+.demo-container {
+  padding: 16px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+.demo-section {
+  margin-bottom: 24px;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+}
+
+/* ── CSS Transition Demo ── */
+
+.transition-box {
+  width: 150px;
+  height: 80px;
+  background-color: #6200ee;
+  border-radius: 8px;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.5s ease-in-out;
+}
+
+.transition-box-active {
+  background-color: #03dac6;
+}
+
+.transition-label {
+  color: white;
+  font-size: 14px;
+}
+
+/* ── CSS Keyframe Animation Demo ── */
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.keyframe-box {
+  width: 80px;
+  height: 80px;
+  background-color: #ff5722;
+  border-radius: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.keyframe-box-rotating {
+  animation: rotate 2s linear infinite;
+}
+
+.keyframe-box-pulsing {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.keyframe-label {
+  color: white;
+  font-size: 12px;
+}
+
+.keyframe-row {
+  flex-direction: row;
+  gap: 16px;
+  align-items: center;
+}
+
+/* ── JS Animate API Demo ── */
+
+.animate-box {
+  width: 100px;
+  height: 100px;
+  background-color: #4a90e2;
+  border-radius: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.animate-label {
+  color: white;
+  font-size: 12px;
+  text-align: center;
+}
+
+/* ── Shared ── */
+
+.tap-hint {
+  font-size: 12px;
+  color: #666;
+  margin-top: 8px;
+}

@@ -128,6 +128,15 @@ import lynxLogo from '../assets/lynx-logo.png';
             <view class="nav-button" (bindtap)="navigateTo('tailwind-demo')">
               <text class="nav-button-text">Tailwind Demo</text>
             </view>
+            <view class="nav-button" (bindtap)="navigateTo('motion-demo')">
+              <text class="nav-button-text">Motion Demo</text>
+            </view>
+            <view
+              class="nav-button"
+              (bindtap)="navigateTo('overlay-motion-demo')"
+            >
+              <text class="nav-button-text">Overlay + Motion</text>
+            </view>
           </view>
         </view>
       </view>

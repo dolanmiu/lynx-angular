@@ -166,9 +166,25 @@ export const bootstrapLynxApplication = async (
   rootComponent: Type<unknown>,
   options?: ApplicationConfig,
 ): Promise<ApplicationRef> => {
-  if (__MAIN_THREAD__) {
+  // HMR re-bootstrap: destroy previous app so Angular's platform accepts a new one.
+  // When webpack hot-updates a module and the entry re-evaluates, this function
+  // is called again. We destroy the old app (which removes its Lynx elements)
+  // and create a fresh one with the updated component definitions.
+  const prev = (globalThis as any).__LYNX_ANGULAR_APP_REF__ as
+    | ApplicationRef
+    | undefined;
+  if (prev) {
+    prev.destroy();
+    (globalThis as any).__LYNX_ANGULAR_APP_REF__ = undefined;
+  }
+
+  // On first boot (main thread), wait for Lynx's renderPage callback.
+  // On re-bootstrap (HMR), the page is already ready — skip the wait.
+  if (__MAIN_THREAD__ && !prev) {
     await firstValueFrom(pageReady);
   }
+
   const appRef = await bootstrapApplication(rootComponent, options);
+  (globalThis as any).__LYNX_ANGULAR_APP_REF__ = appRef;
   return appRef;
 };

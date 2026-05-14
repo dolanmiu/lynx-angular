@@ -13,6 +13,11 @@ export const EVENT_PREFIXES: [string, LynxEventType][] = [
   ['bind', 'bindEvent'],
 ];
 
+import type {
+  LynxAnimation,
+  LynxAnimationOptions,
+} from '../animation/animation';
+
 export type BaseLynxElement = {
   setProperty(name: string, value: any): void;
   setAttribute(name: string, value: any): void;
@@ -34,4 +39,8 @@ export type BaseLynxElement = {
   querySelector(selector: string): BaseLynxElement | null;
   querySelectorAll(selector: string): BaseLynxElement[];
   addEventListener(name: string, cb: (event: any) => any): () => void;
+  animate(
+    keyframes: Record<string, string | number>[],
+    options?: number | LynxAnimationOptions,
+  ): LynxAnimation;
 };

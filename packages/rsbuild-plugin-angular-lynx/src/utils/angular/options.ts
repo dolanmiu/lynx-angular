@@ -63,6 +63,7 @@ export const normalizeOptimization = (
 
 export type NormalizedOptions = {
   tsconfig: string;
+  aot: boolean;
   optimizationOptions: {
     scripts: boolean;
     styles: any;
@@ -105,7 +106,7 @@ export const readBuildOptions = async (
   project: workspaces.ProjectDefinition,
   basePath: string,
   configurationName?: string,
-): Promise<NormalizedOptions | null> => {
+): Promise<NormalizedOptions> => {
   const workspaceRoot = basePath;
   const target = readTarget(project);
   if (!target) {
@@ -114,8 +115,12 @@ export const readBuildOptions = async (
   const resolvedConfigurationName =
     configurationName ?? target.defaultConfiguration;
   const buildOptions = target?.options;
-  // TODO: throw error to the user
-  if (!buildOptions) return null;
+  if (!buildOptions) {
+    throw new Error(
+      `No build options found for the "${configurationName ?? 'build'}" target in angular.json. ` +
+        'Make sure the target has an "options" section with at least "browser", "tsConfig", and "index" defined.',
+    );
+  }
   // appending the configuration to build options
   const configurations = target.configurations;
   if (configurations) {
@@ -129,8 +134,9 @@ export const readBuildOptions = async (
     }
   }
   assert(!!buildOptions, 'build options is undefined');
-  // TODO: support jit
-  const aot = true;
+  // angular.json `aot` option — defaults to true (AOT). When false, Angular
+  // skips template compilation and emits JIT-compatible metadata instead.
+  const aot = (buildOptions.aot as boolean | undefined) ?? true;
   const tsconfig = path.join(workspaceRoot, buildOptions.tsConfig as string);
   const optimizationOptions = normalizeOptimization(
     buildOptions.optimization as Record<string, any>,
@@ -193,6 +199,7 @@ export const readBuildOptions = async (
     buildOptions.outputPath as string,
   );
   const normalizedOptions: NormalizedOptions = {
+    aot,
     optimizationOptions,
     advancedOptimizations,
     index,

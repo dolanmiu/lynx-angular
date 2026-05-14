@@ -1,3 +1,7 @@
+import type {
+  LynxAnimation,
+  LynxAnimationOptions,
+} from '../animation/animation';
 import type { BaseLynxElement } from './types';
 
 export class LynxBackgroundElement implements BaseLynxElement {
@@ -136,10 +140,7 @@ export class LynxBackgroundElement implements BaseLynxElement {
   }
 
   // Collects all descendants (pre-order DFS) that match the selector.
-  #collectMatches(
-    selector: string,
-    results: LynxBackgroundElement[],
-  ): void {
+  #collectMatches(selector: string, results: LynxBackgroundElement[]): void {
     let child = this.#firstChild;
     while (child) {
       if (child.#matchesSelector(selector)) {
@@ -224,6 +225,16 @@ export class LynxBackgroundElement implements BaseLynxElement {
 
     return true;
   }
+  animate(
+    _keyframes: Record<string, string | number>[],
+    _options?: number | LynxAnimationOptions,
+  ): LynxAnimation {
+    // __ElementAnimate is a main-thread PAPI function — it does not exist
+    // on the background thread. Throwing here surfaces the error early
+    // rather than silently failing.
+    throw new Error('animate() is only available on the main thread');
+  }
+
   addEventListener(name: string, cb: (event: any) => any): () => void {
     this.#events.set(name, cb);
     return () => {

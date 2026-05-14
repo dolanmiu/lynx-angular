@@ -58,11 +58,6 @@ type AngularWebpackPluginOptions = {
   mainThreadChunks?: string[] | undefined;
 
   /**
-   * The chunk names to be considered as background chunks.
-   */
-  backgroundChunks?: string[] | undefined;
-
-  /**
    * Merge same string literals in JS and Lepus to reduce output bundle size.
    * Set to `false` to disable.
    *
@@ -144,7 +139,6 @@ class AngularWebpackPlugin {
       firstScreenSyncTiming: 'immediately',
       enableSSR: false,
       mainThreadChunks: [],
-      backgroundChunks: [],
       extractStr: false,
       experimental_isLazyBundle: false,
     });
@@ -159,29 +153,8 @@ class AngularWebpackPlugin {
       AngularWebpackPlugin.defaultOptions,
       this.options,
     );
-    const { BannerPlugin, DefinePlugin, EnvironmentPlugin } = compiler.webpack;
+    const { DefinePlugin, EnvironmentPlugin } = compiler.webpack;
 
-    if (!options.experimental_isLazyBundle) {
-      new BannerPlugin({
-        // TODO: handle cases that do not have `'use strict'`
-        banner: `'use strict';var globDynamicComponentEntry=globDynamicComponentEntry||'__Card__';`,
-        raw: true,
-        test: options.mainThreadChunks ?? [],
-      }).apply(compiler);
-    }
-
-    // TODO: use a loader for this
-    new BannerPlugin({
-      banner: `globalThis["__MAIN_THREAD__"]=true;`,
-      raw: true,
-      test: options.mainThreadChunks ?? [],
-    }).apply(compiler);
-
-    new BannerPlugin({
-      banner: `globalThis["__MAIN_THREAD__"]=false;`,
-      raw: true,
-      test: options.backgroundChunks ?? [],
-    }).apply(compiler);
     new EnvironmentPlugin({
       // Default values of null and undefined behave differently.
       // Use undefined for variables that must be provided during bundling, or null if they are optional.
@@ -255,9 +228,44 @@ class AngularWebpackPlugin {
         },
       );
 
-      // TODO: replace LynxTemplatePlugin types with Rspack
-      // @ts-expect-error Rspack x Webpack compilation not match
-      const hooks = LynxTemplatePlugin.getLynxTemplatePluginHooks(compilation);
+      // Inject globDynamicComponentEntry into main-thread chunks, preserving the
+      // chunk's original strict-mode status rather than unconditionally forcing it.
+      if (!options.experimental_isLazyBundle) {
+        const { ConcatSource } = compiler.webpack.sources;
+        compilation.hooks.processAssets.tap(
+          {
+            name: `${this.constructor.name}:globDynamicComponentEntry`,
+            stage: compiler.webpack.Compilation.PROCESS_ASSETS_STAGE_ADDITIONS,
+          },
+          () => {
+            for (const name of options.mainThreadChunks ?? []) {
+              const asset = compilation.getAsset(name);
+              if (!asset) continue;
+
+              const source = asset.source.source().toString();
+              const useStrictPrefix = /^(['"])use strict\1;?/.test(source)
+                ? `'use strict';`
+                : '';
+
+              compilation.updateAsset(
+                name,
+                (old) =>
+                  new ConcatSource(
+                    `${useStrictPrefix}var globDynamicComponentEntry=globDynamicComponentEntry||'__Card__';`,
+                    old,
+                  ),
+              );
+            }
+          },
+        );
+      }
+
+      // LynxTemplatePlugin is typed against webpack's Compilation, but Rspack's is structurally compatible at runtime
+      const hooks = LynxTemplatePlugin.getLynxTemplatePluginHooks(
+        compilation as unknown as Parameters<
+          typeof LynxTemplatePlugin.getLynxTemplatePluginHooks
+        >[0],
+      );
 
       const { ConcatSource } = compiler.webpack.sources; // hooks.beforeEncode.tap(
       //   this.constructor.name,

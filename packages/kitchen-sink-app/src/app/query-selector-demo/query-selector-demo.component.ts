@@ -1,11 +1,5 @@
-import type {
-  AfterViewInit} from '@angular/core';
-import {
-  Component,
-  ElementRef,
-  ViewChild,
-  signal,
-} from '@angular/core';
+import type { AfterViewInit } from '@angular/core';
+import { Component, ElementRef, ViewChild, signal } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
 @Component({
