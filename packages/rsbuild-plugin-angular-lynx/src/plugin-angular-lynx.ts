@@ -6,6 +6,7 @@ import { applyGenerator } from './generator.js';
 import { applyLayers } from './layers.js';
 import { applyDevLogger } from './logger/dev-logger.js';
 import { applySplitChunksRule } from './split-chunks.js';
+import { applyTailwind } from './tailwind.js';
 import {
   normalizeOptions,
   type PluginAngularLynxOptions,
@@ -20,6 +21,7 @@ export const pluginAngularLynx = (
     setup: (api) => {
       const normalizedOptions = normalizeOptions(options);
       applyCSS(api, normalizedOptions);
+      applyTailwind(api);
       applyEntry(api, normalizedOptions);
       applyLayers(api);
       applyAngularRules(api);

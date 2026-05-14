@@ -1,7 +1,6 @@
 import { pluginAngularLynx } from '@blotch/rsbuild-plugin-angular-lynx';
 import { pluginQRCode } from '@lynx-js/qrcode-rsbuild-plugin';
 import { defineConfig } from '@lynx-js/rspeedy';
-import { pluginTailwindCSS } from 'rsbuild-plugin-tailwindcss';
 
 export default defineConfig({
   source: {
@@ -15,10 +14,5 @@ export default defineConfig({
       },
     }),
     pluginAngularLynx(),
-    pluginTailwindCSS({
-      config: 'tailwind.config.ts',
-      // Prevent Tailwind from scanning or transforming CSS in node_modules.
-      exclude: [/[\\/]node_modules[\\/]/],
-    }),
   ],
 });
