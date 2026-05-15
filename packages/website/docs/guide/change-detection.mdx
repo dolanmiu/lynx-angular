@@ -1,0 +1,151 @@
+# Change Detection
+
+Angular Lynx uses zoneless change detection exclusively. Zone.js is not available in the Lynx runtime, so signals are the primary reactivity model for triggering UI updates.
+
+## Zoneless by Design
+
+Lynx's JavaScript engine (PrimJS) does not provide the browser APIs that Zone.js patches — there is no real `setTimeout`, `Promise`, `XMLHttpRequest`, or `addEventListener` on `globalThis` out of the box. Angular Lynx polyfills the ones it needs (like `setTimeout` from `lynx.setTimeout`), but Zone.js cannot function in this environment.
+
+This is actually a good thing. Angular 21 recommends zoneless change detection with signals, and Angular Lynx enforces it:
+
+```typescript title="src/app/app.config.ts"
+import {
+  type ApplicationConfig,
+  provideZonelessChangeDetection, // [!code highlight]
+} from '@angular/core';
+import { provideLynxRenderer } from '@blotch/angular-lynx';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideZonelessChangeDetection(), // Required — Zone.js doesn't exist in Lynx // [!code highlight]
+    provideLynxRenderer(),
+  ],
+};
+```
+
+:::warning
+Do not attempt to use `provideZoneChangeDetection()` or import `zone.js`. It will not work in the Lynx runtime and will cause errors at startup.
+:::
+
+## Signals Drive the UI
+
+Signals are the primary way to trigger UI updates. When a signal value changes, Angular automatically marks the component for check and schedules a change detection cycle.
+
+```typescript
+import { Component, signal, computed } from '@angular/core';
+import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
+
+@Component({
+  imports: [LYNX_ELEMENTS],
+  template: `
+    <view (bindtap)="increment()">
+      <text>Count: {{ count() }}</text>
+      <text>Double: {{ double() }}</text>
+    </view>
+  `,
+})
+export class CounterComponent {
+  count = signal(0);
+  double = computed(() => this.count() * 2);
+
+  increment(): void {
+    this.count.update(n => n + 1);
+  }
+}
+```
+
+:::tip
+You do not need to call `ChangeDetectorRef.markForCheck()` or `detectChanges()` when using signals. Signal changes automatically schedule change detection.
+:::
+
+## How Change Detection is Scheduled
+
+Here is the full lifecycle of a UI update in Angular Lynx:
+
+1. A Lynx event fires (e.g., `bindtap`) and dispatches to the background thread
+2. Your event handler runs and modifies a signal
+3. Angular's `ChangeDetectionScheduler` calls `setTimeout()` to schedule a CD tick
+4. The `setTimeout` polyfill delegates to `lynx.setTimeout` (bridged to `globalThis` at startup)
+5. On the next macrotask, change detection runs
+6. `LynxRenderer` applies element operations (`__SetAttribute`, `__AppendElement`, etc.)
+7. `LynxRendererFactory2.end()` calls `__FlushElementTree()` to commit all changes atomically
+
+All signal changes within a single macrotask are committed together in one flush — you never see partial UI states.
+
+## Computed Signals and Effects
+
+Computed signals and effects work identically to web Angular:
+
+```typescript
+export class ProductComponent {
+  price = signal(10);
+  quantity = signal(2);
+
+  total = computed(() => this.price() * this.quantity());
+
+  constructor() {
+    effect(() => {
+      console.log(`Total updated: ${this.total()}`);
+    });
+  }
+}
+```
+
+## The `setTimeout` Pattern
+
+:::warning Critical
+Event handlers in Lynx run inside a "worklet" context on the main thread. Mutating the element tree during a worklet callback — by navigating routes, toggling overlays, or triggering structural changes — causes native crashes.
+
+Always defer these mutations to the next macrotask with `setTimeout`:
+:::
+
+```typescript
+// WRONG — mutates element tree inside worklet callback
+onTap(): void {
+  this.router.navigateByUrl('/settings'); // May crash!
+}
+
+// CORRECT — defers mutation to next macrotask
+onTap(): void {
+  setTimeout(() => { // [!code highlight]
+    this.router.navigateByUrl('/settings'); // [!code highlight]
+  }, 0); // [!code highlight]
+}
+```
+
+This applies to any action that triggers structural DOM changes:
+- Router navigation (`router.navigateByUrl()`, `router.navigate()`)
+- Toggling overlays (`showOverlay.set(true)`)
+- Adding/removing elements that trigger `@if`/`@for` changes with side effects
+
+Simple signal updates (like incrementing a counter or updating text) are safe inside event handlers because the actual element mutations are deferred to the next change detection cycle anyway.
+
+## Converting from Observables
+
+Since Angular Lynx is zoneless, Observables alone do not trigger change detection. Use `toSignal()` to convert them:
+
+```typescript
+import { toSignal } from '@angular/core/rxjs-interop';
+import { HttpClient } from '@angular/common/http';
+
+export class UsersComponent {
+  #http = inject(HttpClient);
+
+  users = toSignal(
+    this.#http.get<User[]>('/api/users'),
+    { initialValue: [] }
+  );
+}
+```
+
+## Web Angular vs Angular Lynx
+
+| Pattern | Web Angular | Angular Lynx |
+|---|---|---|
+| Change detection trigger | Zone.js patches or signals | Signals only |
+| `async` pipe | Works with Zone.js | Use `toSignal()` instead |
+| `ChangeDetectorRef.detectChanges()` | Common with OnPush | Rarely needed |
+| `NgZone.run()` | Re-enter Angular zone | Not applicable (no zone) |
+| `NgZone.runOutsideAngular()` | Opt out of CD | Not applicable |
+| `markForCheck()` | Required with OnPush | Not needed with signals |
+| DOM mutation timing | Immediate | Batched via `__FlushElementTree()` |

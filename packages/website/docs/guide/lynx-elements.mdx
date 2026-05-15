@@ -1,0 +1,291 @@
+# Lynx Elements
+
+Lynx provides a set of native UI elements instead of HTML. Your Angular templates use `<view>`, `<text>`, `<image>`, and other Lynx-specific elements to build the interface.
+
+## Importing Elements
+
+Import `LYNX_ELEMENTS` in your component's `imports` array for IDE autocomplete and type checking:
+
+```typescript
+import { Component } from '@angular/core';
+import { LYNX_ELEMENTS } from '@blotch/angular-lynx'; // [!code highlight]
+
+@Component({
+  selector: 'app-card',
+  standalone: true,
+  imports: [LYNX_ELEMENTS], // [!code highlight]
+  template: `
+    <view class="card">
+      <text>Hello World</text>
+    </view>
+  `,
+})
+export class CardComponent {}
+```
+
+:::tip
+`LYNX_ELEMENTS` is optional at build time — the build plugin automatically injects `CUSTOM_ELEMENTS_SCHEMA` so your app compiles regardless. But importing it gives you autocomplete and type safety in your IDE.
+:::
+
+## Core Elements
+
+### `<view>` — Container
+
+The basic container element, equivalent to `<div>` in HTML. Use it for layout and grouping.
+
+```angular-html
+<view class="card">
+  <view class="card-header">
+    <text>Title</text>
+  </view>
+  <view class="card-body">
+    <text>Content goes here</text>
+  </view>
+</view>
+```
+
+### `<text>` — Text Display
+
+Displays text content. All visible text in Lynx must be wrapped in a `<text>` element.
+
+```angular-html
+<text class="title">Hello World</text>
+
+<!-- Nested <text> for inline styling -->
+<text>
+  Regular text with
+  <text style="font-weight: bold;"> bold </text>
+  and
+  <text style="color: #dd0031;"> colored </text>
+  content
+</text>
+```
+
+:::warning
+All text content must be wrapped in `<text>`. Unlike HTML, raw text nodes inside `<view>` will not render. This is the most common mistake when migrating from web Angular.
+:::
+
+### `<image>` — Image Display
+
+Displays images from local imports or remote URLs.
+
+```typescript
+import logo from '../assets/logo.png';
+
+@Component({
+  imports: [LYNX_ELEMENTS],
+  template: `
+    <image [src]="logo" style="width: 80px; height: 80px;" />
+  `,
+})
+export class LogoComponent {
+  logo = logo;
+}
+```
+
+Supported formats: PNG, JPG, WebP, GIF (animated), base64 data URIs.
+
+## Scrolling Elements
+
+### `<scroll-view>` — Scrollable Container
+
+A scrollable area for content. Set `scroll-orientation` to control the scroll direction.
+
+```angular-html
+<scroll-view scroll-orientation="vertical" style="height: 100vh;">
+  @for (item of items(); track item.id) {
+    <view class="item">
+      <text>{{ item.name }}</text>
+    </view>
+  }
+</scroll-view>
+```
+
+:::warning
+`<scroll-view>` requires an explicit height. Without a height constraint, it expands to fit all content and never scrolls.
+:::
+
+Key attributes:
+- `scroll-orientation` — `"vertical"` (default) or `"horizontal"`
+- `bounces` — Enable/disable bounce effect at scroll boundaries
+- `scroll-bar-enable` — Show/hide scrollbar
+
+### `<list>` — Virtualized List
+
+A high-performance virtualized list for rendering large datasets. Only visible items are rendered, similar to Android's `RecyclerView` or iOS `UITableView`.
+
+```angular-html
+<list
+  list-type="single"
+  scroll-orientation="vertical"
+  style="height: 400px;"
+>
+  @for (item of items(); track item.id) {
+    <list-item [attr.item-key]="item.id">
+      <view class="list-row">
+        <text>{{ item.name }}</text>
+      </view>
+    </list-item>
+  }
+</list>
+```
+
+:::info
+Use `<list>` for large collections (100+ items). For shorter content, `<scroll-view>` is simpler and sufficient.
+:::
+
+Key attributes on `<list>`:
+- `list-type` — `"single"` (standard), `"flow"` (multi-column), `"waterfall"` (masonry layout)
+- `span-count` — Number of columns (for `flow` and `waterfall` types)
+- `scroll-orientation` — `"vertical"` or `"horizontal"`
+
+Key attributes on `<list-item>`:
+- `item-key` — Unique identifier for the item (required for recycling)
+
+## Input Elements
+
+### `<input>` — Text Input
+
+Single-line text input field.
+
+```angular-html
+<input
+  type="text"
+  placeholder="Enter your name"
+  (bindinput)="onInput($event)"
+/>
+```
+
+The input event provides the value via `event.detail.value`:
+
+```typescript
+onInput(event: { detail: { value: string } }): void {
+  this.name.set(event.detail.value);
+}
+```
+
+### `<textarea>` — Multi-line Input
+
+Multi-line text input field.
+
+```angular-html
+<textarea
+  placeholder="Enter description"
+  (bindinput)="onInput($event)"
+></textarea>
+```
+
+## Structural Elements
+
+### `<overlay>` — Floating Layer
+
+Renders content above the normal document flow, like a modal or popup. Control visibility with the `visible` attribute.
+
+```angular-html
+<overlay [attr.visible]="showModal()">
+  <view class="backdrop" (bindtap)="closeModal()">
+    <view class="modal" (catchtap)="$event">
+      <text class="modal-title">Confirm</text>
+      <text>Are you sure?</text>
+      <view class="modal-button" (bindtap)="closeModal()">
+        <text style="color: white;">Close</text>
+      </view>
+    </view>
+  </view>
+</overlay>
+```
+
+:::tip
+Use `(catchtap)` on the modal content to prevent taps inside it from bubbling to the backdrop's `(bindtap)` handler, which would close the modal.
+:::
+
+### `<frame>` — Embedded Lynx Page
+
+Embeds another Lynx page via a bundle URL. Similar to `<iframe>` in HTML.
+
+```angular-html
+<frame
+  src="https://example.com/page.lynx.bundle"
+  style="width: 100%; height: 200px;"
+  (bindload)="onFrameLoad($event)"
+></frame>
+```
+
+### `<block>` — Invisible Grouping
+
+An invisible container that produces no visual output. Useful for grouping elements without adding layout.
+
+### `<svg>` — SVG Content
+
+Displays SVG graphics via the `content` attribute (not inline SVG markup).
+
+```angular-html
+<svg [attr.content]="svgString" style="width: 80px; height: 80px;" />
+```
+
+## Event Handling
+
+Lynx uses a prefix-based event system that controls propagation behavior:
+
+| Prefix | Behavior | Example |
+|---|---|---|
+| `bind` | Bubbles up to parent elements | `(bindtap)="onTap()"` |
+| `catch` | Handles and stops propagation | `(catchtap)="onTap()"` |
+| `capture-bind` | Capture phase, then bubbles | `(capture-bindtap)="onTap()"` |
+| `capture-catch` | Capture phase, stops propagation | `(capture-catchtap)="onTap()"` |
+
+Common events:
+
+```angular-html
+<!-- Tap (like click) -->
+<view (bindtap)="onTap($event)">
+  <text>Tap me</text>
+</view>
+
+<!-- Input change -->
+<input (bindinput)="onInput($event)" />
+
+<!-- Scroll -->
+<scroll-view (bindscroll)="onScroll($event)" scroll-orientation="vertical">
+  ...
+</scroll-view>
+
+<!-- Touch events -->
+<view
+  (bindtouchstart)="onTouchStart($event)"
+  (bindtouchmove)="onTouchMove($event)"
+  (bindtouchend)="onTouchEnd($event)"
+>
+  <text>Touch area</text>
+</view>
+```
+
+:::warning Important
+Event handlers in Lynx run in a worklet context. If your handler triggers DOM mutations (like router navigation or toggling overlays), you must defer them with `setTimeout`:
+
+```typescript
+onTap(): void {
+  setTimeout(() => {
+    this.router.navigateByUrl('/other');
+  }, 0);
+}
+```
+
+See [Change Detection](/guide/change-detection) for why this is necessary.
+:::
+
+## HTML to Lynx Mapping
+
+| HTML | Lynx | Notes |
+|---|---|---|
+| `<div>` | `<view>` | Generic container |
+| `<span>`, `<p>`, `<h1>`...`<h6>` | `<text>` | All text content |
+| `<img>` | `<image>` | Different attribute names |
+| `<div style="overflow:auto">` | `<scroll-view>` | Dedicated scrolling element |
+| `<ul>` / virtual scroll | `<list>` + `<list-item>` | Native virtualization |
+| `<input>` | `<input>` | Events use `bindinput` |
+| `<textarea>` | `<textarea>` | Events use `bindinput` |
+| `<button>` | `<view>` + `(bindtap)` | No native button element |
+| `<a>` | `<view>` + `(bindtap)` | No native link element |
+| Modal / Dialog | `<overlay>` | Native floating layer |
+| `<iframe>` | `<frame>` | Loads Lynx bundles |
