@@ -21,6 +21,7 @@ export default defineConfig({
   logoText: 'Angular Lynx',
   lang: 'en',
   markdown: {
+    globalComponents: [path.join(__dirname, 'src/components/go/go.tsx')],
     shiki: {
       transformers: [
         transformerNotationDiff(),
@@ -74,15 +75,44 @@ export default defineConfig({
         { text: 'Routing', link: '/guide/routing' },
         { text: 'Signals', link: '/guide/signals' },
         { text: 'Tailwind CSS', link: '/guide/tailwindcss' },
+        { text: 'Testing', link: '/guide/testing' },
+        { text: 'Remote Logging', link: '/guide/remote-logging' },
       ],
     },
   },
   builderConfig: {
     plugins: [pluginSass()],
+    html: {
+      tags: [
+        {
+          tag: 'link',
+          attrs: {
+            rel: 'stylesheet',
+            href: '/web-core/static/css/client.css',
+          },
+          head: true,
+        },
+        {
+          tag: 'script',
+          attrs: { src: '/web-core/static/js/client.js' },
+          head: true,
+        },
+      ],
+    },
     source: {
       alias: {
         '@comp': path.join(__dirname, 'src/components'),
+        '@lynx-js/web-core/client': path.join(
+          __dirname,
+          'src/web-core-shim.ts',
+        ),
+        '@lynx-js/web-elements/all': path.join(
+          __dirname,
+          'src/web-core-shim.ts',
+        ),
+        '@lynx-js/web-elements': path.join(__dirname, 'src/web-core-shim.ts'),
       },
+      include: [/[\\/]node_modules[\\/]@lynx-js[\\/]go-web[\\/]/],
     },
     server: {
       open: 'http://localhost:<port>/',

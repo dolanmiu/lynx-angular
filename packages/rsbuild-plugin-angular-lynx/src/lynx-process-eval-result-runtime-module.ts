@@ -25,8 +25,8 @@ export const createLynxProcessEvalResultRuntimeModule = (
         return '';
       }
 
-      const chunkGroup = chunk._groupsIterable[0];
-      const modules = compilation.chunkGraph.getChunkModules(chunk);
+      const chunkGroup = chunk._groupsIterable?.[0];
+      const modules = compilation.chunkGraph?.getChunkModules(chunk) ?? [];
       // Sort modules by pre-order traversal index so dependencies execute before dependents
       modules.sort((a, b) => {
         const aIdx = chunkGroup?.getModulePreOrderIndex(a) ?? 0;

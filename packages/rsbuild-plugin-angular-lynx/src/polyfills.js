@@ -71,8 +71,15 @@ if (typeof document === 'undefined') {
     querySelector: () => null,
   };
 }
-if (typeof window === 'undefined') {
-  globalThis.window = globalThis;
+// In native Lynx, window doesn't exist — assign globalThis as a stub.
+// In web bundles, the code runs inside lynx-view which shadows window=void 0
+// but globalThis IS the Window object (where 'window' is a read-only getter).
+try {
+  if (typeof window === 'undefined') {
+    globalThis.window = globalThis;
+  }
+} catch {
+  // Read-only in web environment — window already exists on globalThis
 }
 // BrowserPlatformLocation reads window.location and window.history in its
 // constructor. Even though LynxPlatformLocation replaces it via DI, Angular

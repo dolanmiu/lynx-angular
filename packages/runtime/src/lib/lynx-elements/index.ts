@@ -24,13 +24,12 @@
  *   rendering behavior to not importing LYNX_ELEMENTS at all.
  * - Properties use their Lynx attribute name (kebab-case) so IDE hover shows the
  *   exact attribute to use in templates (e.g. 'scroll-orientation').
- * - Properties are NOT decorated with @Input(). @Input() causes Angular to intercept
- *   attribute bindings and route them to the directive property setter instead of
- *   calling renderer.setProperty() / renderer.setAttribute(). That bypasses
- *   __SetAttribute and the native Lynx element never receives the value — the same
- *   reason events are not declared as @Output() (see below).
- *   Without @Input(), bindings fall through to the renderer → __SetAttribute(). ✓
- * - Events (bindtap, catchtap, bindinput, bindscroll, …) are not declared as
+ * - Properties are declared as inputs (via @Directive({ inputs: [...] })) so
+ *   Angular's template checker accepts property bindings like [src]="url".
+ *   Angular intercepts these bindings and sets them on the directive instance.
+ *   LynxElementBase.ngOnChanges forwards every input change to the native Lynx
+ *   element via BaseLynxElement.setAttribute() → __SetAttribute().
+ * - Events (bindtap, catchtap, bindinput, bindscroll, …) are NOT declared as
  *   @Output() because Angular would intercept them and skip the renderer's
  *   listen() call, breaking native Lynx event delivery. They continue to work
  *   via renderer.listen() which handles all unrecognised event names.

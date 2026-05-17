@@ -20,8 +20,8 @@ Near-1:1 Angular parity — partial support isn't acceptable. Every Angular API 
 
 ## Key Patterns
 
-- `bootstrapLynxApplication(AppComponent, config)` replaces Angular's browser bootstrap
-- `provideLynxRenderer()` + zoneless change detection in app config
+- `bootstrapApplication(AppComponent, config)` replaces Angular's browser bootstrap
+- `provideRenderer()` + zoneless change detection in app config
 - Templates use Lynx elements: `<view>`, `<text>`, not HTML
 - Standalone components, signals, `@if`/`@for` control flow, lazy-loaded routes all work
 

@@ -1,6 +1,6 @@
 import type React from 'react';
 import styles from './index.module.scss';
-import { DotPattern } from './DotPattern';
+import { DotPattern } from './dot-pattern';
 
 export const Banner: React.FC = () => {
   return (

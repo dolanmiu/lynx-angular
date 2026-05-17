@@ -6,12 +6,13 @@
   "license": "ISC",
   "author": "",
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "examples/*"
   ],
   "main": "index.js",
   "scripts": {
     "build": "npm run build -w packages/rsbuild-plugin-angular-lynx && npm run build -w packages/runtime && npm run build -w packages/kitchen-sink-app",
-    "test": "vitest run",
+    "test": "vitest run && npm run test -w packages/testing-library",
     "demo": "npm run build && npm run start --workspace=packages/kitchen-sink-app",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",

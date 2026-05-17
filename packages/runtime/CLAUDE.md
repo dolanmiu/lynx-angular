@@ -26,12 +26,12 @@ Provides everything needed to run Angular on the Lynx runtime. Maps Angular's `R
 
 **Bootstrap** (`runtime.ts`):
 
-- `bootstrapLynxApplication(rootComponent, config?)` — on main thread, waits for `renderPage` callback before bootstrapping; on background thread, bootstraps immediately
+- `bootstrapApplication(rootComponent, config?)` — on main thread, waits for `renderPage` callback before bootstrapping; on background thread, bootstraps immediately
 - Registers global Lynx callbacks: `renderPage`, `updatePage`, `processData`, `runWorklet`
 
 **Providers** (`providers.ts`):
 
-- `provideLynxRenderer()` — returns `EnvironmentProviders` that sets up `LYNX_DOCUMENT` (thread-aware factory: `LynxDocument` if `__MAIN_THREAD__`, else `LynxBackgroundDocument`) and `LynxRendererFactory2` as `RendererFactory2`
+- `provideRenderer()` — returns `EnvironmentProviders` that sets up `LYNX_DOCUMENT` (thread-aware factory: `LynxDocument` if `__MAIN_THREAD__`, else `LynxBackgroundDocument`) and `LynxRendererFactory2` as `RendererFactory2`
 
 **DI Token** (`token.ts`):
 
@@ -55,8 +55,8 @@ src/
     lynx-renderer-factory2.ts      # LynxRendererFactory2 (RendererFactory2 impl)
     lynx-document.ts               # LynxDocument + LynxBackgroundDocument
     lynx-element.ts                # LynxElement + LynxBackgroundElement + BaseLynxElement
-    runtime.ts                     # bootstrapLynxApplication(), global callbacks
-    providers.ts                   # provideLynxRenderer()
+    runtime.ts                     # bootstrapApplication(), global callbacks
+    providers.ts                   # provideRenderer()
     token.ts                       # LYNX_DOCUMENT injection token
     types/
       lynx.ts                      # Global Lynx API type declarations (__CreateElement, etc.)

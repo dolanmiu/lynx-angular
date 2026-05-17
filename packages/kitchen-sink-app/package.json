@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "start": "rspeedy dev",
-    "build": "rspeedy build"
+    "build": "rspeedy build",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@angular/common": "^21.0.0",
@@ -23,12 +25,17 @@
     "@angular-devkit/build-angular": "^21.0.0",
     "@angular/cli": "^21.0.0",
     "@angular/compiler-cli": "^21.0.0",
+    "@blotch/angular-lynx-testing-library": "*",
     "@blotch/rsbuild-plugin-angular-lynx": "*",
     "@lynx-js/qrcode-rsbuild-plugin": "^0.4.6",
     "@lynx-js/rspeedy": "^0.14.3",
     "@lynx-js/tailwind-preset": "^0.4.0",
+    "@lynx-js/testing-environment": "^0.2.0",
     "@lynx-js/types": "^3.7.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "jsdom": "^25.0.0",
     "tailwindcss": "^3.4.19",
-    "typescript": "~5.9.0"
+    "typescript": "~5.9.0",
+    "vitest": "^4.0.0"
   }
 }

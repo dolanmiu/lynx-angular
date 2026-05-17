@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM"],
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "target": "ES2022",
+    "strictPropertyInitialization": false,
+    "noImplicitAny": false,
+    "paths": {
+      "@blotch/angular-lynx": ["../runtime/src/public-api.ts"],
+      "@blotch/angular-lynx/*": ["../runtime/src/*"]
+    }
+  },
+  "include": ["src"]
+}

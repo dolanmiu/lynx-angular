@@ -1,31 +1,93 @@
-import { TestBed } from '@angular/core/testing';
+import { describe, expect, it } from 'vitest';
+import { provideRouter } from '@angular/router';
+import {
+  fireEvent,
+  render,
+  waitForUpdate,
+} from '@blotch/angular-lynx-testing-library';
 import { AppComponent } from './app.component';
 
 describe('AppComponent', () => {
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [AppComponent],
-    }).compileComponents();
+  it('renders title text', async () => {
+    const { getByText } = await render(AppComponent, {
+      providers: [provideRouter([])],
+    });
+    expect(getByText('Angular')).toBeTruthy();
+    expect(getByText('on Lynx')).toBeTruthy();
   });
 
-  it('should create the app', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
+  it('renders all navigation buttons', async () => {
+    const { getByText } = await render(AppComponent, {
+      providers: [provideRouter([])],
+    });
+    expect(getByText('Elements Showcase')).toBeTruthy();
+    expect(getByText('List Example')).toBeTruthy();
+    expect(getByText('Scroll Example')).toBeTruthy();
+    expect(getByText('querySelector Demo')).toBeTruthy();
+    expect(getByText('Tailwind Demo')).toBeTruthy();
+    expect(getByText('Motion Demo')).toBeTruthy();
+    expect(getByText('Overlay + Motion')).toBeTruthy();
   });
 
-  it(`should have the 'kitchen-sink-app' title`, () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app.title).toEqual('kitchen-sink-app');
+  it('alterLogo starts as false', async () => {
+    const { componentRef } = await render(AppComponent, {
+      providers: [provideRouter([])],
+    });
+    const instance = componentRef.instance as AppComponent;
+    expect(instance.alterLogo()).toBe(false);
   });
 
-  it('should render title', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain(
-      'Hello, kitchen-sink-app',
-    );
+  it('onTap() toggles alterLogo', async () => {
+    const { componentRef } = await render(AppComponent, {
+      providers: [provideRouter([])],
+    });
+    const instance = componentRef.instance as AppComponent;
+
+    instance.onTap({} as any);
+    await waitForUpdate();
+    expect(instance.alterLogo()).toBe(true);
+
+    instance.onTap({} as any);
+    await waitForUpdate();
+    expect(instance.alterLogo()).toBe(false);
+  });
+
+  it('openOverlay() sets showOverlay to true', async () => {
+    const { componentRef } = await render(AppComponent, {
+      providers: [provideRouter([])],
+    });
+    const instance = componentRef.instance as AppComponent;
+
+    expect(instance.showOverlay()).toBe(false);
+    instance.openOverlay();
+    await waitForUpdate();
+    expect(instance.showOverlay()).toBe(true);
+  });
+
+  it('closeOverlay() sets showOverlay to false', async () => {
+    const { componentRef } = await render(AppComponent, {
+      providers: [provideRouter([])],
+    });
+    const instance = componentRef.instance as AppComponent;
+
+    instance.openOverlay();
+    await waitForUpdate();
+    expect(instance.showOverlay()).toBe(true);
+
+    instance.closeOverlay();
+    await waitForUpdate();
+    expect(instance.showOverlay()).toBe(false);
+  });
+
+  it('tapping Open Overlay button opens the overlay', async () => {
+    const { componentRef, getByText } = await render(AppComponent, {
+      providers: [provideRouter([])],
+    });
+    const instance = componentRef.instance as AppComponent;
+
+    // (bindtap) is on the <view> wrapper; tap the parent, not the inner <text>.
+    fireEvent.tap(getByText('Open Overlay').parentElement!);
+    await waitForUpdate();
+    expect(instance.showOverlay()).toBe(true);
   });
 });

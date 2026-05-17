@@ -2,7 +2,26 @@ import { Directive } from '@angular/core';
 import { LynxElementBase } from './base';
 
 /** Displays raster images, base64 data URIs, and animated GIFs. */
-@Directive({ selector: 'image', standalone: true })
+@Directive({
+  selector: 'image',
+  standalone: true,
+  inputs: [
+    'src',
+    'mode',
+    'placeholder',
+    'blur-radius',
+    'cap-insets',
+    'cap-insets-scale',
+    'auto-size',
+    'autoplay',
+    'loop-count',
+    'tint-color',
+    'image-config',
+    'prefetch-width',
+    'prefetch-height',
+    'defer-src-invalidation',
+  ],
+})
 export class LynxImage extends LynxElementBase {
   /** Remote URL, local asset path, or base64 data URI. */
   src?: string;

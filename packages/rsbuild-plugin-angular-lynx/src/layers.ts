@@ -1,18 +1,9 @@
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import type { RsbuildPluginAPI, Rspack } from '@lynx-js/rspeedy';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export const LAYERS = {
   BACKGROUND: 'background',
   MAIN_THREAD: 'main',
 };
-
-const threadGlobalsLoaderPath = path.resolve(
-  __dirname,
-  './loaders/thread-globals-loader',
-);
 
 export const applyLayers = (api: RsbuildPluginAPI): void => {
   api.modifyBundlerChain((chain) => {
@@ -25,6 +16,10 @@ export const applyLayers = (api: RsbuildPluginAPI): void => {
       layers: true,
     });
 
+    // SWC target differentiation per layer. The Lynx bytecode generator
+    // requires ES2019 for main-thread and ES2015 for background.
+    // Note: __MAIN_THREAD__ injection is handled by AngularWebpackPlugin
+    // in processAssets — the loader-based approach was unreliable.
     chain.module
       .rule('typescript')
       .oneOf(LAYERS.BACKGROUND)
@@ -40,13 +35,8 @@ export const applyLayers = (api: RsbuildPluginAPI): void => {
           },
         },
       })
-      .end()
-      .use('thread-globals')
-      .loader(threadGlobalsLoaderPath)
-      .options({ isMainThread: false })
       .end();
 
-    // Configure main layer
     chain.module
       .rule('typescript')
       .oneOf(LAYERS.MAIN_THREAD)
@@ -62,39 +52,6 @@ export const applyLayers = (api: RsbuildPluginAPI): void => {
           },
         },
       })
-      .end()
-      .use('thread-globals')
-      .loader(threadGlobalsLoaderPath)
-      .options({ isMainThread: true })
       .end();
-    // // https://lynxjs.org/guide/scripting-runtime/index.html#javascript-syntax-transformers
-    // setTarget(LAYERS.MAIN_THREAD, 'es2015');
-    // setTarget(LAYERS.BACKGROUND, 'es2015');
-
-    // // clear the default
-    // globalRule.uses.clear();
-    // function setTarget(layer: string, target: string){
-    //     const layerRule = globalRule.oneOf(layer);
-    //     layerRule.issuerLayer(layer)
-    //     .uses.merge(uses)
-    //     .end()
-    //     .when(!!uses[util.CHAIN_ID.USE.SWC], rule => {
-    //         rule.uses.delete(util.CHAIN_ID.USE.SWC)
-    //         const swcLoaderRule = uses[util.CHAIN_ID.USE.SWC]!.entries() as Rspack.RuleSetRule;
-    //         const swcLoaderOptions = swcLoaderRule
-    //         .options as Rspack.SwcLoaderOptions;
-    //         rule.use(util.CHAIN_ID.USE.SWC)
-    //         .merge(swcLoaderRule)
-    //         .options({
-    //           ...swcLoaderOptions,
-    //           jsc: {
-    //             ...swcLoaderOptions.jsc,
-    //             target,
-    //           },
-    //           env: undefined
-    //         })
-    //     })
-    //     .end();
-    // }
   });
 };

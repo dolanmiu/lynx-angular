@@ -2,7 +2,11 @@ import { Directive } from '@angular/core';
 import { LynxElementBase } from './base';
 
 /** Floating layer rendered above the main document flow. */
-@Directive({ selector: 'overlay', standalone: true })
+@Directive({
+  selector: 'overlay',
+  standalone: true,
+  inputs: ['visible', 'level', 'mode', 'ios-enable-swipe-back'],
+})
 export class LynxOverlay extends LynxElementBase {
   /** Whether the overlay is shown. */
   visible?: boolean;

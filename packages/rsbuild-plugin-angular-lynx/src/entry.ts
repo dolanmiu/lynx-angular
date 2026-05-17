@@ -9,6 +9,7 @@ import {
   CSSPlugins,
   LynxEncodePlugin,
   LynxTemplatePlugin,
+  WebEncodePlugin,
 } from '@lynx-js/template-webpack-plugin';
 import type { UndefinedOnPartialDeep } from 'type-fest';
 import { AngularWebpackPlugin } from './angular-webpack-plugin.js';
@@ -165,6 +166,9 @@ export const applyEntry = (
         .plugin(`${LynxEncodePlugin.name}`)
         .use(LynxEncodePlugin, [{}])
         .end();
+    }
+    if (isWeb) {
+      chain.plugin(`${WebEncodePlugin.name}`).use(WebEncodePlugin, []).end();
     }
     chain
       .plugin(PLUGIN_NAME_ANGULAR)

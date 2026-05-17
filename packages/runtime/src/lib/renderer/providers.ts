@@ -9,7 +9,7 @@ import { LynxBackgroundDocument, LynxDocument } from '../lynx-document';
 import { LynxRendererFactory2 } from './lynx-renderer-factory2';
 import { LYNX_DOCUMENT } from './token';
 
-export const provideLynxRenderer = (): EnvironmentProviders => {
+export const provideRenderer = (): EnvironmentProviders => {
   return makeEnvironmentProviders([
     {
       provide: LYNX_DOCUMENT,

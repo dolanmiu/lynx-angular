@@ -4,7 +4,7 @@ import {
   makeEnvironmentProviders,
 } from '@angular/core';
 import {
-  provideRouter,
+  provideRouter as ngProvideRouter,
   RouteReuseStrategy,
   type RouterFeatures,
   type Routes,
@@ -22,7 +22,7 @@ import { LynxRouteReuseStrategy } from './lynx-route-reuse-strategy';
  * the Angular equivalent of React Router's `MemoryRouter` — Lynx is a native
  * mobile runtime with no browser URL or History API.
  */
-export const provideLynxRouter = (
+export const provideRouter = (
   routes: Routes,
   ...features: RouterFeatures[]
 ): EnvironmentProviders => {
@@ -41,7 +41,7 @@ export const provideLynxRouter = (
     // LynxRouteReuseStrategy detaches views instead: elements are removed from
     // the tree but their pool slots are reused when the route is revisited.
     { provide: RouteReuseStrategy, useClass: LynxRouteReuseStrategy },
-    provideRouter(
+    ngProvideRouter(
       routes,
       // Lynx runs Angular on a background thread for layout calculation.
       // Unhandled navigation promise rejections (e.g. from unmatched routes)

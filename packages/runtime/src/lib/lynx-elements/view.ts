@@ -2,7 +2,17 @@ import { Directive } from '@angular/core';
 import { LynxElementBase } from './base';
 
 /** General-purpose container element, equivalent to HTML `<div>`. */
-@Directive({ selector: 'view', standalone: true })
+@Directive({
+  selector: 'view',
+  standalone: true,
+  inputs: [
+    'flatten',
+    'pan-intercept-direction',
+    'pan-intercept-scope',
+    'consume-slide-event',
+    'enable-touch-pseudo-propagation',
+  ],
+})
 export class LynxView extends LynxElementBase {
   /**
    * Flatten the view into its parent's layer (Android only).

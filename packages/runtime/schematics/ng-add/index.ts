@@ -1,0 +1,247 @@
+import type { Rule, Tree } from '@angular-devkit/schematics';
+import {
+  chain,
+  MergeStrategy,
+  SchematicsException,
+  apply,
+  applyTemplates,
+  mergeWith,
+  move,
+  url,
+} from '@angular-devkit/schematics';
+import {
+  addDependency,
+  DependencyType,
+  InstallBehavior,
+} from '@schematics/angular/utility/dependency';
+import { JSONFile } from '@schematics/angular/utility/json-file';
+import { getWorkspace } from '@schematics/angular/utility/workspace';
+
+import type { Schema } from './schema';
+import { VERSIONS } from './versions';
+
+export default (options: Schema): Rule =>
+  async (tree: Tree) => {
+    const workspace = await getWorkspace(tree);
+    const projectName =
+      options.project ??
+      (workspace.extensions['defaultProject'] as string | undefined) ??
+      [...workspace.projects.keys()][0];
+
+    if (!projectName) {
+      throw new SchematicsException(
+        'No project found. Run this schematic inside an Angular workspace.',
+      );
+    }
+
+    const project = workspace.projects.get(projectName);
+    if (!project) {
+      throw new SchematicsException(
+        `Project "${projectName}" not found in angular.json.`,
+      );
+    }
+
+    const sourceRoot = (project.sourceRoot ?? `${project.root}/src`) as string;
+    const projectRoot = project.root as string;
+    const prefix = (project.extensions['prefix'] as string) ?? 'app';
+
+    const rules: Rule[] = [
+      addTemplateFiles(projectRoot, sourceRoot),
+      replaceMainTs(sourceRoot),
+      replaceAppConfig(sourceRoot),
+      replaceAppComponent(sourceRoot, prefix, projectName),
+      deleteHtmlTemplate(sourceRoot),
+      updatePackageScripts(),
+      addCoreDependencies(),
+    ];
+
+    if (options.tailwind !== false) {
+      rules.push(
+        addTailwindConfig(projectRoot),
+        updateStylesCss(sourceRoot),
+        addTailwindDependencies(),
+      );
+    }
+
+    return chain(rules);
+  };
+
+const addTemplateFiles = (projectRoot: string, _sourceRoot: string): Rule =>
+  mergeWith(
+    apply(url('../files'), [applyTemplates({}), move(projectRoot || '/')]),
+    MergeStrategy.Overwrite,
+  );
+
+const replaceMainTs = (sourceRoot: string): Rule => {
+  return (tree: Tree) => {
+    const mainPath = `${sourceRoot}/main.ts`;
+    const content = `import { bootstrapApplication } from '@blotch/angular-lynx';
+import { AppComponent } from './app/app.component';
+import { appConfig } from './app/app.config';
+
+bootstrapApplication(AppComponent, appConfig).catch((err) => {
+  setTimeout(() => {
+    throw err;
+  }, 0);
+});
+`;
+    tree.overwrite(mainPath, content);
+  };
+};
+
+const replaceAppConfig = (sourceRoot: string): Rule => {
+  return (tree: Tree) => {
+    const configPath = `${sourceRoot}/app/app.config.ts`;
+    const content = `import {
+  type ApplicationConfig,
+  provideZonelessChangeDetection,
+} from '@angular/core';
+import { provideRenderer, provideRouter } from '@blotch/angular-lynx';
+
+import { routes } from './app.routes';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideZonelessChangeDetection(),
+    provideRenderer(),
+    provideRouter(routes),
+  ],
+};
+`;
+    tree.overwrite(configPath, content);
+  };
+};
+
+const replaceAppComponent = (
+  sourceRoot: string,
+  prefix: string,
+  projectName: string,
+): Rule => {
+  return (tree: Tree) => {
+    const componentPath = `${sourceRoot}/app/app.component.ts`;
+    const content = `import { Component, signal } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
+
+@Component({
+  selector: '${prefix}-root',
+  imports: [RouterOutlet, LYNX_ELEMENTS],
+  template: \`
+    <scroll-view scroll-orientation="vertical">
+      <view style="padding: 24px; align-items: center;">
+        <text style="font-size: 24px; font-weight: bold;">{{ title() }}</text>
+        <text style="font-size: 14px; margin-top: 8px; color: #666;">
+          Edit src/app/app.component.ts to get started
+        </text>
+        <router-outlet />
+      </view>
+    </scroll-view>
+  \`,
+})
+export class AppComponent {
+  title = signal('${projectName}');
+}
+`;
+    tree.overwrite(componentPath, content);
+  };
+};
+
+const deleteHtmlTemplate = (sourceRoot: string): Rule => {
+  return (tree: Tree) => {
+    const htmlPath = `${sourceRoot}/app/app.component.html`;
+    if (tree.exists(htmlPath)) {
+      tree.delete(htmlPath);
+    }
+
+    // Also remove the spec file — it references browser DOM which doesn't exist in Lynx
+    const specPath = `${sourceRoot}/app/app.component.spec.ts`;
+    if (tree.exists(specPath)) {
+      tree.delete(specPath);
+    }
+  };
+};
+
+const updatePackageScripts = (): Rule => {
+  return (tree: Tree) => {
+    const pkg = new JSONFile(tree, '/package.json');
+    pkg.modify(['scripts', 'start'], 'rspeedy dev');
+    pkg.modify(['scripts', 'build'], 'rspeedy build');
+  };
+};
+
+const addCoreDependencies = (): Rule => {
+  return chain([
+    addDependency(
+      '@blotch/rsbuild-plugin-angular-lynx',
+      VERSIONS.rsbuildPluginAngularLynx,
+      {
+        type: DependencyType.Dev,
+        install: InstallBehavior.Auto,
+      },
+    ),
+    addDependency('@lynx-js/rspeedy', VERSIONS.rspeedy, {
+      type: DependencyType.Dev,
+      install: InstallBehavior.Auto,
+    }),
+    addDependency('@lynx-js/qrcode-rsbuild-plugin', VERSIONS.qrcodePlugin, {
+      type: DependencyType.Dev,
+      install: InstallBehavior.Auto,
+    }),
+    addDependency('@lynx-js/types', VERSIONS.lynxTypes, {
+      type: DependencyType.Dev,
+      install: InstallBehavior.Auto,
+    }),
+  ]);
+};
+
+const addTailwindConfig = (projectRoot: string): Rule => {
+  return (tree: Tree) => {
+    const configPath = `${projectRoot ? projectRoot + '/' : ''}tailwind.config.ts`;
+    const content = `import type { Config } from 'tailwindcss';
+import preset from '@lynx-js/tailwind-preset';
+
+const config: Config = {
+  content: ['./src/**/*.ts'],
+  presets: [preset],
+};
+
+export default config;
+`;
+    if (tree.exists(configPath)) {
+      tree.overwrite(configPath, content);
+    } else {
+      tree.create(configPath, content);
+    }
+  };
+};
+
+const updateStylesCss = (sourceRoot: string): Rule => {
+  return (tree: Tree) => {
+    const cssPath = `${sourceRoot}/styles.css`;
+    const scssPath = `${sourceRoot}/styles.scss`;
+    const targetPath = tree.exists(scssPath) ? scssPath : cssPath;
+
+    const content = `@tailwind base;
+@tailwind utilities;
+`;
+
+    if (tree.exists(targetPath)) {
+      tree.overwrite(targetPath, content);
+    } else {
+      tree.create(cssPath, content);
+    }
+  };
+};
+
+const addTailwindDependencies = (): Rule => {
+  return chain([
+    addDependency('tailwindcss', VERSIONS.tailwindcss, {
+      type: DependencyType.Dev,
+      install: InstallBehavior.Auto,
+    }),
+    addDependency('@lynx-js/tailwind-preset', VERSIONS.tailwindPreset, {
+      type: DependencyType.Dev,
+      install: InstallBehavior.Auto,
+    }),
+  ]);
+};

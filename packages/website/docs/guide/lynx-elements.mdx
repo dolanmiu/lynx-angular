@@ -74,9 +74,7 @@ import logo from '../assets/logo.png';
 
 @Component({
   imports: [LYNX_ELEMENTS],
-  template: `
-    <image [src]="logo" style="width: 80px; height: 80px;" />
-  `,
+  template: ` <image [src]="logo" style="width: 80px; height: 80px;" /> `,
 })
 export class LogoComponent {
   logo = logo;
@@ -106,6 +104,7 @@ A scrollable area for content. Set `scroll-orientation` to control the scroll di
 :::
 
 Key attributes:
+
 - `scroll-orientation` — `"vertical"` (default) or `"horizontal"`
 - `bounces` — Enable/disable bounce effect at scroll boundaries
 - `scroll-bar-enable` — Show/hide scrollbar
@@ -115,11 +114,7 @@ Key attributes:
 A high-performance virtualized list for rendering large datasets. Only visible items are rendered, similar to Android's `RecyclerView` or iOS `UITableView`.
 
 ```angular-html
-<list
-  list-type="single"
-  scroll-orientation="vertical"
-  style="height: 400px;"
->
+<list list-type="single" scroll-orientation="vertical" style="height: 400px;">
   @for (item of items(); track item.id) {
     <list-item [attr.item-key]="item.id">
       <view class="list-row">
@@ -135,11 +130,13 @@ Use `<list>` for large collections (100+ items). For shorter content, `<scroll-v
 :::
 
 Key attributes on `<list>`:
+
 - `list-type` — `"single"` (standard), `"flow"` (multi-column), `"waterfall"` (masonry layout)
 - `span-count` — Number of columns (for `flow` and `waterfall` types)
 - `scroll-orientation` — `"vertical"` or `"horizontal"`
 
 Key attributes on `<list-item>`:
+
 - `item-key` — Unique identifier for the item (required for recycling)
 
 ## Input Elements
@@ -184,7 +181,7 @@ Renders content above the normal document flow, like a modal or popup. Control v
 ```angular-html
 <overlay [attr.visible]="showModal()">
   <view class="backdrop" (bindtap)="closeModal()">
-    <view class="modal" (catchtap)="$event">
+    <view class="modal" (catchtap)="($event)">
       <text class="modal-title">Confirm</text>
       <text>Are you sure?</text>
       <view class="modal-button" (bindtap)="closeModal()">
@@ -227,11 +224,11 @@ Displays SVG graphics via the `content` attribute (not inline SVG markup).
 
 Lynx uses a prefix-based event system that controls propagation behavior:
 
-| Prefix | Behavior | Example |
-|---|---|---|
-| `bind` | Bubbles up to parent elements | `(bindtap)="onTap()"` |
-| `catch` | Handles and stops propagation | `(catchtap)="onTap()"` |
-| `capture-bind` | Capture phase, then bubbles | `(capture-bindtap)="onTap()"` |
+| Prefix          | Behavior                         | Example                        |
+| --------------- | -------------------------------- | ------------------------------ |
+| `bind`          | Bubbles up to parent elements    | `(bindtap)="onTap()"`          |
+| `catch`         | Handles and stops propagation    | `(catchtap)="onTap()"`         |
+| `capture-bind`  | Capture phase, then bubbles      | `(capture-bindtap)="onTap()"`  |
 | `capture-catch` | Capture phase, stops propagation | `(capture-catchtap)="onTap()"` |
 
 Common events:
@@ -276,16 +273,16 @@ See [Change Detection](/guide/change-detection) for why this is necessary.
 
 ## HTML to Lynx Mapping
 
-| HTML | Lynx | Notes |
-|---|---|---|
-| `<div>` | `<view>` | Generic container |
-| `<span>`, `<p>`, `<h1>`...`<h6>` | `<text>` | All text content |
-| `<img>` | `<image>` | Different attribute names |
-| `<div style="overflow:auto">` | `<scroll-view>` | Dedicated scrolling element |
-| `<ul>` / virtual scroll | `<list>` + `<list-item>` | Native virtualization |
-| `<input>` | `<input>` | Events use `bindinput` |
-| `<textarea>` | `<textarea>` | Events use `bindinput` |
-| `<button>` | `<view>` + `(bindtap)` | No native button element |
-| `<a>` | `<view>` + `(bindtap)` | No native link element |
-| Modal / Dialog | `<overlay>` | Native floating layer |
-| `<iframe>` | `<frame>` | Loads Lynx bundles |
+| HTML                             | Lynx                     | Notes                       |
+| -------------------------------- | ------------------------ | --------------------------- |
+| `<div>`                          | `<view>`                 | Generic container           |
+| `<span>`, `<p>`, `<h1>`...`<h6>` | `<text>`                 | All text content            |
+| `<img>`                          | `<image>`                | Different attribute names   |
+| `<div style="overflow:auto">`    | `<scroll-view>`          | Dedicated scrolling element |
+| `<ul>` / virtual scroll          | `<list>` + `<list-item>` | Native virtualization       |
+| `<input>`                        | `<input>`                | Events use `bindinput`      |
+| `<textarea>`                     | `<textarea>`             | Events use `bindinput`      |
+| `<button>`                       | `<view>` + `(bindtap)`   | No native button element    |
+| `<a>`                            | `<view>` + `(bindtap)`   | No native link element      |
+| Modal / Dialog                   | `<overlay>`              | Native floating layer       |
+| `<iframe>`                       | `<frame>`                | Loads Lynx bundles          |

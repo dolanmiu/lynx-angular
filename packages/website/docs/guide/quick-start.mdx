@@ -56,11 +56,11 @@ export default defineConfig({
 ### 4. Create the entry point
 
 ```typescript title="src/main.ts"
-import { bootstrapLynxApplication } from '@blotch/angular-lynx';
+import { bootstrapApplication } from '@blotch/angular-lynx';
 import { AppComponent } from './app/app.component';
 import { appConfig } from './app/app.config';
 
-bootstrapLynxApplication(AppComponent, appConfig);
+bootstrapApplication(AppComponent, appConfig);
 ```
 
 ### 5. Create the app configuration
@@ -70,13 +70,10 @@ import {
   type ApplicationConfig,
   provideZonelessChangeDetection,
 } from '@angular/core';
-import { provideLynxRenderer } from '@blotch/angular-lynx';
+import { provideRenderer } from '@blotch/angular-lynx';
 
 export const appConfig: ApplicationConfig = {
-  providers: [
-    provideZonelessChangeDetection(),
-    provideLynxRenderer(),
-  ],
+  providers: [provideZonelessChangeDetection(), provideRenderer()],
 };
 ```
 
@@ -98,29 +95,31 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
       </view>
     </view>
   `,
-  styles: [`
-    .container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
-    .title {
-      font-size: 24px;
-      font-weight: bold;
-      margin-bottom: 16px;
-    }
-    .button {
-      background-color: #dd0031;
-      padding: 12px 24px;
-      border-radius: 8px;
-    }
-    .button-text {
-      color: white;
-      font-size: 16px;
-    }
-  `],
+  styles: [
+    `
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
+      .title {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 16px;
+      }
+      .button {
+        background-color: #dd0031;
+        padding: 12px 24px;
+        border-radius: 8px;
+      }
+      .button-text {
+        color: white;
+        font-size: 16px;
+      }
+    `,
+  ],
 })
 export class AppComponent {
   name = signal('Angular Lynx');
@@ -157,21 +156,21 @@ The QR code plugin (`@lynx-js/qrcode-rsbuild-plugin`) can be added to your `lynx
 
 ## Adding Routing
 
-To add navigation between views, install `@angular/router` and use `provideLynxRouter`:
+To add navigation between views, install `@angular/router` and use `provideRouter`:
 
 ```typescript title="src/app/app.config.ts"
 import {
   type ApplicationConfig,
   provideZonelessChangeDetection,
 } from '@angular/core';
-import { provideLynxRenderer, provideLynxRouter } from '@blotch/angular-lynx';
+import { provideRenderer, provideRouter } from '@blotch/angular-lynx';
 import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZonelessChangeDetection(),
-    provideLynxRenderer(),
-    provideLynxRouter(routes), // [!code highlight]
+    provideRenderer(),
+    provideRouter(routes), // [!code highlight]
   ],
 };
 ```
@@ -184,7 +183,7 @@ export const routes: Routes = [
   {
     path: 'home',
     loadComponent: () =>
-      import('./home/home.component').then(m => m.HomeComponent),
+      import('./home/home.component').then((m) => m.HomeComponent),
   },
 ];
 ```
@@ -197,7 +196,7 @@ See the [Routing guide](/guide/routing) for details on navigation patterns and t
 my-lynx-app/
   lynx.config.ts              # RSpeedy build configuration
   src/
-    main.ts                    # Entry point (bootstrapLynxApplication)
+    main.ts                    # Entry point (bootstrapApplication)
     app/
       app.config.ts            # Providers (zoneless CD, renderer, router)
       app.component.ts         # Root component with Lynx elements
@@ -206,15 +205,15 @@ my-lynx-app/
 
 ## What's Different from Web Angular?
 
-| Concept | Web Angular | Angular Lynx |
-|---|---|---|
-| Bootstrap | `bootstrapApplication()` | `bootstrapLynxApplication()` |
-| Renderer | Browser DOM | Lynx native elements |
-| Elements | `<div>`, `<span>`, `<img>` | `<view>`, `<text>`, `<image>` |
-| Events | `(click)`, `(input)` | `(bindtap)`, `(bindinput)` |
-| Change detection | Zone.js or zoneless | Zoneless only |
-| Router | URL-based | In-memory |
-| Build tool | Angular CLI / esbuild | RSpeedy (Rsbuild) |
+| Concept          | Web Angular                | Angular Lynx                  |
+| ---------------- | -------------------------- | ----------------------------- |
+| Bootstrap        | `bootstrapApplication()`   | `bootstrapApplication()`      |
+| Renderer         | Browser DOM                | Lynx native elements          |
+| Elements         | `<div>`, `<span>`, `<img>` | `<view>`, `<text>`, `<image>` |
+| Events           | `(click)`, `(input)`       | `(bindtap)`, `(bindinput)`    |
+| Change detection | Zone.js or zoneless        | Zoneless only                 |
+| Router           | URL-based                  | In-memory                     |
+| Build tool       | Angular CLI / esbuild      | RSpeedy (Rsbuild)             |
 
 ## Next Steps
 

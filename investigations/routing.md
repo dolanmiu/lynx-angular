@@ -11,7 +11,7 @@ Make Angular's native `RouterOutlet` work on Lynx so that `ViewContainerRef.crea
 - **Custom `LynxRouterOutlet`** (`packages/runtime/src/lib/lynx-router-outlet.ts`) — A component with selector `router-outlet` that uses content projection + `@switch` to render routes. The developer lists components in both `app.routes.ts` AND the template `@switch`. Works but has a ~50% crash rate on initial load (see "Original Crash" below).
 - **`NgComponentOutlet`** — Confirmed working after the `createComment()` fix. `ViewContainerRef.createComponent()` successfully creates and renders components dynamically.
 - **`provideZonelessChangeDetection()`** — Zoneless CD works for signals, `@if`/`@for` control flow, event handling, etc.
-- **`provideLynxRouter(routes)`** — Custom wrapper around `provideRouter()` that provides `LynxLocationStrategy` (in-memory) and `LynxPlatformLocation`.
+- **`provideRouter(routes)`** — Custom wrapper around `provideRouter()` that provides `LynxLocationStrategy` (in-memory) and `LynxPlatformLocation`.
 
 ### What doesn't work
 
@@ -39,7 +39,7 @@ Make Angular's native `RouterOutlet` work on Lynx so that `ViewContainerRef.crea
 
 - `LynxPlatformLocation` (`packages/runtime/src/lib/lynx-platform-location.ts`) — In-memory `PlatformLocation` with manual URL parsing (no `new URL()`)
 - `LynxLocationStrategy` (`packages/runtime/src/lib/lynx-location-strategy.ts`) — In-memory `LocationStrategy` with history stack, popstate listeners
-- `provideLynxRouter()` (`packages/runtime/src/lib/lynx-router.ts`) — Wraps `provideRouter()` inside `makeEnvironmentProviders()` with location strategy overrides
+- `provideRouter()` (`packages/runtime/src/lib/lynx-router.ts`) — Wraps `provideRouter()` inside `makeEnvironmentProviders()` with location strategy overrides
 
 ### React Lynx Reference
 
@@ -84,11 +84,11 @@ The Router itself hasn't completed initial navigation. The URL is `/` (initial) 
 
 ### Attempt 5: `withEnabledBlockingInitialNavigation()`
 
-**Added** to `provideLynxRouter()` to block bootstrap until initial navigation completes.
+**Added** to `provideRouter()` to block bootstrap until initial navigation completes.
 
 **Result:** No change. `navigated: false`, no events.
 
-### Attempt 6: Flat provider config (bypass `provideLynxRouter`)
+### Attempt 6: Flat provider config (bypass `provideRouter`)
 
 **Hypothesis:** `provideRouter()` nested inside `makeEnvironmentProviders()` might not forward `ENVIRONMENT_INITIALIZER` properly.
 
@@ -97,7 +97,7 @@ The Router itself hasn't completed initial navigation. The URL is `/` (initial) 
 ```typescript
 providers: [
   provideZonelessChangeDetection(),
-  provideLynxRenderer(),
+  provideRenderer(),
   { provide: PlatformLocation, useClass: LynxPlatformLocation },
   { provide: LocationStrategy, useClass: LynxLocationStrategy },
   provideRouter(
@@ -223,22 +223,22 @@ If Angular's native Router can't be made to work:
 
 ## Files Reference
 
-| File                                                    | Purpose                                                                       |
-| ------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| `packages/runtime/src/lib/lynx-router.ts`               | `provideLynxRouter()` — wraps `provideRouter()` with Lynx location strategies |
-| `packages/runtime/src/lib/lynx-router-outlet.ts`        | Custom `LynxRouterOutlet` — content projection + `@switch`                    |
-| `packages/runtime/src/lib/lynx-location-strategy.ts`    | In-memory `LocationStrategy`                                                  |
-| `packages/runtime/src/lib/lynx-platform-location.ts`    | In-memory `PlatformLocation`                                                  |
-| `packages/runtime/src/lib/lynx-document.ts`             | `createComment()` fix lives here                                              |
-| `packages/runtime/src/lib/runtime.ts`                   | Global polyfills (document, window, setTimeout, etc.)                         |
-| `packages/runtime/src/lib/renderer.ts`                  | `LynxRenderer` — Renderer2 implementation                                     |
-| `packages/runtime/src/lib/lynx-renderer-factory2.ts`    | `end()` calls `__FlushElementTree()`                                          |
-| `packages/runtime/src/lib/lynx-element.ts`              | `LynxElement` — wraps native elements                                         |
-| `packages/kitchen-sink-app/src/app/app.config.ts`       | App config — currently uses flat `provideRouter()`                            |
-| `packages/kitchen-sink-app/src/app/app.routes.ts`       | Route definitions                                                             |
-| `packages/kitchen-sink-app/src/app/app.component.ts`    | Root component — currently has debug diagnostics                              |
-| `packages/kitchen-sink-app/src/main.ts`                 | Entry point — `bootstrapLynxApplication()`                                    |
-| `packages/rsbuild-plugin-angular-lynx/src/polyfills.js` | Pre-entry polyfills (runs before Angular)                                     |
+| File                                                    | Purpose                                                                   |
+| ------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `packages/runtime/src/lib/lynx-router.ts`               | `provideRouter()` — wraps `provideRouter()` with Lynx location strategies |
+| `packages/runtime/src/lib/lynx-router-outlet.ts`        | Custom `LynxRouterOutlet` — content projection + `@switch`                |
+| `packages/runtime/src/lib/lynx-location-strategy.ts`    | In-memory `LocationStrategy`                                              |
+| `packages/runtime/src/lib/lynx-platform-location.ts`    | In-memory `PlatformLocation`                                              |
+| `packages/runtime/src/lib/lynx-document.ts`             | `createComment()` fix lives here                                          |
+| `packages/runtime/src/lib/runtime.ts`                   | Global polyfills (document, window, setTimeout, etc.)                     |
+| `packages/runtime/src/lib/renderer.ts`                  | `LynxRenderer` — Renderer2 implementation                                 |
+| `packages/runtime/src/lib/lynx-renderer-factory2.ts`    | `end()` calls `__FlushElementTree()`                                      |
+| `packages/runtime/src/lib/lynx-element.ts`              | `LynxElement` — wraps native elements                                     |
+| `packages/kitchen-sink-app/src/app/app.config.ts`       | App config — currently uses flat `provideRouter()`                        |
+| `packages/kitchen-sink-app/src/app/app.routes.ts`       | Route definitions                                                         |
+| `packages/kitchen-sink-app/src/app/app.component.ts`    | Root component — currently has debug diagnostics                          |
+| `packages/kitchen-sink-app/src/main.ts`                 | Entry point — `bootstrapApplication()`                                    |
+| `packages/rsbuild-plugin-angular-lynx/src/polyfills.js` | Pre-entry polyfills (runs before Angular)                                 |
 
 ---
 

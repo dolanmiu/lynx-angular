@@ -98,7 +98,7 @@ Evidence:
 - On revisit, `shouldAttach()` / `retrieve()` return the stored handle → Angular re-inserts the existing native elements (reusing pool slots, no new allocations)
 - Pool size caps at: initial elements + max(elements per distinct route)
 
-Wired into `provideLynxRouter()` via `{ provide: RouteReuseStrategy, useClass: LynxRouteReuseStrategy }` — transparent to app developers.
+Wired into `provideRouter()` via `{ provide: RouteReuseStrategy, useClass: LynxRouteReuseStrategy }` — transparent to app developers.
 
 ### Status
 

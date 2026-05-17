@@ -11,6 +11,13 @@ If you know Angular and are familiar with Lynx, you already know how to use Angu
 - **Zoneless change detection** — Uses `provideZonelessChangeDetection()` with signals as the primary reactivity model
 - **Full Angular Router** — In-memory routing adapted for Lynx's native runtime
 - **Tailwind CSS** — Utility-first styling via `@lynx-js/tailwind-preset`
+- **Testing utilities** — `@blotch/angular-lynx-testing-library` bootstraps the full Lynx pipeline in jsdom with `@testing-library/dom` queries, `fireEvent`, and snapshot support
+
+## Try It
+
+A simple counter built with Angular signals and Lynx elements:
+
+<Go example="hello-world" defaultFile="src/app/app.component.ts" />
 
 ## For Angular Web Developers
 
@@ -24,8 +31,8 @@ import { bootstrapApplication } from '@angular/platform-browser';
 bootstrapApplication(AppComponent, appConfig);
 
 // Angular Lynx
-import { bootstrapLynxApplication } from '@blotch/angular-lynx'; // [!code highlight]
-bootstrapLynxApplication(AppComponent, appConfig); // [!code highlight]
+import { bootstrapApplication } from '@blotch/angular-lynx'; // [!code highlight]
+bootstrapApplication(AppComponent, appConfig); // [!code highlight]
 ```
 
 ### Different elements
@@ -40,10 +47,11 @@ Lynx provides native UI elements instead of HTML. Your templates use `<view>`, `
 </div>
 
 <!-- Angular Lynx -->
-<view class="card"> // [!code highlight]
-  <text>{{ message() }}</text> // [!code highlight]
+<view class="card">
+  // [!code highlight] <text>{{ message() }}</text> // [!code highlight]
   <image [src]="logo" /> // [!code highlight]
-</view> // [!code highlight]
+</view>
+// [!code highlight]
 ```
 
 :::info
@@ -59,7 +67,8 @@ Lynx uses its own event system with `bind` and `catch` prefixes instead of stand
 <button (click)="handleClick()">Click me</button>
 
 <!-- Angular Lynx -->
-<view (bindtap)="handleTap()"> // [!code highlight]
+<view (bindtap)="handleTap()">
+  // [!code highlight]
   <text>Tap me</text>
 </view>
 ```
@@ -111,10 +120,10 @@ This model is similar to how React Native works — JavaScript runs on a separat
 
 Angular Lynx is part of a family of framework renderers for the Lynx platform:
 
-| Framework | Package | Status |
-|---|---|---|
-| React | [`@lynx-js/react`](https://github.com/nichenqin/lynx-stack) | Production-ready |
-| Vue | [`vue-lynx`](https://nichenqin.github.io/vue-lynx) | Production-ready |
+| Framework   | Package                                                             | Status               |
+| ----------- | ------------------------------------------------------------------- | -------------------- |
+| React       | [`@lynx-js/react`](https://github.com/nichenqin/lynx-stack)         | Production-ready     |
+| Vue         | [`vue-lynx`](https://nichenqin.github.io/vue-lynx)                  | Production-ready     |
 | **Angular** | [`@blotch/angular-lynx`](https://github.com/nichenqin/angular-lynx) | **Work in progress** |
 
 :::warning Work in Progress

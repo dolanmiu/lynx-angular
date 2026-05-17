@@ -35,19 +35,19 @@ The factory also implements `end()`, which is called after every change detectio
 
 Implements Angular's `Renderer2` interface. Maps every DOM operation to its Lynx equivalent:
 
-| Renderer2 method | Lynx global function |
-|---|---|
-| `createElement('view')` | `__CreateView(pageId)` |
-| `createElement('text')` | `__CreateText(pageId)` |
-| `createElement('image')` | `__CreateImage(pageId)` |
-| `appendChild(parent, child)` | `__AppendElement(parent, child)` |
+| Renderer2 method                   | Lynx global function                        |
+| ---------------------------------- | ------------------------------------------- |
+| `createElement('view')`            | `__CreateView(pageId)`                      |
+| `createElement('text')`            | `__CreateText(pageId)`                      |
+| `createElement('image')`           | `__CreateImage(pageId)`                     |
+| `appendChild(parent, child)`       | `__AppendElement(parent, child)`            |
 | `insertBefore(parent, child, ref)` | `__InsertElementBefore(parent, child, ref)` |
-| `removeChild(parent, child)` | `__RemoveElement(child)` |
-| `setAttribute(el, name, value)` | `__SetAttribute(el, name, value)` |
-| `setStyle(el, style, value)` | `__AddInlineStyle(el, style, value)` |
-| `addClass(el, name)` | `__AddClass(el, name)` |
-| `listen(el, event, callback)` | `__AddEvent(el, eventType, event)` |
-| `createComment()` | `__CreateView(pageId)` (invisible anchor) |
+| `removeChild(parent, child)`       | `__RemoveElement(child)`                    |
+| `setAttribute(el, name, value)`    | `__SetAttribute(el, name, value)`           |
+| `setStyle(el, style, value)`       | `__AddInlineStyle(el, style, value)`        |
+| `addClass(el, name)`               | `__AddClass(el, name)`                      |
+| `listen(el, event, callback)`      | `__AddEvent(el, eventType, event)`          |
+| `createComment()`                  | `__CreateView(pageId)` (invisible anchor)   |
 
 :::info
 Angular uses comment nodes as insertion anchors for structural directives (`@if`, `@for`, `ViewContainerRef`). Since Lynx has no comment elements, Angular Lynx creates invisible `<view>` elements as anchors instead.
@@ -70,12 +70,12 @@ The background-thread document implementation. Creates an in-memory virtual elem
 
 The build plugin (`@blotch/rsbuild-plugin-angular-lynx`) compiles your app into two separate bundles from the same source code:
 
-| Bundle | Thread | Compile-time define | Document used |
-|---|---|---|---|
-| `main-thread.js` | Main | `__MAIN_THREAD__ = true` | `LynxDocument` (real native calls) |
+| Bundle                 | Thread     | Compile-time define       | Document used                        |
+| ---------------------- | ---------- | ------------------------- | ------------------------------------ |
+| `main-thread.js`       | Main       | `__MAIN_THREAD__ = true`  | `LynxDocument` (real native calls)   |
 | `background-thread.js` | Background | `__MAIN_THREAD__ = false` | `LynxBackgroundDocument` (in-memory) |
 
-The `provideLynxRenderer()` function checks `__MAIN_THREAD__` at runtime to decide which document to instantiate:
+The `provideRenderer()` function checks `__MAIN_THREAD__` at runtime to decide which document to instantiate:
 
 ```typescript
 {
@@ -106,14 +106,14 @@ This batching means you never see partial UI states. If your event handler adds 
 
 ## How This Differs from Web Angular
 
-| Concept | Web Angular | Angular Lynx |
-|---|---|---|
-| Underlying API | Browser DOM | Lynx global `__*` functions |
-| Change visibility | Immediate (paint on next frame) | Batched (flush at end of CD cycle) |
-| Thread model | Single main thread | Dual: Angular on background, UI on main |
-| Element types | HTML elements (unlimited) | Lynx native elements (fixed pool ~256 slots) |
-| CSS model | Full browser CSS | Lynx CSS subset (no inheritance, no flow layout) |
-| Comment nodes | Native HTML comments | Invisible `<view>` anchors |
+| Concept           | Web Angular                     | Angular Lynx                                     |
+| ----------------- | ------------------------------- | ------------------------------------------------ |
+| Underlying API    | Browser DOM                     | Lynx global `__*` functions                      |
+| Change visibility | Immediate (paint on next frame) | Batched (flush at end of CD cycle)               |
+| Thread model      | Single main thread              | Dual: Angular on background, UI on main          |
+| Element types     | HTML elements (unlimited)       | Lynx native elements (fixed pool ~256 slots)     |
+| CSS model         | Full browser CSS                | Lynx CSS subset (no inheritance, no flow layout) |
+| Comment nodes     | Native HTML comments            | Invisible `<view>` anchors                       |
 
 ## The Element Pool
 

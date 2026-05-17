@@ -12,7 +12,7 @@ import { Injectable } from '@angular/core';
  * exist in the Lynx JS runtime. This class avoids `URL` entirely by manually
  * parsing pathname, search, and hash from the URL string.
  *
- * Registered via `provideLynxRouter()` in `lynx-router.ts`.
+ * Registered via `provideRouter()` in `lynx-router.ts`.
  *
  * The `@Injectable()` decorator is required so Angular generates a `ɵfac`
  * factory for this class. Without it, `getUndecoratedInjectableFactory()`

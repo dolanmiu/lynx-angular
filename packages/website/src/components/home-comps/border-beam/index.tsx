@@ -5,12 +5,9 @@ import styles from './index.module.scss';
 type BorderBeamProps = {
   size?: number;
   duration?: number;
-}
+};
 
-const BorderBeam: React.FC<BorderBeamProps> = ({
-  size = 2,
-  duration = 3,
-}) => {
+const BorderBeam: React.FC<BorderBeamProps> = ({ size = 2, duration = 3 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -44,7 +41,8 @@ const BorderBeam: React.FC<BorderBeamProps> = ({
 
       if (distance < width) return { x: distance, y: 0 };
       if (distance < width + height) return { x: width, y: distance - width };
-      if (distance < 2 * width + height) return { x: width - (distance - (width + height)), y: height };
+      if (distance < 2 * width + height)
+        return { x: width - (distance - (width + height)), y: height };
       return { x: 0, y: height - (distance - (2 * width + height)) };
     };
 
@@ -74,7 +72,12 @@ const BorderBeam: React.FC<BorderBeamProps> = ({
 
       const startCoord = getCoordinatesFromDistance(positionStart);
       const endCoord = getCoordinatesFromDistance(positionEnd);
-      const gradient = ctx.createLinearGradient(startCoord.x, startCoord.y, endCoord.x, endCoord.y);
+      const gradient = ctx.createLinearGradient(
+        startCoord.x,
+        startCoord.y,
+        endCoord.x,
+        endCoord.y,
+      );
 
       gradient.addColorStop(0, 'transparent');
       gradient.addColorStop(0.2, 'rgba(221, 0, 49, 0.3)');
@@ -108,7 +111,17 @@ const BorderBeam: React.FC<BorderBeamProps> = ({
 
   return (
     <div ref={containerRef} className={styles['border-beam-frame']}>
-      <canvas ref={canvasRef} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }} />
+      <canvas
+        ref={canvasRef}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          pointerEvents: 'none',
+        }}
+      />
     </div>
   );
 };

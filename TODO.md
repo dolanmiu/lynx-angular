@@ -13,7 +13,7 @@
 
 ## Build Plugin
 
-- [x] HMR and live reload — transport client + hot dev server entries use `prepend()` so they run before user code; entry files get `module.hot.accept()` injected so webpack applies hot updates in-place; `bootstrapLynxApplication` is re-entrant (destroys previous app, re-creates with updated code). Angular's Vite-specific `_enableHmr` is not used — `ɵɵgetReplaceMetadataURL()` crashes in Lynx (`new URL` rejects `file://` base) and requires a `/@ng/component` virtual module server we don't have.
+- [x] HMR and live reload — transport client + hot dev server entries use `prepend()` so they run before user code; entry files get `module.hot.accept()` injected so webpack applies hot updates in-place; `bootstrapApplication` is re-entrant (destroys previous app, re-creates with updated code). Angular's Vite-specific `_enableHmr` is not used — `ɵɵgetReplaceMetadataURL()` crashes in Lynx (`new URL` rejects `file://` base) and requires a `/@ng/component` virtual module server we don't have.
 - [x] JIT compilation support — reads `aot` from angular.json build options (default `true`); passes through to `createAngularCompilation(false, aot)` and `JavaScriptTransformer({ jit: !aot })`
 - [x] `?common` CSS query parameter (`css.ts:180`)
 - [x] `splitChunks.chunks: 'async'` support (`split-chunks.ts:59`)

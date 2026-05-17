@@ -67,7 +67,7 @@ React Lynx doesn't do navigation transitions out of the box. No built-in `Animat
 
 ## How lynx-angular Implements Level 2
 
-`provideLynxRouter()` is the Angular equivalent of `createRouter({ history: createMemoryHistory(), isServer: false })` in TanStack. The implementation is validated by official Lynx documentation.
+`provideRouter()` is the Angular equivalent of `createRouter({ history: createMemoryHistory(), isServer: false })` in TanStack. The implementation is validated by official Lynx documentation.
 
 | TanStack Router on Lynx              | lynx-angular                                                                |
 | ------------------------------------ | --------------------------------------------------------------------------- |
@@ -82,7 +82,7 @@ React Lynx doesn't do navigation transitions out of the box. No built-in `Animat
 
 ### Option 1: Single bundle + memory router (recommended default)
 
-One Angular app, one bundle, `provideLynxRouter()` handles all navigation. Lazy-loaded routes give code splitting without separate runtimes.
+One Angular app, one bundle, `provideRouter()` handles all navigation. Lazy-loaded routes give code splitting without separate runtimes.
 
 This is the correct approach for the vast majority of apps. It's what TanStack and React Router docs recommend on Lynx.
 
@@ -93,8 +93,8 @@ If truly separate pages are needed (e.g. different teams, or the native app expl
 ```
 src/
   pages/
-    feed/main.ts       → bootstrapLynxApplication(FeedComponent)
-    profile/main.ts    → bootstrapLynxApplication(ProfileComponent)
+    feed/main.ts       → bootstrapApplication(FeedComponent)
+    profile/main.ts    → bootstrapApplication(ProfileComponent)
 ```
 
 Each builds to a separate bundle, shares library code, but has its own Angular DI tree and runtime. Data passes between pages via `initData`/`globalProps`, not Angular services. **This is NOT multiple Angular projects** — it's one project with multiple build entry points.
@@ -141,7 +141,7 @@ This is what every mobile navigation framework does internally (React Navigation
 
 | File                                                                               | Purpose                                                                                       |
 | ---------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| `packages/runtime/src/lib/lynx-router.ts`                                          | `provideLynxRouter()` — wraps `provideRouter()` with memory-based location strategies         |
+| `packages/runtime/src/lib/lynx-router.ts`                                          | `provideRouter()` — wraps `provideRouter()` with memory-based location strategies             |
 | `packages/runtime/src/lib/lynx-location-strategy.ts`                               | `LynxLocationStrategy` — in-memory `LocationStrategy` (equivalent to `createMemoryHistory()`) |
 | `packages/runtime/src/lib/lynx-platform-location.ts`                               | `LynxPlatformLocation` — in-memory `PlatformLocation`, manual URL parsing (no `new URL()`)    |
 | `packages/runtime/src/lib/lynx-router-outlet.ts`                                   | `LynxRouterOutlet` — content projection + `@switch` for rendering matched routes              |

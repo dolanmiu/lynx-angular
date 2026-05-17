@@ -1,25 +1,50 @@
 import { useEffect, useState, useCallback } from 'react';
 import { HomeLayout as BaseHomeLayout } from '@rspress/core/theme-original';
-import { Banner, Features, MeteorsBackground, ShowCase } from '../src/components/home-comps';
+import {
+  Banner,
+  Features,
+  MeteorsBackground,
+  ShowCase,
+} from '../src/components/home-comps';
 
 import './index.scss';
 
 const cyclingWords = ['Build', 'Ship', 'Render'];
 
 const CopyIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-    <path fill="currentColor" d="M20 8v12H8V8zm0-2H8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2" />
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+  >
+    <path
+      fill="currentColor"
+      d="M20 8v12H8V8zm0-2H8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2"
+    />
     <path fill="currentColor" d="M4 16H2V4a2 2 0 0 1 2-2h12v2H4Z" />
   </svg>
 );
 
 const CheckIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
-    <path d="M4 12.5L9.5 18L20 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+  >
+    <path
+      d="M4 12.5L9.5 18L20 6"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </svg>
 );
 
-function HeroCommandBox() {
+const HeroCommandBox = () => {
   const [copied, setCopied] = useState(false);
 
   const copyCommand = useCallback(() => {
@@ -45,10 +70,13 @@ function HeroCommandBox() {
       </button>
     </div>
   );
-}
+};
 
 /** Poll with rAF until `selector` matches, then call `cb`. Gives up after 5 s. */
-function whenReady(selector: string, cb: (el: Element) => void): () => void {
+const whenReady = (
+  selector: string,
+  cb: (el: Element) => void,
+): (() => void) => {
   let cancelled = false;
   let rafId: number;
   let attempts = 0;
@@ -69,21 +97,23 @@ function whenReady(selector: string, cb: (el: Element) => void): () => void {
     cancelled = true;
     cancelAnimationFrame(rafId);
   };
-}
+};
 
-function HomeLayout(props: Parameters<typeof BaseHomeLayout>[0]) {
+const HomeLayout = (props: Parameters<typeof BaseHomeLayout>[0]) => {
   useEffect(() => {
     const clean = whenReady(
       '.rspress-home-hero-tagline, .rp-home-hero__tagline',
       (tagline) => {
         if (tagline.textContent?.includes('Lynx')) {
-          tagline.innerHTML = tagline.innerHTML.replace(
-            'Lynx',
-            '<a href="https://lynxjs.org" target="_blank" rel="noreferrer">Lynx</a>',
-          ).replace(
-            'Angular',
-            '<a href="https://angular.dev" target="_blank" rel="noreferrer">Angular</a>',
-          );
+          tagline.innerHTML = tagline.innerHTML
+            .replace(
+              'Lynx',
+              '<a href="https://lynxjs.org" target="_blank" rel="noreferrer">Lynx</a>',
+            )
+            .replace(
+              'Angular',
+              '<a href="https://angular.dev" target="_blank" rel="noreferrer">Angular</a>',
+            );
         }
       },
     );
@@ -160,11 +190,15 @@ function HomeLayout(props: Parameters<typeof BaseHomeLayout>[0]) {
     <>
       <MeteorsBackground gridSize={120} meteorCount={5} />
       <div className="home-layout-container">
-        <BaseHomeLayout {...props} afterHero={afterHero} afterHeroActions={afterHeroActions} />
+        <BaseHomeLayout
+          {...props}
+          afterHero={afterHero}
+          afterHeroActions={afterHeroActions}
+        />
       </div>
     </>
   );
-}
+};
 
 export { HomeLayout };
 

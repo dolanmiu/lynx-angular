@@ -13,7 +13,7 @@ import { Injectable } from '@angular/core';
  * This strategy keeps all routing state in memory: a history stack,
  * current index, and popstate listeners — no browser APIs touched.
  *
- * Registered via `provideLynxRouter()` in `lynx-router.ts`.
+ * Registered via `provideRouter()` in `lynx-router.ts`.
  */
 @Injectable()
 export class LynxLocationStrategy extends LocationStrategy {

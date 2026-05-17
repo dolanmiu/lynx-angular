@@ -228,33 +228,51 @@ class AngularWebpackPlugin {
         },
       );
 
-      // Inject globDynamicComponentEntry into main-thread chunks, preserving the
-      // chunk's original strict-mode status rather than unconditionally forcing it.
-      if (!options.experimental_isLazyBundle) {
+      // Inject __MAIN_THREAD__ flag and globDynamicComponentEntry into chunks.
+      // The thread-globals-loader approach (via webpack layers/oneOf) is unreliable
+      // because Rsbuild's parent typescript rule processes modules before the oneOf
+      // rules match. Instead, inject the flag directly into the bundled output.
+      {
         const { ConcatSource } = compiler.webpack.sources;
+        const mainThreadChunkSet = new Set(options.mainThreadChunks ?? []);
+
         compilation.hooks.processAssets.tap(
           {
-            name: `${this.constructor.name}:globDynamicComponentEntry`,
+            name: `${this.constructor.name}:threadGlobals`,
             stage: compiler.webpack.Compilation.PROCESS_ASSETS_STAGE_ADDITIONS,
           },
           () => {
-            for (const name of options.mainThreadChunks ?? []) {
-              const asset = compilation.getAsset(name);
-              if (!asset) continue;
-
-              const source = asset.source.source().toString();
-              const useStrictPrefix = /^(['"])use strict\1;?/.test(source)
-                ? `'use strict';`
-                : '';
-
+            for (const [name] of Object.entries(compilation.assets).filter(
+              ([n]) => n.endsWith('.js'),
+            )) {
+              const isMainThread = mainThreadChunkSet.has(name);
+              const prefix = `globalThis["__MAIN_THREAD__"]=${isMainThread};`;
               compilation.updateAsset(
                 name,
-                (old) =>
-                  new ConcatSource(
-                    `${useStrictPrefix}var globDynamicComponentEntry=globDynamicComponentEntry||'__Card__';`,
-                    old,
-                  ),
+                (old) => new ConcatSource(prefix, old),
               );
+            }
+
+            // Inject globDynamicComponentEntry into main-thread chunks
+            if (!options.experimental_isLazyBundle) {
+              for (const name of options.mainThreadChunks ?? []) {
+                const asset = compilation.getAsset(name);
+                if (!asset) continue;
+
+                const source = asset.source.source().toString();
+                const useStrictPrefix = /^(['"])use strict\1;?/.test(source)
+                  ? `'use strict';`
+                  : '';
+
+                compilation.updateAsset(
+                  name,
+                  (old) =>
+                    new ConcatSource(
+                      `${useStrictPrefix}var globDynamicComponentEntry=globDynamicComponentEntry||'__Card__';`,
+                      old,
+                    ),
+                );
+              }
             }
           },
         );

@@ -2,7 +2,24 @@ import { Directive } from '@angular/core';
 import { LynxElementBase } from './base';
 
 /** Single-line text input field. */
-@Directive({ selector: 'input', standalone: true })
+@Directive({
+  selector: 'input',
+  standalone: true,
+  inputs: [
+    'type',
+    'placeholder',
+    'value',
+    'maxlength',
+    'readonly',
+    'disabled',
+    'confirm-type',
+    'input-filter',
+    'show-soft-input-on-focus',
+    'ios-auto-correct',
+    'ios-spell-check',
+    'android-fullscreen-mode',
+  ],
+})
 export class LynxInput extends LynxElementBase {
   /** Keyboard type shown when this input gains focus. */
   type?: 'text' | 'number' | 'digit' | 'password' | 'tel' | 'email';
@@ -31,7 +48,28 @@ export class LynxInput extends LynxElementBase {
 }
 
 /** Multi-line text input field. */
-@Directive({ selector: 'textarea', standalone: true })
+@Directive({
+  selector: 'textarea',
+  standalone: true,
+  inputs: [
+    'type',
+    'placeholder',
+    'value',
+    'maxlength',
+    'maxlines',
+    'line-spacing',
+    'readonly',
+    'disabled',
+    'confirm-type',
+    'input-filter',
+    'show-soft-input-on-focus',
+    'bounces',
+    'enable-scroll-bar',
+    'ios-auto-correct',
+    'ios-spell-check',
+    'android-fullscreen-mode',
+  ],
+})
 export class LynxTextarea extends LynxElementBase {
   type?: 'text' | 'number' | 'digit' | 'tel' | 'email';
   placeholder?: string;

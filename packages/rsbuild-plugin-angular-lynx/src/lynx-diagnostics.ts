@@ -105,6 +105,37 @@ const UNSUPPORTED_CSS: Record<string, string> = {
   'column-rule': 'multi-column layout not supported',
 };
 
+/**
+ * Extracts all element tag names from Angular AOT-compiled JS.
+ *
+ * Handles three patterns:
+ * - ɵɵelementStart(idx, "tag") / ɵɵelement(idx, "tag")
+ * - Chained calls: ɵɵelementStart(0, "view", 1)(2, "list", 3)
+ * - ɵɵrepeaterCreate insertion-point optimization (@for with single root element)
+ */
+const collectElementTags = (code: string): Set<string> => {
+  const chainPattern = /ɵɵelement(?:Start)?\([^)]*\)(?:\([^)]*\))*/g;
+  const tagExtractor = /\(\d+,\s*["']([a-z][a-z0-9-]*)["']/g;
+  const repeaterPattern =
+    /ɵɵrepeaterCreate\(\d+,\s*\w+,\s*\d+,\s*\d+,\s*["']([a-z][a-z0-9-]*)["']/g;
+
+  const tags = new Set<string>();
+  let match: RegExpExecArray | null;
+  let tagMatch: RegExpExecArray | null;
+
+  for (const chain of code.matchAll(chainPattern)) {
+    tagExtractor.lastIndex = 0;
+    while ((tagMatch = tagExtractor.exec(chain[0])) !== null) {
+      tags.add(tagMatch[1]!);
+    }
+  }
+  while ((match = repeaterPattern.exec(code)) !== null) {
+    tags.add(match[1]!);
+  }
+
+  return tags;
+};
+
 export type LynxDiagnosticCategory = 'html-element' | 'structural' | 'css';
 
 export type LynxDiagnostic = {
@@ -133,19 +164,13 @@ export const scanCompiledOutputForHtmlElements = (
         ? contents
         : Buffer.from(contents).toString();
 
-    const pattern = /ɵɵelement(?:Start)?\(\d+,\s*["']([a-z][a-z0-9]*)["']/g;
-    const seenInFile = new Set<string>();
-    let match: RegExpExecArray | null;
+    const tags = collectElementTags(code);
+    const fileName = path.relative(process.cwd(), file);
 
-    while ((match = pattern.exec(code)) !== null) {
-      const tag = match[1]!;
-      if (seenInFile.has(tag)) continue;
-      seenInFile.add(tag);
-
+    for (const tag of tags) {
       if (!(tag in HTML_ELEMENT_SUGGESTIONS)) continue;
 
       const replacement = HTML_ELEMENT_SUGGESTIONS[tag];
-      const fileName = path.relative(process.cwd(), file);
       const message =
         replacement !== null
           ? `${fileName}: <${tag}> is not a Lynx element. Use <${replacement}> instead.`
@@ -210,13 +235,7 @@ export const scanCompiledOutputForStructuralIssues = (
         ? contents
         : Buffer.from(contents).toString();
 
-    // Collect all element tags used in this file's templates
-    const pattern = /ɵɵelement(?:Start)?\(\d+,\s*["']([a-z][a-z0-9-]*)["']/g;
-    const tags = new Set<string>();
-    let match: RegExpExecArray | null;
-    while ((match = pattern.exec(code)) !== null) {
-      tags.add(match[1]!);
-    }
+    const tags = collectElementTags(code);
 
     const fileName = path.relative(process.cwd(), file);
 

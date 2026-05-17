@@ -7,6 +7,7 @@ Signals are the primary reactivity model in Angular Lynx. Since the Lynx runtime
 In web Angular with Zone.js, change detection runs automatically after every async operation — HTTP calls, timers, event handlers. In Angular Lynx, there is no Zone.js, so Angular needs explicit signals to know when state has changed.
 
 Signals are a natural fit:
+
 - **Fine-grained updates** — Only components that read a changed signal are re-checked
 - **Works with zoneless CD** — Signal changes automatically schedule change detection
 - **Batched rendering** — All signal changes within a macrotask are committed together via `__FlushElementTree()`
@@ -48,7 +49,7 @@ export class CartComponent {
   items = signal<CartItem[]>([]);
 
   totalPrice = computed(() =>
-    this.items().reduce((sum, item) => sum + item.price * item.qty, 0)
+    this.items().reduce((sum, item) => sum + item.price * item.qty, 0),
   );
 
   itemCount = computed(() => this.items().length);
@@ -64,7 +65,7 @@ export class CounterComponent {
   count = signal(0);
 
   increment(): void {
-    this.count.update(n => n + 1);
+    this.count.update((n) => n + 1);
   }
 
   reset(): void {
@@ -87,10 +88,7 @@ Signals work well with `@for` for rendering dynamic lists:
       </view>
 
       @for (todo of todos(); track todo.id) {
-        <view
-          class="todo-item"
-          (bindtap)="toggle(todo.id)"
-        >
+        <view class="todo-item" (bindtap)="toggle(todo.id)">
           <text [style.text-decoration]="todo.done ? 'line-through' : 'none'">
             {{ todo.text }}
           </text>
@@ -109,18 +107,16 @@ export class TodoListComponent {
     { id: 2, text: 'Build an app', done: false },
   ]);
 
-  completedCount = computed(() =>
-    this.todos().filter(t => t.done).length
-  );
+  completedCount = computed(() => this.todos().filter((t) => t.done).length);
 
   toggle(id: number): void {
-    this.todos.update(list =>
-      list.map(t => t.id === id ? { ...t, done: !t.done } : t)
+    this.todos.update((list) =>
+      list.map((t) => (t.id === id ? { ...t, done: !t.done } : t)),
     );
   }
 
   addTodo(): void {
-    this.todos.update(list => [
+    this.todos.update((list) => [
       ...list,
       { id: Date.now(), text: `Todo ${list.length + 1}`, done: false },
     ]);
@@ -201,10 +197,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 export class UsersComponent {
   #http = inject(HttpClient);
 
-  users = toSignal(
-    this.#http.get<User[]>('/api/users'),
-    { initialValue: [] }
-  );
+  users = toSignal(this.#http.get<User[]>('/api/users'), { initialValue: [] });
 }
 ```
 
@@ -224,9 +217,9 @@ export class SearchComponent {
   results = toSignal(
     toObservable(this.query).pipe(
       debounceTime(300),
-      switchMap(q => this.#http.get<Result[]>(`/api/search?q=${q}`))
+      switchMap((q) => this.#http.get<Result[]>(`/api/search?q=${q}`)),
     ),
-    { initialValue: [] }
+    { initialValue: [] },
   );
 }
 ```

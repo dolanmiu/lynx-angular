@@ -1,5 +1,5 @@
 import type { ApplicationConfig, ApplicationRef, Type } from '@angular/core';
-import { bootstrapApplication } from '@angular/platform-browser';
+import { bootstrapApplication as ngBootstrapApplication } from '@angular/platform-browser';
 import { firstValueFrom, Subject } from 'rxjs';
 
 // On-device diagnostic: capture the last unhandled error/rejection so Angular
@@ -103,13 +103,18 @@ if (typeof document === 'undefined') {
     // for addEventListener('popstate'/'hashchange'). Point to our window mock.
     defaultView: globalThis,
     // getBaseHrefFromDOM() calls document.querySelector('base').
-    // Return null so Angular falls back to APP_BASE_HREF (provided in provideLynxRenderer).
+    // Return null so Angular falls back to APP_BASE_HREF (provided in provideRenderer).
     querySelector: () => null,
   };
 }
 
-if (typeof window === 'undefined') {
-  (globalThis as any).window = globalThis;
+try {
+  if (typeof window === 'undefined') {
+    (globalThis as any).window = globalThis;
+  }
+} catch {
+  // Read-only in web environment (lynx-view shadows window=void 0 but
+  // globalThis.window is a non-configurable getter on the Window object)
 }
 
 // BrowserPlatformLocation.onPopState/onHashChange call window.addEventListener.
@@ -162,7 +167,7 @@ globalThis.runWorklet = (value, params) => {
 
 const pageReady = new Subject<void>();
 
-export const bootstrapLynxApplication = async (
+export const bootstrapApplication = async (
   rootComponent: Type<unknown>,
   options?: ApplicationConfig,
 ): Promise<ApplicationRef> => {
@@ -184,7 +189,7 @@ export const bootstrapLynxApplication = async (
     await firstValueFrom(pageReady);
   }
 
-  const appRef = await bootstrapApplication(rootComponent, options);
+  const appRef = await ngBootstrapApplication(rootComponent, options);
   (globalThis as any).__LYNX_ANGULAR_APP_REF__ = appRef;
   return appRef;
 };

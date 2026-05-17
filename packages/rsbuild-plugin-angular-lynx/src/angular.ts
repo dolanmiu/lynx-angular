@@ -62,12 +62,23 @@ export const applyAngularRules = async (
   // let shouldTsIgnoreJs = true;
   // Determines if transpilation should be handle by TypeScript or esbuild
   // let useTypeScriptTranspilation = true;
+  // Write scoped CSS to a cache directory instead of next to source files.
+  // The bundler resolves them via relative imports computed by path.relative().
+  const scopedCssCacheDir = path.join(
+    basePath,
+    'node_modules',
+    '.cache',
+    'angular-lynx-css',
+  );
+  fs.mkdirSync(scopedCssCacheDir, { recursive: true });
+
   const componentStylesCache = new Map<
     string,
     {
       imports: string[];
       inlineStyles: string[];
       scopeId: string;
+      processedFiles: Map<string, string>;
     }
   >();
   const componentScopeIds = new Map<
@@ -113,13 +124,31 @@ export const applyAngularRules = async (
                 imports: [],
                 inlineStyles: [],
                 scopeId,
+                processedFiles: new Map(),
               };
               componentStylesCache.set(containingFile, componentStyles);
             }
-            componentScopeIds.set(containingFile, {
-              className: resolvedClassName,
-              scopeId,
-            });
+
+            // Angular's AOT compiler may invoke this callback multiple times
+            // for the same stylesheet — once with className undefined (fallback
+            // to 'Component') and once with the real class name. Deduplicate:
+            // skip fallback calls when the stylesheet was already processed,
+            // but allow real-className calls to overwrite the fallback.
+            const stylesheetKey = stylesheetFile ?? `__inline_${order}`;
+            const previousPath =
+              componentStyles.processedFiles.get(stylesheetKey);
+
+            if (previousPath && !className) {
+              return '';
+            }
+
+            // Prefer the real class name for the scope ID set on ɵcmp.id
+            if (className || !componentScopeIds.has(containingFile)) {
+              componentScopeIds.set(containingFile, {
+                className: resolvedClassName,
+                scopeId,
+              });
+            }
 
             // Use raw CSS without Angular's encapsulateStyle scoping.
             // Angular's encapsulateStyle generates [_ngcontent-xxx] attribute selectors,
@@ -141,19 +170,43 @@ export const applyAngularRules = async (
               fs.writeFileSync(filePath, content);
             };
 
+            let scopedPath: string;
             if (stylesheetFile) {
-              const scopedPath = `${stylesheetFile}.__scoped_${scopeId}.css`;
-              writeIfChanged(scopedPath, scopedCss);
-              componentStyles.imports.push(scopedPath);
-            } else {
-              const containingDir = path.dirname(containingFile);
-              const scopedPath = path.join(
-                containingDir,
-                `__inline_${resolvedClassName}_${order}.__scoped_${scopeId}.css`,
+              const relName = path.relative(basePath, stylesheetFile);
+              scopedPath = path.join(
+                scopedCssCacheDir,
+                `${relName.replace(/[/\\]/g, '__')}.__scoped_${scopeId}.css`,
               );
-              writeIfChanged(scopedPath, scopedCss);
+            } else {
+              const relDir = path.relative(
+                basePath,
+                path.dirname(containingFile),
+              );
+              scopedPath = path.join(
+                scopedCssCacheDir,
+                `${relDir.replace(/[/\\]/g, '__')}__inline_${resolvedClassName}_${order}.__scoped_${scopeId}.css`,
+              );
+            }
+
+            writeIfChanged(scopedPath, scopedCss);
+
+            if (previousPath) {
+              const idx = componentStyles.imports.indexOf(previousPath);
+              if (idx >= 0) {
+                componentStyles.imports[idx] = scopedPath;
+              } else {
+                componentStyles.imports.push(scopedPath);
+              }
+              if (previousPath !== scopedPath) {
+                try {
+                  fs.unlinkSync(previousPath);
+                } catch {}
+              }
+            } else {
               componentStyles.imports.push(scopedPath);
             }
+
+            componentStyles.processedFiles.set(stylesheetKey, scopedPath);
             return '';
           },
         },
@@ -276,11 +329,11 @@ export const applyAngularRules = async (
       }
       // In dev mode, inject HMR self-accept in entry files so webpack doesn't
       // trigger a full page reload. The entry re-evaluates on any dependency
-      // update, calling bootstrapLynxApplication again (which handles
+      // update, calling bootstrapApplication again (which handles
       // re-bootstrap by destroying the previous app and creating a fresh one).
       if (
         process.env['NODE_ENV'] !== 'production' &&
-        code.includes('bootstrapLynxApplication')
+        code.includes('bootstrapApplication')
       ) {
         code += `\n;if (module.hot) { module.hot.accept(); }`;
       }

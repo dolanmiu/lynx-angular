@@ -9,6 +9,7 @@ Example app demonstrating the runtime library. Uses standalone components, zonel
 - **Signals** for reactive state
 - **Lazy-loaded routes** — all route components use `loadComponent`
 - Templates use Lynx elements: `<view>`, `<text>`, `<image>`, etc.
+- Angular signal props (`input`, `output`, `viewChild`, `viewChildren`, `contentChild`, `contentChildren`, `model`) must be public `readonly` — no ES private (`#`) or TypeScript `private`/`protected`
 
 ## Routes
 
@@ -24,9 +25,9 @@ Example app demonstrating the runtime library. Uses standalone components, zonel
 ```
 lynx.config.ts                     # RSpeedy config using pluginAngularLynx()
 src/
-  main.ts                          # Entry point — bootstrapLynxApplication()
+  main.ts                          # Entry point — bootstrapApplication()
   app/
-    app.config.ts                  # App config (zoneless CD + provideLynxRenderer())
+    app.config.ts                  # App config (zoneless CD + provideRenderer())
     app.routes.ts                  # Route definitions (all lazy-loaded)
     app.component.ts               # Root component
     elements-showcase/             # Showcases all supported Lynx elements

@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 type GridBackgroundProps = {
   gridSize?: number;
   meteorCount?: number;
-}
+};
 
 enum Direction {
   UP = 0,
@@ -42,20 +42,28 @@ class Meteor {
 
     switch (this.direction) {
       case Direction.UP:
-        this.x = Math.floor(getMiddlePosition(this.canvas.width) / this.gridSize) * this.gridSize;
+        this.x =
+          Math.floor(getMiddlePosition(this.canvas.width) / this.gridSize) *
+          this.gridSize;
         this.y = this.canvas.height;
         break;
       case Direction.RIGHT:
         this.x = 0;
-        this.y = Math.floor(getMiddlePosition(this.canvas.height) / this.gridSize) * this.gridSize;
+        this.y =
+          Math.floor(getMiddlePosition(this.canvas.height) / this.gridSize) *
+          this.gridSize;
         break;
       case Direction.DOWN:
-        this.x = Math.floor(getMiddlePosition(this.canvas.width) / this.gridSize) * this.gridSize;
+        this.x =
+          Math.floor(getMiddlePosition(this.canvas.width) / this.gridSize) *
+          this.gridSize;
         this.y = 0;
         break;
       case Direction.LEFT:
         this.x = this.canvas.width;
-        this.y = Math.floor(getMiddlePosition(this.canvas.height) / this.gridSize) * this.gridSize;
+        this.y =
+          Math.floor(getMiddlePosition(this.canvas.height) / this.gridSize) *
+          this.gridSize;
         break;
     }
   }
@@ -138,7 +146,10 @@ const MeteorsBackground: React.FC<GridBackgroundProps> = ({
     setCanvasSize();
     window.addEventListener('resize', setCanvasSize);
 
-    const meteors = Array.from({ length: meteorCount }, () => new Meteor(gridSize, canvas));
+    const meteors = Array.from(
+      { length: meteorCount },
+      () => new Meteor(gridSize, canvas),
+    );
 
     let rafId: number;
 

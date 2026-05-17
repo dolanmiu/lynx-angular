@@ -110,7 +110,11 @@
   }
 }
 
-:global(.dark) .show-case-frame .show-case-list .show-case-list-item .item-link {
+:global(.dark)
+  .show-case-frame
+  .show-case-list
+  .show-case-list-item
+  .item-link {
   color: #ff6b6b;
 }
 

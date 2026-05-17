@@ -1,0 +1,581 @@
+# Testing
+
+`@blotch/angular-lynx-testing-library` provides Angular Testing Library-style utilities for Angular Lynx components. It runs in jsdom via Vitest, bootstraps the full Lynx rendering pipeline, and exposes `@testing-library/dom` queries so your tests interact with rendered output the same way a user would.
+
+## Setup
+
+Install the package:
+
+```sh
+npm install --save-dev @blotch/angular-lynx-testing-library
+```
+
+Configure Vitest:
+
+```ts
+// vitest.config.ts
+import { defineConfig } from 'vitest/config';
+import path from 'node:path';
+
+export default defineConfig({
+  define: {
+    __DEV__: JSON.stringify(true),
+    __MAIN_THREAD__: JSON.stringify(true),
+  },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: [path.resolve(import.meta.dirname, 'src/setup.ts')],
+    include: ['src/**/*.test.ts'],
+  },
+});
+```
+
+Create `src/setup.ts` and import the setup module:
+
+```ts
+// src/setup.ts
+import '@blotch/angular-lynx-testing-library/setup';
+```
+
+The setup file installs `@lynx-js/testing-environment` on top of jsdom, polyfills the PAPI functions Angular Lynx needs (like `__GetParent`, `__NextElement`, and `__QuerySelector*`), and switches to the main thread so Lynx element creation APIs are active before Angular bootstraps.
+
+## Rendering a Component
+
+`render()` bootstraps a standalone Angular component through the full Lynx pipeline — Lynx element creation, the Angular renderer, and change detection — and returns the JSDOM root element along with `@testing-library/dom` queries.
+
+```ts
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
+import { render } from '@blotch/angular-lynx-testing-library';
+
+@Component({
+  selector: 'my-greeting',
+  template: `<text>Hello {{ name() }}</text>`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class GreetingComponent {
+  name = signal('World');
+}
+
+it('renders a greeting', async () => {
+  const { getByText } = await render(GreetingComponent);
+  expect(getByText('Hello World')).toBeTruthy();
+});
+```
+
+### RenderOptions
+
+Pass providers to inject dependencies or mock services:
+
+```ts
+import { InjectionToken, inject } from '@angular/core';
+
+const API_URL = new InjectionToken<string>('API_URL');
+
+@Component({
+  selector: 'my-comp',
+  template: `<text>{{ url }}</text>`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MyComponent {
+  url = inject(API_URL);
+}
+
+it('uses injected value', async () => {
+  const { getByText } = await render(MyComponent, {
+    providers: [{ provide: API_URL, useValue: 'https://api.example.com' }],
+  });
+  expect(getByText('https://api.example.com')).toBeTruthy();
+});
+```
+
+### RenderResult
+
+| Property                      | Type                                             | Description                                                                                               |
+| ----------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| `container`                   | `Element`                                        | JSDOM root `<page>` element containing all rendered children                                              |
+| `unmount`                     | `() => void`                                     | Destroys the Angular app                                                                                  |
+| `rerender`                    | `(component, options?) => Promise<RenderResult>` | Re-renders a new component into the same position without manual cleanup                                  |
+| `asFragment`                  | `() => DocumentFragment`                         | Returns a snapshot of the container for use with `toMatchSnapshot()`                                      |
+| `componentRef`                | `ComponentRef<unknown>`                          | Angular component reference — use `.injector` or `.instance`                                              |
+| `getByText`, `queryByText`, … | queries                                          | All [`@testing-library/dom` queries](https://testing-library.com/docs/queries/about) bound to `container` |
+
+## Querying the DOM
+
+The returned queries from `render()` are identical to `@testing-library/dom`. Use `getBy*` when the element must exist, `queryBy*` when it may be absent:
+
+```ts
+it('finds an element by text', async () => {
+  const { getByText, queryByText } = await render(TextComponent);
+  expect(getByText('Hello Lynx')).toBeTruthy();
+  expect(queryByText('Not here')).toBeNull();
+});
+```
+
+You can also use the `screen` export for global queries that always target the current render:
+
+```ts
+import { render, screen } from '@blotch/angular-lynx-testing-library';
+
+it('uses screen queries', async () => {
+  await render(TextComponent);
+  expect(screen.getByText('Hello Lynx')).toBeTruthy();
+});
+```
+
+### Scoping queries with `within()`
+
+Use `within()` to scope queries to a subtree. This is useful when a component renders multiple list items or nested sections that each contain the same text:
+
+```ts
+import { render, within } from '@blotch/angular-lynx-testing-library';
+
+it('queries within a specific item', async () => {
+  @Component({
+    selector: 'test-list',
+    template: `
+      @for (item of items(); track item.id) {
+        <view>
+          <text>{{ item.name }}</text>
+          <text>{{ item.price }}</text>
+        </view>
+      }
+    `,
+    changeDetection: ChangeDetectionStrategy.OnPush,
+  })
+  class ProductListComponent {
+    items = signal([
+      { id: 1, name: 'Widget', price: '$9.99' },
+      { id: 2, name: 'Gadget', price: '$19.99' },
+    ]);
+  }
+
+  const { container } = await render(ProductListComponent);
+  const views = container.querySelectorAll('view');
+
+  // Scope queries to the second item only — avoids ambiguity.
+  const gadgetRow = within(views[1] as HTMLElement);
+  expect(gadgetRow.getByText('Gadget')).toBeTruthy();
+  expect(gadgetRow.getByText('$19.99')).toBeTruthy();
+  expect(gadgetRow.queryByText('Widget')).toBeNull();
+});
+```
+
+`within()` returns the same set of bound queries as `render()`, just constrained to the element you pass in.
+
+## Re-rendering
+
+`rerender()` replaces the running component without requiring a manual `cleanup()` call. It tears down the current app and boots the new component into the same body position, returning a fresh `RenderResult`:
+
+```ts
+it('swaps components', async () => {
+  const { rerender } = await render(ComponentA);
+  const { container } = await rerender(ComponentB);
+  expect(container.querySelector('text')!.textContent).toBe('Component B');
+});
+```
+
+Pass new providers in the second argument:
+
+```ts
+const { rerender } = await render(PlaceholderComponent);
+const { container } = await rerender(WithTokenComponent, {
+  providers: [{ provide: MY_TOKEN, useValue: 'new-value' }],
+});
+```
+
+## Snapshot Testing
+
+`asFragment()` returns a live `DocumentFragment` snapshot of the container at the moment it is called. Snapshots capture the full Lynx element tree rendered into JSDOM:
+
+```ts
+it('matches snapshot', async () => {
+  const { asFragment } = await render(MyComponent);
+  expect(asFragment()).toMatchSnapshot();
+});
+```
+
+Because `asFragment()` is called lazily, you can capture state before and after an update:
+
+```ts
+const label = signal('before');
+const { asFragment } = await render(LabelComponent);
+expect(asFragment().querySelector('text')!.textContent).toBe('before');
+
+label.set('after');
+await waitForUpdate();
+expect(asFragment().querySelector('text')!.textContent).toBe('after');
+```
+
+## Accessing the Component
+
+`componentRef` gives you direct access to the bootstrapped Angular `ComponentRef`. The two most useful properties in tests are:
+
+**`componentRef.injector`** — retrieve a service or token provided to the app:
+
+```ts
+const TOKEN = new InjectionToken<string>('my-token');
+
+const { componentRef } = await render(MyComponent, {
+  providers: [{ provide: TOKEN, useValue: 'hello' }],
+});
+
+expect(componentRef.injector.get(TOKEN)).toBe('hello');
+```
+
+**`componentRef.instance`** — directly read or mutate signal state on the component instance:
+
+```ts
+@Component({
+  selector: 'my-comp',
+  template: `<text>{{ label() }}</text>`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MyComponent {
+  label = signal('initial');
+}
+
+const { container, componentRef } = await render(MyComponent);
+(componentRef.instance as MyComponent).label.set('updated');
+await waitForUpdate();
+expect(container.querySelector('text')!.textContent).toBe('updated');
+```
+
+:::note
+`componentRef.setInput()` requires AOT-compiled input metadata and does not work in the Vitest JIT environment. Use writable `signal()` fields on the component instance instead.
+:::
+
+The library re-exports the `ComponentRef` type from `@angular/core` so you can type your references without an extra import:
+
+```ts
+import {
+  render,
+  type ComponentRef,
+} from '@blotch/angular-lynx-testing-library';
+
+let ref: ComponentRef<MyComponent>;
+const result = await render(MyComponent);
+ref = result.componentRef as ComponentRef<MyComponent>;
+```
+
+## Reactive Updates with Signals
+
+After changing a signal value outside of an event handler, call `waitForUpdate()` to flush Angular's zoneless change detection scheduler and apply pending DOM updates:
+
+```ts
+import { render, waitForUpdate } from '@blotch/angular-lynx-testing-library';
+
+it('reflects signal changes in the DOM', async () => {
+  const label = signal('initial');
+
+  @Component({
+    selector: 'test-label',
+    template: `<text>{{ label() }}</text>`,
+    changeDetection: ChangeDetectionStrategy.OnPush,
+  })
+  class LabelComponent {
+    label = label;
+  }
+
+  const { container } = await render(LabelComponent);
+  expect(container.querySelector('text')!.textContent).toBe('initial');
+
+  label.set('updated');
+  await waitForUpdate();
+
+  expect(container.querySelector('text')!.textContent).toBe('updated');
+});
+```
+
+:::tip
+`waitForUpdate()` is only needed when you change signals directly in test code. Events fired through `fireEvent` trigger change detection automatically.
+:::
+
+## Firing Events
+
+Use `fireEvent` to simulate Lynx user interactions. It dispatches events using the same `bindEvent:<name>` convention that `LynxRenderer.listen()` registers:
+
+```ts
+import {
+  render,
+  fireEvent,
+  waitForUpdate,
+} from '@blotch/angular-lynx-testing-library';
+
+it('increments count on tap', async () => {
+  @Component({
+    selector: 'test-counter',
+    template: `<view (bindtap)="increment()"
+      ><text>{{ count() }}</text></view
+    >`,
+    changeDetection: ChangeDetectionStrategy.OnPush,
+  })
+  class CounterComponent {
+    count = signal(0);
+    increment() {
+      this.count.update((n) => n + 1);
+    }
+  }
+
+  const { container } = await render(CounterComponent);
+  expect(container.querySelector('text')!.textContent).toBe('0');
+
+  fireEvent.tap(container.querySelector('view')!);
+  await waitForUpdate();
+
+  expect(container.querySelector('text')!.textContent).toBe('1');
+});
+```
+
+### Supported Events
+
+**Touch / gesture**
+
+| Event         | Template binding    |
+| ------------- | ------------------- |
+| `tap`         | `(bindtap)`         |
+| `longtap`     | `(bindlongtap)`     |
+| `touchstart`  | `(bindtouchstart)`  |
+| `touchmove`   | `(bindtouchmove)`   |
+| `touchcancel` | `(bindtouchcancel)` |
+| `touchend`    | `(bindtouchend)`    |
+| `longpress`   | `(bindlongpress)`   |
+
+**Keyboard**
+
+| Event     | Template binding |
+| --------- | ---------------- |
+| `keydown` | `(bindkeydown)`  |
+| `keyup`   | `(bindkeyup)`    |
+
+**Mouse**
+
+| Event            | Template binding       |
+| ---------------- | ---------------------- |
+| `mousedown`      | `(bindmousedown)`      |
+| `mouseup`        | `(bindmouseup)`        |
+| `mousemove`      | `(bindmousemove)`      |
+| `mouseclick`     | `(bindmouseclick)`     |
+| `mousedblclick`  | `(bindmousedblclick)`  |
+| `mouselongpress` | `(bindmouselongpress)` |
+| `wheel`          | `(bindwheel)`          |
+
+**Scroll / viewport**
+
+| Event                 | Template binding            |
+| --------------------- | --------------------------- |
+| `scroll`              | `(bindscroll)`              |
+| `scrollend`           | `(bindscrollend)`           |
+| `scrolltoupper`       | `(bindscrolltoupper)`       |
+| `scrolltolower`       | `(bindscrolltolower)`       |
+| `contentsizechanged`  | `(bindcontentsizechanged)`  |
+| `scrolltoupperedge`   | `(bindscrolltoupperedge)`   |
+| `scrolltoloweredge`   | `(bindscrolltoloweredge)`   |
+| `scrolltonormalstate` | `(bindscrolltonormalstate)` |
+
+**Form / focus**
+
+| Event     | Template binding |
+| --------- | ---------------- |
+| `focus`   | `(bindfocus)`    |
+| `blur`    | `(bindblur)`     |
+| `input`   | `(bindinput)`    |
+| `confirm` | `(bindconfirm)`  |
+
+**Layout / image**
+
+| Event          | Template binding     |
+| -------------- | -------------------- |
+| `layoutchange` | `(bindlayoutchange)` |
+| `bgload`       | `(bindbgload)`       |
+| `bgerror`      | `(bindbgerror)`      |
+
+**Transition / animation**
+
+| Event              | Template binding         |
+| ------------------ | ------------------------ |
+| `transitionstart`  | `(bindtransitionstart)`  |
+| `transitionend`    | `(bindtransitionend)`    |
+| `transitioncancel` | `(bindtransitioncancel)` |
+| `animationend`     | `(bindanimationend)`     |
+
+### Passing Event Data
+
+Pass custom properties in the second argument — they are assigned to the dispatched event object and accessible via `$event` in the handler:
+
+```ts
+@Component({
+  selector: 'test-input',
+  template: `<view (bindinput)="onInput($event)"></view>`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class InputComponent {
+  value = signal('');
+  onInput(event: any) {
+    this.value.set(event.value);
+  }
+}
+
+it('passes event data to handler', async () => {
+  const { container } = await render(InputComponent);
+  fireEvent.input(container.querySelector('view')!, { value: 'hello' });
+  // handler receives event.value === 'hello'
+});
+```
+
+### Raw Event Dispatch
+
+Call `fireEvent(element, event)` directly to dispatch any DOM event:
+
+```ts
+fireEvent(element, new Event('bindEvent:tap'));
+```
+
+## Custom Queries
+
+Pass a `queries` map to `render()` to add query helpers that work alongside the standard `@testing-library/dom` queries. Each helper receives the container as its first argument when bound — identical to how `getQueriesForElement` works.
+
+```ts
+// custom-queries.ts
+export const queryByLynxTag = (container: HTMLElement, tag: string) =>
+  container.querySelector(tag);
+
+export const getByLynxTag = (container: HTMLElement, tag: string) => {
+  const el = container.querySelector(tag);
+  if (!el) throw new Error(`Unable to find <${tag}> element`);
+  return el;
+};
+```
+
+```ts
+import { queryByLynxTag, getByLynxTag } from './custom-queries';
+
+it('finds a view element', async () => {
+  const result = await render(MyComponent, {
+    queries: { queryByLynxTag, getByLynxTag },
+  });
+
+  expect(result.getByLynxTag('view')).not.toBeNull();
+  // Standard queries still work:
+  expect(result.getByText('Hello')).not.toBeNull();
+});
+```
+
+Standard queries (`getByText`, `queryByRole`, etc.) are always present — custom queries are merged on top, not substituted for them. If you only need custom queries in one test, you can also call `getQueriesForElement(container, customQueries)` directly without the `queries` option.
+
+## Control Flow
+
+`@if` and `@for` work exactly as in a real app:
+
+```ts
+it('conditionally renders content', async () => {
+  const show = signal(true);
+
+  @Component({
+    selector: 'test-cond',
+    template: `@if (show()) {
+      <text>Visible</text>
+    }`,
+    changeDetection: ChangeDetectionStrategy.OnPush,
+  })
+  class CondComponent {
+    show = show;
+  }
+
+  const { container } = await render(CondComponent);
+  expect(container.querySelector('text')).toBeTruthy();
+
+  show.set(false);
+  await waitForUpdate();
+
+  expect(container.querySelector('text')).toBeNull();
+});
+```
+
+```ts
+it('renders a list', async () => {
+  @Component({
+    selector: 'test-list',
+    template: `@for (item of items(); track item) {
+      <text>{{ item }}</text>
+    }`,
+    changeDetection: ChangeDetectionStrategy.OnPush,
+  })
+  class ListComponent {
+    items = signal(['Alpha', 'Beta', 'Gamma']);
+  }
+
+  const { container } = await render(ListComponent);
+  const texts = container.querySelectorAll('text');
+  expect(texts.length).toBe(3);
+  expect(texts[0]!.textContent).toBe('Alpha');
+});
+```
+
+## Cleanup
+
+The library auto-calls `cleanup()` after each test (matching the `@testing-library/react` convention). To opt out, set the environment variable `ATL_SKIP_AUTO_CLEANUP=true` and call `cleanup()` manually.
+
+You can also use the `unmount` function returned by `render()`:
+
+```ts
+it('can unmount explicitly', async () => {
+  const { unmount } = await render(MyComponent);
+  unmount();
+});
+```
+
+## API Reference
+
+### `render(component, options?)`
+
+Bootstraps an Angular component through the full Lynx pipeline.
+
+```ts
+async function render(
+  rootComponent: Type<unknown>,
+  options?: RenderOptions,
+): Promise<RenderResult>;
+
+type RenderOptions = {
+  providers?: (Provider | EnvironmentProviders)[];
+  queries?: Queries; // merged with standard @testing-library/dom queries
+};
+
+type RenderResult = {
+  container: Element;
+  unmount: () => void;
+  rerender: (
+    component: Type<unknown>,
+    options?: RenderOptions,
+  ) => Promise<RenderResult>;
+  asFragment: () => DocumentFragment;
+  componentRef: ComponentRef<unknown>;
+  // plus all @testing-library/dom queries
+  [key: string]: any;
+};
+```
+
+### `cleanup()`
+
+Destroys the currently mounted Angular app and clears the JSDOM body. Called automatically after each test.
+
+### `waitForUpdate()`
+
+Flushes pending Angular zoneless scheduler updates to the DOM. Await this after setting signal values directly in test code.
+
+### `fireEvent`
+
+Dispatches Lynx events to elements. Has named helpers for every event in `eventMap` plus a raw call signature:
+
+```ts
+fireEvent.tap(element, init?)
+fireEvent.keydown(element, { key: 'Enter' })
+fireEvent.bgload(element)
+fireEvent.scrolltoupper(element)
+fireEvent(element, new Event('bindEvent:tap'))
+```
+
+### `screen`, `within`, `getQueriesForElement`
+
+Re-exported directly from `@testing-library/dom`.

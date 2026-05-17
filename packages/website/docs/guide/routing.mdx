@@ -4,21 +4,21 @@ Angular Lynx uses the standard `@angular/router` with custom location strategies
 
 ## Setup
 
-Use `provideLynxRouter()` from `@blotch/angular-lynx` instead of the standard `provideRouter()`:
+Use `provideRouter()` from `@blotch/angular-lynx` instead of the standard `provideRouter()`:
 
 ```typescript title="src/app/app.config.ts"
 import {
   type ApplicationConfig,
   provideZonelessChangeDetection,
 } from '@angular/core';
-import { provideLynxRenderer, provideLynxRouter } from '@blotch/angular-lynx'; // [!code highlight]
+import { provideRenderer, provideRouter } from '@blotch/angular-lynx'; // [!code highlight]
 import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZonelessChangeDetection(),
-    provideLynxRenderer(),
-    provideLynxRouter(routes), // [!code highlight]
+    provideRenderer(),
+    provideRouter(routes), // [!code highlight]
   ],
 };
 ```
@@ -78,7 +78,7 @@ Always wrap `router.navigateByUrl()` or `router.navigate()` in `setTimeout(() =>
 
 ## How It Works
 
-`provideLynxRouter()` configures three custom strategies that adapt Angular's router for Lynx:
+`provideRouter()` configures three custom strategies that adapt Angular's router for Lynx:
 
 ### LynxLocationStrategy
 
@@ -93,6 +93,7 @@ An in-memory `PlatformLocation` that provides `pathname`, `search`, and `hash` b
 This strategy is critical for Lynx stability. It detaches component views on navigation instead of destroying them.
 
 **Why this matters:**
+
 - Lynx allocates elements in a fixed-size native pool (~256 slots)
 - `__RemoveElement` detaches elements from the tree but does **not** free their pool slots
 - Angular's default strategy destroys components on navigation, creating fresh elements each time
@@ -113,32 +114,32 @@ export const routes: Routes = [
   {
     path: 'home',
     loadComponent: () =>
-      import('./home/home.component').then(m => m.HomeComponent),
+      import('./home/home.component').then((m) => m.HomeComponent),
   },
   {
     path: 'settings',
     loadComponent: () =>
-      import('./settings/settings.component').then(m => m.SettingsComponent),
+      import('./settings/settings.component').then((m) => m.SettingsComponent),
   },
   {
     path: 'profile/:id',
     loadComponent: () =>
-      import('./profile/profile.component').then(m => m.ProfileComponent),
+      import('./profile/profile.component').then((m) => m.ProfileComponent),
   },
 ];
 ```
 
 ## Router Features
 
-`provideLynxRouter()` accepts additional Angular Router features as arguments:
+`provideRouter()` accepts additional Angular Router features as arguments:
 
 ```typescript
 import { withComponentInputBinding } from '@angular/router';
 
-provideLynxRouter(
+provideRouter(
   routes,
   withComponentInputBinding(), // Bind route params to component inputs
-)
+);
 ```
 
 With `withComponentInputBinding`, route parameters are automatically bound to matching component inputs:
@@ -179,12 +180,12 @@ export class NavService {
 
 ## Differences from Web Angular Router
 
-| Feature | Web Angular | Angular Lynx |
-|---|---|---|
-| URL bar | Updated on navigation | No URL bar (in-memory only) |
-| Browser back/forward | Triggers `popstate` | Not available (use `router.navigate` or `history.back()`) |
-| Deep linking via URL | Supported | Not applicable |
-| Route reuse | Destroyed by default | Reused by default (pool management) |
-| Navigation timing | Synchronous OK | Must use `setTimeout` |
-| History mode | `PathLocationStrategy` / `HashLocationStrategy` | `LynxLocationStrategy` (in-memory) |
-| `RouterLink` directive | Works with `<a>` | Use `(bindtap)` on `<view>` instead |
+| Feature                | Web Angular                                     | Angular Lynx                                              |
+| ---------------------- | ----------------------------------------------- | --------------------------------------------------------- |
+| URL bar                | Updated on navigation                           | No URL bar (in-memory only)                               |
+| Browser back/forward   | Triggers `popstate`                             | Not available (use `router.navigate` or `history.back()`) |
+| Deep linking via URL   | Supported                                       | Not applicable                                            |
+| Route reuse            | Destroyed by default                            | Reused by default (pool management)                       |
+| Navigation timing      | Synchronous OK                                  | Must use `setTimeout`                                     |
+| History mode           | `PathLocationStrategy` / `HashLocationStrategy` | `LynxLocationStrategy` (in-memory)                        |
+| `RouterLink` directive | Works with `<a>`                                | Use `(bindtap)` on `<view>` instead                       |

@@ -2,7 +2,21 @@ import { Directive } from '@angular/core';
 import { LynxElementBase } from './base';
 
 /** Scrollable single-child container. */
-@Directive({ selector: 'scroll-view', standalone: true })
+@Directive({
+  selector: 'scroll-view',
+  standalone: true,
+  inputs: [
+    'scroll-orientation',
+    'enable-scroll',
+    'bounces',
+    'scroll-bar-enable',
+    'upper-threshold',
+    'lower-threshold',
+    'initial-scroll-offset',
+    'initial-scroll-to-index',
+    'enable-nested-scroll',
+  ],
+})
 export class LynxScrollView extends LynxElementBase {
   /** Scroll axis. @default 'vertical' */
   'scroll-orientation'?: 'vertical' | 'horizontal';

@@ -2,7 +2,18 @@ import { Directive } from '@angular/core';
 import { LynxElementBase } from './base';
 
 /** Displays text content. Supports inline child `<text>` elements for mixed styling. */
-@Directive({ selector: 'text', standalone: true })
+@Directive({
+  selector: 'text',
+  standalone: true,
+  inputs: [
+    'text-maxline',
+    'text-single-line-vertical-align',
+    'text-selection',
+    'custom-context-menu',
+    'include-font-padding',
+    'tail-color-convert',
+  ],
+})
 export class LynxText extends LynxElementBase {
   /** Maximum number of lines before truncation with ellipsis. */
   'text-maxline'?: number;

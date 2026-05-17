@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 
-export function DotPattern() {
+export const DotPattern = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const doDraw = useCallback(() => {
@@ -42,7 +42,15 @@ export function DotPattern() {
   return (
     <canvas
       ref={canvasRef}
-      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1, pointerEvents: 'none' }}
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: -1,
+        pointerEvents: 'none',
+      }}
     />
   );
-}
+};

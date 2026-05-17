@@ -2,7 +2,32 @@ import { Directive } from '@angular/core';
 import { LynxElementBase } from './base';
 
 /** High-performance virtualised list, equivalent to RecyclerView / UITableView. */
-@Directive({ selector: 'list', standalone: true })
+@Directive({
+  selector: 'list',
+  standalone: true,
+  inputs: [
+    'list-type',
+    'span-count',
+    'scroll-orientation',
+    'enable-scroll',
+    'enable-nested-scroll',
+    'bounces',
+    'sticky',
+    'sticky-offset',
+    'scroll-bar-enable',
+    'initial-scroll-index',
+    'upper-threshold-item-count',
+    'lower-threshold-item-count',
+    'scroll-event-throttle',
+    'need-visible-item-info',
+    'need-layout-complete-info',
+    'preload-buffer-count',
+    'item-snap',
+    'update-animation',
+    'list-main-axis-gap',
+    'list-cross-axis-gap',
+  ],
+})
 export class LynxList extends LynxElementBase {
   /**
    * Layout algorithm.
@@ -47,7 +72,20 @@ export class LynxList extends LynxElementBase {
 }
 
 /** Child of `<list>`; represents a single virtualised cell. */
-@Directive({ selector: 'list-item', standalone: true })
+@Directive({
+  selector: 'list-item',
+  standalone: true,
+  inputs: [
+    'item-key',
+    'full-span',
+    'sticky-top',
+    'sticky-bottom',
+    'recyclable',
+    'reuse-identifier',
+    'estimated-main-axis-size-px',
+    'defer',
+  ],
+})
 export class LynxListItem extends LynxElementBase {
   /**
    * Stable unique key for this item — used for diffing and recycling.

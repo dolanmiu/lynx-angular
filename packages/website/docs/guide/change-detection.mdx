@@ -13,12 +13,12 @@ import {
   type ApplicationConfig,
   provideZonelessChangeDetection, // [!code highlight]
 } from '@angular/core';
-import { provideLynxRenderer } from '@blotch/angular-lynx';
+import { provideRenderer } from '@blotch/angular-lynx';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZonelessChangeDetection(), // Required — Zone.js doesn't exist in Lynx // [!code highlight]
-    provideLynxRenderer(),
+    provideRenderer(),
   ],
 };
 ```
@@ -49,7 +49,7 @@ export class CounterComponent {
   double = computed(() => this.count() * 2);
 
   increment(): void {
-    this.count.update(n => n + 1);
+    this.count.update((n) => n + 1);
   }
 }
 ```
@@ -114,6 +114,7 @@ onTap(): void {
 ```
 
 This applies to any action that triggers structural DOM changes:
+
 - Router navigation (`router.navigateByUrl()`, `router.navigate()`)
 - Toggling overlays (`showOverlay.set(true)`)
 - Adding/removing elements that trigger `@if`/`@for` changes with side effects
@@ -131,21 +132,18 @@ import { HttpClient } from '@angular/common/http';
 export class UsersComponent {
   #http = inject(HttpClient);
 
-  users = toSignal(
-    this.#http.get<User[]>('/api/users'),
-    { initialValue: [] }
-  );
+  users = toSignal(this.#http.get<User[]>('/api/users'), { initialValue: [] });
 }
 ```
 
 ## Web Angular vs Angular Lynx
 
-| Pattern | Web Angular | Angular Lynx |
-|---|---|---|
-| Change detection trigger | Zone.js patches or signals | Signals only |
-| `async` pipe | Works with Zone.js | Use `toSignal()` instead |
-| `ChangeDetectorRef.detectChanges()` | Common with OnPush | Rarely needed |
-| `NgZone.run()` | Re-enter Angular zone | Not applicable (no zone) |
-| `NgZone.runOutsideAngular()` | Opt out of CD | Not applicable |
-| `markForCheck()` | Required with OnPush | Not needed with signals |
-| DOM mutation timing | Immediate | Batched via `__FlushElementTree()` |
+| Pattern                             | Web Angular                | Angular Lynx                       |
+| ----------------------------------- | -------------------------- | ---------------------------------- |
+| Change detection trigger            | Zone.js patches or signals | Signals only                       |
+| `async` pipe                        | Works with Zone.js         | Use `toSignal()` instead           |
+| `ChangeDetectorRef.detectChanges()` | Common with OnPush         | Rarely needed                      |
+| `NgZone.run()`                      | Re-enter Angular zone      | Not applicable (no zone)           |
+| `NgZone.runOutsideAngular()`        | Opt out of CD              | Not applicable                     |
+| `markForCheck()`                    | Required with OnPush       | Not needed with signals            |
+| DOM mutation timing                 | Immediate                  | Batched via `__FlushElementTree()` |

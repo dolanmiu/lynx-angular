@@ -2,7 +2,11 @@ import { Directive } from '@angular/core';
 import { LynxElementBase } from './base';
 
 /** Embeds a separate Lynx bundle as a nested page. */
-@Directive({ selector: 'frame', standalone: true })
+@Directive({
+  selector: 'frame',
+  standalone: true,
+  inputs: ['src', 'data', 'global-props', 'auto-width', 'auto-height'],
+})
 export class LynxFrame extends LynxElementBase {
   /** URL of the `.lynx.bundle` file to embed. */
   src?: string;
