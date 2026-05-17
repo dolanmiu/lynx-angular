@@ -136,7 +136,7 @@ for (const tag of ['block', 'for', 'frame', 'if']) {
 
 // ─── After reset ─────────────────────────────────────────────────────────────
 
-// lynxTestingEnv.reset() reinjects globals from scratch. Re-establish main
+// lynxTestingEnv.reset() re-injects globals from scratch. Re-establish main
 // thread context and restore our polyfills afterwards.
 (globalThis as any).onResetLynxTestingEnv = () => {
   lynxTestingEnv.switchToMainThread();

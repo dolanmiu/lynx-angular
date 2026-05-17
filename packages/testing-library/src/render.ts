@@ -68,7 +68,8 @@ export type RenderResult<Q extends Queries = typeof domQueries> = {
    * pattern is to expose writable signals on the component instance instead.
    */
   componentRef: ComponentRef<unknown>;
-} & BoundFunctions<Q>;
+} & BoundFunctions<typeof domQueries> &
+  BoundFunctions<Q>;
 
 let currentAppRef: ApplicationRef | null = null;
 

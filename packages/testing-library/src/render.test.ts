@@ -611,10 +611,10 @@ describe('rerender', () => {
   });
 
   it('custom queries option works on the rerendered result', async () => {
-    const getByTag = (container: HTMLElement, tag: string) => {
+    const getByTag = (container: HTMLElement, tag: string): HTMLElement => {
       const el = container.querySelector(tag);
       if (!el) throw new Error(`No <${tag}>`);
-      return el;
+      return el as HTMLElement;
     };
 
     @Component({
@@ -633,10 +633,10 @@ describe('rerender', () => {
 
     const { rerender } = await render(CustomQBeforeComponent);
     const result = await rerender(CustomQAfterComponent, {
-      queries: { getByTag } as any,
+      queries: { getByTag },
     });
 
-    expect(result['getByTag']('text').textContent).toBe('Custom');
+    expect(result.getByTag('text').textContent).toBe('Custom');
   });
 });
 
@@ -786,52 +786,40 @@ describe('returned queries', () => {
 });
 
 describe('options.queries', () => {
-  // A minimal custom query pair: queryByTag / getByTag.
-  // These mirror the shape expected by getQueriesForElement — each function
-  // receives the bound container as its first argument.
-  const queryByTag = (container: HTMLElement, tag: string): Element | null =>
-    container.querySelector(tag);
+  const queryByTag = (
+    container: HTMLElement,
+    tag: string,
+  ): HTMLElement | null => container.querySelector(tag);
 
-  const getByTag = (container: HTMLElement, tag: string): Element => {
+  const getByTag = (container: HTMLElement, tag: string): HTMLElement => {
     const el = container.querySelector(tag);
     if (!el) throw new Error(`Unable to find element with tag: ${tag}`);
-    return el;
+    return el as HTMLElement;
   };
 
   const customQueries = { queryByTag, getByTag };
 
   it('merges custom queries into the render result', async () => {
-    const result = await render(TextComponent, {
-      queries: customQueries as any,
-    });
-    // getQueriesForElement binds the container, so custom helpers are available directly.
-    expect(typeof result['getByTag']).toBe('function');
-    expect(typeof result['queryByTag']).toBe('function');
+    const result = await render(TextComponent, { queries: customQueries });
+    expect(typeof result.getByTag).toBe('function');
+    expect(typeof result.queryByTag).toBe('function');
   });
 
   it('custom query finds the correct element', async () => {
-    const result = await render(TextComponent, {
-      queries: customQueries as any,
-    });
-    const el = result['getByTag']('text');
+    const result = await render(TextComponent, { queries: customQueries });
+    const el = result.getByTag('text');
     expect(el).not.toBeNull();
     expect(el.textContent).toBe('Hello Lynx');
   });
 
   it('custom query returns null when the element is absent', async () => {
-    const result = await render(TextComponent, {
-      queries: customQueries as any,
-    });
-    expect(result['queryByTag']('image')).toBeNull();
+    const result = await render(TextComponent, { queries: customQueries });
+    expect(result.queryByTag('image')).toBeNull();
   });
 
   it('standard queries still work alongside custom queries', async () => {
-    const result = await render(TextComponent, {
-      queries: customQueries as any,
-    });
-    // Built-in query still present
+    const result = await render(TextComponent, { queries: customQueries });
     expect(result.getByText('Hello Lynx')).not.toBeNull();
-    // Custom query also present
-    expect(result['getByTag']('text')).not.toBeNull();
+    expect(result.getByTag('text')).not.toBeNull();
   });
 });
