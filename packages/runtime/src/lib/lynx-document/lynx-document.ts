@@ -27,9 +27,7 @@ export class LynxDocument implements LynxDocumentBase {
   // Track NoneElements (Angular comment markers from @for/@if) so list can skip them
   readonly #nonElements = new WeakSet<ElementRef>();
 
-  constructor() {
-    if (__DEV__) console.log('main thread lynx document');
-  }
+  constructor() {}
   createRootElement(): LynxElement {
     const pageElement = __CreatePage('0', 0);
     this.page = new LynxElement(pageElement);

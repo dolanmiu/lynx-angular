@@ -6,11 +6,7 @@
     "moduleResolution": "bundler",
     "target": "ES2022",
     "strictPropertyInitialization": false,
-    "noImplicitAny": false,
-    "paths": {
-      "@blotch/angular-lynx": ["../runtime/src/public-api.ts"],
-      "@blotch/angular-lynx/*": ["../runtime/src/*"]
-    }
+    "noImplicitAny": false
   },
   "include": ["src"]
 }

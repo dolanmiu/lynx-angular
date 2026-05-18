@@ -135,15 +135,15 @@ describe('__AddClass / __GetClasses', () => {
     expect(el.classList.contains('my-class')).toBe(true);
   });
 
-  it('returns all classes as a space-separated string', () => {
+  it('returns all classes as an array', () => {
     const el = document.createElement('div');
     el.classList.add('a', 'b', 'c');
-    expect((globalThis as any).__GetClasses(el)).toBe('a b c');
+    expect((globalThis as any).__GetClasses(el)).toEqual(['a', 'b', 'c']);
   });
 
-  it('returns an empty string when the element has no classes', () => {
+  it('returns an empty array when the element has no classes', () => {
     const el = document.createElement('div');
-    expect((globalThis as any).__GetClasses(el)).toBe('');
+    expect((globalThis as any).__GetClasses(el)).toEqual([]);
   });
 });
 

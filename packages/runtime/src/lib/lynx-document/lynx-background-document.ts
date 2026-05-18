@@ -4,9 +4,7 @@ import type { LynxDocumentBase } from './types';
 export class LynxBackgroundDocument implements LynxDocumentBase {
   _page: LynxBackgroundElement | null = null;
 
-  constructor() {
-    if (__DEV__) console.log('background thread lynx document');
-  }
+  constructor() {}
   createRootElement(): LynxBackgroundElement {
     const page = new LynxBackgroundElement();
     page.setAttribute('tagName', 'page');
@@ -30,7 +28,6 @@ export class LynxBackgroundDocument implements LynxDocumentBase {
       element.setAttribute('textContent', value);
     }
 
-    if (__DEV__) console.log(`Creating background element for tag: ${tag}`);
     return element;
   }
   createText(value: string): LynxBackgroundElement {

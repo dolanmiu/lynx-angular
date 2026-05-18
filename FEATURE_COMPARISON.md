@@ -21,18 +21,18 @@
 | ------------------------------------------------------ | :------------------------------: | :-------------------------------: | :----------------------: |
 | Basic event binding (`bindtap`, etc.)                  |                ✅                |                ✅                 |            ✅            |
 | Event prefixes (bind/catch/capture-bind/capture-catch) |                ✅                |                ✅                 |   ✅ (.stop modifier)    |
-| Global events                                          |                ❌                | ✅ (`useLynxGlobalEventListener`) |  ✅ (`bindGlobalEvent`)  |
+| Global events                                          |    ✅ (`global-bind` prefix)     | ✅ (`useLynxGlobalEventListener`) |  ✅ (`bindGlobalEvent`)  |
 | Event modifiers                                        | N/A (Angular doesn't have these) |                N/A                | ✅ (.once, .stop, .self) |
 
 ## List Virtualization
 
-| Feature                        |         AngularLynx         |       React Lynx        | Vue Lynx |
-| ------------------------------ | :-------------------------: | :---------------------: | :------: |
-| `<list>` with componentAtIndex |             ✅              |           ✅            |    ✅    |
-| Item recycling                 | ✅ (via RouteReuseStrategy) |  ✅ (reuse-identifier)  |    ✅    |
-| Diff-based updates             |             ✅              |           ✅            |    ✅    |
-| Deferred list items            |             ❌              | ✅ (`DeferredListItem`) |    ❌    |
-| Batch update scheduling        |             ✅              |           ✅            |    ✅    |
+| Feature                        |      AngularLynx      |       React Lynx        | Vue Lynx |
+| ------------------------------ | :-------------------: | :---------------------: | :------: |
+| `<list>` with componentAtIndex |          ✅           |           ✅            |    ✅    |
+| Item recycling                 | ✅ (reuse-identifier) |  ✅ (reuse-identifier)  |    ✅    |
+| Diff-based updates             |          ✅           |           ✅            |    ✅    |
+| Deferred list items            |  ✅ (`defer` input)   | ✅ (`DeferredListItem`) |    ❌    |
+| Batch update scheduling        |          ✅           |           ✅            |    ✅    |
 
 ## Gestures
 
@@ -110,22 +110,22 @@
 
 | Feature                      | AngularLynx |        React Lynx        |             Vue Lynx              |
 | ---------------------------- | :---------: | :----------------------: | :-------------------------------: |
-| Testing library              |     ❌      | ✅ (testing-library API) |     ✅ (@vue/testing-library)     |
-| Component rendering in tests |     ❌      |            ✅            | ✅ (dual-thread pipeline + JSDOM) |
-| Event simulation             |     ❌      |            ✅            |         ✅ (`fireEvent`)          |
-| Test runner integration      |     ❌      |   ✅ (Vitest, Rstest)    |            ✅ (Vitest)            |
+| Testing library              |     ✅      | ✅ (testing-library API) |     ✅ (@vue/testing-library)     |
+| Component rendering in tests |     ✅      |            ✅            | ✅ (dual-thread pipeline + JSDOM) |
+| Event simulation             |     ✅      |            ✅            |         ✅ (`fireEvent`)          |
+| Test runner integration      |     ✅      |   ✅ (Vitest, Rstest)    |            ✅ (Vitest)            |
 
 ## Developer Experience
 
-| Feature                                  |      AngularLynx       |         React Lynx          |         Vue Lynx         |
-| ---------------------------------------- | :--------------------: | :-------------------------: | :----------------------: |
-| Project scaffolding CLI                  |           ❌           |             ❌              |  ✅ (`create-vue-lynx`)  |
-| IDE type support for Lynx elements       |  ✅ (directive stubs)  |             ✅              |    ✅ (Volar plugin)     |
-| HMR                                      | ❌ (live reload only)  |        ❌ (unclear)         |            ✅            |
-| Build diagnostics (invalid elements/CSS) |           ✅           |             ❌              |            ❌            |
-| DevTools integration                     |           ❌           | ⚠️ (profile hooks, logging) | ⚠️ (Vue devtools option) |
-| Documentation site                       |           ❌           |             ❌              |   ✅ (vue.lynxjs.org)    |
-| Example gallery                          | ❌ (kitchen-sink only) |             ❌              |     ✅ (26 examples)     |
+| Feature                                  |            AngularLynx             |         React Lynx          |         Vue Lynx         |
+| ---------------------------------------- | :--------------------------------: | :-------------------------: | :----------------------: |
+| Project scaffolding CLI                  |                 ❌                 |             ❌              |  ✅ (`create-vue-lynx`)  |
+| IDE type support for Lynx elements       |        ✅ (directive stubs)        |             ✅              |    ✅ (Volar plugin)     |
+| HMR                                      | ⚠️ (module HMR, re-bootstraps app) |        ❌ (unclear)         |            ✅            |
+| Build diagnostics (invalid elements/CSS) |                 ✅                 |             ❌              |            ❌            |
+| DevTools integration                     |                 ❌                 | ⚠️ (profile hooks, logging) | ⚠️ (Vue devtools option) |
+| Documentation site                       |                 ❌                 |             ❌              |   ✅ (vue.lynxjs.org)    |
+| Example gallery                          |       ❌ (kitchen-sink only)       |             ❌              |     ✅ (26 examples)     |
 
 ## Build Plugin
 
@@ -143,7 +143,7 @@
 
 | Feature                       | AngularLynx |    React Lynx    |     Vue Lynx     |
 | ----------------------------- | :---------: | :--------------: | :--------------: |
-| a11y attributes on directives |     ❌      | ❌ (passthrough) | ❌ (passthrough) |
+| a11y attributes on directives |     ✅      | ❌ (passthrough) | ❌ (passthrough) |
 | Screen reader API wrapper     |     ❌      |        ❌        |        ❌        |
 | `enableA11y` build option     |     ✅      |        ❌        |        ❌        |
 
@@ -155,6 +155,8 @@
 - Build-time diagnostics catching invalid HTML elements and unsupported CSS
 - Auto CUSTOM_ELEMENTS_SCHEMA injection (zero config for template type-checking)
 - Tailwind auto-detection
+- Typed a11y attributes on every Lynx element directive (React/Vue only passthrough)
+- Full testing library: `render()`, `fireEvent`, `screen` queries, Vitest integration
 
 ### Biggest gaps vs React Lynx
 
@@ -162,21 +164,18 @@
 2. Main thread scripting / worklets
 3. Lazy bundle loading (non-route)
 4. SSR / hydration / first-screen optimization
-5. Testing library
-6. Data flow patterns (InitData, GlobalProps)
+5. Data flow patterns (InitData, GlobalProps)
 
 ### Biggest gaps vs Vue Lynx
 
-1. HMR (Vue has it working)
-2. Testing library
-3. `<Transition>` / animation component abstraction
-4. Project scaffolding CLI
-5. Documentation site & example gallery
-6. CSS Modules
+1. HMR (Vue has component-level state preservation; Angular re-bootstraps the whole app)
+2. `<Transition>` / animation component abstraction
+3. Project scaffolding CLI
+4. Documentation site & example gallery
+5. CSS Modules
 
 ### Both React & Vue have, Angular doesn't
 
 - Component-level error boundaries with recovery UI
 - Suspense / async component loading
 - Main thread refs and worklet event handlers
-- Dedicated testing utilities

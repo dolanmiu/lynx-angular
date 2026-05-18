@@ -15,6 +15,9 @@ export default defineConfig({
     globals: true,
     setupFiles: [path.resolve(import.meta.dirname, 'src/setup.ts')],
     include: ['src/**/*.test.ts'],
+    onConsoleLog(log) {
+      if (log.includes('Angular is running in development mode')) return false;
+    },
     alias: [
       {
         find: '@blotch/angular-lynx',

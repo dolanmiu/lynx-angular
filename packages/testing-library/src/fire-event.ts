@@ -73,7 +73,7 @@ export const fireEvent: FireEvent = ((elem: Element, event: Event) => {
 
 for (const key of Object.keys(eventMap) as EventName[]) {
   fireEvent[key] = (elem: Element, init?: Record<string, unknown>): boolean => {
-    const eventType = (init?.eventType as string) ?? 'bindEvent';
+    const eventType = (init?.['eventType'] as string) ?? 'bindEvent';
     const eventInit = {
       eventType,
       eventName: key,

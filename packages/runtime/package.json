@@ -1,7 +1,6 @@
 {
   "name": "@blotch/angular-lynx",
-  "version": "0.0.1",
-  "private": true,
+  "version": "21.0.0",
   "sideEffects": false,
   "scripts": {
     "build:schematics": "tsc -p tsconfig.schematics.json",
