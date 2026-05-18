@@ -1,15 +1,10 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "target": "ES2022",
     "module": "ESNext",
-    "moduleResolution": "bundler",
     "jsx": "react-jsx",
-    "strict": true,
     "noEmit": true,
-    "lib": ["ES2022", "DOM"],
-    "isolatedModules": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true
+    "lib": ["ES2022", "DOM"]
   },
   "include": ["rspress.config.ts", "theme", "src"]
 }
