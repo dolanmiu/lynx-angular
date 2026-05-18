@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import path from 'node:path';
 import { defineConfig } from '@rspress/core';
 import { pluginSass } from '@rsbuild/plugin-sass';
@@ -8,17 +9,21 @@ import {
 } from '@shikijs/transformers';
 import mermaid from 'rspress-plugin-mermaid';
 
+const apiSidebar = JSON.parse(
+  fs.readFileSync(path.join(__dirname, 'api-sidebar.json'), 'utf-8'),
+);
+
 export default defineConfig({
   plugins: [mermaid()],
   root: 'docs',
-  title: 'Angular Lynx',
+  title: 'AngularLynx',
   description: 'Angular framework for building Lynx apps',
   icon: '/logo-light.svg',
   logo: {
     light: '/logo-light.svg',
     dark: '/logo-dark.svg',
   },
-  logoText: 'Angular Lynx',
+  logoText: 'AngularLynx',
   lang: 'en',
   markdown: {
     globalComponents: [path.join(__dirname, 'src/components/go/go.tsx')],
@@ -47,36 +52,62 @@ export default defineConfig({
     nav: [
       {
         text: 'Guide',
-        link: '/guide/introduction',
+        link: '/guide/quick-start',
+      },
+      {
+        text: 'API',
+        link: '/guide/api/angular-lynx/',
       },
     ],
     sidebar: {
       '/guide/': [
-        {
-          sectionHeaderText: 'Getting Started',
-        },
-        { text: 'Introduction', link: '/guide/introduction' },
         { text: 'Quick Start', link: '/guide/quick-start' },
         {
           dividerType: 'solid',
         },
         {
-          sectionHeaderText: 'Core Concepts',
+          sectionHeaderText: 'Learn AngularLynx',
         },
+        { text: 'What is AngularLynx?', link: '/guide/introduction' },
         { text: 'Renderer Architecture', link: '/guide/renderer-architecture' },
-        { text: 'Lynx Elements', link: '/guide/lynx-elements' },
         { text: 'Change Detection', link: '/guide/change-detection' },
+        { text: 'Signals', link: '/guide/signals' },
+        {
+          text: 'Lynx Elements',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/guide/elements/' },
+            { text: '<view>', link: '/guide/elements/view' },
+            { text: '<text>', link: '/guide/elements/text' },
+            { text: '<image>', link: '/guide/elements/image' },
+            { text: '<scroll-view>', link: '/guide/elements/scroll-view' },
+            { text: '<list>', link: '/guide/elements/list' },
+            { text: '<input>', link: '/guide/elements/input' },
+            { text: '<textarea>', link: '/guide/elements/textarea' },
+            { text: '<overlay>', link: '/guide/elements/overlay' },
+            { text: '<frame>', link: '/guide/elements/frame' },
+            { text: '<block>', link: '/guide/elements/block' },
+            { text: '<svg>', link: '/guide/elements/svg' },
+            { text: 'Event Handling', link: '/guide/elements/event-handling' },
+          ],
+        },
+        { text: 'Routing', link: '/guide/routing' },
+        { text: 'Remote Logging', link: '/guide/remote-logging' },
         {
           dividerType: 'solid',
         },
         {
-          sectionHeaderText: 'Features',
+          sectionHeaderText: 'Ecosystem',
         },
-        { text: 'Routing', link: '/guide/routing' },
-        { text: 'Signals', link: '/guide/signals' },
         { text: 'Tailwind CSS', link: '/guide/tailwindcss' },
-        { text: 'Testing', link: '/guide/testing' },
-        { text: 'Remote Logging', link: '/guide/remote-logging' },
+        { text: 'AngularLynx Testing Library', link: '/guide/testing' },
+        {
+          dividerType: 'solid',
+        },
+        {
+          sectionHeaderText: 'API Reference',
+        },
+        ...apiSidebar,
       ],
     },
   },

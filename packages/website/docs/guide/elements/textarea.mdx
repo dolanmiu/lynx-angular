@@ -1,0 +1,14 @@
+# &lt;textarea&gt;
+
+:::tip
+Add `imports: [LYNX_ELEMENTS]` from `@blotch/angular-lynx` to your component for intellisense, autocomplete, and type safety.
+:::
+
+Multi-line text input field.
+
+```angular-html
+<textarea
+  placeholder="Enter description"
+  (bindinput)="onInput($event)"
+></textarea>
+```

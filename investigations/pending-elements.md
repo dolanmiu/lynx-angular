@@ -1,6 +1,6 @@
 # Pending Lynx Elements
 
-Elements from the Lynx platform (official docs + web-platform reference implementation) that are **not yet supported** by the Angular Lynx renderer (`packages/runtime/src/lib/lynx-document.ts`).
+Elements from the Lynx platform (official docs + web-platform reference implementation) that are **not yet supported** by the AngularLynx renderer (`packages/runtime/src/lib/lynx-document.ts`).
 
 Sources:
 

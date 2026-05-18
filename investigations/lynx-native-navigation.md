@@ -2,7 +2,7 @@
 
 ## Goal
 
-Understand how Lynx handles navigation at the platform level, how React Lynx and third-party routers (React Router, TanStack) integrate with it, and what that means for `lynx-angular`.
+Understand how Lynx handles navigation at the platform level, how React Lynx and third-party routers (React Router, TanStack) integrate with it, and what that means for AngularLynx.
 
 ---
 
@@ -65,11 +65,11 @@ React Lynx doesn't do navigation transitions out of the box. No built-in `Animat
 
 ---
 
-## How lynx-angular Implements Level 2
+## How AngularLynx Implements Level 2
 
 `provideRouter()` is the Angular equivalent of `createRouter({ history: createMemoryHistory(), isServer: false })` in TanStack. The implementation is validated by official Lynx documentation.
 
-| TanStack Router on Lynx              | lynx-angular                                                                |
+| TanStack Router on Lynx              | AngularLynx                                                                 |
 | ------------------------------------ | --------------------------------------------------------------------------- |
 | `createMemoryHistory()`              | `LynxLocationStrategy` — in-memory history stack                            |
 | `isServer: false`                    | `LynxPlatformLocation` — prevents fallback to `BrowserPlatformLocation`     |
@@ -133,7 +133,7 @@ Lynx has the building blocks but no pre-built navigation transition system.
 
 This is what every mobile navigation framework does internally (React Navigation, iOS `UINavigationController`). The `<viewpager>` built-in element may be a useful starting point — it already handles horizontal swipe with native gesture support.
 
-**React Lynx does the same amount here: nothing.** Neither React Lynx, React Router, nor TanStack Router provide navigation transitions on Lynx. This is an unsolved layer in the entire Lynx ecosystem, not a gap specific to `lynx-angular`.
+**React Lynx does the same amount here: nothing.** Neither React Lynx, React Router, nor TanStack Router provide navigation transitions on Lynx. This is an unsolved layer in the entire Lynx ecosystem, not a gap specific to AngularLynx.
 
 ---
 

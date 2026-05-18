@@ -1,23 +1,23 @@
-# Feature Comparison: Angular Lynx vs React Lynx vs Vue Lynx
+# Feature Comparison: AngularLynx vs React Lynx vs Vue Lynx
 
 ## Core Renderer
 
-| Feature                                    | Angular Lynx |  React Lynx   |     Vue Lynx     |
-| ------------------------------------------ | :----------: | :-----------: | :--------------: |
-| Element creation (view, text, image, etc.) |      ✅      |      ✅       |        ✅        |
-| Text nodes                                 |      ✅      |      ✅       |        ✅        |
-| Comment/anchor nodes                       |      ✅      |      ✅       |        ✅        |
-| Tree manipulation (append, insert, remove) |      ✅      |      ✅       |        ✅        |
-| Inline styles                              |      ✅      |      ✅       |        ✅        |
-| Classes                                    |      ✅      |      ✅       |        ✅        |
-| Attributes                                 |      ✅      |      ✅       |        ✅        |
-| Scoped CSS (component encapsulation)       |      ✅      |      ✅       |        ✅        |
-| Dual-thread architecture                   |      ✅      |      ✅       |        ✅        |
-| Background-thread virtual tree             |      ✅      | ✅ (snapshot) | ✅ (shadow tree) |
+| Feature                                    | AngularLynx |  React Lynx   |     Vue Lynx     |
+| ------------------------------------------ | :---------: | :-----------: | :--------------: |
+| Element creation (view, text, image, etc.) |     ✅      |      ✅       |        ✅        |
+| Text nodes                                 |     ✅      |      ✅       |        ✅        |
+| Comment/anchor nodes                       |     ✅      |      ✅       |        ✅        |
+| Tree manipulation (append, insert, remove) |     ✅      |      ✅       |        ✅        |
+| Inline styles                              |     ✅      |      ✅       |        ✅        |
+| Classes                                    |     ✅      |      ✅       |        ✅        |
+| Attributes                                 |     ✅      |      ✅       |        ✅        |
+| Scoped CSS (component encapsulation)       |     ✅      |      ✅       |        ✅        |
+| Dual-thread architecture                   |     ✅      |      ✅       |        ✅        |
+| Background-thread virtual tree             |     ✅      | ✅ (snapshot) | ✅ (shadow tree) |
 
 ## Events
 
-| Feature                                                |           Angular Lynx           |            React Lynx             |         Vue Lynx         |
+| Feature                                                |           AngularLynx            |            React Lynx             |         Vue Lynx         |
 | ------------------------------------------------------ | :------------------------------: | :-------------------------------: | :----------------------: |
 | Basic event binding (`bindtap`, etc.)                  |                ✅                |                ✅                 |            ✅            |
 | Event prefixes (bind/catch/capture-bind/capture-catch) |                ✅                |                ✅                 |   ✅ (.stop modifier)    |
@@ -26,7 +26,7 @@
 
 ## List Virtualization
 
-| Feature                        |        Angular Lynx         |       React Lynx        | Vue Lynx |
+| Feature                        |         AngularLynx         |       React Lynx        | Vue Lynx |
 | ------------------------------ | :-------------------------: | :---------------------: | :------: |
 | `<list>` with componentAtIndex |             ✅              |           ✅            |    ✅    |
 | Item recycling                 | ✅ (via RouteReuseStrategy) |  ✅ (reuse-identifier)  |    ✅    |
@@ -36,15 +36,15 @@
 
 ## Gestures
 
-| Feature                                         | Angular Lynx |                    React Lynx                    |     Vue Lynx     |
-| ----------------------------------------------- | :----------: | :----------------------------------------------: | :--------------: |
-| Gesture system                                  |      ❌      | ✅ (TAP, PAN, FLING, PINCH, ROTATION, LONGPRESS) | ❌ (events only) |
-| Gesture composition (waitFor, simultaneousWith) |      ❌      |                        ✅                        |        ❌        |
-| Worklet-based gesture callbacks                 |      ❌      |                        ✅                        |        ❌        |
+| Feature                                         | AngularLynx |                    React Lynx                    |     Vue Lynx     |
+| ----------------------------------------------- | :---------: | :----------------------------------------------: | :--------------: |
+| Gesture system                                  |     ❌      | ✅ (TAP, PAN, FLING, PINCH, ROTATION, LONGPRESS) | ❌ (events only) |
+| Gesture composition (waitFor, simultaneousWith) |     ❌      |                        ✅                        |        ❌        |
+| Worklet-based gesture callbacks                 |     ❌      |                        ✅                        |        ❌        |
 
 ## Animations
 
-| Feature                               |   Angular Lynx   |     React Lynx     |                   Vue Lynx                    |
+| Feature                               |   AngularLynx    |     React Lynx     |                   Vue Lynx                    |
 | ------------------------------------- | :--------------: | :----------------: | :-------------------------------------------: |
 | `element.animate()` (JS keyframe API) |        ✅        |         ✅         |              ❌ (no direct API)               |
 | CSS transitions                       | ❌ (not exposed) | ❌ (worklet-based) |         ✅ (`<Transition>` component)         |
@@ -54,16 +54,16 @@
 
 ## Main Thread Scripting (MTS)
 
-| Feature                | Angular Lynx |       React Lynx        |         Vue Lynx          |
-| ---------------------- | :----------: | :---------------------: | :-----------------------: |
-| `runOnMainThread()`    |      ❌      |           ✅            |            ❌             |
-| `runOnBackground()`    |      ❌      |           ✅            |       ✅ (limited)        |
-| Main thread refs       |      ❌      | ✅ (`useMainThreadRef`) |  ✅ (`:main-thread-ref`)  |
-| Worklet event handlers |      ❌      |           ✅            | ✅ (`:main-thread-bind*`) |
+| Feature                | AngularLynx |       React Lynx        |         Vue Lynx          |
+| ---------------------- | :---------: | :---------------------: | :-----------------------: |
+| `runOnMainThread()`    |     ❌      |           ✅            |            ❌             |
+| `runOnBackground()`    |     ❌      |           ✅            |       ✅ (limited)        |
+| Main thread refs       |     ❌      | ✅ (`useMainThreadRef`) |  ✅ (`:main-thread-ref`)  |
+| Worklet event handlers |     ❌      |           ✅            | ✅ (`:main-thread-bind*`) |
 
 ## Routing / Navigation
 
-| Feature                               |     Angular Lynx     |       React Lynx       |            Vue Lynx             |
+| Feature                               |     AngularLynx      |       React Lynx       |            Vue Lynx             |
 | ------------------------------------- | :------------------: | :--------------------: | :-----------------------------: |
 | In-memory router                      |     ✅ (custom)      | ❌ (uses native pages) | ✅ (vue-router + memoryHistory) |
 | Lazy-loaded routes                    |          ✅          |           ❌           |               ✅                |
@@ -72,27 +72,27 @@
 
 ## Data Flow / Platform Integration
 
-| Feature                 | Angular Lynx |       React Lynx        | Vue Lynx |
-| ----------------------- | :----------: | :---------------------: | :------: |
-| InitData pattern        |      ❌      |  ✅ (provider + hook)   |    ❌    |
-| GlobalProps pattern     |      ❌      |  ✅ (provider + hook)   |    ❌    |
-| Data processors         |      ❌      |           ✅            |    ❌    |
-| Native module bridge    |      ❌      | ✅ (`lynx.getJSModule`) |    ❌    |
-| Session storage service |      ❌      |      ❌ (raw API)       |    ❌    |
-| System info service     |      ❌      |      ❌ (raw API)       |    ❌    |
+| Feature                 | AngularLynx |       React Lynx        | Vue Lynx |
+| ----------------------- | :---------: | :---------------------: | :------: |
+| InitData pattern        |     ❌      |  ✅ (provider + hook)   |    ❌    |
+| GlobalProps pattern     |     ❌      |  ✅ (provider + hook)   |    ❌    |
+| Data processors         |     ❌      |           ✅            |    ❌    |
+| Native module bridge    |     ❌      | ✅ (`lynx.getJSModule`) |    ❌    |
+| Session storage service |     ❌      |      ❌ (raw API)       |    ❌    |
+| System info service     |     ❌      |      ❌ (raw API)       |    ❌    |
 
 ## Lazy Loading / Code Splitting
 
-| Feature                        | Angular Lynx |      React Lynx       |          Vue Lynx           |
-| ------------------------------ | :----------: | :-------------------: | :-------------------------: |
-| Route-level lazy loading       |      ✅      |          ❌           |             ✅              |
-| Component-level lazy loading   |      ❌      | ✅ (`loadLazyBundle`) | ✅ (`defineAsyncComponent`) |
-| Suspense / async boundaries    |      ❌      |          ✅           |             ✅              |
-| First-screen sync optimization |      ❌      |    ✅ (Lepus mode)    |             ❌              |
+| Feature                        | AngularLynx |      React Lynx       |          Vue Lynx           |
+| ------------------------------ | :---------: | :-------------------: | :-------------------------: |
+| Route-level lazy loading       |     ✅      |          ❌           |             ✅              |
+| Component-level lazy loading   |     ❌      | ✅ (`loadLazyBundle`) | ✅ (`defineAsyncComponent`) |
+| Suspense / async boundaries    |     ❌      |          ✅           |             ✅              |
+| First-screen sync optimization |     ❌      |    ✅ (Lepus mode)    |             ❌              |
 
 ## SSR / Hydration
 
-| Feature                   |           Angular Lynx            |             React Lynx              | Vue Lynx |
+| Feature                   |            AngularLynx            |             React Lynx              | Vue Lynx |
 | ------------------------- | :-------------------------------: | :---------------------------------: | :------: |
 | Server-side rendering     | ❌ (flag exists, not implemented) |     ✅ (snapshot serialization)     |    ❌    |
 | Hydration                 |                ❌                 |                 ✅                  |    ❌    |
@@ -100,7 +100,7 @@
 
 ## Error Handling
 
-| Feature                        |      Angular Lynx      |       React Lynx        |        Vue Lynx        |
+| Feature                        |      AngularLynx       |       React Lynx        |        Vue Lynx        |
 | ------------------------------ | :--------------------: | :---------------------: | :--------------------: |
 | Error boundary / recovery      |           ❌           | ✅ (`useErrorBoundary`) | ✅ (`onErrorCaptured`) |
 | Global unhandled error capture | ✅ (`__lynxLastError`) | ✅ (`lynx.reportError`) |           ✅           |
@@ -108,16 +108,16 @@
 
 ## Testing
 
-| Feature                      | Angular Lynx |        React Lynx        |             Vue Lynx              |
-| ---------------------------- | :----------: | :----------------------: | :-------------------------------: |
-| Testing library              |      ❌      | ✅ (testing-library API) |     ✅ (@vue/testing-library)     |
-| Component rendering in tests |      ❌      |            ✅            | ✅ (dual-thread pipeline + JSDOM) |
-| Event simulation             |      ❌      |            ✅            |         ✅ (`fireEvent`)          |
-| Test runner integration      |      ❌      |   ✅ (Vitest, Rstest)    |            ✅ (Vitest)            |
+| Feature                      | AngularLynx |        React Lynx        |             Vue Lynx              |
+| ---------------------------- | :---------: | :----------------------: | :-------------------------------: |
+| Testing library              |     ❌      | ✅ (testing-library API) |     ✅ (@vue/testing-library)     |
+| Component rendering in tests |     ❌      |            ✅            | ✅ (dual-thread pipeline + JSDOM) |
+| Event simulation             |     ❌      |            ✅            |         ✅ (`fireEvent`)          |
+| Test runner integration      |     ❌      |   ✅ (Vitest, Rstest)    |            ✅ (Vitest)            |
 
 ## Developer Experience
 
-| Feature                                  |      Angular Lynx      |         React Lynx          |         Vue Lynx         |
+| Feature                                  |      AngularLynx       |         React Lynx          |         Vue Lynx         |
 | ---------------------------------------- | :--------------------: | :-------------------------: | :----------------------: |
 | Project scaffolding CLI                  |           ❌           |             ❌              |  ✅ (`create-vue-lynx`)  |
 | IDE type support for Lynx elements       |  ✅ (directive stubs)  |             ✅              |    ✅ (Volar plugin)     |
@@ -129,7 +129,7 @@
 
 ## Build Plugin
 
-| Feature                               |    Angular Lynx    |   React Lynx    |       Vue Lynx       |
+| Feature                               |    AngularLynx     |   React Lynx    |       Vue Lynx       |
 | ------------------------------------- | :----------------: | :-------------: | :------------------: |
 | AOT compilation                       |         ✅         |       N/A       |         N/A          |
 | JIT compilation                       |         ✅         |       N/A       |         N/A          |
@@ -141,15 +141,15 @@
 
 ## Accessibility
 
-| Feature                       | Angular Lynx |    React Lynx    |     Vue Lynx     |
-| ----------------------------- | :----------: | :--------------: | :--------------: |
-| a11y attributes on directives |      ❌      | ❌ (passthrough) | ❌ (passthrough) |
-| Screen reader API wrapper     |      ❌      |        ❌        |        ❌        |
-| `enableA11y` build option     |      ✅      |        ❌        |        ❌        |
+| Feature                       | AngularLynx |    React Lynx    |     Vue Lynx     |
+| ----------------------------- | :---------: | :--------------: | :--------------: |
+| a11y attributes on directives |     ❌      | ❌ (passthrough) | ❌ (passthrough) |
+| Screen reader API wrapper     |     ❌      |        ❌        |        ❌        |
+| `enableA11y` build option     |     ✅      |        ❌        |        ❌        |
 
 ## Summary
 
-### Angular Lynx strengths (unique or best-in-class)
+### AngularLynx strengths (unique or best-in-class)
 
 - Custom route reuse strategy that manages Lynx's element pool
 - Build-time diagnostics catching invalid HTML elements and unsupported CSS

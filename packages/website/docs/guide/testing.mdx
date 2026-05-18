@@ -1,6 +1,6 @@
-# Testing
+# AngularLynx Testing Library
 
-`@blotch/angular-lynx-testing-library` provides Angular Testing Library-style utilities for Angular Lynx components. It runs in jsdom via Vitest, bootstraps the full Lynx rendering pipeline, and exposes `@testing-library/dom` queries so your tests interact with rendered output the same way a user would.
+`@blotch/angular-lynx-testing-library` provides Angular Testing Library-style utilities for AngularLynx components. It runs in jsdom via Vitest, bootstraps the full Lynx rendering pipeline, and exposes `@testing-library/dom` queries so your tests interact with rendered output the same way a user would.
 
 ## Setup
 
@@ -38,7 +38,7 @@ Create `src/setup.ts` and import the setup module:
 import '@blotch/angular-lynx-testing-library/setup';
 ```
 
-The setup file installs `@lynx-js/testing-environment` on top of jsdom, polyfills the PAPI functions Angular Lynx needs (like `__GetParent`, `__NextElement`, and `__QuerySelector*`), and switches to the main thread so Lynx element creation APIs are active before Angular bootstraps.
+The setup file installs `@lynx-js/testing-environment` on top of jsdom, polyfills the PAPI functions AngularLynx needs (like `__GetParent`, `__NextElement`, and `__QuerySelector*`), and switches to the main thread so Lynx element creation APIs are active before Angular bootstraps.
 
 ## Rendering a Component
 

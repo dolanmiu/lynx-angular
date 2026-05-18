@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
   "$id": "SchematicsAngularLynxNgAdd",
-  "title": "Angular Lynx ng-add schematic",
+  "title": "AngularLynx ng-add schematic",
   "type": "object",
   "additionalProperties": false,
   "description": "Transforms an Angular project into a Lynx-native application.",

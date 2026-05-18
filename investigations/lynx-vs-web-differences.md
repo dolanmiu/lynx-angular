@@ -151,7 +151,7 @@ Text nodes can live directly inside any block element (`<div>`, `<section>`, etc
 
 ### What Lynx does
 
-Text must be wrapped in a `<text>` element (`<x-text>` in Angular Lynx). Raw text nodes inside a `<view>` are unsupported and will not render. This applies to all text content — even a single word.
+Text must be wrapped in a `<text>` element (`<x-text>` in AngularLynx). Raw text nodes inside a `<view>` are unsupported and will not render. This applies to all text content — even a single word.
 
 ```html
 <!-- WRONG — raw text in x-view doesn't render -->
@@ -732,7 +732,7 @@ The Lynx `<input>` element has a distinct API:
 | `aspectFill`  | `cover`                 | Scales to fill shortest side, may crop      |
 | `center`      | `none`                  | No scaling, centers image                   |
 
-Note: The Angular Lynx renderer defaults images to `aspectFit` (see `lynx-document.ts`), while the Lynx native default is `scaleToFill`.
+Note: The AngularLynx renderer defaults images to `aspectFit` (see `lynx-document.ts`), while the Lynx native default is `scaleToFill`.
 
 ---
 
@@ -996,7 +996,7 @@ You add children to a scrollable list by appending them to the container element
 
 `<x-list>` is a **virtualized native list** driven by engine callbacks. The native engine calls `componentAtIndex(index)` to request each item and `enqueueComponent(element)` to recycle items no longer visible. You must **never directly `__AppendElement`** a child to an `x-list` — doing so bypasses the recycling mechanism and corrupts the list state.
 
-The Angular Lynx renderer handles this transparently: `LynxListElement` intercepts all `appendChild`/`insertBefore` calls, maintains a JS-level virtual tree, and communicates changes to the native engine via `update-list-info` attribute updates (batched via `setTimeout`).
+The AngularLynx renderer handles this transparently: `LynxListElement` intercepts all `appendChild`/`insertBefore` calls, maintains a JS-level virtual tree, and communicates changes to the native engine via `update-list-info` attribute updates (batched via `setTimeout`).
 
 ---
 
@@ -1008,10 +1008,10 @@ Scrolling without bounce and images stretching to fill (web default `object-fit:
 
 ### What Lynx does
 
-Two default behaviors set by the Angular Lynx renderer differ from what you might expect:
+Two default behaviors set by the AngularLynx renderer differ from what you might expect:
 
 - **`<x-scroll-view>`**: The native `bounces` property (iOS over-scroll bounce) defaults to `true` in the Lynx API.
-- **`<x-image>`**: The Angular Lynx renderer's `LynxDocument` creates image elements with `mode: 'aspectFit'` by default (not `scaleToFill` which is the Lynx native default). This means images preserve their aspect ratio by default in the Angular renderer.
+- **`<x-image>`**: The AngularLynx renderer's `LynxDocument` creates image elements with `mode: 'aspectFit'` by default (not `scaleToFill` which is the Lynx native default). This means images preserve their aspect ratio by default in the Angular renderer.
 
 Be explicit with `mode` on every `<x-image>` to avoid surprising platform-specific defaults.
 
@@ -1735,7 +1735,7 @@ The Lynx `Renderer2` implementation passes through element creation and style ch
 
 ### What Lynx does
 
-The Angular Lynx renderer passes style property names to `__AddInlineStyle()` **without any transformation**. There is no camelCase-to-kebab-case conversion. If you use Angular's `[style.backgroundColor]="'red'"`, the property name `backgroundColor` is passed as-is to the Lynx native layer. Whether Lynx's CSS engine accepts camelCase names is implementation-dependent — use **kebab-case** (`background-color`) in all style bindings and CSS declarations to be safe.
+The AngularLynx renderer passes style property names to `__AddInlineStyle()` **without any transformation**. There is no camelCase-to-kebab-case conversion. If you use Angular's `[style.backgroundColor]="'red'"`, the property name `backgroundColor` is passed as-is to the Lynx native layer. Whether Lynx's CSS engine accepts camelCase names is implementation-dependent — use **kebab-case** (`background-color`) in all style bindings and CSS declarations to be safe.
 
 ---
 
@@ -1989,7 +1989,7 @@ Lynx elements have **two** ways to set properties:
 - **`__SetAttribute(element, name, value)`** — for dynamic properties that can change at any time (scroll-orientation, enable-scroll, item-key, etc.)
 - **`__SetConfig(element, configObject)`** — for initial configuration set once at creation time (image mode, list recycleEnabled, list estimatedItemSize, etc.)
 
-The distinction matters because `__SetConfig` is only effective during element creation. Setting config properties later via `__SetAttribute` may not work or may require a full element recreation. The Angular Lynx renderer handles this by setting config in `LynxDocument.createElement()` and attributes via template bindings.
+The distinction matters because `__SetConfig` is only effective during element creation. Setting config properties later via `__SetAttribute` may not work or may require a full element recreation. The AngularLynx renderer handles this by setting config in `LynxDocument.createElement()` and attributes via template bindings.
 
 ---
 
@@ -2086,7 +2086,7 @@ Angular uses Zone.js by default to automatically detect changes and trigger rend
 
 ### What Lynx does
 
-Zone.js patches browser APIs (`setTimeout`, `Promise`, `addEventListener`, etc.) that either don't exist or work differently in Lynx's dual-thread runtime. Using Zone.js causes crashes or silent failures. The Lynx Angular renderer requires **`provideZonelessChangeDetection()`** in the application config. This means:
+Zone.js patches browser APIs (`setTimeout`, `Promise`, `addEventListener`, etc.) that either don't exist or work differently in Lynx's dual-thread runtime. Using Zone.js causes crashes or silent failures. The AngularLynx renderer requires **`provideZonelessChangeDetection()`** in the application config. This means:
 
 - All state that drives templates must use Angular **signals** or call `ChangeDetectorRef.markForCheck()` explicitly.
 - Async operations (HTTP calls, timers) do not automatically trigger change detection — you must update a signal or mark for check.
@@ -2634,7 +2634,7 @@ text-shadow: 2px 2px 0.1px red;
 - There is **no on-device console panel** visible to the user
 - Logs can be viewed via Lynx DevTool's remote debugging or native platform log viewers (adb logcat, Xcode console)
 - In development, a remote dev logger can intercept `console.*` calls and forward them to the rspeedy dev server via `fetch()` (background thread only)
-- For on-device error visibility, the Angular Lynx renderer captures unhandled errors to `globalThis.__lynxLastError` for rendering in the UI
+- For on-device error visibility, the AngularLynx renderer captures unhandled errors to `globalThis.__lynxLastError` for rendering in the UI
 
 ---
 
@@ -2800,7 +2800,7 @@ This is the same mechanism React Lynx uses internally for `runOnBackground()`. S
 | Main thread       | `lynx.getJSContext().dispatchEvent(e)`   | `lynx.getJSContext().addEventListener(type, cb)`   |
 | Background thread | `lynx.getCoreContext().dispatchEvent(e)` | `lynx.getCoreContext().addEventListener(type, cb)` |
 
-## Tailwind CSS with Angular Lynx
+## Tailwind CSS with AngularLynx
 
 ### Setup
 

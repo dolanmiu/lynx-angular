@@ -1,8 +1,8 @@
-# What is Angular Lynx?
+# What is AngularLynx?
 
-Angular Lynx is an Angular renderer for [Lynx](https://lynxjs.org/), the cross-platform native UI framework by ByteDance. It lets you write Angular components with the APIs you already know — standalone components, signals, `@if`/`@for` control flow, dependency injection — and render them to native mobile UI via the Lynx engine.
+AngularLynx is an Angular renderer for [Lynx](https://lynxjs.org/), the cross-platform native UI framework by ByteDance. It lets you write Angular components with the APIs you already know — standalone components, signals, `@if`/`@for` control flow, dependency injection — and render them to native mobile UI via the Lynx engine.
 
-If you know Angular and are familiar with Lynx, you already know how to use Angular Lynx.
+If you know Angular and are familiar with Lynx, you already know how to use AngularLynx.
 
 ## Features
 
@@ -30,7 +30,7 @@ If you've built Angular apps for the web, most of your knowledge transfers direc
 import { bootstrapApplication } from '@angular/platform-browser';
 bootstrapApplication(AppComponent, appConfig);
 
-// Angular Lynx
+// AngularLynx
 import { bootstrapApplication } from '@blotch/angular-lynx'; // [!code highlight]
 bootstrapApplication(AppComponent, appConfig); // [!code highlight]
 ```
@@ -46,7 +46,7 @@ Lynx provides native UI elements instead of HTML. Your templates use `<view>`, `
   <img [src]="logo" />
 </div>
 
-<!-- Angular Lynx -->
+<!-- AngularLynx -->
 <view class="card">
   // [!code highlight] <text>{{ message() }}</text> // [!code highlight]
   <image [src]="logo" /> // [!code highlight]
@@ -66,7 +66,7 @@ Lynx uses its own event system with `bind` and `catch` prefixes instead of stand
 <!-- Web Angular -->
 <button (click)="handleClick()">Click me</button>
 
-<!-- Angular Lynx -->
+<!-- AngularLynx -->
 <view (bindtap)="handleTap()">
   // [!code highlight]
   <text>Tap me</text>
@@ -118,7 +118,7 @@ This model is similar to how React Native works — JavaScript runs on a separat
 
 ## Ecosystem
 
-Angular Lynx is part of a family of framework renderers for the Lynx platform:
+AngularLynx is part of a family of framework renderers for the Lynx platform:
 
 | Framework   | Package                                                             | Status               |
 | ----------- | ------------------------------------------------------------------- | -------------------- |
@@ -127,11 +127,11 @@ Angular Lynx is part of a family of framework renderers for the Lynx platform:
 | **Angular** | [`@blotch/angular-lynx`](https://github.com/nichenqin/angular-lynx) | **Work in progress** |
 
 :::warning Work in Progress
-Angular Lynx is an early proof of concept. It supports the core Angular APIs needed to build real applications — standalone components, signals, routing, control flow, dependency injection — but some features are not yet implemented. API surfaces may change as the project matures.
+AngularLynx is an early proof of concept. It supports the core Angular APIs needed to build real applications — standalone components, signals, routing, control flow, dependency injection — but some features are not yet implemented. API surfaces may change as the project matures.
 :::
 
 ## Next Steps
 
-- [Quick Start](/guide/quick-start) — Set up your first Angular Lynx project
-- [Lynx Elements](/guide/lynx-elements) — Learn about native UI elements
+- [Quick Start](/guide/quick-start) — Set up your first AngularLynx project
+- [Lynx Elements](/guide/elements/) — Learn about native UI elements
 - [Renderer Architecture](/guide/renderer-architecture) — Understand how Angular connects to Lynx

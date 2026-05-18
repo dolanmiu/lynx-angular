@@ -2,7 +2,7 @@
 
 ## Goal
 
-Ensure `<x-scroll-view>` works correctly in the Angular Lynx renderer with proper configuration and modern API usage.
+Ensure `<x-scroll-view>` works correctly in the AngularLynx renderer with proper configuration and modern API usage.
 
 ## Starting State
 

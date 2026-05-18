@@ -1,0 +1,25 @@
+# &lt;overlay&gt;
+
+:::tip
+Add `imports: [LYNX_ELEMENTS]` from `@blotch/angular-lynx` to your component for intellisense, autocomplete, and type safety.
+:::
+
+Renders content above the normal document flow, like a modal or popup. Control visibility with the `visible` attribute.
+
+```angular-html
+<overlay [attr.visible]="showModal()">
+  <view class="backdrop" (bindtap)="closeModal()">
+    <view class="modal" (catchtap)="($event)">
+      <text class="modal-title">Confirm</text>
+      <text>Are you sure?</text>
+      <view class="modal-button" (bindtap)="closeModal()">
+        <text style="color: white;">Close</text>
+      </view>
+    </view>
+  </view>
+</overlay>
+```
+
+:::tip
+Use `(catchtap)` on the modal content to prevent taps inside it from bubbling to the backdrop's `(bindtap)` handler, which would close the modal.
+:::

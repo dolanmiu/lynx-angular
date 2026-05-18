@@ -1,6 +1,6 @@
 # @blotch/angular-lynx-testing-library
 
-Testing utilities for [Angular Lynx](https://github.com/blotchit/angular-lynx) apps. Renders Angular standalone components through the Lynx PAPI pipeline into a JSDOM tree, then exposes the result via [@testing-library/dom](https://testing-library.com/docs/dom-testing-library/intro) queries.
+Testing utilities for [AngularLynx](https://github.com/blotchit/angular-lynx) apps. Renders Angular standalone components through the Lynx PAPI pipeline into a JSDOM tree, then exposes the result via [@testing-library/dom](https://testing-library.com/docs/dom-testing-library/intro) queries.
 
 ## Installation
 
@@ -216,7 +216,7 @@ it('updates when the signal changes', async () => {
 
 ### Handling events
 
-Angular Lynx event bindings use Lynx prefixes: `(bindtap)`, `(catchtap)`, `(bindinput)`, etc.
+AngularLynx event bindings use Lynx prefixes: `(bindtap)`, `(catchtap)`, `(bindinput)`, etc.
 
 ```ts
 import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
@@ -308,13 +308,13 @@ it('renders a dynamic list', async () => {
 
 ### Single-thread model
 
-Angular Lynx runs **entirely on the Lynx main thread** (`__MAIN_THREAD__ = true`). This differs from React Lynx and Vue Lynx, which split rendering across two threads:
+AngularLynx runs **entirely on the Lynx main thread** (`__MAIN_THREAD__ = true`). This differs from React Lynx and Vue Lynx, which split rendering across two threads:
 
-| Library          | Thread model                                                     |
-| ---------------- | ---------------------------------------------------------------- |
-| React Lynx       | Dual: background thread runs React, main thread applies PAPI ops |
-| Vue Lynx         | Dual: background thread runs Vue, main thread applies PAPI ops   |
-| **Angular Lynx** | **Single: Angular renderer calls PAPI directly on main thread**  |
+| Library         | Thread model                                                     |
+| --------------- | ---------------------------------------------------------------- |
+| React Lynx      | Dual: background thread runs React, main thread applies PAPI ops |
+| Vue Lynx        | Dual: background thread runs Vue, main thread applies PAPI ops   |
+| **AngularLynx** | **Single: Angular renderer calls PAPI directly on main thread**  |
 
 In tests, this means there is no thread switching — `__MAIN_THREAD__` stays `true` throughout, and PAPI functions (`__CreatePage`, `__CreateView`, etc.) are always available.
 
@@ -339,7 +339,7 @@ render(Component)
 
 ### Event dispatch
 
-Angular Lynx registers event handlers via `__AddEvent(element, eventType, eventName, { type: 'worklet', value: callback })`. The testing environment stores this as a DOM event listener under the key `"${eventType}:${eventName}"` (e.g. `"bindEvent:tap"`).
+AngularLynx registers event handlers via `__AddEvent(element, eventType, eventName, { type: 'worklet', value: callback })`. The testing environment stores this as a DOM event listener under the key `"${eventType}:${eventName}"` (e.g. `"bindEvent:tap"`).
 
 `fireEvent.tap(el)` dispatches a `"bindEvent:tap"` DOM event, which triggers the listener. The listener calls `runWorklet(callback, [event])` which invokes the Angular handler directly on the main thread.
 
@@ -354,7 +354,7 @@ Template binding → PAPI registration → DOM listener key:
 
 ## Comparison with React/Vue Lynx testing libraries
 
-| Feature                 | React Lynx              | Vue Lynx          | Angular Lynx            |
+| Feature                 | React Lynx              | Vue Lynx          | AngularLynx             |
 | ----------------------- | ----------------------- | ----------------- | ----------------------- |
 | `render()` return       | Sync                    | Sync              | **Async**               |
 | Thread model            | Dual (BG+MT)            | Dual (BG+MT)      | **Main only**           |

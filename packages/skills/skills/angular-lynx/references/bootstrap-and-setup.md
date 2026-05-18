@@ -2,7 +2,7 @@
 
 ## Minimal App
 
-Three files are needed to bootstrap a Lynx-Angular app:
+Three files are needed to bootstrap a AngularLynx app:
 
 ### `main.ts`
 

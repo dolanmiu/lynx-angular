@@ -1,12 +1,12 @@
 # Change Detection
 
-Angular Lynx uses zoneless change detection exclusively. Zone.js is not available in the Lynx runtime, so signals are the primary reactivity model for triggering UI updates.
+AngularLynx uses zoneless change detection exclusively. Zone.js is not available in the Lynx runtime, so signals are the primary reactivity model for triggering UI updates.
 
 ## Zoneless by Design
 
-Lynx's JavaScript engine (PrimJS) does not provide the browser APIs that Zone.js patches — there is no real `setTimeout`, `Promise`, `XMLHttpRequest`, or `addEventListener` on `globalThis` out of the box. Angular Lynx polyfills the ones it needs (like `setTimeout` from `lynx.setTimeout`), but Zone.js cannot function in this environment.
+Lynx's JavaScript engine (PrimJS) does not provide the browser APIs that Zone.js patches — there is no real `setTimeout`, `Promise`, `XMLHttpRequest`, or `addEventListener` on `globalThis` out of the box. AngularLynx polyfills the ones it needs (like `setTimeout` from `lynx.setTimeout`), but Zone.js cannot function in this environment.
 
-This is actually a good thing. Angular 21 recommends zoneless change detection with signals, and Angular Lynx enforces it:
+This is actually a good thing. Angular 21 recommends zoneless change detection with signals, and AngularLynx enforces it:
 
 ```typescript title="src/app/app.config.ts"
 import {
@@ -60,7 +60,7 @@ You do not need to call `ChangeDetectorRef.markForCheck()` or `detectChanges()` 
 
 ## How Change Detection is Scheduled
 
-Here is the full lifecycle of a UI update in Angular Lynx:
+Here is the full lifecycle of a UI update in AngularLynx:
 
 1. A Lynx event fires (e.g., `bindtap`) and dispatches to the background thread
 2. Your event handler runs and modifies a signal
@@ -123,7 +123,7 @@ Simple signal updates (like incrementing a counter or updating text) are safe in
 
 ## Converting from Observables
 
-Since Angular Lynx is zoneless, Observables alone do not trigger change detection. Use `toSignal()` to convert them:
+Since AngularLynx is zoneless, Observables alone do not trigger change detection. Use `toSignal()` to convert them:
 
 ```typescript
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -136,9 +136,9 @@ export class UsersComponent {
 }
 ```
 
-## Web Angular vs Angular Lynx
+## Web Angular vs AngularLynx
 
-| Pattern                             | Web Angular                | Angular Lynx                       |
+| Pattern                             | Web Angular                | AngularLynx                        |
 | ----------------------------------- | -------------------------- | ---------------------------------- |
 | Change detection trigger            | Zone.js patches or signals | Signals only                       |
 | `async` pipe                        | Works with Zone.js         | Use `toSignal()` instead           |

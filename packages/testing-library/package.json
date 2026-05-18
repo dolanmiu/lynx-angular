@@ -2,7 +2,7 @@
   "name": "@blotch/angular-lynx-testing-library",
   "version": "0.0.1",
   "private": true,
-  "description": "Testing utilities for Angular Lynx apps",
+  "description": "Testing utilities for AngularLynx apps",
   "type": "module",
   "main": "./src/index.ts",
   "exports": {

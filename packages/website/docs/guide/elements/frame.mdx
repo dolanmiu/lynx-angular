@@ -1,0 +1,15 @@
+# &lt;frame&gt;
+
+:::tip
+Add `imports: [LYNX_ELEMENTS]` from `@blotch/angular-lynx` to your component for intellisense, autocomplete, and type safety.
+:::
+
+Embeds another Lynx page via a bundle URL. Similar to `<iframe>` in HTML.
+
+```angular-html
+<frame
+  src="https://example.com/page.lynx.bundle"
+  style="width: 100%; height: 200px;"
+  (bindload)="onFrameLoad($event)"
+></frame>
+```

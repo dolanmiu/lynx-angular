@@ -26,7 +26,7 @@
 
 ## Platform Features
 
-- [ ] Gesture system — React Lynx has full gesture support (TAP, LONG_PRESS, PAN, FLING, PINCH, ROTATION, COMPOSED) with worklet-based callbacks and composition (`waitFor`, `simultaneousWith`, `continueWith`). Angular Lynx has no gesture abstraction.
+- [ ] Gesture system — React Lynx has full gesture support (TAP, LONG_PRESS, PAN, FLING, PINCH, ROTATION, COMPOSED) with worklet-based callbacks and composition (`waitFor`, `simultaneousWith`, `continueWith`). AngularLynx has no gesture abstraction.
 - [ ] Main thread scripting (MTS) — `runOnMainThread()` / `runOnBackground()` for cross-thread execution. React Lynx supports worklet functions with element access from main thread. Currently no Angular equivalent.
 - [ ] Exposure/visibility detection — Lynx supports `uiappear`/`uidisappear` events, `exposure`/`disexposure` global events, and the `IntersectionObserver` API. Need Angular directives or signals for visibility-driven logic.
 - [ ] Pull-to-refresh — `<refresh>` element not implemented in the renderer
@@ -56,7 +56,7 @@
 - [ ] Content projection (`ng-content`, `@ContentChild`, `@ContentChildren`) — verify with Lynx elements
 - [ ] Deferred views (`@defer`) — verify lazy-loaded template blocks work
 - [ ] Error boundaries — React Lynx has `useErrorBoundary`; Angular needs an equivalent (ErrorHandler + component-level recovery)
-- [ ] Lazy bundle loading — React Lynx has `loadLazyBundle()` for code-split components in lists; Angular Lynx only has route-level lazy loading
+- [ ] Lazy bundle loading — React Lynx has `loadLazyBundle()` for code-split components in lists; AngularLynx only has route-level lazy loading
 - [ ] Suspense / loading states — no equivalent to React Suspense for async component loading
 - [ ] Portal-like rendering — rendering into `<overlay>` from arbitrary component tree depth (like Angular CDK Portal)
 - [ ] i18n — Angular's `$localize` / i18n extraction not tested or configured in the build plugin
@@ -77,7 +77,7 @@
 - [ ] Error overlay — surface build errors and runtime exceptions on-device instead of silent failures
 - [ ] CLI schematics — `ng generate` support for Lynx components (with Lynx element templates instead of HTML)
 - [ ] Documentation — API reference, migration guide from React Lynx, architecture deep-dive
-- [ ] Starter template / `ng new` preset — scaffold a new Angular Lynx project
+- [ ] Starter template / `ng new` preset — scaffold a new AngularLynx project
 
 ## Testing
 

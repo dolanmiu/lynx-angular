@@ -1,0 +1,24 @@
+# &lt;text&gt;
+
+:::tip
+Add `imports: [LYNX_ELEMENTS]` from `@blotch/angular-lynx` to your component for intellisense, autocomplete, and type safety.
+:::
+
+Displays text content. All visible text in Lynx must be wrapped in a `<text>` element.
+
+```angular-html
+<text class="title">Hello World</text>
+
+<!-- Nested <text> for inline styling -->
+<text>
+  Regular text with
+  <text style="font-weight: bold;"> bold </text>
+  and
+  <text style="color: #dd0031;"> colored </text>
+  content
+</text>
+```
+
+:::warning
+All text content must be wrapped in `<text>`. Unlike HTML, raw text nodes inside `<view>` will not render. This is the most common mistake when migrating from web Angular.
+:::

@@ -1,6 +1,6 @@
 # Routing
 
-Angular Lynx uses the standard `@angular/router` with custom location strategies adapted for the Lynx runtime. Since Lynx is a native mobile environment with no browser URL bar, History API, or `window.location`, routing is handled entirely in memory.
+AngularLynx uses the standard `@angular/router` with custom location strategies adapted for the Lynx runtime. Since Lynx is a native mobile environment with no browser URL bar, History API, or `window.location`, routing is handled entirely in memory.
 
 ## Setup
 
@@ -180,7 +180,7 @@ export class NavService {
 
 ## Differences from Web Angular Router
 
-| Feature                | Web Angular                                     | Angular Lynx                                              |
+| Feature                | Web Angular                                     | AngularLynx                                               |
 | ---------------------- | ----------------------------------------------- | --------------------------------------------------------- |
 | URL bar                | Updated on navigation                           | No URL bar (in-memory only)                               |
 | Browser back/forward   | Triggers `popstate`                             | Not available (use `router.navigate` or `history.back()`) |

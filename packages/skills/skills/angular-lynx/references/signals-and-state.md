@@ -2,7 +2,7 @@
 
 ## Why Signals
 
-Lynx-Angular uses `provideZonelessChangeDetection()` — Zone.js is not available. All change detection is signal-driven. When a signal's value changes, Angular automatically updates the template bindings that read it.
+AngularLynx uses `provideZonelessChangeDetection()` — Zone.js is not available. All change detection is signal-driven. When a signal's value changes, Angular automatically updates the template bindings that read it.
 
 ## Core Patterns
 

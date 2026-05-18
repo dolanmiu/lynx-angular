@@ -4,10 +4,10 @@
  * Lynx events are registered via __AddEvent with a key of "bindEvent:<name>"
  * (e.g. "bindEvent:tap"). The event handler stored on the element calls
  * lynxCoreInject.tt.publishEvent(handlerSign, eventData) which routes the
- * event to the background thread (not used by Angular Lynx, which runs on
+ * event to the background thread (not used by AngularLynx, which runs on
  * the main thread).
  *
- * For Angular Lynx, the (event) bindings in templates are wired by
+ * For AngularLynx, the (event) bindings in templates are wired by
  * LynxRenderer.listen() which calls __AddEvent internally. The DOM event
  * dispatched here triggers that listener directly on the main thread.
  */

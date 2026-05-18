@@ -1,18 +1,18 @@
 /**
- * Vitest setup file for Angular Lynx testing library.
+ * Vitest setup file for AngularLynx testing library.
  *
  * Runs in the jsdom environment and:
  *   1. Creates LynxTestingEnv wrapping the existing jsdom window.
  *   2. Polyfills PAPI functions that the testing-environment doesn't implement
- *      but the Angular Lynx runtime requires.
+ *      but the AngularLynx runtime requires.
  *   3. Switches to main thread so PAPI globals are active before Angular bootstraps.
  *
- * Angular Lynx runs on the main thread (__MAIN_THREAD__ = true):
+ * AngularLynx runs on the main thread (__MAIN_THREAD__ = true):
  *   - LynxDocument uses PAPI functions (__CreatePage, __CreateView, …)
  *   - LynxRendererFactory2.end() calls __FlushElementTree (no-op in tests)
  *
  * Why we polyfill: the @lynx-js/testing-environment's ElementPAPI covers the
- * core PAPI surface used by React/Vue Lynx, but Angular Lynx calls additional
+ * core PAPI surface used by React/Vue Lynx, but AngularLynx calls additional
  * PAPI functions (__GetParent, __NextElement, __QuerySelector*, etc.) that the
  * testing environment does not implement. Since testing-environment elements ARE
  * real JSDOM HTMLElements, we can implement these with native DOM methods.
@@ -58,13 +58,13 @@ const lynxTestingEnv = new LynxTestingEnv({ window: globalThis.window as any });
 // ─── Switch to main thread ───────────────────────────────────────────────────
 
 // PAPI globals (__CreatePage, __CreateView, elementTree, …) are active on the
-// main thread. Angular Lynx must run here because LynxDocument uses these APIs.
+// main thread. AngularLynx must run here because LynxDocument uses these APIs.
 lynxTestingEnv.switchToMainThread();
 
 // ─── runWorklet polyfill ─────────────────────────────────────────────────────
 
 // __AddEvent in the testing environment calls runWorklet(handler, [event]) when
-// an event handler is registered as type:'worklet'. Angular Lynx registers all
+// an event handler is registered as type:'worklet'. AngularLynx registers all
 // event handlers this way (see LynxElement.addEventListener). runWorklet simply
 // invokes the callback — same as the polyfill in runtime.ts for the real device.
 (globalThis as any).runWorklet = (value: unknown, params: unknown[]) => {
@@ -77,7 +77,7 @@ lynxTestingEnv.switchToMainThread();
 
 // The testing-environment's ElementPAPI uses real JSDOM HTMLElements as the
 // native element representation. So DOM traversal methods work natively on them.
-// We polyfill the subset of PAPI that Angular Lynx uses but testing-environment
+// We polyfill the subset of PAPI that AngularLynx uses but testing-environment
 // does not implement.
 
 /** Returns the parent of a JSDOM element (equivalent to element.parentNode). */

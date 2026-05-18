@@ -1,194 +1,22 @@
 # Signals
 
-Signals are the primary reactivity model in Angular Lynx. Since the Lynx runtime does not support Zone.js, signals provide the explicit reactivity that Angular needs to know when to re-render components.
+Signals are the primary reactivity model in AngularLynx. Since the Lynx runtime does not support Zone.js, signals provide the explicit reactivity that Angular needs to know when to re-render components.
 
-## Why Signals
+Angular's full signals API — `signal()`, `computed()`, `effect()`, `input()`, `output()`, `toSignal()`, and `toObservable()` — all work in AngularLynx exactly as documented on [angular.dev](https://angular.dev/guide/signals).
 
-In web Angular with Zone.js, change detection runs automatically after every async operation — HTTP calls, timers, event handlers. In Angular Lynx, there is no Zone.js, so Angular needs explicit signals to know when state has changed.
+This page covers the Lynx-specific differences you need to know.
 
-Signals are a natural fit:
+## Why Signals Are Required
+
+In web Angular with Zone.js, change detection runs automatically after every async operation. In AngularLynx, **there is no Zone.js**, so Angular needs explicit signals to know when state has changed.
 
 - **Fine-grained updates** — Only components that read a changed signal are re-checked
 - **Works with zoneless CD** — Signal changes automatically schedule change detection
 - **Batched rendering** — All signal changes within a macrotask are committed together via `__FlushElementTree()`
 
-## Basic Patterns
+## Observables Need Conversion
 
-### Writable Signals
-
-```typescript
-import { Component, signal } from '@angular/core';
-import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
-
-@Component({
-  imports: [LYNX_ELEMENTS],
-  template: `
-    <view class="container">
-      <text class="greeting">Hello, {{ name() }}!</text>
-      <view class="button" (bindtap)="changeName()">
-        <text style="color: white;">Change Name</text>
-      </view>
-    </view>
-  `,
-})
-export class GreetingComponent {
-  name = signal('World');
-
-  changeName(): void {
-    this.name.set('Angular Lynx');
-  }
-}
-```
-
-### Computed Signals
-
-Derived values that automatically update when their dependencies change:
-
-```typescript
-export class CartComponent {
-  items = signal<CartItem[]>([]);
-
-  totalPrice = computed(() =>
-    this.items().reduce((sum, item) => sum + item.price * item.qty, 0),
-  );
-
-  itemCount = computed(() => this.items().length);
-}
-```
-
-### Signal Updates
-
-Use `update()` for transformations based on the current value:
-
-```typescript
-export class CounterComponent {
-  count = signal(0);
-
-  increment(): void {
-    this.count.update((n) => n + 1);
-  }
-
-  reset(): void {
-    this.count.set(0);
-  }
-}
-```
-
-## Working with Lists
-
-Signals work well with `@for` for rendering dynamic lists:
-
-```typescript
-@Component({
-  imports: [LYNX_ELEMENTS],
-  template: `
-    <scroll-view scroll-orientation="vertical" style="height: 100vh;">
-      <view class="header">
-        <text>{{ completedCount() }} / {{ todos().length }} done</text>
-      </view>
-
-      @for (todo of todos(); track todo.id) {
-        <view class="todo-item" (bindtap)="toggle(todo.id)">
-          <text [style.text-decoration]="todo.done ? 'line-through' : 'none'">
-            {{ todo.text }}
-          </text>
-        </view>
-      }
-
-      <view class="add-button" (bindtap)="addTodo()">
-        <text style="color: white;">Add Todo</text>
-      </view>
-    </scroll-view>
-  `,
-})
-export class TodoListComponent {
-  todos = signal<Todo[]>([
-    { id: 1, text: 'Learn Angular Lynx', done: false },
-    { id: 2, text: 'Build an app', done: false },
-  ]);
-
-  completedCount = computed(() => this.todos().filter((t) => t.done).length);
-
-  toggle(id: number): void {
-    this.todos.update((list) =>
-      list.map((t) => (t.id === id ? { ...t, done: !t.done } : t)),
-    );
-  }
-
-  addTodo(): void {
-    this.todos.update((list) => [
-      ...list,
-      { id: Date.now(), text: `Todo ${list.length + 1}`, done: false },
-    ]);
-  }
-}
-```
-
-## Effects
-
-Effects run side-effect logic whenever their tracked signals change. They execute after change detection:
-
-```typescript
-export class SearchComponent {
-  query = signal('');
-
-  constructor() {
-    effect(() => {
-      const q = this.query();
-      if (q.length > 2) {
-        console.log(`Searching for: ${q}`);
-      }
-    });
-  }
-}
-```
-
-:::tip
-Effects in Angular Lynx work identically to web Angular. Use them for logging, analytics, or synchronizing with external systems — not for updating other signals (use `computed` for derived state).
-:::
-
-## Signal Inputs and Outputs
-
-Angular's signal-based `input()` and `output()` APIs work in Angular Lynx:
-
-```typescript
-import { Component, input, output } from '@angular/core';
-import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
-
-@Component({
-  selector: 'app-card',
-  imports: [LYNX_ELEMENTS],
-  template: `
-    <view class="card" (bindtap)="handleTap()">
-      <text class="card-title">{{ title() }}</text>
-      <text class="card-subtitle">{{ subtitle() }}</text>
-    </view>
-  `,
-})
-export class CardComponent {
-  title = input.required<string>();
-  subtitle = input('');
-  tapped = output<void>();
-
-  handleTap(): void {
-    setTimeout(() => this.tapped.emit(), 0);
-  }
-}
-```
-
-Use it in a parent component:
-
-```angular-html
-<app-card
-  [title]="'Settings'"
-  [subtitle]="'Manage your preferences'"
-  (tapped)="openSettings()"
-/>
-```
-
-## Converting from Observables
-
-If you're working with services that return Observables (like `HttpClient`), convert them to signals using `toSignal()`:
+Since AngularLynx is zoneless, Observables alone **do not trigger change detection**. Either convert to signals with `toSignal()`, or manually call `ChangeDetectorRef.markForCheck()` inside `subscribe()` callbacks.
 
 ```typescript
 import { inject } from '@angular/core';
@@ -201,39 +29,18 @@ export class UsersComponent {
 }
 ```
 
-:::info
-Since Angular Lynx is zoneless, Observables alone do not trigger change detection. Either convert to signals with `toSignal()`, or manually call `ChangeDetectorRef.markForCheck()` inside `subscribe()` callbacks.
-:::
-
-For two-way conversion, use `toObservable()` to convert signals back to Observables:
-
-```typescript
-import { toObservable } from '@angular/core/rxjs-interop';
-import { debounceTime, switchMap } from 'rxjs';
-
-export class SearchComponent {
-  query = signal('');
-
-  results = toSignal(
-    toObservable(this.query).pipe(
-      debounceTime(300),
-      switchMap((q) => this.#http.get<Result[]>(`/api/search?q=${q}`)),
-    ),
-    { initialValue: [] },
-  );
-}
-```
+See the [Angular RxJS interop guide](https://angular.dev/guide/signals/rxjs-interop) for full details on `toSignal()` and `toObservable()`.
 
 ## Lynx-Specific Considerations
 
 ### Defer DOM mutations in event handlers
 
-When a signal update triggers structural changes (navigation, overlay toggle, `@if` that adds/removes elements), defer it:
+When a signal update triggers structural changes (navigation, overlay toggle, `@if` that adds/removes elements), defer it with `setTimeout`:
 
 ```typescript
 // Safe: simple value update
 onTap(): void {
-  this.count.update(n => n + 1); // Fine — element tree mutation happens in next CD cycle
+  this.count.update(n => n + 1);
 }
 
 // Needs setTimeout: triggers navigation (structural DOM change)

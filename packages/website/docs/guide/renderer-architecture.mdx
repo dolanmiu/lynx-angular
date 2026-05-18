@@ -1,6 +1,6 @@
 # Renderer Architecture
 
-Angular uses `Renderer2` as its abstraction for DOM manipulation. On the web, this maps to `document.createElement()`, `element.appendChild()`, and friends. In Angular Lynx, the renderer maps these operations to Lynx's native element API — global functions like `__CreateView`, `__AppendElement`, and `__FlushElementTree`.
+Angular uses `Renderer2` as its abstraction for DOM manipulation. On the web, this maps to `document.createElement()`, `element.appendChild()`, and friends. In AngularLynx, the renderer maps these operations to Lynx's native element API — global functions like `__CreateView`, `__AppendElement`, and `__FlushElementTree`.
 
 Understanding this architecture helps you debug rendering issues and reason about platform constraints.
 
@@ -50,7 +50,7 @@ Implements Angular's `Renderer2` interface. Maps every DOM operation to its Lynx
 | `createComment()`                  | `__CreateView(pageId)` (invisible anchor)   |
 
 :::info
-Angular uses comment nodes as insertion anchors for structural directives (`@if`, `@for`, `ViewContainerRef`). Since Lynx has no comment elements, Angular Lynx creates invisible `<view>` elements as anchors instead.
+Angular uses comment nodes as insertion anchors for structural directives (`@if`, `@for`, `ViewContainerRef`). Since Lynx has no comment elements, AngularLynx creates invisible `<view>` elements as anchors instead.
 :::
 
 ### LynxDocument
@@ -106,7 +106,7 @@ This batching means you never see partial UI states. If your event handler adds 
 
 ## How This Differs from Web Angular
 
-| Concept           | Web Angular                     | Angular Lynx                                     |
+| Concept           | Web Angular                     | AngularLynx                                      |
 | ----------------- | ------------------------------- | ------------------------------------------------ |
 | Underlying API    | Browser DOM                     | Lynx global `__*` functions                      |
 | Change visibility | Immediate (paint on next frame) | Batched (flush at end of CD cycle)               |
@@ -123,4 +123,4 @@ Lynx allocates elements in a fixed-size native pool (approximately 256 slots on 
 - **Exhausting the pool crashes the app** — creating too many elements without reuse causes a hard crash
 - **Route reuse is critical** — `LynxRouteReuseStrategy` detaches views instead of destroying them, so their pool slots are reclaimed on revisit
 
-This is why Angular Lynx's router uses a custom `RouteReuseStrategy` by default. See [Routing](/guide/routing) for details.
+This is why AngularLynx's router uses a custom `RouteReuseStrategy` by default. See [Routing](/guide/routing) for details.

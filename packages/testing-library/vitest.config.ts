@@ -5,7 +5,7 @@ export default defineConfig({
   define: {
     // Angular compiler checks __DEV__ in some paths; match what the plugin sets.
     __DEV__: JSON.stringify(true),
-    // Angular Lynx runs on the main thread in tests: LynxDocument uses PAPI.
+    // AngularLynx runs on the main thread in tests: LynxDocument uses PAPI.
     __MAIN_THREAD__: JSON.stringify(true),
   },
   test: {

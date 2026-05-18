@@ -13,7 +13,7 @@ metadata:
   version: '0.1'
 ---
 
-# Angular Lynx Development
+# AngularLynx Development
 
 Build Angular apps that render natively on mobile via the Lynx runtime. Uses Angular's Renderer2 to map component templates to Lynx native elements (`view`, `text`, `image`, etc.) instead of browser DOM. Requires zoneless change detection — Zone.js is not available in Lynx.
 
@@ -35,7 +35,7 @@ These prevent crashes and silent failures. Violating any will break your app on-
 
 ## Bootstrap & Project Setup
 
-How to create and configure a Lynx-Angular application. Covers `bootstrapApplication()`, `provideRenderer()`, `provideRouter()`, app config, and `lynx.config.ts` with `pluginAngularLynx()`.
+How to create and configure a AngularLynx application. Covers `bootstrapApplication()`, `provideRenderer()`, `provideRouter()`, app config, and `lynx.config.ts` with `pluginAngularLynx()`.
 
 Read [bootstrap-and-setup.md](references/bootstrap-and-setup.md)
 

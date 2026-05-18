@@ -1,6 +1,6 @@
 # Animations
 
-Three animation approaches are available in Lynx-Angular, each with different tradeoffs.
+Three animation approaches are available in AngularLynx, each with different tradeoffs.
 
 ## 1. CSS Transitions
 

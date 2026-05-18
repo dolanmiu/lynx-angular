@@ -125,10 +125,13 @@ export const render = async <Q extends Queries = typeof domQueries>(
     asFragment: () =>
       document.createRange().createContextualFragment(container.outerHTML),
     componentRef,
-    ...getQueriesForElement(container as HTMLElement, {
-      ...domQueries,
-      ...options.queries,
-    } as any),
+    ...getQueriesForElement(
+      container as HTMLElement,
+      {
+        ...domQueries,
+        ...options.queries,
+      } as any,
+    ),
   } as RenderResult<Q>;
 };
 

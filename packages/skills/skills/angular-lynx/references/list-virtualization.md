@@ -41,7 +41,7 @@ The native list engine manages element creation and recycling:
 2. When an item scrolls out of view, the engine calls `enqueueComponent(element)` to recycle it
 3. Recycled elements are reused for new items, preserving the finite element pool
 
-The Angular Lynx renderer handles this transparently — you use `@for` as normal, and the renderer's `LynxListElement` intercepts `appendChild`/`insertBefore` calls to communicate with the native engine via batched `update-list-info` attribute updates.
+The AngularLynx renderer handles this transparently — you use `@for` as normal, and the renderer's `LynxListElement` intercepts `appendChild`/`insertBefore` calls to communicate with the native engine via batched `update-list-info` attribute updates.
 
 ## Styling
 

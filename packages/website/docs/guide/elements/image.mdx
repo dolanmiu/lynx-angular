@@ -1,0 +1,21 @@
+# &lt;image&gt;
+
+:::tip
+Add `imports: [LYNX_ELEMENTS]` from `@blotch/angular-lynx` to your component for intellisense, autocomplete, and type safety.
+:::
+
+Displays images from local imports or remote URLs.
+
+```typescript
+import logo from '../assets/logo.png';
+
+@Component({
+  imports: [LYNX_ELEMENTS],
+  template: ` <image [src]="logo" style="width: 80px; height: 80px;" /> `,
+})
+export class LogoComponent {
+  logo = logo;
+}
+```
+
+Supported formats: PNG, JPG, WebP, GIF (animated), base64 data URIs.

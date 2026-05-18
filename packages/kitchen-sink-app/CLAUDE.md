@@ -1,4 +1,4 @@
-# kitchen-sink-app — Example Lynx Angular Application
+# kitchen-sink-app — Example AngularLynx Application
 
 Example app demonstrating the runtime library. Uses standalone components, zoneless change detection, and Lynx native elements.
 

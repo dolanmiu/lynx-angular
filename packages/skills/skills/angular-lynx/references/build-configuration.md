@@ -2,7 +2,7 @@
 
 ## Overview
 
-Lynx-Angular apps are built with [RSpeedy](https://lynxjs.org/rspeedy) (Lynx's build tool based on Rsbuild) plus the `@blotch/rsbuild-plugin-angular-lynx` plugin that adds Angular compilation.
+AngularLynx apps are built with [RSpeedy](https://lynxjs.org/rspeedy) (Lynx's build tool based on Rsbuild) plus the `@blotch/rsbuild-plugin-angular-lynx` plugin that adds Angular compilation.
 
 ## Config File: `lynx.config.ts`
 

@@ -7,7 +7,7 @@ export const Banner: React.FC = () => {
     <div className={styles['banner-frame']}>
       <p className={styles['banner-title']}>
         Start building with{' '}
-        <span className={styles['angular-lynx-text']}>Angular Lynx</span>
+        <span className={styles['angular-lynx-text']}>AngularLynx</span>
       </p>
       <a href="/guide/quick-start" className={styles['banner-btn']}>
         Quick Start

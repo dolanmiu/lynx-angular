@@ -1,0 +1,27 @@
+# &lt;scroll-view&gt;
+
+:::tip
+Add `imports: [LYNX_ELEMENTS]` from `@blotch/angular-lynx` to your component for intellisense, autocomplete, and type safety.
+:::
+
+A scrollable area for content. Set `scroll-orientation` to control the scroll direction.
+
+```angular-html
+<scroll-view scroll-orientation="vertical" style="height: 100vh;">
+  @for (item of items(); track item.id) {
+    <view class="item">
+      <text>{{ item.name }}</text>
+    </view>
+  }
+</scroll-view>
+```
+
+:::warning
+`<scroll-view>` requires an explicit height. Without a height constraint, it expands to fit all content and never scrolls.
+:::
+
+## Key Attributes
+
+- `scroll-orientation` — `"vertical"` (default) or `"horizontal"`
+- `bounces` — Enable/disable bounce effect at scroll boundaries
+- `scroll-bar-enable` — Show/hide scrollbar
