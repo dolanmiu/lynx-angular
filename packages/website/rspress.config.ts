@@ -72,6 +72,8 @@ export default defineConfig({
         { text: 'Renderer Architecture', link: '/guide/renderer-architecture' },
         { text: 'Change Detection', link: '/guide/change-detection' },
         { text: 'Signals', link: '/guide/signals' },
+        { text: 'Data Flow', link: '/guide/data-flow' },
+        { text: 'Error Handling', link: '/guide/error-handling' },
         {
           text: 'Lynx Elements',
           collapsed: true,
@@ -91,6 +93,10 @@ export default defineConfig({
             { text: 'Event Handling', link: '/guide/elements/event-handling' },
           ],
         },
+        { text: 'Gestures', link: '/guide/gestures' },
+        { text: 'Animations', link: '/guide/animations' },
+        { text: '@defer', link: '/guide/defer' },
+        { text: 'CSS Modules', link: '/guide/css-modules' },
         { text: 'Routing', link: '/guide/routing' },
         { text: 'Remote Logging', link: '/guide/remote-logging' },
         {

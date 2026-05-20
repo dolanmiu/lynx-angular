@@ -1,0 +1,151 @@
+# Data Flow
+
+Lynx apps receive data from the native host — initial card/page data, shared properties like theme or locale, and processor pipelines that transform raw payloads before they reach your components. AngularLynx exposes all of this through injectable services backed by Angular signals.
+
+<Go example="data-flow" defaultFile="src/app/app.component.ts" />
+
+## InitData
+
+`LynxInitDataService` provides the initialization data that the native host passes when it creates your Lynx card or page. It's available as a reactive signal that updates automatically when the host sends new data.
+
+```typescript title="src/app/app.component.ts"
+import { Component, inject } from '@angular/core';
+import { LynxInitDataService, LYNX_ELEMENTS } from '@blotch/angular-lynx'; // [!code highlight]
+
+@Component({
+  imports: [LYNX_ELEMENTS],
+  template: `
+    <view>
+      <text>User: {{ initDataService.initData().userId }}</text>
+    </view>
+  `,
+})
+export class AppComponent {
+  readonly initDataService = inject(LynxInitDataService); // [!code highlight]
+}
+```
+
+### Typing InitData
+
+By default, `initData` is typed as `Record<string, unknown>`. Use [module augmentation](https://www.typescriptlang.org/docs/handbook/declaration-merging.html#module-augmentation) to add your app's specific fields:
+
+```typescript title="src/types.d.ts"
+declare module '@blotch/angular-lynx' {
+  interface InitData {
+    userId: string;
+    theme: 'light' | 'dark';
+    cardId: number;
+  }
+}
+```
+
+Now `initDataService.initData().userId` is type-safe — no casting needed.
+
+:::info
+`LynxInitDataService` is provided at the root level. No extra `providers` entry is required in `app.config.ts`.
+:::
+
+## GlobalProps
+
+`LynxGlobalPropsService` provides host-level properties shared across all Lynx cards — typically theme, locale, or feature flags. Like InitData, it's a signal that updates reactively when the host changes global props.
+
+```typescript title="src/app/theme.component.ts"
+import { Component, computed, inject } from '@angular/core';
+import { LynxGlobalPropsService, LYNX_ELEMENTS } from '@blotch/angular-lynx'; // [!code highlight]
+
+@Component({
+  imports: [LYNX_ELEMENTS],
+  template: `
+    <view [class]="themeClass()">
+      <text>Current theme: {{ globalPropsService.globalProps().theme }}</text>
+    </view>
+  `,
+})
+export class ThemeComponent {
+  readonly globalPropsService = inject(LynxGlobalPropsService); // [!code highlight]
+
+  readonly themeClass = computed(() =>
+    this.globalPropsService.globalProps().theme === 'dark'
+      ? 'dark-mode'
+      : 'light-mode',
+  );
+}
+```
+
+### Typing GlobalProps
+
+```typescript title="src/types.d.ts"
+declare module '@blotch/angular-lynx' {
+  interface GlobalProps {
+    theme: 'light' | 'dark';
+    locale: string;
+  }
+}
+```
+
+## Data Processors
+
+Data processors transform raw native data before it reaches `LynxInitDataService`. Use them to normalize payloads, add defaults, or reshape data structures.
+
+Call `registerDataProcessors()` **before** `bootstrapApplication()` so the first `onDataChanged` event delivers already-processed data:
+
+```typescript title="src/main.ts"
+import {
+  bootstrapApplication,
+  registerDataProcessors,
+} from '@blotch/angular-lynx'; // [!code highlight]
+import { AppComponent } from './app/app.component';
+import { appConfig } from './app/app.config';
+
+registerDataProcessors({
+  // [!code highlight]
+  defaultDataProcessor: (raw) => ({
+    // [!code highlight]
+    ...raw, // [!code highlight]
+    theme: raw.theme ?? 'light', // [!code highlight]
+    timestamp: Date.now(), // [!code highlight]
+  }), // [!code highlight]
+}); // [!code highlight]
+
+bootstrapApplication(AppComponent, appConfig);
+```
+
+### Typing Raw Data
+
+The raw payload from native can have a different shape than your processed `InitData`. Type it separately with `InitDataRaw`:
+
+```typescript title="src/types.d.ts"
+declare module '@blotch/angular-lynx' {
+  interface InitDataRaw {
+    user_id: string;
+    raw_theme?: string;
+  }
+
+  interface InitData {
+    userId: string;
+    theme: 'light' | 'dark';
+  }
+}
+```
+
+### Named Processors
+
+The native host can call specific named processors via `processData(data, processorName)`. Register them alongside the default processor:
+
+```typescript title="src/main.ts"
+registerDataProcessors({
+  defaultDataProcessor: (raw) => ({ ...raw }),
+  dataProcessors: {
+    refreshFeed: (data) => ({ ...data, feedRefreshed: true }),
+    updateBadge: (data) => ({ ...data, badgeCount: data.count }),
+  },
+});
+```
+
+:::warning
+`registerDataProcessors` must be called before `bootstrapApplication()`. If called after, the first data event will arrive unprocessed.
+:::
+
+:::info
+If a data processor throws an error, it returns `{}` instead of crashing the app. This matches React Lynx's safety behavior — a bad processor should never take down the entire card.
+:::

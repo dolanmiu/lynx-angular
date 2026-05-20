@@ -398,15 +398,17 @@ declare global {
 
   function __LoadLepusChunk(name: string, cfg: { chunkType: number }): void;
 
+  // Gesture config format matches the React Lynx production API.
+  // The native engine receives a config object with a callbacks array
+  // and an optional gesture-specific config.
   function __CreateGestureDetector(
     node: ElementRef,
     gestureID: number,
     gestureType: number,
-    callbackArray: [
-      name: string,
-      script: string,
-      func: (...args: unknown[]) => unknown,
-    ],
+    config: {
+      callbacks: Array<{ name: string; callback: unknown }>;
+      config?: Record<string, unknown>;
+    },
     relationMap: Record<string, number[]>,
   ): void;
 
@@ -414,11 +416,10 @@ declare global {
     node: ElementRef,
     gestureID: number,
     gestureType: number,
-    callbackArray: [
-      name: string,
-      script: string,
-      func: (...args: unknown[]) => unknown,
-    ],
+    config: {
+      callbacks: Array<{ name: string; callback: unknown }>;
+      config?: Record<string, unknown>;
+    },
     relationMap: Record<string, number[]>,
   ): void;
 

@@ -1,0 +1,20 @@
+.card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #6200ee;
+  margin-bottom: 8px;
+}
+
+.highlight {
+  background-color: #fff3e0;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 8px;
+}

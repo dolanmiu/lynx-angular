@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { defineConfig, type Plugin } from 'vitest/config';
 
-function checkVersionsPlugin(): Plugin {
+const checkVersionsPlugin = (): Plugin => {
   return {
     name: 'check-package-versions',
     buildStart() {

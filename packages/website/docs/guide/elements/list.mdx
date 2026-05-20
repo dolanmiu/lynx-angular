@@ -6,6 +6,8 @@ Add `imports: [LYNX_ELEMENTS]` from `@blotch/angular-lynx` to your component for
 
 A high-performance virtualized list for rendering large datasets. Only visible items are rendered, similar to Android's `RecyclerView` or iOS `UITableView`.
 
+<Go example="element-list" defaultFile="src/app/app.component.ts" />
+
 ```angular-html
 <list list-type="single" scroll-orientation="vertical" style="height: 400px;">
   @for (item of items(); track item.id) {

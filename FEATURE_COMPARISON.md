@@ -36,11 +36,11 @@
 
 ## Gestures
 
-| Feature                                         | AngularLynx |                    React Lynx                    |     Vue Lynx     |
-| ----------------------------------------------- | :---------: | :----------------------------------------------: | :--------------: |
-| Gesture system                                  |     ❌      | ✅ (TAP, PAN, FLING, PINCH, ROTATION, LONGPRESS) | ❌ (events only) |
-| Gesture composition (waitFor, simultaneousWith) |     ❌      |                        ✅                        |        ❌        |
-| Worklet-based gesture callbacks                 |     ❌      |                        ✅                        |        ❌        |
+| Feature                                         |                   AngularLynx                    |                    React Lynx                    |     Vue Lynx     |
+| ----------------------------------------------- | :----------------------------------------------: | :----------------------------------------------: | :--------------: |
+| Gesture system                                  | ✅ (TAP, PAN, FLING, PINCH, ROTATION, LONGPRESS) | ✅ (TAP, PAN, FLING, PINCH, ROTATION, LONGPRESS) | ❌ (events only) |
+| Gesture composition (waitFor, simultaneousWith) |        ✅ (Exclusive, Simultaneous, Race)        |                        ✅                        |        ❌        |
+| Worklet-based gesture callbacks                 |         ⚠️ (background-thread callbacks)         |                        ✅                        |        ❌        |
 
 ## Animations
 
@@ -48,7 +48,7 @@
 | ------------------------------------- | :--------------: | :----------------: | :-------------------------------------------: |
 | `element.animate()` (JS keyframe API) |        ✅        |         ✅         |              ❌ (no direct API)               |
 | CSS transitions                       | ❌ (not exposed) | ❌ (worklet-based) |         ✅ (`<Transition>` component)         |
-| CSS `@keyframes` animations           |     Untested     |         ❌         |               ✅ (class-based)                |
+| CSS `@keyframes` animations           |        ✅        |         ❌         |               ✅ (class-based)                |
 | Transition component                  |        ❌        |         ❌         | ✅ (experimental, needs explicit `:duration`) |
 | TransitionGroup                       |        ❌        |         ❌         |               ⚠️ (no move/FLIP)               |
 
@@ -72,23 +72,23 @@
 
 ## Data Flow / Platform Integration
 
-| Feature                 | AngularLynx |       React Lynx        | Vue Lynx |
-| ----------------------- | :---------: | :---------------------: | :------: |
-| InitData pattern        |     ❌      |  ✅ (provider + hook)   |    ❌    |
-| GlobalProps pattern     |     ❌      |  ✅ (provider + hook)   |    ❌    |
-| Data processors         |     ❌      |           ✅            |    ❌    |
-| Native module bridge    |     ❌      | ✅ (`lynx.getJSModule`) |    ❌    |
-| Session storage service |     ❌      |      ❌ (raw API)       |    ❌    |
-| System info service     |     ❌      |      ❌ (raw API)       |    ❌    |
+| Feature                 |          AngularLynx          |       React Lynx        | Vue Lynx |
+| ----------------------- | :---------------------------: | :---------------------: | :------: |
+| InitData pattern        |  ✅ (`LynxInitDataService`)   |  ✅ (provider + hook)   |    ❌    |
+| GlobalProps pattern     | ✅ (`LynxGlobalPropsService`) |  ✅ (provider + hook)   |    ❌    |
+| Data processors         | ✅ (`registerDataProcessors`) |           ✅            |    ❌    |
+| Native module bridge    |              ❌               | ✅ (`lynx.getJSModule`) |    ❌    |
+| Session storage service |              ❌               |      ❌ (raw API)       |    ❌    |
+| System info service     |              ❌               |      ❌ (raw API)       |    ❌    |
 
 ## Lazy Loading / Code Splitting
 
-| Feature                        | AngularLynx |      React Lynx       |          Vue Lynx           |
-| ------------------------------ | :---------: | :-------------------: | :-------------------------: |
-| Route-level lazy loading       |     ✅      |          ❌           |             ✅              |
-| Component-level lazy loading   |     ❌      | ✅ (`loadLazyBundle`) | ✅ (`defineAsyncComponent`) |
-| Suspense / async boundaries    |     ❌      |          ✅           |             ✅              |
-| First-screen sync optimization |     ❌      |    ✅ (Lepus mode)    |             ❌              |
+| Feature                        |  AngularLynx  |      React Lynx       |          Vue Lynx           |
+| ------------------------------ | :-----------: | :-------------------: | :-------------------------: |
+| Route-level lazy loading       |      ✅       |          ❌           |             ✅              |
+| Component-level lazy loading   |      ❌       | ✅ (`loadLazyBundle`) | ✅ (`defineAsyncComponent`) |
+| Suspense / async boundaries    | ✅ (`@defer`) |          ✅           |             ✅              |
+| First-screen sync optimization |      ❌       |    ✅ (Lepus mode)    |             ❌              |
 
 ## SSR / Hydration
 
@@ -100,11 +100,11 @@
 
 ## Error Handling
 
-| Feature                        |      AngularLynx       |       React Lynx        |        Vue Lynx        |
-| ------------------------------ | :--------------------: | :---------------------: | :--------------------: |
-| Error boundary / recovery      |           ❌           | ✅ (`useErrorBoundary`) | ✅ (`onErrorCaptured`) |
-| Global unhandled error capture | ✅ (`__lynxLastError`) | ✅ (`lynx.reportError`) |           ✅           |
-| Component-level error UI       |           ❌           |           ✅            |           ✅           |
+| Feature                        |               AngularLynx                |       React Lynx        |        Vue Lynx        |
+| ------------------------------ | :--------------------------------------: | :---------------------: | :--------------------: |
+| Error boundary / recovery      |                    ❌                    | ✅ (`useErrorBoundary`) | ✅ (`onErrorCaptured`) |
+| Global unhandled error capture | ✅ (`LynxErrorHandler` + `_ReportError`) | ✅ (`lynx.reportError`) |           ✅           |
+| Component-level error UI       |                    ❌                    |           ✅            |           ✅           |
 
 ## Testing
 
@@ -134,7 +134,7 @@
 | AOT compilation                       |         ✅         |       N/A       |         N/A          |
 | JIT compilation                       |         ✅         |       N/A       |         N/A          |
 | Tailwind CSS                          | ✅ (auto-detected) |       ✅        |          ✅          |
-| CSS Modules                           |         ❌         |       ✅        |          ✅          |
+| CSS Modules                           |         ✅         |       ✅        |          ✅          |
 | Dual-thread entry splitting           |         ✅         |       ✅        |          ✅          |
 | Auto CUSTOM_ELEMENTS_SCHEMA injection |         ✅         |       N/A       |  N/A (isNativeTag)   |
 | Worklet transform                     |         ❌         | ✅ (SWC plugin) | ✅ (worklet loaders) |
@@ -160,11 +160,9 @@
 
 ### Biggest gaps vs React Lynx
 
-1. Gesture system (React Lynx's killer feature)
-2. Main thread scripting / worklets
-3. Lazy bundle loading (non-route)
-4. SSR / hydration / first-screen optimization
-5. Data flow patterns (InitData, GlobalProps)
+1. Main thread scripting / worklets (gesture callbacks run on background thread, not main thread)
+2. Lazy bundle loading (non-route)
+3. SSR / hydration / first-screen optimization
 
 ### Biggest gaps vs Vue Lynx
 
@@ -172,10 +170,8 @@
 2. `<Transition>` / animation component abstraction
 3. Project scaffolding CLI
 4. Documentation site & example gallery
-5. CSS Modules
 
 ### Both React & Vue have, Angular doesn't
 
 - Component-level error boundaries with recovery UI
-- Suspense / async component loading
 - Main thread refs and worklet event handlers

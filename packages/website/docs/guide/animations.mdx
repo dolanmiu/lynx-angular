@@ -1,0 +1,186 @@
+# Animations
+
+AngularLynx supports three approaches to animation: CSS transitions, CSS `@keyframes`, and the programmatic `element.animate()` API.
+
+<Go example="animations" defaultFile="src/app/app.component.ts" />
+
+:::warning
+Angular's `@angular/animations` package is **not supported**. Lynx does not have the Web Animations API that Angular's animation DSL targets. Use the approaches below instead.
+:::
+
+## CSS Transitions
+
+Apply a `transition` property in CSS and toggle classes via signals:
+
+```typescript title="src/app/fade.component.ts"
+import { Component, signal } from '@angular/core';
+import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
+
+@Component({
+  imports: [LYNX_ELEMENTS],
+  template: `
+    <view class="box" [class.box-active]="active()" (bindtap)="toggle()">
+      <text>Tap me</text>
+    </view>
+  `,
+  styles: [
+    `
+      .box {
+        width: 100px;
+        height: 100px;
+        background-color: #ccc;
+        transition: background-color 0.5s ease-in-out; /* [!code highlight] */
+      }
+      .box-active {
+        background-color: #6200ee;
+      }
+    `,
+  ],
+})
+export class FadeComponent {
+  readonly active = signal(false);
+
+  toggle(): void {
+    setTimeout(() => this.active.update((v) => !v), 0);
+  }
+}
+```
+
+## CSS @keyframes
+
+Define `@keyframes` in your component styles and apply them via a class toggle:
+
+```typescript title="src/app/spin.component.ts"
+import { Component, signal } from '@angular/core';
+import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
+
+@Component({
+  imports: [LYNX_ELEMENTS],
+  template: `
+    <view
+      class="spinner"
+      [class.spinning]="spinning()"
+      (bindtap)="toggleSpin()"
+    >
+      <text>Spin</text>
+    </view>
+  `,
+  styles: [
+    `
+      @keyframes rotate {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .spinner {
+        width: 80px;
+        height: 80px;
+        background-color: #03dac6;
+      }
+
+      .spinning {
+        animation: rotate 2s linear infinite; /* [!code highlight] */
+      }
+    `,
+  ],
+})
+export class SpinComponent {
+  readonly spinning = signal(false);
+
+  toggleSpin(): void {
+    setTimeout(() => this.spinning.update((v) => !v), 0);
+  }
+}
+```
+
+## Programmatic animate() API
+
+For imperative control, use the `animate()` method on native Lynx elements. Access the element via `viewChild` and call `animate()` with keyframes and options:
+
+```typescript title="src/app/pulse.component.ts"
+import { Component, viewChild, type ElementRef } from '@angular/core';
+import { LYNX_ELEMENTS, type LynxAnimation } from '@blotch/angular-lynx'; // [!code highlight]
+
+@Component({
+  imports: [LYNX_ELEMENTS],
+  template: `
+    <view #box class="box" (bindtap)="runAnimation()">
+      <text>Tap to pulse</text>
+    </view>
+  `,
+  styles: [
+    `
+      .box {
+        width: 100px;
+        height: 100px;
+        background-color: #6200ee;
+        align-items: center;
+        justify-content: center;
+      }
+    `,
+  ],
+})
+export class PulseComponent {
+  readonly boxRef = viewChild<ElementRef>('box');
+  #animation: LynxAnimation | null = null;
+
+  runAnimation(): void {
+    setTimeout(() => {
+      const el = this.boxRef();
+      if (!el) return;
+
+      this.#animation?.cancel(); // [!code highlight]
+
+      this.#animation = el.nativeElement.animate(
+        // [!code highlight]
+        [
+          // [!code highlight]
+          { transform: 'scale(1)', opacity: 1 }, // [!code highlight]
+          { transform: 'scale(1.3)', opacity: 0.7 }, // [!code highlight]
+          { transform: 'scale(1)', opacity: 1 }, // [!code highlight]
+        ], // [!code highlight]
+        { duration: 600, easing: 'ease-in-out' }, // [!code highlight]
+      ); // [!code highlight]
+    }, 0);
+  }
+}
+```
+
+:::tip
+Always cancel the previous animation before starting a new one on the same element to prevent stacking.
+:::
+
+### LynxAnimation
+
+`element.animate()` returns a `LynxAnimation` object:
+
+| Method     | Description                                 |
+| ---------- | ------------------------------------------- |
+| `play()`   | Resume a paused animation                   |
+| `pause()`  | Pause the animation at its current position |
+| `cancel()` | Stop and remove the animation               |
+
+### LynxAnimationOptions
+
+| Option                          | Type               | Description                                                 |
+| ------------------------------- | ------------------ | ----------------------------------------------------------- |
+| `duration`                      | `number \| string` | Duration in milliseconds                                    |
+| `delay`                         | `number \| string` | Delay before animation starts                               |
+| `easing` / `timingFunction`     | `string`           | Timing function (e.g., `'ease-in-out'`, `'linear'`)         |
+| `iterations` / `iterationCount` | `number \| string` | Number of repetitions (`Infinity` for loop)                 |
+| `fill` / `fillMode`             | `string`           | Fill mode (`'forwards'`, `'backwards'`, `'both'`, `'none'`) |
+| `direction`                     | `string`           | Direction (`'normal'`, `'reverse'`, `'alternate'`)          |
+
+Both Web Animations API naming (`easing`, `iterations`, `fill`) and Lynx-native naming (`timingFunction`, `iterationCount`, `fillMode`) are accepted.
+
+## Choosing an Approach
+
+| Approach            | Best for                                                  |
+| ------------------- | --------------------------------------------------------- |
+| CSS transitions     | Simple property changes (color, size, opacity)            |
+| CSS @keyframes      | Continuous/looping animations (spinners, pulses)          |
+| `element.animate()` | One-shot sequences, imperative control, dynamic keyframes |

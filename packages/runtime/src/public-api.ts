@@ -4,6 +4,44 @@
 
 export { LynxAnimation } from './lib/animation/animation';
 export type { LynxAnimationOptions } from './lib/animation/animation';
+export { registerDataProcessors } from './lib/data-flow/data-processors';
+export type {
+  DataProcessorDefinition,
+  GlobalProps,
+  InitData,
+  InitDataRaw,
+} from './lib/data-flow/data-flow.types';
+export { LynxGlobalPropsService } from './lib/data-flow/global-props.service';
+export { LynxInitDataService } from './lib/data-flow/init-data.service';
+export { LynxErrorHandler } from './lib/error-handler/lynx-error-handler';
+export {
+  BaseGesture,
+  ComposedGesture,
+  ContinuousGesture,
+  FlingGesture,
+  Gesture,
+  GestureStateManager,
+  LongPressGesture,
+  LynxGestureDetector,
+  PanGesture,
+  PinchGesture,
+  RotationGesture,
+  TapGesture,
+  FlingDirection,
+  GestureState,
+  GestureType,
+} from './lib/gesture';
+export type {
+  FlingGestureEvent,
+  GestureCallback,
+  GestureCallbackWithState,
+  GestureEvent,
+  LongPressGestureEvent,
+  PanGestureEvent,
+  PinchGestureEvent,
+  RotationGestureEvent,
+  TapGestureEvent,
+} from './lib/gesture';
 export {
   LYNX_ELEMENTS,
   LynxBlock,

@@ -1,10 +1,12 @@
 import { APP_BASE_HREF } from '@angular/common';
 import {
   DOCUMENT,
+  ErrorHandler,
   type EnvironmentProviders,
   makeEnvironmentProviders,
   RendererFactory2,
 } from '@angular/core';
+import { LynxErrorHandler } from '../error-handler/lynx-error-handler';
 import { LynxBackgroundDocument, LynxDocument } from '../lynx-document';
 import { LynxRendererFactory2 } from './lynx-renderer-factory2';
 import { LYNX_DOCUMENT } from './token';
@@ -36,6 +38,10 @@ export const provideRenderer = (): EnvironmentProviders => {
     {
       provide: RendererFactory2,
       useExisting: LynxRendererFactory2,
+    },
+    {
+      provide: ErrorHandler,
+      useClass: LynxErrorHandler,
     },
   ]);
 };

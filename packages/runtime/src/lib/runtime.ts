@@ -3,9 +3,17 @@ import { bootstrapApplication as ngBootstrapApplication } from '@angular/platfor
 import { firstValueFrom, Subject } from 'rxjs';
 
 // On-device diagnostic: capture the last unhandled error/rejection so Angular
-// components can render it via <text>. There is no console on the Lynx device,
-// so this is the only way to see what is crashing.
+// components can render it via <text>. There is no console on the Lynx device.
+// LynxErrorHandler covers Angular-managed errors; these handlers catch crashes
+// that escape Angular (native glue code, promise rejections outside zones, etc.).
 (globalThis as any).__lynxLastError = '';
+
+const reportToNative = (err: Error): void => {
+  if (typeof _ReportError === 'function') {
+    _ReportError(err, { errorCode: 1101 });
+  }
+}
+
 if (typeof (globalThis as any).onerror !== 'function') {
   (globalThis as any).onerror = (
     msg: string | Event,
@@ -14,18 +22,22 @@ if (typeof (globalThis as any).onerror !== 'function') {
     _col?: number,
     err?: Error,
   ) => {
-    (globalThis as any).__lynxLastError = err
-      ? `${err.name}: ${err.message}\n${err.stack ?? ''}`
-      : String(msg);
+    const e = err ?? new Error(String(msg));
+    (globalThis as any).__lynxLastError =
+      `${e.name}: ${e.message}\n${e.stack ?? ''}`;
+    reportToNative(e);
   };
 }
 if (typeof (globalThis as any).onunhandledrejection !== 'function') {
   (globalThis as any).onunhandledrejection = (event: PromiseRejectionEvent) => {
     const reason = event?.reason;
-    (globalThis as any).__lynxLastError =
+    const e =
       reason instanceof Error
-        ? `Unhandled rejection: ${reason.name}: ${reason.message}\n${reason.stack ?? ''}`
-        : `Unhandled rejection: ${String(reason)}`;
+        ? reason
+        : new Error(`Unhandled rejection: ${String(reason)}`);
+    (globalThis as any).__lynxLastError =
+      `${e.name}: ${e.message}\n${e.stack ?? ''}`;
+    reportToNative(e);
   };
 }
 
