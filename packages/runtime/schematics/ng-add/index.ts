@@ -79,11 +79,7 @@ const replaceMainTs = (sourceRoot: string): Rule => {
 import { AppComponent } from './app/app.component';
 import { appConfig } from './app/app.config';
 
-bootstrapApplication(AppComponent, appConfig).catch((err) => {
-  setTimeout(() => {
-    throw err;
-  }, 0);
-});
+bootstrapApplication(AppComponent, appConfig);
 `;
     tree.overwrite(mainPath, content);
   };
