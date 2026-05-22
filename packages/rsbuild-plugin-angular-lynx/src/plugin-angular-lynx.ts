@@ -26,7 +26,7 @@ export const pluginAngularLynx = (
       applyLayers(api);
       applyAngularRules(api);
       applyGenerator(api);
-      applySplitChunksRule(api);
+      applySplitChunksRule(api, normalizedOptions);
       applyDevLogger(api);
     },
   };

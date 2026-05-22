@@ -179,7 +179,7 @@ class AngularWebpackPlugin {
 
       compilation.hooks.runtimeRequirementInTree
         .for(compiler.webpack.RuntimeGlobals.ensureChunkHandlers)
-        .tap('VanillaWebpackPlugin', (_, runtimeRequirements) => {
+        .tap('VanillaWebpackPlugin', (chunk, runtimeRequirements) => {
           runtimeRequirements.add(RuntimeGlobals.lynxProcessEvalResult);
         });
 
@@ -190,10 +190,6 @@ class AngularWebpackPlugin {
             return;
           }
           onceForChunkSet.add(chunk);
-
-          if (chunk.name?.includes(':background')) {
-            return;
-          }
 
           const LynxProcessEvalResultRuntimeModule =
             createLynxProcessEvalResultRuntimeModule(compiler.webpack);
@@ -278,40 +274,13 @@ class AngularWebpackPlugin {
         );
       }
 
-      // LynxTemplatePlugin is typed against webpack's Compilation, but Rspack's is structurally compatible at runtime
       const hooks = LynxTemplatePlugin.getLynxTemplatePluginHooks(
         compilation as unknown as Parameters<
           typeof LynxTemplatePlugin.getLynxTemplatePluginHooks
         >[0],
       );
 
-      const { ConcatSource } = compiler.webpack.sources; // hooks.beforeEncode.tap(
-      //   this.constructor.name,
-      //   (args) => {
-      //     const lepusCode = args.encodeData.lepusCode;
-      //     if (
-      //       lepusCode.root?.source.source().toString()?.includes(
-      //         'registerWorkletInternal',
-      //       )
-      //     ) {
-      //       const path = compiler.options.mode === 'development'
-      //         ? '@lynx-js/angular/worklet-dev-runtime'
-      //         : '@lynx-js/angular/worklet-runtime';
-      //       const runtimeFile = require.resolve(path);
-      //       lepusCode.chunks.push({
-      //         name: 'worklet-runtime',
-      //         source: new RawSource(fs.readFileSync(
-      //           runtimeFile,
-      //           'utf8',
-      //         )),
-      //         info: {
-      //           ['lynx:main-thread']: true,
-      //         },
-      //       });
-      //     }
-      //     return args;
-      //   },
-      // );
+      const { ConcatSource } = compiler.webpack.sources;
 
       // Inject `module.exports` for async main-thread chunks
       hooks.beforeEncode.tap(this.constructor.name, (args) => {
@@ -343,15 +312,7 @@ class AngularWebpackPlugin {
             ),
         );
         return args;
-      }); // // The angular-transform will add `-${LAYER}` to the webpackChunkName.
-      // // We replace it with an empty string here to make sure main-thread & background chunk match.
-      // hooks.asyncChunkName.tap(
-      //   this.constructor.name,
-      //   (chunkName) =>
-      //     chunkName
-      //       ?.replaceAll(`-${LAYERS.BACKGROUND}`, '')
-      //       ?.replaceAll(`-${LAYERS.MAIN_THREAD}`, ''),
-      // );
+      });
     });
   }
 

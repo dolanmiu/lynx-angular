@@ -2,6 +2,7 @@
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
 import type { RsbuildPluginAPI } from '@lynx-js/rspeedy';
+import type { PluginAngularLynxOptions } from './utils/options.js';
 
 // type CacheGroups = Rspack.Configuration extends {
 //   optimization?: {
@@ -27,8 +28,10 @@ import type { RsbuildPluginAPI } from '@lynx-js/rspeedy';
 //   && typeof obj === 'object'
 //   && Object.prototype.toString.call(obj) === '[object Object]'
 
-export const applySplitChunksRule = (api: RsbuildPluginAPI): void => {
-  // Defaults to `all-in-one`.
+export const applySplitChunksRule = (
+  api: RsbuildPluginAPI,
+  options: Required<PluginAngularLynxOptions>,
+): void => {
   api.modifyRsbuildConfig((config, { mergeRsbuildConfig }) => {
     const userConfig = api.getRsbuildConfig('original');
     if (!userConfig.performance?.chunkSplit?.strategy) {
@@ -46,6 +49,14 @@ export const applySplitChunksRule = (api: RsbuildPluginAPI): void => {
   api.modifyRspackConfig((rspackConfig, { environment }) => {
     if (environment.name !== 'lynx') {
       return rspackConfig;
+    }
+
+    // Disable async chunks so rspack inlines all dynamic imports into the
+    // initial bundle. Routes still use loadComponent() syntax but modules
+    // are synchronously available — no Lynx native loading APIs needed.
+    rspackConfig.output = rspackConfig.output ?? {};
+    if (!options.experimental_isLazyBundle) {
+      (rspackConfig.output as any).asyncChunks = false;
     }
 
     if (!rspackConfig.optimization) {

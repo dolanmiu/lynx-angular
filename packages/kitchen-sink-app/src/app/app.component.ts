@@ -51,15 +51,6 @@ import lynxLogo from '../assets/lynx-logo.png';
           <router-outlet />
         </view>
 
-        @if (lastError()) {
-          <view style="background-color: red; padding: 8px; margin: 8px;">
-            <text
-              style="color: white; font-size: 12px; word-break: break-all;"
-              >{{ lastError() }}</text
-            >
-          </view>
-        }
-
         <overlay
           [attr.visible]="showOverlay()"
           style="position: fixed; overflow: visible;"
@@ -137,6 +128,15 @@ import lynxLogo from '../assets/lynx-logo.png';
             >
               <text class="nav-button-text">Overlay + Motion</text>
             </view>
+            <view class="nav-button" (bindtap)="navigateTo('css-modules-demo')">
+              <text class="nav-button-text">CSS Modules</text>
+            </view>
+            <view class="nav-button" (bindtap)="navigateTo('defer-demo')">
+              <text class="nav-button-text">Defer Demo</text>
+            </view>
+            <view class="nav-button" (bindtap)="navigateTo('gesture-demo')">
+              <text class="nav-button-text">Gesture Demo</text>
+            </view>
           </view>
         </view>
       </view>
@@ -150,7 +150,6 @@ export class AppComponent {
   #logger = inject(LynxLoggerService);
   alterLogo = signal(false);
   showOverlay = signal(false);
-  lastError = signal('');
 
   openOverlay(): void {
     setTimeout(() => this.showOverlay.set(true), 0);
@@ -178,12 +177,6 @@ export class AppComponent {
     setTimeout(() => {
       this.#router.navigateByUrl(path);
       this.#logger.log('navigated to', path);
-      // Capture any error the global handler caught during navigation.
-      const err = (globalThis as any).__lynxLastError;
-      if (err) {
-        this.lastError.set(err);
-        (globalThis as any).__lynxLastError = '';
-      }
     }, 0);
   }
 

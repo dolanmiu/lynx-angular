@@ -1,21 +1,70 @@
 import type { Routes } from '@angular/router';
-import { ElementsShowcaseComponent } from './elements-showcase/elements-showcase.component';
-import { ListExampleComponent } from './list-example/list-example.component';
-import { MotionDemoComponent } from './motion-demo/motion-demo.component';
-import { OverlayMotionDemoComponent } from './overlay-motion-demo/overlay-motion-demo.component';
-import { QuerySelectorDemoComponent } from './query-selector-demo/query-selector-demo.component';
 import { ScrollExampleComponent } from './scroll-example/scroll-example.component';
-import { TailwindDemoComponent } from './tailwind-demo/tailwind-demo.component';
 
 export const routes: Routes = [
-  // Default route for '/' — redirects to list-example to prevent
-  // NavigationError which crashes Lynx's background thread.
   { path: '', pathMatch: 'full', redirectTo: 'list-example' },
-  { path: 'list-example', component: ListExampleComponent },
+  {
+    path: 'list-example',
+    loadComponent: () =>
+      import('./list-example/list-example.component').then(
+        (m) => m.ListExampleComponent,
+      ),
+  },
   { path: 'scroll-example', component: ScrollExampleComponent },
-  { path: 'showcase', component: ElementsShowcaseComponent },
-  { path: 'query-selector-demo', component: QuerySelectorDemoComponent },
-  { path: 'tailwind-demo', component: TailwindDemoComponent },
-  { path: 'motion-demo', component: MotionDemoComponent },
-  { path: 'overlay-motion-demo', component: OverlayMotionDemoComponent },
+  {
+    path: 'showcase',
+    loadComponent: () =>
+      import('./elements-showcase/elements-showcase.component').then(
+        (m) => m.ElementsShowcaseComponent,
+      ),
+  },
+  {
+    path: 'query-selector-demo',
+    loadComponent: () =>
+      import('./query-selector-demo/query-selector-demo.component').then(
+        (m) => m.QuerySelectorDemoComponent,
+      ),
+  },
+  {
+    path: 'tailwind-demo',
+    loadComponent: () =>
+      import('./tailwind-demo/tailwind-demo.component').then(
+        (m) => m.TailwindDemoComponent,
+      ),
+  },
+  {
+    path: 'motion-demo',
+    loadComponent: () =>
+      import('./motion-demo/motion-demo.component').then(
+        (m) => m.MotionDemoComponent,
+      ),
+  },
+  {
+    path: 'overlay-motion-demo',
+    loadComponent: () =>
+      import('./overlay-motion-demo/overlay-motion-demo.component').then(
+        (m) => m.OverlayMotionDemoComponent,
+      ),
+  },
+  {
+    path: 'css-modules-demo',
+    loadComponent: () =>
+      import('./css-modules-demo/css-modules-demo.component').then(
+        (m) => m.CssModulesDemoComponent,
+      ),
+  },
+  {
+    path: 'defer-demo',
+    loadComponent: () =>
+      import('./defer-demo/defer-demo.component').then(
+        (m) => m.DeferDemoComponent,
+      ),
+  },
+  {
+    path: 'gesture-demo',
+    loadComponent: () =>
+      import('./gesture-demo/gesture-demo.component').then(
+        (m) => m.GestureDemoComponent,
+      ),
+  },
 ];
