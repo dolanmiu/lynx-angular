@@ -17,7 +17,7 @@ export class LynxElement implements BaseLynxElement {
   // Angular calls appendChild/remove as part of normal component lifecycle,
   // but the page element is the immutable root — moving or removing it
   // would corrupt the native element tree.
-  _isRootPageElement = false;
+  isRootPageElement = false;
 
   // Virtual tree tracking — used when parent manages children outside the
   // native element tree (e.g., list manages children via componentAtIndex
@@ -75,7 +75,7 @@ export class LynxElement implements BaseLynxElement {
   }
 
   insertBefore(newChild: LynxElement, refChild: LynxElement | null): void {
-    if (newChild._isRootPageElement) return;
+    if (newChild.isRootPageElement) return;
     if (refChild == null) {
       this.appendChild(newChild);
     } else {
@@ -84,7 +84,7 @@ export class LynxElement implements BaseLynxElement {
   }
 
   appendChild(newChild: LynxElement): void {
-    if (newChild._isRootPageElement) return;
+    if (newChild.isRootPageElement) return;
     __AppendElement(this.element, newChild.element);
   }
 
@@ -98,7 +98,7 @@ export class LynxElement implements BaseLynxElement {
   }
 
   remove() {
-    if (this._isRootPageElement) return;
+    if (this.isRootPageElement) return;
     if (this._virtualParent) {
       // Remove from virtual tree (e.g., when parent is an list).
       // Duck-typed to avoid a circular import with LynxListElement.

@@ -2,7 +2,7 @@ import type { LynxElement } from '../../lynx-element';
 
 // Returns the existing root page element — does NOT create a new one.
 // Only one <page> element is allowed per application. The page element's
-// _isRootPageElement guard prevents Angular from reparenting or removing it.
+// isRootPageElement guard prevents Angular from reparenting or removing it.
 export const createPageElement = (
   page: LynxElement,
   pageElementRequested: boolean,

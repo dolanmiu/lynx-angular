@@ -7,7 +7,7 @@ import type { BaseLynxElement } from './types';
 export class LynxBackgroundElement implements BaseLynxElement {
   // When true, this element is the root page element and must not be
   // re-parented or removed from the tree.
-  _isRootPageElement = false;
+  isRootPageElement = false;
 
   #props = new Map<string, any>();
   #styles = new Map<string, any>();
@@ -52,7 +52,7 @@ export class LynxBackgroundElement implements BaseLynxElement {
     newChild: LynxBackgroundElement,
     refChild: LynxBackgroundElement | null,
   ): void {
-    if (newChild._isRootPageElement) return;
+    if (newChild.isRootPageElement) return;
     if (refChild == null) {
       this.appendChild(newChild);
       return;
@@ -69,7 +69,7 @@ export class LynxBackgroundElement implements BaseLynxElement {
   }
 
   appendChild(newChild: LynxBackgroundElement): void {
-    if (newChild._isRootPageElement) return;
+    if (newChild.isRootPageElement) return;
     if (!this.#firstChild) {
       this.#firstChild = newChild;
       this.#lastChild = newChild;
@@ -93,7 +93,7 @@ export class LynxBackgroundElement implements BaseLynxElement {
     this.#classes.delete(name);
   }
   remove(): void {
-    if (this._isRootPageElement) return;
+    if (this.isRootPageElement) return;
     if (!this.#parent) {
       return;
     }

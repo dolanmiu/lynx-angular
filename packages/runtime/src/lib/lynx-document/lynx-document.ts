@@ -33,7 +33,7 @@ export class LynxDocument implements LynxDocumentBase {
     this.page = new LynxElement(pageElement);
     // Prevent Angular from reparenting or removing the root page element
     // during normal component lifecycle (appendChild/remove calls).
-    this.page._isRootPageElement = true;
+    this.page.isRootPageElement = true;
     this.#pageId = __GetElementUniqueID(pageElement);
     return this.page;
   }

@@ -2,20 +2,20 @@ import { LynxBackgroundElement } from '../lynx-element';
 import type { LynxDocumentBase } from './types';
 
 export class LynxBackgroundDocument implements LynxDocumentBase {
-  _page: LynxBackgroundElement | null = null;
+  #page: LynxBackgroundElement | null = null;
 
   constructor() {}
   createRootElement(): LynxBackgroundElement {
     const page = new LynxBackgroundElement();
     page.setAttribute('tagName', 'page');
-    page._isRootPageElement = true;
-    this._page = page;
-    return this._page;
+    page.isRootPageElement = true;
+    this.#page = page;
+    return this.#page;
   }
   createElement(tag: string, value?: string): LynxBackgroundElement {
     // Returns the existing root page element — same singleton semantics as main thread.
     if (tag === 'page') {
-      return this._page!;
+      return this.#page!;
     }
 
     // In the background thread, we create virtual elements but store their tag name
@@ -42,6 +42,6 @@ export class LynxBackgroundDocument implements LynxDocumentBase {
     return element;
   }
   appendChild(newChild: LynxBackgroundElement): void {
-    this._page?.appendChild(newChild);
+    this.#page?.appendChild(newChild);
   }
 }

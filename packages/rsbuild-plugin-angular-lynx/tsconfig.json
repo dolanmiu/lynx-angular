@@ -7,9 +7,9 @@
     "resolveJsonModule": true,
     "useDefineForClassFields": true,
     "allowImportingTsExtensions": true,
-    "noPropertyAccessFromIndexSignature": false
+    "noPropertyAccessFromIndexSignature": false,
+    "types": ["node"]
   },
   "angularCompilerOptions": {},
-  "include": ["src"],
-  "exclude": ["src/**/*.spec.ts"]
+  "include": ["src"]
 }

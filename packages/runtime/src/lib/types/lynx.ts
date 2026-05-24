@@ -193,7 +193,7 @@ declare global {
     b: ElementRef | ElementRef[] | undefined,
   ): void;
 
-  function __GetParent(current: ElementRef): ElementRef;
+  function __GetParent(current: ElementRef): ElementRef | null;
 
   function __GetChildren(current: ElementRef): ElementRef[];
 

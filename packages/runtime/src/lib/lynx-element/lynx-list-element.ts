@@ -72,7 +72,7 @@ export class LynxListElement extends LynxElement {
   }
 
   override appendChild(newChild: LynxElement): void {
-    if (newChild._isRootPageElement) return;
+    if (newChild.isRootPageElement) return;
     newChild._virtualParent = this;
     newChild._virtualPrev = this.#lastVirtualChild;
     newChild._virtualNext = null;
@@ -92,7 +92,7 @@ export class LynxListElement extends LynxElement {
     newChild: LynxElement,
     refChild: LynxElement | null,
   ): void {
-    if (newChild._isRootPageElement) return;
+    if (newChild.isRootPageElement) return;
     if (refChild == null) {
       this.appendChild(newChild);
       return;
