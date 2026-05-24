@@ -20,14 +20,14 @@ that the Lynx team does not maintain — use it as a fallback if source builds b
 
 ## Prerequisites
 
-| Requirement | Minimum version | Notes |
-|---|---|---|
-| Mac (Apple Silicon or Intel) | — | Xcode only runs on macOS |
-| Xcode | Latest stable | Install from the Mac App Store |
-| Ruby | 2.6.10+ | macOS ships one; use `rbenv` or `rvm` for version control |
-| CocoaPods | 1.11.3+ | `sudo gem install cocoapods` |
-| Apple Developer account | Free or paid | Free account allows 7-day device installs; paid allows unlimited |
-| iOS device | iOS 10.0+ | Minimum supported by Lynx |
+| Requirement                  | Minimum version | Notes                                                            |
+| ---------------------------- | --------------- | ---------------------------------------------------------------- |
+| Mac (Apple Silicon or Intel) | —               | Xcode only runs on macOS                                         |
+| Xcode                        | Latest stable   | Install from the Mac App Store                                   |
+| Ruby                         | 2.6.10+         | macOS ships one; use `rbenv` or `rvm` for version control        |
+| CocoaPods                    | 1.11.3+         | `sudo gem install cocoapods`                                     |
+| Apple Developer account      | Free or paid    | Free account allows 7-day device installs; paid allows unlimited |
+| iOS device                   | iOS 10.0+       | Minimum supported by Lynx                                        |
 
 ### Install CocoaPods (if not already present)
 
@@ -58,6 +58,7 @@ lynx/explorer/darwin/ios/
 > **Note:** The `develop` branch corresponds to SDK version `next`. If you want to pin to the
 > stable 3.7.0 release (matching the CocoaPod versions below), clone the `release/3.7` branch
 > instead:
+>
 > ```bash
 > git clone --depth=1 --branch release/3.7 https://github.com/lynx-family/lynx.git
 > ```
@@ -158,9 +159,11 @@ You only need to do this once per signing certificate (or once every 7 days with
 ### Scanning the dev server QR code
 
 1. Start your AngularLynx dev server:
+
    ```bash
    npm run demo
    ```
+
    A QR code will appear in the terminal.
 
 2. Open Lynx Explorer on your iPhone.
@@ -174,6 +177,7 @@ You only need to do this once per signing certificate (or once every 7 days with
 ### Entering a URL manually
 
 If QR scanning doesn't work:
+
 1. Find the dev server URL printed in the terminal (e.g. `http://192.168.1.42:3000/main.lynx.bundle`).
 2. In Lynx Explorer, tap **"Enter Card URL"**, paste the URL, tap **Go**.
 
@@ -211,6 +215,7 @@ Find the Explorer's `AppDelegate.m` (or `.swift`) and add the DevTool switches a
 `[LynxEnv sharedInstance]`:
 
 **Objective-C:**
+
 ```objc
 #import <Lynx/LynxEnv.h>
 #import <Lynx/LynxService.h>
@@ -232,6 +237,7 @@ Find the Explorer's `AppDelegate.m` (or `.swift`) and add the DevTool switches a
 ```
 
 **Swift:**
+
 ```swift
 import UIKit
 

@@ -12,7 +12,7 @@ const reportToNative = (err: Error): void => {
   if (typeof _ReportError === 'function') {
     _ReportError(err, { errorCode: 1101 });
   }
-}
+};
 
 if (typeof (globalThis as any).onerror !== 'function') {
   (globalThis as any).onerror = (

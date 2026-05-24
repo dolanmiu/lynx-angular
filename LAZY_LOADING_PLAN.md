@@ -627,12 +627,14 @@ Investigation via `references/lynx` (native Lynx source) confirmed:
 ### Current State (Fixed)
 
 **Configuration:**
+
 - Async chunks: AMD-wrapped by RuntimeWrapperWebpackPlugin ✓
 - Main thread: `__webpack_require__.e` returns never-resolving promise (suppressed) ✓
 - Background thread: rspeedy's `ChunkLoadingWebpackPlugin` handles `ensureChunkHandlers.require` using `lynx.requireModuleAsync(url, (err, exports) => installChunk(exports))` ✓
 - `lynx_aci` is empty (no named chunks) → always uses `requireModuleAsync` fallback ✓
 
 **Full loading chain:**
+
 1. Angular Router calls `loadComponent()` → `import('./list-example/...')` → `__webpack_require__.e(chunkId)`
 2. `ensureChunkHandlers.require` fires → `lynx.requireModuleAsync(publicPath + u(chunkId), callback)`
 3. Native fetches `http://.../static/js/async/_background_src_app_list-example_...js`
@@ -647,43 +649,52 @@ Investigation via `references/lynx` (native Lynx source) confirmed:
 **Problem:** Routes blank, no errors shown. Need to determine if `lynx.requireModuleAsync` callback fires.
 
 **Attempt 1: NavigationError event handler + chunk instrumentation**
+
 - Added `NavigationError` subscription to `app.component.ts` — shows errors in red box on screen
 - Tried to instrument `globalThis.__webpack_require__.e` — but `__webpack_require__` is NOT on `globalThis` (it's local to the AMD factory), so instrumentation never activates
 
 **Attempt 2: `requireModuleAsync` polyfill as file-level prefix (outside AMD IIFE)**
+
 - Injected at `PROCESS_ASSETS_STAGE_ADDITIONS` as a ConcatSource prefix
 - Wrote to `globalThis.lynx.requireModuleAsync`
 - **Failed:** The `lynx` inside the AMD factory is a LOCAL parameter, not `globalThis.lynx`. The polyfill modified the global, but the chunk-loading handler uses the local parameter. They're different objects.
 
 **Attempt 3: `requireModuleAsync` polyfill as RuntimeModule (inside AMD factory)**
+
 - Created a RuntimeModule at `STAGE_BASIC` so the code generates INSIDE the webpack runtime (inside the AMD factory where `lynx` is the correct local variable)
 - The polyfill wraps `lynx.requireModuleAsync` to detect if callback fires
 - **Result on SDK 1.4.0:** "NavError: not a function" — `lynx.requireModuleAsync` doesn't exist
 
 **Attempt 4: Polyfill with fetch+eval fallback**
+
 - If native `requireModuleAsync` doesn't exist, polyfill with `fetch(url).then(r => r.text()).then(code => eval(code))`
 - **Result on SDK 1.4.0:** Still "not a function" — `fetch` is also not available inside the AMD factory (the `fetch` parameter may be undefined)
 
 **Attempt 5: Upgrade LynxExplorer to SDK 3.7.0**
+
 - SDK 3.7.0 has native `lynx.requireModuleAsync`
 - With custom IIFE wrapper (no AMD): routes blank, no error → callback never fires because `requireModuleAsync` REQUIRES AMD-wrapped modules
 - With AMD wrapper restored: routes blank, no error → same behavior
 
 **Attempt 6: Debug output via `globalThis.__chunkDebug`**
+
 - RuntimeModule polyfill writes diagnostic info to `globalThis.__chunkDebug`
 - Component reads `globalThis.__chunkDebug` after 3s timeout
 - **Result:** "no debug info" — `globalThis` inside the AMD factory is NOT the same as `globalThis` accessed from component code (or the component's `(globalThis as any).lynx` differs from the factory's local `lynx`)
 
 **Attempt 7: Debug output via `lynx.__chunkDebug`**
+
 - Polyfill writes to `lynx.__chunkDebug` (local AMD parameter)
 - Component reads `(globalThis as any).lynx.__chunkDebug`
 - **Result:** "no debug info" — confirms the factory's `lynx` parameter is NOT the same object as `globalThis.lynx`
 
 **Attempt 8: Debug output via eval (scope-preserving)**
+
 - Component uses `eval('lynx.__chunkDebug')` which preserves lexical scope and resolves `lynx` through the scope chain to the AMD factory's parameter
 - **Result:** superseded — intermediate simplified polyfill removed `lynx.__chunkDebug` write entirely
 
 **Attempt 9: Dual-method diagnostics — `globalThis.__angLynxDiag` + `eval('lynx.__chunkDebug')` (2026-05-22)**
+
 - Added polyfill initialization: `globalThis.__angLynxDiag = 'READY:rma=true'` AND `lynx.__chunkDebug = globalThis.__angLynxDiag` (both set unconditionally at startup)
 - `requireModuleAsync` wrapper writes CALL/OK/ERR/TIMEOUT to both properties on every chunk load
 - Component reads `(globalThis as any).__angLynxDiag` (direct) OR `eval('typeof lynx !== "undefined" && lynx.__chunkDebug')` (scope chain), whichever is truthy
@@ -704,6 +715,7 @@ Since `npm run demo` always rebuilds everything, the new polyfill code IS in the
 Actually, more precisely: the `if` branch runs when `globalThis["__MAIN_THREAD__"]` is TRUTHY. In the background thread, `false` is falsy, so the if branch should be skipped. But if `globalThis["__MAIN_THREAD__"]` is `undefined` (not found), it's also falsy — if branch still skipped. So the if branch CANNOT be taken by accident on background thread unless `__MAIN_THREAD__` is somehow `true`.
 
 **Revised most likely explanation**: The diagnostic code RUNS but the WRITES fail silently. In PrimJS/QuickJS:
+
 - `globalThis.__angLynxDiag = 'READY:rma=true'` — if `globalThis` inside the factory closure is read-only or a different object, writes fail silently without throwing
 - `lynx.__chunkDebug = globalThis.__angLynxDiag` — if the write above failed, this copies `undefined`
 - The component reads from `globalThis` (may be a different `globalThis` instance) — gets undefined
@@ -720,8 +732,9 @@ NavStart:/list-example | LoadStart:list-example | LoadEnd:list-example
 Events subscribed: `NavigationStart`, `RouteConfigLoadStart`, `RouteConfigLoadEnd`, `NavigationEnd`, `NavigationCancel`, `NavigationError`.
 
 **What this tells us:**
+
 - `NavStart` fires → Router is attempting navigation ✓
-- `LoadStart` fires → Router is calling `loadComponent()`, triggering the import() ✓  
+- `LoadStart` fires → Router is calling `loadComponent()`, triggering the import() ✓
 - `LoadEnd` fires → `import()` resolved, chunk installed — if route still blank, problem is in rendering
 - `NavEnd` fires → navigation completed → RouterOutlet should show component
 - `NavCancel` fires → navigation cancelled without error (e.g. `resolveNavigationPromiseOnError` swallowed a timeout)
@@ -732,6 +745,7 @@ Events subscribed: `NavigationStart`, `RouteConfigLoadStart`, `RouteConfigLoadEn
 ### Key Discovery: AMD Factory Scope Isolation
 
 The `RuntimeWrapperWebpackPlugin` AMD pattern creates severe scope isolation:
+
 ```
 (function(){  // IIFE scope
   var g = (new Function('return this;'))();  // global object
@@ -749,6 +763,7 @@ The `RuntimeWrapperWebpackPlugin` AMD pattern creates severe scope isolation:
 ```
 
 **Consequences:**
+
 1. Cannot communicate between webpack runtime (inside factory) and globals (outside factory) using `lynx` or other factory parameters
 2. `globalThis` IS accessible from inside the factory but `globalThis.lynx` is NOT the same as the local `lynx` parameter
 3. The only way to share state between factory code and the outside is via `globalThis.someNewProperty` (not via lynx/fetch/etc. which are shadowed)
@@ -776,21 +791,25 @@ The `RuntimeWrapperWebpackPlugin` AMD pattern creates severe scope isolation:
 Switched from polyfill-written diagnostics (all failed due to AMD scope isolation) to Angular Router event subscriptions. Shows the last 3 events in the red box using pure Angular signals.
 
 **Observed sequence on first lazy route tap:**
+
 ```
 NavStart:/list-example → LoadStart:list-example → (nothing)
 ```
 
 **On second lazy route tap:**
+
 ```
 LoadStart:other-route → NavCancel:/list-example → NavStart:/other-route → (nothing)
 ```
 
 **On a synchronous (non-lazy) route:**
+
 ```
 NavCancel → NavStart → NavEnd
 ```
 
 **Interpretation:**
+
 - `NavStart` fires → Angular Router begins navigation ✓
 - `RouteConfigLoadStart` fires → Angular Router calls `loadComponent()` → `import()` → `__webpack_require__.e(chunkId)` → `ensureChunkHandlers.require` runs → `lynx.requireModuleAsync(url, callback)` IS CALLED ✓
 - **NOTHING FIRES AFTER** → `requireModuleAsync` callback NEVER delivers. No `NavEnd`, no `NavCancel`, no `NavErr`. The JS Promise hangs indefinitely.
@@ -817,6 +836,7 @@ Instead of the complex `loadLazyBundle` → `QueryComponent` → `kLazyBundle` p
 4. `cb(null, { ids, modules })` → `installChunk({ ids, modules })` installs module factories
 
 `fetch` and `tt` are accessible via AMD factory closure:
+
 - `fetch` = `that.lynx.fetch` (Lynx's Promise-based HTTP client, confirmed available on SDK 3.7.0)
 - `tt` = `that._apiList` (the BaseApp — provides `define`/`require`)
 
@@ -825,6 +845,7 @@ This approach does NOT require `webpackChunkName` or `lynx_aci` — works with t
 **Plan: Use `lynx.loadLazyBundle` path via named chunks + `.lynx.bundle` sub-files**
 
 The `chunk-loading.js` already has two code paths:
+
 1. **`lynx_aci[chunkId]` exists** → `lynx.loadLazyBundle(publicPath + lynx_aci[chunkId])` → uses `QueryComponent` → `kLazyBundle`
 2. **`lynx_aci[chunkId]` missing** → `lynx.requireModuleAsync(url, cb)` → `kExternalJs` ← BROKEN
 
@@ -835,25 +856,28 @@ But `loadLazyBundle` is a React Lynx runtime function (sets `lynx.loadLazyBundle
 ```js
 // In ChunkLoadingPolyfill, on background thread:
 if (typeof lynx.loadLazyBundle !== 'function') {
-    lynx.loadLazyBundle = function(url) {
-        return new Promise(function(resolve, reject) {
-            lynx.QueryComponent(url, function(result) {
-                if (result && result.code === 0) {
-                    // getDynamicComponentExports(schema) returns { ids, modules }
-                    // because the async chunk AMD factory sets exports.ids and exports.modules
-                    var schema = result.detail && result.detail.schema || url;
-                    var exports = tt.getDynamicComponentExports(schema);
-                    resolve(exports);
-                } else {
-                    reject(new Error('loadLazyBundle failed: code=' + (result && result.code)));
-                }
-            });
-        });
-    };
+  lynx.loadLazyBundle = function (url) {
+    return new Promise(function (resolve, reject) {
+      lynx.QueryComponent(url, function (result) {
+        if (result && result.code === 0) {
+          // getDynamicComponentExports(schema) returns { ids, modules }
+          // because the async chunk AMD factory sets exports.ids and exports.modules
+          var schema = (result.detail && result.detail.schema) || url;
+          var exports = tt.getDynamicComponentExports(schema);
+          resolve(exports);
+        } else {
+          reject(
+            new Error('loadLazyBundle failed: code=' + (result && result.code)),
+          );
+        }
+      });
+    });
+  };
 }
 ```
 
 **Additional changes needed:**
+
 1. **`app.routes.ts`**: Add `/* webpackChunkName: "route-name" */` to all `loadComponent()` `import()` calls → chunks get names → `lynx_aci` populated
 2. **`angular-webpack-plugin.ts`**: Implement `lynx.loadLazyBundle` in `ChunkLoadingPolyfill` using `lynx.QueryComponent` (→ `kLazyBundle`)
 3. **`LynxTemplatePlugin`**: Already auto-generates `async/[name].[hash].bundle` for named async chunks via `#generateAsyncTemplate`
@@ -861,6 +885,7 @@ if (typeof lynx.loadLazyBundle !== 'function') {
 5. **Verify**: `tt.getDynamicComponentExports(schema)` returns `{ ids, modules }` for webpack chunks
 
 **Why `kLazyBundle` should work:**
+
 - LynxExplorer IS known to load `.lynx.bundle` files via HTTP (it loads the main bundle this way)
 - `LynxTemplatePlugin` generates proper binary `.lynx.bundle` format for async chunks
 - `QueryComponent` → `DidLoadComponentFromJS` → native evaluates bundle → JS callback fires
@@ -885,6 +910,7 @@ if (typeof lynx.loadLazyBundle !== 'function') {
 **Result:** Build emits 9 `async/[name].[hash].bundle` files. `lynx_aci` in the built bundle maps all 9 chunk IDs to their `.bundle` URLs. Each route loads exactly ONE chunk via `s.e("939")` (no more `Promise.all([s.e("501"), s.e("939")])`).
 
 **Verified in bundle:**
+
 - `lynx_aci = { 939: "async/list-example.hash.bundle", ... }` — all 9 routes ✓
 - `loadLazyBundle` polyfill present in background thread ✓
 - `ensureChunkHandlers.require` takes `loadLazyBundle` path for `lynx_aci` entries ✓
@@ -895,6 +921,7 @@ if (typeof lynx.loadLazyBundle !== 'function') {
 ### Attempt 13: `tt.getDynamicComponentExports` fails on SDK 1.4.0
 
 **Error observed:**
+
 ```
 TypeError: tt.getDynamicComponentExports is not a function
 ```
@@ -935,6 +962,7 @@ lynx.QueryComponent(url, function cb(result) {
 The async `.lynx.bundle` for `list-example` contains two distinct sections:
 
 **Main thread shim (Lepus-side JS string constants found in bytecode):**
+
 ```js
 (function(){'use strict';function n({tt}){
   tt.define('/app-service.js', function(..., lynx) {
@@ -943,9 +971,11 @@ The async `.lynx.bundle` for `list-example` contains two distinct sections:
   return tt.require('/app-service.js');
 } return {init: n}})()
 ```
+
 This is the Lepus-side template adapter. It calls `lynx.requireModule("/static/js/async/list-example.js", ...)` — which is the synchronous variant used on the main thread.
 
 **Background thread AMD IIFE:**
+
 ```js
 function __init_card_bundle__(lynxCoreInject) {
   tt.define("list-example.js", function(require, module, exports, ...) {

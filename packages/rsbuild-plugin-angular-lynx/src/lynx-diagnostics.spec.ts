@@ -1,3 +1,4 @@
+// cspell:words ɵɵelement ɵɵrepeater ɵɵelementStart ɵɵtext
 import fs from 'node:fs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {

@@ -13,14 +13,15 @@ export const EVENT_PREFIXES: [string, LynxEventType][] = [
   ['bind', 'bindEvent'],
 ];
 
+import type { Element as LynxJsElement } from '@lynx-js/types/main-thread';
+
 import type {
   LynxAnimation,
   LynxAnimationOptions,
 } from '../animation/animation';
 
-export type BaseLynxElement = {
+export type BaseLynxElement = Pick<LynxJsElement, 'setAttribute'> & {
   setProperty(name: string, value: any): void;
-  setAttribute(name: string, value: any): void;
   getAttribute(name: string): string | null;
   removeAttribute(name: string): void;
   setStyle(key: string, value: unknown): void;

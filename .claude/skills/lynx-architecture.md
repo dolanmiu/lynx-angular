@@ -4,13 +4,13 @@ Reference for the Lynx dual-thread model and how Angular-Lynx maps onto it. Use 
 
 ## The Two Threads
 
-| | Main Thread | Background Thread |
-|---|---|---|
-| **Purpose** | Rendering, pixel pipeline, gestures | App logic, state, effects, network |
-| **JS Engine** | PrimJS (bytecode) | PrimJS (Android) / JavaScriptCore (iOS) |
-| **ES Target** | ES2019 | ES2015 |
-| **DOM API** | `__Create*` / `__Set*` native globals | Virtual in-memory element tree |
-| **Lynx APIs** | Subset (non-rendering only) | Full (`fetch`, timers, `lynx.getNativeApp()`) |
+|               | Main Thread                           | Background Thread                             |
+| ------------- | ------------------------------------- | --------------------------------------------- |
+| **Purpose**   | Rendering, pixel pipeline, gestures   | App logic, state, effects, network            |
+| **JS Engine** | PrimJS (bytecode)                     | PrimJS (Android) / JavaScriptCore (iOS)       |
+| **ES Target** | ES2019                                | ES2015                                        |
+| **DOM API**   | `__Create*` / `__Set*` native globals | Virtual in-memory element tree                |
+| **Lynx APIs** | Subset (non-rendering only)           | Full (`fetch`, timers, `lynx.getNativeApp()`) |
 
 `__MAIN_THREAD__` is a compile-time boolean define — tree-shakes thread-specific branches. "Lepus" is legacy naming for the main thread runtime (now PrimJS).
 
@@ -55,6 +55,7 @@ Used in `packages/runtime/src/lib/lynx-logger/lynx-logger.service.ts` to relay m
 Both implement `Renderer2`, so component code is thread-agnostic.
 
 Key files:
+
 - `packages/runtime/src/lib/renderer/providers.ts` — `provideRenderer()`
 - `packages/runtime/src/lib/lynx-document/` — `LynxDocument` + `LynxBackgroundDocument`
 - `packages/runtime/src/lib/lynx-element/` — `LynxElement` + `LynxBackgroundElement`

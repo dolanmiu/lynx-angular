@@ -14,6 +14,12 @@ export type {
 export { LynxGlobalPropsService } from './lib/data-flow/global-props.service';
 export { LynxInitDataService } from './lib/data-flow/init-data.service';
 export { LynxErrorHandler } from './lib/error-handler/lynx-error-handler';
+export { LynxFontService } from './lib/font';
+export type {
+  LynxFontEntry,
+  LynxFontFaceConfig,
+  LynxFontStatus,
+} from './lib/font';
 export {
   BaseGesture,
   ComposedGesture,
@@ -60,6 +66,7 @@ export {
   LynxView,
 } from './lib/lynx-elements';
 export { LynxLoggerService } from './lib/lynx-logger';
+export { LynxTextMeasureService } from './lib/text-measure';
 export { provideRenderer } from './lib/renderer/providers';
 export { LynxLocationStrategy } from './lib/router/lynx-location-strategy';
 export { LynxPlatformLocation } from './lib/router/lynx-platform-location';

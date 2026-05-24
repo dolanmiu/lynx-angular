@@ -31,8 +31,8 @@ export const registerDataProcessors = (
       }
       return (definition.defaultDataProcessor?.(data) ?? data) as InitData;
     } catch {
-      // Match React Lynx behaviour: a crashing processor returns {} rather than crashing the app.
+      // Match React Lynx behavior: a crashing processor returns {} rather than crashing the app.
       return {} as InitData;
     }
   };
-}
+};

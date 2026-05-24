@@ -137,6 +137,15 @@ import lynxLogo from '../assets/lynx-logo.png';
             <view class="nav-button" (bindtap)="navigateTo('gesture-demo')">
               <text class="nav-button-text">Gesture Demo</text>
             </view>
+            <view class="nav-button" (bindtap)="navigateTo('fonts-demo')">
+              <text class="nav-button-text">Fonts Demo</text>
+            </view>
+            <view
+              class="nav-button"
+              (bindtap)="navigateTo('text-measure-demo')"
+            >
+              <text class="nav-button-text">Text Measure</text>
+            </view>
           </view>
         </view>
       </view>

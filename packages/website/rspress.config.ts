@@ -97,6 +97,8 @@ export default defineConfig({
         { text: 'Animations', link: '/guide/animations' },
         { text: '@defer', link: '/guide/defer' },
         { text: 'CSS Modules', link: '/guide/css-modules' },
+        { text: 'Custom Fonts', link: '/guide/custom-fonts' },
+        { text: 'Text Measurement', link: '/guide/text-measurement' },
         { text: 'Routing', link: '/guide/routing' },
         { text: 'Remote Logging', link: '/guide/remote-logging' },
         {

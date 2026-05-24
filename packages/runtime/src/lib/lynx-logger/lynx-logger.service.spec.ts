@@ -41,7 +41,7 @@ describe('LynxLoggerService', () => {
   describe('dev mode — no URL configured', () => {
     beforeEach(() => {
       vi.stubGlobal('__DEV__', true);
-      // __DEV_LOG_URL__ intentionally not stubbed — simulates unconfigured build
+      // __DEV_LOG_URL__ intentionally not stubbed — simulates un-configured build
     });
 
     it('does not call fetch when URL is missing', () => {

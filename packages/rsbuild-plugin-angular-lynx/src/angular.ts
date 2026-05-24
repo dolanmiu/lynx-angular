@@ -1,3 +1,4 @@
+// cspell:words ɵɵget ɵcmp
 import fs from 'node:fs';
 import path from 'node:path';
 import {

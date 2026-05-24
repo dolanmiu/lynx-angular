@@ -32,7 +32,7 @@
  * - Events (bindtap, catchtap, bindinput, bindscroll, …) are NOT declared as
  *   @Output() because Angular would intercept them and skip the renderer's
  *   listen() call, breaking native Lynx event delivery. They continue to work
- *   via renderer.listen() which handles all unrecognised event names.
+ *   via renderer.listen() which handles all unrecognized event names.
  */
 export { LynxElementBase } from './base';
 export { LynxFrame } from './frame';

@@ -1,3 +1,4 @@
+// cspell:ignore ɵfac
 import {
   type LocationChangeEvent,
   type LocationChangeListener,

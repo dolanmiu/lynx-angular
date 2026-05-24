@@ -591,23 +591,23 @@ describe('rerender', () => {
 
   it('returned componentRef refers to the new component instance', async () => {
     @Component({
-      selector: 'test-rerender-cref-a',
+      selector: 'test-rerender-component-ref-a',
       template: `<view></view>`,
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
-    class CRefBeforeComponent {}
+    class ComponentRefBeforeComponent {}
 
     @Component({
-      selector: 'test-rerender-cref-b',
+      selector: 'test-rerender-component-ref-b',
       template: `<view></view>`,
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
-    class CRefAfterComponent {}
+    class ComponentRefAfterComponent {}
 
-    const { rerender } = await render(CRefBeforeComponent);
-    const { componentRef } = await rerender(CRefAfterComponent);
+    const { rerender } = await render(ComponentRefBeforeComponent);
+    const { componentRef } = await rerender(ComponentRefAfterComponent);
 
-    expect(componentRef.instance).toBeInstanceOf(CRefAfterComponent);
+    expect(componentRef.instance).toBeInstanceOf(ComponentRefAfterComponent);
   });
 
   it('custom queries option works on the rerendered result', async () => {
@@ -732,10 +732,10 @@ describe('componentRef', () => {
   });
 
   it('provides injector access for retrieving services', async () => {
-    const TOKEN = new InjectionToken<string>('componentref-token');
+    const TOKEN = new InjectionToken<string>('component-ref-token');
 
     @Component({
-      selector: 'test-cref-injector',
+      selector: 'test-component-ref-injector',
       template: `<view></view>`,
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
@@ -755,7 +755,7 @@ describe('componentRef', () => {
     // pattern is to expose a writable signal() on the instance and drive it
     // directly via componentRef.instance.
     @Component({
-      selector: 'test-cref-signal',
+      selector: 'test-component-ref-signal',
       template: `<text>{{ label() }}</text>`,
       changeDetection: ChangeDetectionStrategy.OnPush,
     })

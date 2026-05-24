@@ -1,21 +1,18 @@
+import type {
+  Animation as LynxJsAnimation,
+  AnimationOptions,
+} from '@lynx-js/types/main-thread';
+
 import type { ElementRef } from '../types/lynx';
 
 /**
- * Options for controlling animation timing and behavior.
- * Accepts both Web Animations API naming (iterations, easing, fill)
- * and Lynx-native naming (iterationCount, timingFunction, fillMode).
+ * Extends the official AnimationOptions with Lynx-native property aliases
+ * and relaxed types that accept string values (e.g. "300ms").
  */
-export type LynxAnimationOptions = {
-  name?: string;
-  duration?: number | string;
-  delay?: number | string;
+export type LynxAnimationOptions = AnimationOptions & {
   iterationCount?: number | string;
-  iterations?: number | string;
   fillMode?: string;
-  fill?: string;
   timingFunction?: string;
-  easing?: string;
-  direction?: string;
 };
 
 // Wire-protocol constants for __ElementAnimate operations.
@@ -30,7 +27,10 @@ const ANIMATION_CANCEL = 3 as const;
  * Created by calling `element.animate()` on a LynxElement.
  * Mirrors the Animation class from React Lynx's worklet-runtime.
  */
-export class LynxAnimation {
+export class LynxAnimation implements Pick<
+  LynxJsAnimation,
+  'id' | 'cancel' | 'pause' | 'play'
+> {
   static #count = 0;
 
   readonly id: string;

@@ -39,8 +39,6 @@ export const applyEntry = (
     enableRemoveCSSScope,
     removeDescendantSelectorScope,
     targetSdkVersion,
-
-    experimental_isLazyBundle,
   } = options;
 
   const exposed = api.useExposed<ExposedAPI>(Symbol.for('rspeedy.api'));

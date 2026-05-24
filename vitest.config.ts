@@ -23,7 +23,7 @@ const checkVersionsPlugin = (): Plugin => {
       }
     },
   };
-}
+};
 
 export default defineConfig({
   plugins: [checkVersionsPlugin()],

@@ -45,11 +45,11 @@ export class LynxImage extends LynxElementBase {
   autoplay?: boolean;
   /** Number of times to loop the animation (0 = infinite). */
   'loop-count'?: number;
-  /** Tint colour applied over the image (CSS colour string). */
+  /** Tint color applied over the image (CSS color string). */
   'tint-color'?: string;
-  /** Bitmap colour format hint (Android). */
+  /** Bitmap color format hint (Android). */
   'image-config'?: 'ARGB_8888' | 'RGB_565';
-  /** Pre-declared width for prefetch optimisation. */
+  /** Pre-declared width for prefetch optimization. */
   'prefetch-width'?: string;
   'prefetch-height'?: string;
   /** Keep showing the current image while the new src loads. */

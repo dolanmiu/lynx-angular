@@ -67,4 +67,18 @@ export const routes: Routes = [
         (m) => m.GestureDemoComponent,
       ),
   },
+  {
+    path: 'fonts-demo',
+    loadComponent: () =>
+      import('./fonts-demo/fonts-demo.component').then(
+        (m) => m.FontsDemoComponent,
+      ),
+  },
+  {
+    path: 'text-measure-demo',
+    loadComponent: () =>
+      import('./text-measure-demo/text-measure-demo.component').then(
+        (m) => m.TextMeasureDemoComponent,
+      ),
+  },
 ];

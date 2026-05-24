@@ -13,7 +13,7 @@ export class LynxElement implements BaseLynxElement {
   readonly element: ElementRef;
 
   // When true, this element is the root page element and must not be
-  // reparented (appendChild/insertBefore) or removed from the tree.
+  // re-parented (appendChild/insertBefore) or removed from the tree.
   // Angular calls appendChild/remove as part of normal component lifecycle,
   // but the page element is the immutable root — moving or removing it
   // would corrupt the native element tree.

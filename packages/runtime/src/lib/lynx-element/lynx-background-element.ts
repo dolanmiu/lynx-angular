@@ -200,7 +200,7 @@ export class LynxBackgroundElement implements BaseLynxElement {
         continue;
       }
 
-      // Unrecognised token — no match.
+      // Unrecognized token — no match.
       return false;
     }
 

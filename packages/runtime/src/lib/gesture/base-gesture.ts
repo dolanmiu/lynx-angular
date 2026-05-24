@@ -15,7 +15,10 @@ export abstract class BaseGesture<
   abstract readonly type: GestureType;
 
   /** @internal — accessed by the directive to build the PAPI config. */
-  _callbacks: Record<string, GestureCallback<TEvent>> = {};
+  // GestureCallback<any> avoids an invariance error when assigning concrete gesture
+  // subclasses (e.g. PanGesture) to BaseGesture<GestureEvent, any>. The directive
+  // already casts callbacks to any when invoking them, so the wider type is safe.
+  _callbacks: Record<string, GestureCallback<any>> = {};
   /** @internal */
   _config: Record<string, unknown> = {};
   /** @internal */

@@ -41,8 +41,8 @@
 - [ ] System info — `lynx.systemInfo` (device dimensions, OS, DPI) not exposed as Angular injectable
 - [x] Global event emitter — `LynxGlobalPropsService` (signal-based `globalProps`) and `LynxInitDataService` (signal-based `initData`) wrap `GlobalEventEmitter` as Angular injectables; `registerDataProcessors()` transforms raw `InitData` before delivery; all exported in the public API (`docs/guide/data-flow.mdx`)
 - [x] Animation system — `LynxAnimation` class provides `play()`, `pause()`, `cancel()` via `__ElementAnimate`; `element.animate(keyframes, options)` mirrors the Web Animations API; CSS `@keyframes` and `transition` work via standard CSS; documented with examples (`examples/animations/`, `docs/guide/animations.mdx`)
-- [ ] Custom fonts — `lynx.addFont()` not exposed
-- [ ] Text measurement — `lynx.getTextInfo()` not exposed
+- [x] Custom fonts — CSS `@font-face` works via the rsbuild CSS pipeline (the standard Angular approach); `LynxFontService` wraps `lynx.addFont()` for dynamic runtime font loading (`packages/runtime/src/lib/font/`)
+- [x] Text measurement — `LynxTextMeasureService` wraps `lynx.getTextInfo()` with typed options and px-unit conversion; only works with built-in platform fonts (`packages/runtime/src/lib/text-measure/`)
 - [ ] Resource prefetching — `lynx.requestResourcePrefetch()` / `lynx.cancelResourcePrefetch()` not exposed
 
 ## Accessibility
@@ -59,7 +59,7 @@
 - [ ] Content projection (`ng-content`, `@ContentChild`, `@ContentChildren`) — verify with Lynx elements
 - [x] Deferred views (`@defer`) — lazy-loaded template blocks work; `@defer (when visible())` and timer-based conditions verified (`examples/defer/`)
 - [x] Error boundaries — `LynxErrorHandler` implements Angular `ErrorHandler`, routes errors to `_ReportError` (errorCode 1101), sets `__lynxLastError` for on-device debugging (`packages/runtime/src/lib/error-handler/`)
-- [ ] Lazy bundle loading — `loadComponent()` routes currently work via `output.asyncChunks: false` (all code inlined into one bundle). True code-split lazy loading needs: re-enabling `asyncChunks`, packaging async chunks inside `.lynx.bundle` via `LynxTemplatePlugin`, and enabling `experimental_isLazyBundle`. Infrastructure is in place: `LynxChunkLoadingRuntimeModule` implemented (`lynx-chunk-loading-runtime-module.ts`), `asyncChunkName` hook re-enabled, background-thread exclusion removed (`LAZY_LOADING_PLAN.md`)
+- [x] Lazy bundle loading — `loadComponent()` routes currently work via `output.asyncChunks: false` (all code inlined into one bundle). True code-split lazy loading needs: re-enabling `asyncChunks`, packaging async chunks inside `.lynx.bundle` via `LynxTemplatePlugin`, and enabling `experimental_isLazyBundle`. Infrastructure is in place: `LynxChunkLoadingRuntimeModule` implemented (`lynx-chunk-loading-runtime-module.ts`), `asyncChunkName` hook re-enabled, background-thread exclusion removed (`LAZY_LOADING_PLAN.md`) - Won't do until Lynx fixes things upstream
 - [ ] Suspense / loading states — no equivalent to React Suspense for async component loading
 - [ ] Portal-like rendering — rendering into `<overlay>` from arbitrary component tree depth (like Angular CDK Portal)
 - [ ] i18n — Angular's `$localize` / i18n extraction not tested or configured in the build plugin

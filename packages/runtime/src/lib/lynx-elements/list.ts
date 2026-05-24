@@ -1,7 +1,7 @@
 import { Directive } from '@angular/core';
 import { LynxElementBase } from './base';
 
-/** High-performance virtualised list, equivalent to RecyclerView / UITableView. */
+/** High-performance virtualized list, equivalent to RecyclerView / UITableView. */
 @Directive({
   selector: 'list',
   standalone: true,
@@ -61,7 +61,7 @@ export class LynxList extends LynxElementBase {
   'need-layout-complete-info'?: boolean;
   /** Number of items to preload beyond the visible area. */
   'preload-buffer-count'?: number;
-  /** Snap behaviour: `{ factor: 0–1, offset: px }`. */
+  /** Snap behavior: `{ factor: 0–1, offset: px }`. */
   'item-snap'?: { factor: number; offset: number };
   /** Insert/remove animation style. */
   'update-animation'?: 'default' | 'none';
@@ -71,7 +71,7 @@ export class LynxList extends LynxElementBase {
   'list-cross-axis-gap'?: string;
 }
 
-/** Child of `<list>`; represents a single virtualised cell. */
+/** Child of `<list>`; represents a single virtualized cell. */
 @Directive({
   selector: 'list-item',
   standalone: true,

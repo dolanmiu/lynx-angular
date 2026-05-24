@@ -1,3 +1,4 @@
+// cspell:words ɵɵelement ɵɵrepeater ɵɵelementStart
 import fs from 'node:fs';
 import path from 'node:path';
 

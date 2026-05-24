@@ -8,14 +8,14 @@ Lynx uses a **dual-thread model**: every app has two JavaScript runtimes executi
 
 ## The Two Threads
 
-| | Main Thread (historically "Lepus") | Background Thread |
-|---|---|---|
-| **Purpose** | Rendering, pixel pipeline, gesture handling | App logic, state, effects, network |
-| **JS Engine** | PrimJS (QuickJS-based, runs bytecode) | PrimJS (Android) / JavaScriptCore (iOS) |
-| **ES Target** | ES2019 | ES2015 |
-| **DOM API** | `__Create*`, `__SetAttribute`, etc. (direct native calls) | Virtual in-memory element tree |
-| **Lynx API** | Subset — non-rendering APIs only | Full (`fetch`, timers, `lynx.getNativeApp()`, etc.) |
-| **Bundle format** | Bytecode (~4× faster load than text) | AMD-wrapped JavaScript |
+|                   | Main Thread (historically "Lepus")                        | Background Thread                                   |
+| ----------------- | --------------------------------------------------------- | --------------------------------------------------- |
+| **Purpose**       | Rendering, pixel pipeline, gesture handling               | App logic, state, effects, network                  |
+| **JS Engine**     | PrimJS (QuickJS-based, runs bytecode)                     | PrimJS (Android) / JavaScriptCore (iOS)             |
+| **ES Target**     | ES2019                                                    | ES2015                                              |
+| **DOM API**       | `__Create*`, `__SetAttribute`, etc. (direct native calls) | Virtual in-memory element tree                      |
+| **Lynx API**      | Subset — non-rendering APIs only                          | Full (`fetch`, timers, `lynx.getNativeApp()`, etc.) |
+| **Bundle format** | Bytecode (~4× faster load than text)                      | AMD-wrapped JavaScript                              |
 
 "Lepus" is legacy naming for the main thread JS runtime. PrimJS is the current engine.
 
@@ -90,9 +90,9 @@ Both implement the same `Renderer2` interface, so Angular component code is unaw
 
 `runtime.ts` registers these on `globalThis` so Lynx can call into Angular:
 
-| Callback | Purpose |
-|---|---|
-| `renderPage()` | Signals the page is ready — unblocks main-thread bootstrap |
-| `updatePage()` | Incremental update hook (no-op currently) |
-| `processData()` | Data-processing hook (no-op currently) |
-| `runWorklet()` | Executes a main-thread worklet function with parameters |
+| Callback        | Purpose                                                    |
+| --------------- | ---------------------------------------------------------- |
+| `renderPage()`  | Signals the page is ready — unblocks main-thread bootstrap |
+| `updatePage()`  | Incremental update hook (no-op currently)                  |
+| `processData()` | Data-processing hook (no-op currently)                     |
+| `runWorklet()`  | Executes a main-thread worklet function with parameters    |
