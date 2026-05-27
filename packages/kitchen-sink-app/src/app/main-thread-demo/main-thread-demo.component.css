@@ -1,0 +1,99 @@
+.container {
+  padding: 16px;
+}
+
+.page-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.section {
+  margin-bottom: 24px;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.info-text {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 12px;
+}
+
+.tap-box {
+  height: 100px;
+  background-color: #6200ee;
+  border-radius: 12px;
+  justify-content: center;
+  align-items: center;
+}
+
+.tap-box-text {
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.touch-box {
+  height: 100px;
+  background-color: #1976d2;
+  border-radius: 12px;
+  justify-content: center;
+  align-items: center;
+}
+
+.touch-box-text {
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.cross-thread-box {
+  height: 100px;
+  background-color: #e65100;
+  border-radius: 12px;
+  justify-content: center;
+  align-items: center;
+}
+
+.cross-thread-box-text {
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.flash-target {
+  height: 100px;
+  background-color: #4a148c;
+  border-radius: 12px;
+  justify-content: center;
+  align-items: center;
+}
+
+.flash-target-text {
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.bg-tap-box {
+  height: 80px;
+  background-color: #757575;
+  border-radius: 12px;
+  justify-content: center;
+  align-items: center;
+}
+
+.bg-tap-box-text {
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+}

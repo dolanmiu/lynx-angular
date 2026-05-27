@@ -30,7 +30,9 @@ describe('LynxErrorHandler', () => {
 
     it('coerces a non-Error value to Error before writing __lynxLastError', () => {
       handler.handleError('plain string error');
-      expect((globalThis as any).__lynxLastError).toContain('plain string error');
+      expect((globalThis as any).__lynxLastError).toContain(
+        'plain string error',
+      );
     });
 
     it('coerces a number to a string', () => {
@@ -82,7 +84,9 @@ describe('LynxErrorHandler', () => {
     it('does not call _ReportError when it is not a function', () => {
       // Guard against accidental global pollution where _ReportError is e.g. a number.
       (globalThis as any)._ReportError = 'not-a-function';
-      expect(() => handler.handleError(new Error('non-fn reporter'))).not.toThrow();
+      expect(() =>
+        handler.handleError(new Error('non-fn reporter')),
+      ).not.toThrow();
     });
   });
 });

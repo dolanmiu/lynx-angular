@@ -56,10 +56,10 @@
 
 | Feature                | AngularLynx |       React Lynx        |         Vue Lynx          |
 | ---------------------- | :---------: | :---------------------: | :-----------------------: |
-| `runOnMainThread()`    |     ❌      |           ✅            |            ❌             |
-| `runOnBackground()`    |     ❌      |           ✅            |       ✅ (limited)        |
-| Main thread refs       |     ❌      | ✅ (`useMainThreadRef`) |  ✅ (`:main-thread-ref`)  |
-| Worklet event handlers |     ❌      |           ✅            | ✅ (`:main-thread-bind*`) |
+| `runOnMainThread()`    |     ✅      |           ✅            |            ❌             |
+| `runOnBackground()`    |     ✅      |           ✅            |       ✅ (limited)        |
+| Main thread refs       |     ✅      | ✅ (`useMainThreadRef`) |  ✅ (`:main-thread-ref`)  |
+| Worklet event handlers |     ✅      |           ✅            | ✅ (`:main-thread-bind*`) |
 
 ## Routing / Navigation
 
@@ -75,7 +75,7 @@
 | Feature                 |          AngularLynx          |       React Lynx        | Vue Lynx |
 | ----------------------- | :---------------------------: | :---------------------: | :------: |
 | InitData pattern        |  ✅ (`LynxInitDataService`)   |  ✅ (provider + hook)   |    ❌    |
-| GlobalProps pattern     | ✅ (`LynxGlobalPropsService`) |  ✅ (provider + hook)   |    ❌    |
+| GlobalData pattern      | ✅ (`LynxGlobalDataService`)  |  ✅ (provider + hook)   |    ❌    |
 | Data processors         | ✅ (`registerDataProcessors`) |           ✅            |    ❌    |
 | Native module bridge    |              ❌               | ✅ (`lynx.getJSModule`) |    ❌    |
 | Session storage service |              ❌               |      ❌ (raw API)       |    ❌    |
@@ -160,7 +160,7 @@
 
 ### Biggest gaps vs React Lynx
 
-1. Main thread scripting / worklets (gesture callbacks run on background thread, not main thread)
+1. ~~Main thread scripting / worklets~~ — implemented (`mainThreadFn`, `LynxMainThreadEvent`, `LynxMainThreadService`)
 2. Lazy bundle loading (non-route)
 3. SSR / hydration / first-screen optimization
 
@@ -174,4 +174,4 @@
 ### Both React & Vue have, Angular doesn't
 
 - Component-level error boundaries with recovery UI
-- Main thread refs and worklet event handlers
+- ~~Main thread refs and worklet event handlers~~ — implemented (`MainThreadRef`, `LynxMainThreadEvent`)

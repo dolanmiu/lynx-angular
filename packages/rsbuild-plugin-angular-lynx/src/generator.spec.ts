@@ -36,7 +36,13 @@ const createMockApi = () => {
 
   const api = {
     modifyBundlerChain: vi.fn(
-      ({ order, handler }: { order: string; handler: (chain: unknown) => void }) => {
+      ({
+        order,
+        handler,
+      }: {
+        order: string;
+        handler: (chain: unknown) => void;
+      }) => {
         capturedOrder = order;
         capturedHandler = handler;
       },
@@ -49,9 +55,7 @@ const createMockApi = () => {
       if (!capturedHandler) throw new Error('handler not registered');
       capturedHandler(chain);
     },
-    get order() {
-      return capturedOrder;
-    },
+    getOrder: () => capturedOrder,
   };
 };
 

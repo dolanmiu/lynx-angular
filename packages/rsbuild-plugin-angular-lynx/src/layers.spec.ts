@@ -28,7 +28,10 @@ const createOneOfBuilder = () => {
 
 // Builds a mock bundler chain that tracks experiments and per-layer rule builders
 const createMockChain = (existingExperiments: Record<string, unknown> = {}) => {
-  const oneOfBuilders: Record<string, ReturnType<typeof createOneOfBuilder>> = {};
+  const oneOfBuilders: Record<
+    string,
+    ReturnType<typeof createOneOfBuilder>
+  > = {};
 
   const chain = {
     get: vi.fn().mockReturnValue(existingExperiments),
@@ -102,13 +105,20 @@ describe('applyLayers', () => {
 
   it('preserves existing experiments when enabling layers', () => {
     const { api, triggerHandler } = createMockApi();
-    const { chain } = createMockChain({ outputModule: true, cacheUnaffected: true });
+    const { chain } = createMockChain({
+      outputModule: true,
+      cacheUnaffected: true,
+    });
 
     applyLayers(api as never);
     triggerHandler(chain);
 
     expect(chain.experiments).toHaveBeenCalledWith(
-      expect.objectContaining({ outputModule: true, cacheUnaffected: true, layers: true }),
+      expect.objectContaining({
+        outputModule: true,
+        cacheUnaffected: true,
+        layers: true,
+      }),
     );
   });
 
@@ -120,7 +130,9 @@ describe('applyLayers', () => {
       applyLayers(api as never);
       triggerHandler(chain);
 
-      expect(getOneOf(LAYERS.BACKGROUND).layer).toHaveBeenCalledWith(LAYERS.BACKGROUND);
+      expect(getOneOf(LAYERS.BACKGROUND).layer).toHaveBeenCalledWith(
+        LAYERS.BACKGROUND,
+      );
     });
 
     it('sets test to match JS/TS files', () => {
@@ -130,7 +142,9 @@ describe('applyLayers', () => {
       applyLayers(api as never);
       triggerHandler(chain);
 
-      expect(getOneOf(LAYERS.BACKGROUND).test).toHaveBeenCalledWith(/\.[cm]?[jt]sx?$/);
+      expect(getOneOf(LAYERS.BACKGROUND).test).toHaveBeenCalledWith(
+        /\.[cm]?[jt]sx?$/,
+      );
     });
 
     it('uses builtin:swc-loader', () => {
@@ -140,7 +154,9 @@ describe('applyLayers', () => {
       applyLayers(api as never);
       triggerHandler(chain);
 
-      expect(getOneOf(LAYERS.BACKGROUND).use).toHaveBeenCalledWith('builtin:swc-loader');
+      expect(getOneOf(LAYERS.BACKGROUND).use).toHaveBeenCalledWith(
+        'builtin:swc-loader',
+      );
     });
 
     it('sets loader to builtin:swc-loader', () => {
@@ -150,7 +166,9 @@ describe('applyLayers', () => {
       applyLayers(api as never);
       triggerHandler(chain);
 
-      expect(getOneOf(LAYERS.BACKGROUND)._use.loader).toHaveBeenCalledWith('builtin:swc-loader');
+      expect(getOneOf(LAYERS.BACKGROUND)._use.loader).toHaveBeenCalledWith(
+        'builtin:swc-loader',
+      );
     });
 
     it('targets ES2015 for Lynx bytecode compatibility', () => {
@@ -177,7 +195,9 @@ describe('applyLayers', () => {
       applyLayers(api as never);
       triggerHandler(chain);
 
-      expect(getOneOf(LAYERS.MAIN_THREAD).layer).toHaveBeenCalledWith(LAYERS.MAIN_THREAD);
+      expect(getOneOf(LAYERS.MAIN_THREAD).layer).toHaveBeenCalledWith(
+        LAYERS.MAIN_THREAD,
+      );
     });
 
     it('sets test to match JS/TS files', () => {
@@ -187,7 +207,9 @@ describe('applyLayers', () => {
       applyLayers(api as never);
       triggerHandler(chain);
 
-      expect(getOneOf(LAYERS.MAIN_THREAD).test).toHaveBeenCalledWith(/\.[cm]?[jt]sx?$/);
+      expect(getOneOf(LAYERS.MAIN_THREAD).test).toHaveBeenCalledWith(
+        /\.[cm]?[jt]sx?$/,
+      );
     });
 
     it('uses builtin:swc-loader', () => {
@@ -197,7 +219,9 @@ describe('applyLayers', () => {
       applyLayers(api as never);
       triggerHandler(chain);
 
-      expect(getOneOf(LAYERS.MAIN_THREAD).use).toHaveBeenCalledWith('builtin:swc-loader');
+      expect(getOneOf(LAYERS.MAIN_THREAD).use).toHaveBeenCalledWith(
+        'builtin:swc-loader',
+      );
     });
 
     it('sets loader to builtin:swc-loader', () => {
@@ -207,7 +231,9 @@ describe('applyLayers', () => {
       applyLayers(api as never);
       triggerHandler(chain);
 
-      expect(getOneOf(LAYERS.MAIN_THREAD)._use.loader).toHaveBeenCalledWith('builtin:swc-loader');
+      expect(getOneOf(LAYERS.MAIN_THREAD)._use.loader).toHaveBeenCalledWith(
+        'builtin:swc-loader',
+      );
     });
 
     it('targets ES2019 for Lynx bytecode compatibility', () => {

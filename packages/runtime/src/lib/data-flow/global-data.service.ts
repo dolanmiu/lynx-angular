@@ -1,21 +1,22 @@
 import { Injectable, signal } from '@angular/core';
-import type { GlobalProps } from './data-flow.types';
+import type { GlobalData } from './data-flow.types';
 
 @Injectable({ providedIn: 'root' })
-export class LynxGlobalPropsService {
+export class LynxGlobalDataService {
   // Seeded from lynx.__globalProps at construction time; updated via onGlobalPropsChanged.
-  readonly globalProps = signal<GlobalProps>(
+  readonly globalData = signal<GlobalData>(
     typeof lynx !== 'undefined'
-      ? (lynx.__globalProps as GlobalProps)
-      : ({} as GlobalProps),
+      ? (lynx.__globalProps as GlobalData)
+      : ({} as GlobalData),
   );
 
   constructor() {
-    if (typeof lynx === 'undefined') return;
+    if (typeof lynx === 'undefined' || typeof lynx.getJSModule !== 'function')
+      return;
     lynx
       .getJSModule('GlobalEventEmitter')
       .addListener('onGlobalPropsChanged', (...args: unknown[]) =>
-        this.globalProps.set(args[0] as GlobalProps),
+        this.globalData.set(args[0] as GlobalData),
       );
   }
 }

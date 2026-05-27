@@ -83,7 +83,9 @@ describe('LynxBackgroundDocument', () => {
 
     it('stores the provided value as textContent', () => {
       const doc = new LynxBackgroundDocument();
-      expect(doc.createText('hello world').getAttribute('textContent')).toBe('hello world');
+      expect(doc.createText('hello world').getAttribute('textContent')).toBe(
+        'hello world',
+      );
     });
 
     it('preserves an empty string value', () => {
@@ -118,7 +120,7 @@ describe('LynxBackgroundDocument', () => {
 
     it('appends the child to the root page element', () => {
       const doc = new LynxBackgroundDocument();
-      const root = doc.createRootElement();
+      const _root = doc.createRootElement();
       const child = doc.createElement('view');
 
       doc.appendChild(child);

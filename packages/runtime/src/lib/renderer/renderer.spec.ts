@@ -236,7 +236,12 @@ describe('LynxRenderer', () => {
 
     it('passes dash-case names through unchanged when DashCase flag is set', () => {
       const spy = vi.spyOn(el, 'setStyle');
-      renderer.setStyle(el, 'background-color', 'red', RendererStyleFlags2.DashCase);
+      renderer.setStyle(
+        el,
+        'background-color',
+        'red',
+        RendererStyleFlags2.DashCase,
+      );
       expect(spy).toHaveBeenCalledWith('background-color', 'red');
     });
 
@@ -248,7 +253,8 @@ describe('LynxRenderer', () => {
 
     it('handles both DashCase and Important flags together', () => {
       const spy = vi.spyOn(el, 'setStyle');
-      const flags = RendererStyleFlags2.DashCase | RendererStyleFlags2.Important;
+      const flags =
+        RendererStyleFlags2.DashCase | RendererStyleFlags2.Important;
       renderer.setStyle(el, 'font-size', '16px', flags);
       expect(spy).toHaveBeenCalledWith('font-size', '16px !important');
     });
@@ -277,7 +283,11 @@ describe('LynxRenderer', () => {
 
     it('passes dash-case through unchanged when DashCase flag is set', () => {
       const spy = vi.spyOn(el, 'removeStyle');
-      renderer.removeStyle(el, 'background-color', RendererStyleFlags2.DashCase);
+      renderer.removeStyle(
+        el,
+        'background-color',
+        RendererStyleFlags2.DashCase,
+      );
       expect(spy).toHaveBeenCalledWith('background-color');
     });
   });

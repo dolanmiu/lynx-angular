@@ -1,14 +1,17 @@
 import '@angular/compiler';
 import { describe, it, expect, beforeEach } from 'vitest';
-import type { ActivatedRouteSnapshot, DetachedRouteHandle } from '@angular/router';
+import type {
+  ActivatedRouteSnapshot,
+  DetachedRouteHandle,
+} from '@angular/router';
 import { LynxRouteReuseStrategy } from './lynx-route-reuse-strategy';
 
 // Builds a minimal ActivatedRouteSnapshot with a routeConfig path hierarchy.
 // `segments` maps to a chain of snapshots from root to leaf.
-function makeRoute(
+const makeRoute = (
   segments: (string | null)[],
   routeConfig: object | null = { path: segments.at(-1) ?? '' },
-): ActivatedRouteSnapshot {
+): ActivatedRouteSnapshot => {
   const pathFromRoot = segments.map((seg) => ({
     routeConfig: seg !== null ? { path: seg } : null,
   })) as ActivatedRouteSnapshot[];
@@ -17,7 +20,7 @@ function makeRoute(
     pathFromRoot,
     routeConfig,
   } as unknown as ActivatedRouteSnapshot;
-}
+};
 
 const handle: DetachedRouteHandle = { componentRef: {} } as DetachedRouteHandle;
 

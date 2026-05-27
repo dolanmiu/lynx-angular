@@ -8,10 +8,10 @@ const config = {
   ...rspressAdapter,
 };
 
-export const Go = (props: GoProps) => {
+export const Go = ({ langAlias, ...props }: GoProps) => {
   return (
     <GoConfigProvider config={config}>
-      <GoBase {...props} />
+      <GoBase langAlias={{ ts: 'angular-ts', ...langAlias }} {...props} />
     </GoConfigProvider>
   );
 };

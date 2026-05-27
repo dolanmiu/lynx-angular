@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import {
   LYNX_ELEMENTS,
   LynxInitDataService,
-  LynxGlobalPropsService,
+  LynxGlobalDataService,
 } from '@blotch/angular-lynx';
 
 @Component({
@@ -28,10 +28,10 @@ import {
         style="background-color: #e8f5e9; padding: 16px; border-radius: 8px;"
       >
         <text style="font-size: 14px; font-weight: bold; margin-bottom: 8px;"
-          >GlobalProps</text
+          >GlobalData</text
         >
         <text style="font-size: 14px; color: #666;">
-          {{ globalPropsJson() }}
+          {{ globalDataJson() }}
         </text>
       </view>
     </view>
@@ -40,13 +40,13 @@ import {
 })
 export class AppComponent {
   readonly #initData = inject(LynxInitDataService);
-  readonly #globalProps = inject(LynxGlobalPropsService);
+  readonly #globalData = inject(LynxGlobalDataService);
 
   initDataJson() {
     return JSON.stringify(this.#initData.initData(), null, 2);
   }
 
-  globalPropsJson() {
-    return JSON.stringify(this.#globalProps.globalProps(), null, 2);
+  globalDataJson() {
+    return JSON.stringify(this.#globalData.globalData(), null, 2);
   }
 }

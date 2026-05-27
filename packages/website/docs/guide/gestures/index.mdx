@@ -1,0 +1,49 @@
+# Gestures
+
+AngularLynx provides a declarative gesture system for handling touch interactions — tap, pan, fling, long press, pinch, and rotation. Gestures use a builder pattern for configuration and a directive for attachment to elements.
+
+<Go example="gestures" defaultFile="src/app/app.component.ts" />
+
+## Setup
+
+Import `LynxGestureDetector` and the gesture classes you need:
+
+```typescript title="src/app/my.component.ts"
+import { Component, signal } from '@angular/core';
+import {
+  LynxGestureDetector, // [!code highlight]
+  PanGesture, // [!code highlight]
+  TapGesture, // [!code highlight]
+  LYNX_ELEMENTS,
+} from '@blotch/angular-lynx';
+
+@Component({
+  imports: [LYNX_ELEMENTS, LynxGestureDetector], // [!code highlight]
+  template: `...`,
+})
+export class MyComponent {}
+```
+
+## Basic Usage
+
+Create a gesture instance with the builder pattern, then attach it to an element via `[lynxGesture]`:
+
+```typescript
+export class MyComponent {
+  readonly tapGesture = new TapGesture().onEnd((event) => {
+    this.tapped.set(true);
+  });
+
+  readonly tapped = signal(false);
+}
+```
+
+```angular-html
+<view [lynxGesture]="tapGesture">
+  <text>Tap me</text>
+</view>
+```
+
+:::info
+Gesture callbacks run on the background thread (where Angular executes). Signal updates inside callbacks trigger change detection automatically — no `setTimeout` needed for simple state updates.
+:::

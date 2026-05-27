@@ -91,43 +91,18 @@ export class ProductComponent {
 }
 ```
 
-## The `setTimeout` Pattern
 
-:::warning Critical
-Event handlers in Lynx run inside a "worklet" context on the main thread. Mutating the element tree during a worklet callback — by navigating routes, toggling overlays, or triggering structural changes — causes native crashes.
+## Observables Need Conversion
 
-Always defer these mutations to the next macrotask with `setTimeout`:
-:::
+Since AngularLynx is zoneless, Observables alone **do not trigger change detection** — a bare `subscribe()` callback won't update the UI. You have three options:
 
-```typescript
-// WRONG — mutates element tree inside worklet callback
-onTap(): void {
-  this.router.navigateByUrl('/settings'); // May crash!
-}
-
-// CORRECT — defers mutation to next macrotask
-onTap(): void {
-  setTimeout(() => { // [!code highlight]
-    this.router.navigateByUrl('/settings'); // [!code highlight]
-  }, 0); // [!code highlight]
-}
-```
-
-This applies to any action that triggers structural DOM changes:
-
-- Router navigation (`router.navigateByUrl()`, `router.navigate()`)
-- Toggling overlays (`showOverlay.set(true)`)
-- Adding/removing elements that trigger `@if`/`@for` changes with side effects
-
-Simple signal updates (like incrementing a counter or updating text) are safe inside event handlers because the actual element mutations are deferred to the next change detection cycle anyway.
-
-## Converting from Observables
-
-Since AngularLynx is zoneless, Observables alone do not trigger change detection. Use `toSignal()` to convert them:
+- **`toSignal()`** — converts the Observable to a signal (recommended)
+- **`async` pipe** — `{{ obs$ | async }}` in templates; `AsyncPipe` calls `markForCheck()` on each emission
+- **Manual `markForCheck()`** — call `ChangeDetectorRef.markForCheck()` inside `subscribe()` callbacks
 
 ```typescript
+import { inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { HttpClient } from '@angular/common/http';
 
 export class UsersComponent {
   #http = inject(HttpClient);
@@ -135,6 +110,8 @@ export class UsersComponent {
   users = toSignal(this.#http.get<User[]>('/api/users'), { initialValue: [] });
 }
 ```
+
+See the [Angular RxJS interop guide](https://angular.dev/guide/signals/rxjs-interop) for full details on `toSignal()` and `toObservable()`.
 
 ## Web Angular vs AngularLynx
 

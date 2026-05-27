@@ -53,6 +53,15 @@ import type { BaseLynxElement } from '../lynx-element/types';
     'ios-enable-simultaneous-touch',
     'exposure-id',
     'exposure-scene',
+    'exposure-area',
+    'exposure-screen-margin-top',
+    'exposure-screen-margin-bottom',
+    'exposure-screen-margin-left',
+    'exposure-screen-margin-right',
+    'exposure-ui-margin-top',
+    'exposure-ui-margin-bottom',
+    'exposure-ui-margin-left',
+    'exposure-ui-margin-right',
   ],
 })
 export class LynxElementBase implements OnChanges {
@@ -108,4 +117,22 @@ export class LynxElementBase implements OnChanges {
   'exposure-id'?: string;
   /** Scene identifier grouping exposure events. */
   'exposure-scene'?: string;
+  /** Percentage of the element that must be visible (0–100) to trigger exposure. */
+  'exposure-area'?: number;
+  /** Extends/shrinks the viewport detection zone (top edge, in px). */
+  'exposure-screen-margin-top'?: number | string;
+  /** Extends/shrinks the viewport detection zone (bottom edge, in px). */
+  'exposure-screen-margin-bottom'?: number | string;
+  /** Extends/shrinks the viewport detection zone (left edge, in px). */
+  'exposure-screen-margin-left'?: number | string;
+  /** Extends/shrinks the viewport detection zone (right edge, in px). */
+  'exposure-screen-margin-right'?: number | string;
+  /** Adjusts the element's own bounding rect for exposure detection (top, in px). */
+  'exposure-ui-margin-top'?: number | string;
+  /** Adjusts the element's own bounding rect for exposure detection (bottom, in px). */
+  'exposure-ui-margin-bottom'?: number | string;
+  /** Adjusts the element's own bounding rect for exposure detection (left, in px). */
+  'exposure-ui-margin-left'?: number | string;
+  /** Adjusts the element's own bounding rect for exposure detection (right, in px). */
+  'exposure-ui-margin-right'?: number | string;
 }

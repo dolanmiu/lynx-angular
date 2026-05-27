@@ -18,10 +18,10 @@ export default defineConfig({
   root: 'docs',
   title: 'AngularLynx',
   description: 'Angular framework for building Lynx apps',
-  icon: '/logo-light.svg',
+  icon: '/logo.png',
   logo: {
-    light: '/logo-light.svg',
-    dark: '/logo-dark.svg',
+    light: '/logo.png',
+    dark: '/logo.png',
   },
   logoText: 'AngularLynx',
   lang: 'en',
@@ -72,7 +72,17 @@ export default defineConfig({
         { text: 'Renderer Architecture', link: '/guide/renderer-architecture' },
         { text: 'Change Detection', link: '/guide/change-detection' },
         { text: 'Signals', link: '/guide/signals' },
-        { text: 'Data Flow', link: '/guide/data-flow' },
+        {
+          text: 'Host Data',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/guide/host-data/' },
+            { text: 'InitData', link: '/guide/host-data/init-data' },
+            { text: 'GlobalData', link: '/guide/host-data/global-data' },
+            { text: 'Data Processors', link: '/guide/host-data/data-processors' },
+          ],
+        },
+        { text: 'Session Storage', link: '/guide/session-storage' },
         { text: 'Error Handling', link: '/guide/error-handling' },
         {
           text: 'Lynx Elements',
@@ -93,14 +103,62 @@ export default defineConfig({
             { text: 'Event Handling', link: '/guide/elements/event-handling' },
           ],
         },
-        { text: 'Gestures', link: '/guide/gestures' },
+        { text: 'Exposure Detection', link: '/guide/exposure' },
+        {
+          text: 'Gestures',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/guide/gestures/' },
+            { text: 'Gesture Types', link: '/guide/gestures/gesture-types' },
+            { text: 'Lifecycle', link: '/guide/gestures/lifecycle' },
+            { text: 'Composition', link: '/guide/gestures/composition' },
+            { text: 'Complete Example', link: '/guide/gestures/complete-example' },
+          ],
+        },
         { text: 'Animations', link: '/guide/animations' },
         { text: '@defer', link: '/guide/defer' },
         { text: 'CSS Modules', link: '/guide/css-modules' },
-        { text: 'Custom Fonts', link: '/guide/custom-fonts' },
+        {
+          text: 'Custom Fonts',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/guide/custom-fonts/' },
+            {
+              text: 'Dynamic Font Loading',
+              link: '/guide/custom-fonts/dynamic-font-loading',
+            },
+          ],
+        },
         { text: 'Text Measurement', link: '/guide/text-measurement' },
         { text: 'Routing', link: '/guide/routing' },
         { text: 'Remote Logging', link: '/guide/remote-logging' },
+        {
+          dividerType: 'solid',
+        },
+        {
+          sectionHeaderText: 'Advanced',
+        },
+        {
+          text: 'Main Thread Scripts',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/guide/main-thread/' },
+            { text: 'mainThreadFn', link: '/guide/main-thread/main-thread-fn' },
+            {
+              text: 'LynxMainThreadEvent',
+              link: '/guide/main-thread/main-thread-event',
+            },
+            {
+              text: 'MainThreadRef',
+              link: '/guide/main-thread/main-thread-ref',
+            },
+            {
+              text: 'LynxMainThreadService',
+              link: '/guide/main-thread/main-thread-service',
+            },
+            { text: 'backgroundFn', link: '/guide/main-thread/background-fn' },
+          ],
+        },
         {
           dividerType: 'solid',
         },

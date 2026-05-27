@@ -7,13 +7,19 @@ export type { LynxAnimationOptions } from './lib/animation/animation';
 export { registerDataProcessors } from './lib/data-flow/data-processors';
 export type {
   DataProcessorDefinition,
-  GlobalProps,
+  GlobalData,
   InitData,
   InitDataRaw,
 } from './lib/data-flow/data-flow.types';
-export { LynxGlobalPropsService } from './lib/data-flow/global-props.service';
+export { LynxGlobalDataService } from './lib/data-flow/global-data.service';
 export { LynxInitDataService } from './lib/data-flow/init-data.service';
 export { LynxErrorHandler } from './lib/error-handler/lynx-error-handler';
+export { LynxExposureDirective, LynxExposureService } from './lib/exposure';
+export type {
+  ExposureEventDetail,
+  GlobalExposureEvent,
+  ObserverFrameRateOptions,
+} from './lib/exposure';
 export { LynxFontService } from './lib/font';
 export type {
   LynxFontEntry,
@@ -66,6 +72,19 @@ export {
   LynxView,
 } from './lib/lynx-elements';
 export { LynxLoggerService } from './lib/lynx-logger';
+export {
+  mainThreadFn,
+  backgroundFn,
+  MainThreadRef,
+  createMainThreadRef,
+  MainThreadElement,
+  LynxMainThreadEvent,
+  LynxMainThreadService,
+} from './lib/main-thread';
+export type { MainThreadFnHandle, BackgroundFnHandle } from './lib/main-thread';
+export type { MainThread } from './lib/main-thread';
+export { LynxSessionStorageService } from './lib/session-storage';
+export type { SessionStorageSubscription } from './lib/session-storage';
 export { LynxTextMeasureService } from './lib/text-measure';
 export { provideRenderer } from './lib/renderer/providers';
 export { LynxLocationStrategy } from './lib/router/lynx-location-strategy';

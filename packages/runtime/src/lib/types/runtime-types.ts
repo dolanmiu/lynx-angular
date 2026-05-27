@@ -22,6 +22,34 @@ declare global {
    * Injected by the rsbuild plugin's DefinePlugin in dev builds only.
    */
   let __DEV_LOG_URL__: string;
+
+  // MTS worklet registry — set up in runtime.ts, used by mainThreadFn()
+  // oxlint-disable-next-line typescript/consistent-type-definitions -- interface required for global augmentation
+  interface Window {
+    registerWorklet: (type: string, id: string, fn: Function) => void;
+    __workletRefMap: Record<number, { current: unknown }>;
+    __lynxMtsPendingResolvers: Record<
+      number,
+      { resolve: (v: unknown) => void; reject: (e: unknown) => void }
+    >;
+    __lynxMtsNextResolveId: () => number;
+  }
+  // eslint-disable-next-line no-var
+  var registerWorklet: (type: string, id: string, fn: Function) => void;
+  // eslint-disable-next-line no-var
+  var __workletRefMap: Record<number, { current: unknown }>;
+  // eslint-disable-next-line no-var
+  var __lynxMtsPendingResolvers: Record<
+    number,
+    { resolve: (v: unknown) => void; reject: (e: unknown) => void }
+  >;
+  // eslint-disable-next-line no-var
+  var __lynxMtsNextResolveId: () => number;
+  // Available on main thread only — dispatches a function call to the background thread
+  function runOnBackground(
+    handle: { _wkltId: string },
+    ...args: unknown[]
+  ): Promise<unknown>;
 }
 
 declare global {

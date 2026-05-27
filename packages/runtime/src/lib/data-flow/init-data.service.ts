@@ -12,7 +12,8 @@ export class LynxInitDataService {
   );
 
   constructor() {
-    if (typeof lynx === 'undefined') return;
+    if (typeof lynx === 'undefined' || typeof lynx.getJSModule !== 'function')
+      return;
     lynx
       .getJSModule('GlobalEventEmitter')
       .addListener('onDataChanged', (...args: unknown[]) =>

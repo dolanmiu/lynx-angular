@@ -1,7 +1,14 @@
 import '@angular/compiler';
 import { APP_BASE_HREF } from '@angular/common';
-import { DOCUMENT, ErrorHandler, inject, Injector, RendererFactory2, runInInjectionContext } from '@angular/core';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  DOCUMENT,
+  ErrorHandler,
+  inject,
+  Injector,
+  RendererFactory2,
+  runInInjectionContext,
+} from '@angular/core';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { LynxErrorHandler } from '../error-handler/lynx-error-handler';
 import { LynxBackgroundDocument, LynxDocument } from '../lynx-document';
 import { LynxRendererFactory2 } from './lynx-renderer-factory2';

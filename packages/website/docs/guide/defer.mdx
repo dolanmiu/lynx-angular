@@ -20,7 +20,7 @@ export class FeedComponent {
   readonly showComments = signal(false);
 
   loadComments(): void {
-    setTimeout(() => this.showComments.set(true), 0);
+    this.showComments.set(true);
   }
 }
 ```

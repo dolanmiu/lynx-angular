@@ -81,4 +81,32 @@ export const routes: Routes = [
         (m) => m.TextMeasureDemoComponent,
       ),
   },
+  {
+    path: 'content-projection-demo',
+    loadComponent: () =>
+      import('./content-projection-demo/content-projection-demo.component').then(
+        (m) => m.ContentProjectionDemoComponent,
+      ),
+  },
+  {
+    path: 'exposure-demo',
+    loadComponent: () =>
+      import('./exposure-demo/exposure-demo.component').then(
+        (m) => m.ExposureDemoComponent,
+      ),
+  },
+  {
+    path: 'main-thread-demo',
+    loadComponent: () =>
+      import('./main-thread-demo/main-thread-demo.component').then(
+        (m) => m.MainThreadDemoComponent,
+      ),
+  },
+  {
+    path: 'session-storage-demo',
+    loadComponent: () =>
+      import('./session-storage-demo/session-storage-demo.component').then(
+        (m) => m.SessionStorageDemoComponent,
+      ),
+  },
 ];

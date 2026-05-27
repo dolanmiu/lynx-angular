@@ -1,10 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ElementRef } from '../types/lynx';
 import { LynxElement } from './lynx-element';
-import { LynxListElement, processPendingListUpdates } from './lynx-list-element';
+import {
+  LynxListElement,
+  processPendingListUpdates,
+} from './lynx-list-element';
 
 // Fake ElementRef — the Lynx PAPI handles have no runtime structure.
-const makeRef = (): ElementRef => ({} as ElementRef);
+const makeRef = (): ElementRef => ({}) as ElementRef;
 const makeChild = (): LynxElement => new LynxElement(makeRef());
 const makeList = (nonElements?: WeakSet<ElementRef>): LynxListElement =>
   new LynxListElement(makeRef(), nonElements ?? new WeakSet());
@@ -333,7 +336,9 @@ describe('LynxListElement', () => {
 
       list._processUpdate();
 
-      const [, attr, payload] = (globalThis.__SetAttribute as ReturnType<typeof vi.fn>).mock.calls[0];
+      const [, attr, payload] = (
+        globalThis.__SetAttribute as ReturnType<typeof vi.fn>
+      ).mock.calls[0];
       expect(attr).toBe('update-list-info');
       expect(payload.insertAction).toHaveLength(1);
       expect(payload.insertAction[0].position).toBe(0);
@@ -351,7 +356,9 @@ describe('LynxListElement', () => {
       list.removeVirtualChild(child);
       list._processUpdate();
 
-      const [, attr, payload] = (globalThis.__SetAttribute as ReturnType<typeof vi.fn>).mock.calls[0];
+      const [, attr, payload] = (
+        globalThis.__SetAttribute as ReturnType<typeof vi.fn>
+      ).mock.calls[0];
       expect(attr).toBe('update-list-info');
       expect(payload.removeAction).toEqual([0]);
       expect(payload.insertAction).toHaveLength(0);
@@ -366,9 +373,9 @@ describe('LynxListElement', () => {
 
       list._processUpdate(); // nothing changed
 
-      const updateListInfoCalls = (globalThis.__SetAttribute as ReturnType<typeof vi.fn>).mock.calls.filter(
-        ([, name]) => name === 'update-list-info',
-      );
+      const updateListInfoCalls = (
+        globalThis.__SetAttribute as ReturnType<typeof vi.fn>
+      ).mock.calls.filter(([, name]) => name === 'update-list-info');
       expect(updateListInfoCalls).toHaveLength(0);
     });
 
@@ -379,7 +386,9 @@ describe('LynxListElement', () => {
 
       list._processUpdate();
 
-      const [, , payload] = (globalThis.__SetAttribute as ReturnType<typeof vi.fn>).mock.calls[0];
+      const [, , payload] = (
+        globalThis.__SetAttribute as ReturnType<typeof vi.fn>
+      ).mock.calls[0];
       expect(payload.insertAction[0]['item-key']).toBe('my-key');
     });
 
@@ -391,7 +400,9 @@ describe('LynxListElement', () => {
 
       list._processUpdate();
 
-      const [, , payload] = (globalThis.__SetAttribute as ReturnType<typeof vi.fn>).mock.calls[0];
+      const [, , payload] = (
+        globalThis.__SetAttribute as ReturnType<typeof vi.fn>
+      ).mock.calls[0];
       expect(payload.insertAction[0]['item-key']).toBe('123');
     });
 
@@ -410,7 +421,8 @@ describe('LynxListElement', () => {
 
       list._processUpdate();
 
-      const calls = (globalThis.__SetAttribute as ReturnType<typeof vi.fn>).mock.calls;
+      const calls = (globalThis.__SetAttribute as ReturnType<typeof vi.fn>).mock
+        .calls;
       const [, lastName, lastPayload] = calls[calls.length - 1];
       expect(lastName).toBe('update-list-info');
       expect(lastPayload.insertAction).toHaveLength(0);

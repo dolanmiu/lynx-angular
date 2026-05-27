@@ -1,4 +1,11 @@
-import { type MockInstance, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  type MockInstance,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import type { ElementRef } from '../types/lynx';
 import { LynxElement } from '../lynx-element';
 import { LynxListElement } from '../lynx-element/lynx-list-element';
@@ -11,7 +18,7 @@ let _refCounter = 0;
 // `as unknown as T` lets us hand a plain object to any branded ElementRef slot
 // without producing a real branded value (which only the native engine creates).
 const makeRef = <T extends ElementRef = ElementRef>(): T =>
-  ({ _id: ++_refCounter } as unknown as T);
+  ({ _id: ++_refCounter }) as unknown as T;
 
 const mock = <T>(impl: T) => vi.fn(impl as any) as unknown as T;
 
@@ -140,7 +147,10 @@ describe('LynxDocument', () => {
 
     it('creates a list-item element via __CreateElement', () => {
       doc.createElement('list-item');
-      expect(asMock(globalThis.__CreateElement)).toHaveBeenCalledWith('list-item', expect.any(Number));
+      expect(asMock(globalThis.__CreateElement)).toHaveBeenCalledWith(
+        'list-item',
+        expect.any(Number),
+      );
     });
 
     it('creates a block element', () => {
@@ -165,12 +175,18 @@ describe('LynxDocument', () => {
 
     it('creates an input element via __CreateElement', () => {
       doc.createElement('input');
-      expect(asMock(globalThis.__CreateElement)).toHaveBeenCalledWith('input', expect.any(Number));
+      expect(asMock(globalThis.__CreateElement)).toHaveBeenCalledWith(
+        'input',
+        expect.any(Number),
+      );
     });
 
     it('creates a textarea element via __CreateElement', () => {
       doc.createElement('textarea');
-      expect(asMock(globalThis.__CreateElement)).toHaveBeenCalledWith('textarea', expect.any(Number));
+      expect(asMock(globalThis.__CreateElement)).toHaveBeenCalledWith(
+        'textarea',
+        expect.any(Number),
+      );
     });
 
     it('falls back to __CreateView for unknown tags', () => {
@@ -214,12 +230,18 @@ describe('LynxDocument', () => {
 
     it('creates an overlay element via __CreateElement', () => {
       doc.createElement('overlay');
-      expect(asMock(globalThis.__CreateElement)).toHaveBeenCalledWith('overlay', expect.any(Number));
+      expect(asMock(globalThis.__CreateElement)).toHaveBeenCalledWith(
+        'overlay',
+        expect.any(Number),
+      );
     });
 
     it('creates a svg element via __CreateElement', () => {
       doc.createElement('svg');
-      expect(asMock(globalThis.__CreateElement)).toHaveBeenCalledWith('svg', expect.any(Number));
+      expect(asMock(globalThis.__CreateElement)).toHaveBeenCalledWith(
+        'svg',
+        expect.any(Number),
+      );
     });
   });
 

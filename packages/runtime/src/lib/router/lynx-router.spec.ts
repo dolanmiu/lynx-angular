@@ -21,27 +21,39 @@ describe('provideRouter', () => {
     it('provides LynxPlatformLocation as PlatformLocation', () => {
       const injector = createInjector([]);
 
-      expect(injector.get(PlatformLocation)).toBeInstanceOf(LynxPlatformLocation);
+      expect(injector.get(PlatformLocation)).toBeInstanceOf(
+        LynxPlatformLocation,
+      );
     });
 
     it('provides LynxLocationStrategy as LocationStrategy', () => {
       const injector = createInjector([]);
 
-      expect(injector.get(LocationStrategy)).toBeInstanceOf(LynxLocationStrategy);
+      expect(injector.get(LocationStrategy)).toBeInstanceOf(
+        LynxLocationStrategy,
+      );
     });
 
     it('provides LynxRouteReuseStrategy as RouteReuseStrategy', () => {
       const injector = createInjector([]);
 
-      expect(injector.get(RouteReuseStrategy)).toBeInstanceOf(LynxRouteReuseStrategy);
+      expect(injector.get(RouteReuseStrategy)).toBeInstanceOf(
+        LynxRouteReuseStrategy,
+      );
     });
 
     it('singletons — PlatformLocation and LocationStrategy resolve to the same instance on repeated access', () => {
       const injector = createInjector([]);
 
-      expect(injector.get(PlatformLocation)).toBe(injector.get(PlatformLocation));
-      expect(injector.get(LocationStrategy)).toBe(injector.get(LocationStrategy));
-      expect(injector.get(RouteReuseStrategy)).toBe(injector.get(RouteReuseStrategy));
+      expect(injector.get(PlatformLocation)).toBe(
+        injector.get(PlatformLocation),
+      );
+      expect(injector.get(LocationStrategy)).toBe(
+        injector.get(LocationStrategy),
+      );
+      expect(injector.get(RouteReuseStrategy)).toBe(
+        injector.get(RouteReuseStrategy),
+      );
     });
   });
 

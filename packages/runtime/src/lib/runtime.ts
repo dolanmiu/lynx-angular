@@ -1,6 +1,7 @@
 import type { ApplicationConfig, ApplicationRef, Type } from '@angular/core';
 import { bootstrapApplication as ngBootstrapApplication } from '@angular/platform-browser';
 import { firstValueFrom, Subject } from 'rxjs';
+import { MainThreadElement } from './main-thread/main-thread-element';
 
 // On-device diagnostic: capture the last unhandled error/rejection so Angular
 // components can render it via <text>. There is no console on the Lynx device.
@@ -170,12 +171,197 @@ globalThis.renderPage = () => {
 globalThis.updatePage = () => {};
 // @ts-expect-error
 globalThis.processData = () => {};
+// Worklet registry — mainThreadFn() registers functions here on the main thread;
+// the native engine invokes them via runWorklet when MTS events fire.
+const __workletMap: Record<string, Function> = {};
+const __mainThreadRefMap: Record<number, { current: unknown }> = {};
+
+// Pending runOnMainThread Promises keyed by resolveId.
+const __pendingResolvers: Record<
+  number,
+  { resolve: (v: unknown) => void; reject: (e: unknown) => void }
+> = {};
+let __nextResolveId = 0;
+
+globalThis.registerWorklet = (
+  _type: string,
+  id: string,
+  fn: Function,
+): void => {
+  __workletMap[id] = fn;
+};
+
+globalThis.__workletRefMap = __mainThreadRefMap;
+
+// Recursively transforms raw Lynx event params into usable objects:
+// - Objects with `elementRefptr` become MainThreadElement wrappers
+// - Objects with `_wvid` resolve to their MainThreadRef instances
+const transformParams = (value: unknown): unknown => {
+  if (typeof value !== 'object' || value === null) return value;
+  if (Array.isArray(value)) return value.map(transformParams);
+  const obj = value as Record<string, unknown>;
+  if ('elementRefptr' in obj) {
+    return new MainThreadElement(obj['elementRefptr'] as any);
+  }
+  if ('_wvid' in obj) {
+    return __mainThreadRefMap[obj['_wvid'] as number] ?? obj;
+  }
+  const result: Record<string, unknown> = {};
+  for (const key of Object.keys(obj)) {
+    result[key] = transformParams(obj[key]);
+  }
+  return result;
+};
+
 // @ts-expect-error
-globalThis.runWorklet = (value, params) => {
-  if (typeof value === 'function') {
-    value(...params);
+globalThis.runWorklet = (ctx: unknown, params: unknown[]) => {
+  // Legacy path: direct function callbacks (gestures, existing event handlers)
+  if (typeof ctx === 'function') {
+    return ctx(...params);
+  }
+  // Worklet context path: look up by _wkltId
+  if (ctx && typeof ctx === 'object' && '_wkltId' in ctx) {
+    const fn = __workletMap[(ctx as { _wkltId: string })._wkltId];
+    if (fn) {
+      const transformed = params.map(transformParams);
+      return fn(...transformed);
+    }
+    if (__DEV__) {
+      console.warn(
+        `[angular-lynx] Worklet not found: ${(ctx as { _wkltId: string })._wkltId}`,
+      );
+    }
   }
 };
+
+// Cross-thread RPC: main thread listens for execution requests from background
+// AND provides runOnBackground global for main-thread worklet functions
+if (__MAIN_THREAD__) {
+  try {
+    if (typeof lynx !== 'undefined' && (lynx as any).getJSContext) {
+      (lynx as any)
+        .getJSContext()
+        .addEventListener(
+          'Lynx.Worklet.runWorkletCtx',
+          (event: { data: string }) => {
+            const { worklet, params, resolveId } = JSON.parse(event.data);
+            const fn = __workletMap[worklet._wkltId];
+            let returnValue: unknown;
+            let error: string | undefined;
+            try {
+              returnValue = fn?.(...params);
+            } catch (e) {
+              error = String(e);
+            }
+            (lynx as any).getJSContext().dispatchEvent({
+              type: 'Lynx.Worklet.FunctionCallRet',
+              data: JSON.stringify({ resolveId, returnValue, error }),
+            });
+          },
+        );
+
+      // Listen for return values from background-thread function calls
+      (lynx as any)
+        .getJSContext()
+        .addEventListener(
+          'Lynx.Worklet.BgFunctionCallRet',
+          (event: { data: string }) => {
+            const { resolveId, returnValue, error } = JSON.parse(event.data);
+            const resolver = __pendingResolvers[resolveId];
+            if (resolver) {
+              delete __pendingResolvers[resolveId];
+              if (error) {
+                resolver.reject(new Error(error));
+              } else {
+                resolver.resolve(returnValue);
+              }
+            }
+          },
+        );
+    }
+  } catch {
+    // lynx.getJSContext() may not be available in all environments
+  }
+
+  // Global runOnBackground — callable from main-thread worklet functions.
+  // Dispatches a function call to the background thread and returns a Promise.
+  (globalThis as any).runOnBackground = (
+    handle: { _wkltId: string },
+    ...args: unknown[]
+  ): Promise<unknown> => {
+    const resolveId = __nextResolveId++;
+    return new Promise((resolve, reject) => {
+      __pendingResolvers[resolveId] = { resolve, reject };
+      try {
+        (lynx as any).getJSContext().dispatchEvent({
+          type: 'Lynx.Worklet.runOnBackground',
+          data: JSON.stringify({
+            worklet: { _wkltId: handle._wkltId },
+            params: args,
+            resolveId,
+          }),
+        });
+      } catch (e) {
+        delete __pendingResolvers[resolveId];
+        reject(e);
+      }
+    });
+  };
+}
+
+// Cross-thread RPC: background thread listens for return values from main thread
+// AND for runOnBackground execution requests from main thread
+if (!__MAIN_THREAD__) {
+  try {
+    if (typeof lynx !== 'undefined' && (lynx as any).getJSContext) {
+      (lynx as any)
+        .getJSContext()
+        .addEventListener(
+          'Lynx.Worklet.FunctionCallRet',
+          (event: { data: string }) => {
+            const { resolveId, returnValue, error } = JSON.parse(event.data);
+            const resolver = __pendingResolvers[resolveId];
+            if (resolver) {
+              delete __pendingResolvers[resolveId];
+              if (error) {
+                resolver.reject(new Error(error));
+              } else {
+                resolver.resolve(returnValue);
+              }
+            }
+          },
+        );
+
+      // Listen for runOnBackground requests from main thread
+      (lynx as any)
+        .getJSContext()
+        .addEventListener(
+          'Lynx.Worklet.runOnBackground',
+          (event: { data: string }) => {
+            const { worklet, params, resolveId } = JSON.parse(event.data);
+            const fn = __workletMap[worklet._wkltId];
+            let returnValue: unknown;
+            let error: string | undefined;
+            try {
+              returnValue = fn?.(...params);
+            } catch (e) {
+              error = String(e);
+            }
+            (lynx as any).getJSContext().dispatchEvent({
+              type: 'Lynx.Worklet.BgFunctionCallRet',
+              data: JSON.stringify({ resolveId, returnValue, error }),
+            });
+          },
+        );
+    }
+  } catch {
+    // lynx.getJSContext() may not be available in all environments
+  }
+}
+
+// Exposed for LynxMainThreadService to dispatch cross-thread calls
+globalThis.__lynxMtsPendingResolvers = __pendingResolvers;
+globalThis.__lynxMtsNextResolveId = () => __nextResolveId++;
 
 const pageReady = new Subject<void>();
 
@@ -193,6 +379,10 @@ export const bootstrapApplication = async (
   if (prev) {
     prev.destroy();
     (globalThis as any).__LYNX_ANGULAR_APP_REF__ = undefined;
+    // Clear worklet registry so re-evaluated modules re-register with fresh IDs
+    for (const key of Object.keys(__workletMap)) {
+      delete __workletMap[key];
+    }
   }
 
   // On first boot (main thread), wait for Lynx's renderPage callback.

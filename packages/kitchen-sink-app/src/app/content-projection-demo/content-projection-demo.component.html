@@ -1,0 +1,66 @@
+<view class="container">
+  <text class="page-title">Content Projection Demo</text>
+
+  <!-- Single-slot projection -->
+  <view class="section">
+    <text class="section-title">Single Slot (ng-content)</text>
+    <app-card>
+      <text>This text is projected into the card component.</text>
+    </app-card>
+    <app-card>
+      <text style="font-weight: bold">Bold projected content</text>
+      <text style="color: #666; font-size: 12px"
+        >With a subtitle underneath</text
+      >
+    </app-card>
+  </view>
+
+  <!-- Multi-slot projection -->
+  <view class="section">
+    <text class="section-title">Named Slots (select)</text>
+    <app-panel>
+      <text slot="header" style="color: white; font-weight: bold"
+        >Panel Header</text
+      >
+      <text>This goes into the default body slot.</text>
+      <text style="font-size: 12px; color: #666"
+        >Multiple body elements work too.</text
+      >
+    </app-panel>
+  </view>
+
+  <!-- Conditional projection -->
+  <view class="section">
+    <text class="section-title">Conditional (tap to toggle)</text>
+    <app-collapsible>
+      <text>This content can be toggled on and off.</text>
+      <text style="font-size: 12px; color: #999"
+        >The ng-content is wrapped in an &#64;if block.</text
+      >
+    </app-collapsible>
+  </view>
+
+  <!-- Nested projection -->
+  <view class="section">
+    <text class="section-title">Nested Wrappers</text>
+    <app-card>
+      <app-panel>
+        <text slot="header" style="color: white">Nested Header</text>
+        <text>Card wraps Panel — two levels of content projection.</text>
+      </app-panel>
+    </app-card>
+  </view>
+
+  <!-- Content queries -->
+  <view class="section">
+    <text class="section-title"
+      >Content Queries (contentChild/contentChildren)</text
+    >
+    <app-query-demo>
+      <text #main style="font-weight: bold">Main content element</text>
+      <text #item>Item A</text>
+      <text #item>Item B</text>
+      <text #item>Item C</text>
+    </app-query-demo>
+  </view>
+</view>

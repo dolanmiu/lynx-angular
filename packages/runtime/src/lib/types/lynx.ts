@@ -394,6 +394,8 @@ declare global {
 
   function __GetAttributes(e: ElementRef): Record<string, any>;
 
+  function __GetComputedStyleByKey(e: ElementRef, key: string): string;
+
   function __GetPageElement(): ElementRef;
 
   function __InvokeUIMethod(

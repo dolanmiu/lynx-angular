@@ -18,6 +18,22 @@ describe('LynxInitDataService', () => {
     });
   });
 
+  describe('when lynx exists but getJSModule is not available (web preview)', () => {
+    beforeEach(() => {
+      (globalThis as any).lynx = { __initData: { userId: 'web' } };
+    });
+
+    it('does not throw', () => {
+      expect(() => new LynxInitDataService()).not.toThrow();
+    });
+
+    it('seeds initData from lynx.__initData', () => {
+      const service = new LynxInitDataService();
+
+      expect(service.initData()).toEqual({ userId: 'web' });
+    });
+  });
+
   describe('when lynx is defined', () => {
     let addListener: ReturnType<typeof vi.fn>;
     let getJSModule: ReturnType<typeof vi.fn>;

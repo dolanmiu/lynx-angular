@@ -14,42 +14,7 @@ In web Angular with Zone.js, change detection runs automatically after every asy
 - **Works with zoneless CD** — Signal changes automatically schedule change detection
 - **Batched rendering** — All signal changes within a macrotask are committed together via `__FlushElementTree()`
 
-## Observables Need Conversion
-
-Since AngularLynx is zoneless, Observables alone **do not trigger change detection**. Either convert to signals with `toSignal()`, or manually call `ChangeDetectorRef.markForCheck()` inside `subscribe()` callbacks.
-
-```typescript
-import { inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-
-export class UsersComponent {
-  #http = inject(HttpClient);
-
-  users = toSignal(this.#http.get<User[]>('/api/users'), { initialValue: [] });
-}
-```
-
-See the [Angular RxJS interop guide](https://angular.dev/guide/signals/rxjs-interop) for full details on `toSignal()` and `toObservable()`.
-
 ## Lynx-Specific Considerations
-
-### Defer DOM mutations in event handlers
-
-When a signal update triggers structural changes (navigation, overlay toggle, `@if` that adds/removes elements), defer it with `setTimeout`:
-
-```typescript
-// Safe: simple value update
-onTap(): void {
-  this.count.update(n => n + 1);
-}
-
-// Needs setTimeout: triggers navigation (structural DOM change)
-onNavigate(): void {
-  setTimeout(() => {
-    this.router.navigateByUrl('/other');
-  }, 0);
-}
-```
 
 ### All updates are batched
 

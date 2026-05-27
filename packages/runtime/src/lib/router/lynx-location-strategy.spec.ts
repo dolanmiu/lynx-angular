@@ -141,7 +141,10 @@ describe('LynxLocationStrategy', () => {
       strategy.historyGo(-1);
 
       expect(listener).toHaveBeenCalledOnce();
-      expect(listener).toHaveBeenCalledWith({ type: 'popstate', state: { step: 1 } });
+      expect(listener).toHaveBeenCalledWith({
+        type: 'popstate',
+        state: { step: 1 },
+      });
     });
   });
 
@@ -166,7 +169,10 @@ describe('LynxLocationStrategy', () => {
       strategy.forward();
 
       expect(listener).toHaveBeenCalledOnce();
-      expect(listener).toHaveBeenCalledWith({ type: 'popstate', state: { step: 1 } });
+      expect(listener).toHaveBeenCalledWith({
+        type: 'popstate',
+        state: { step: 1 },
+      });
     });
 
     it('supports multiple listeners', () => {

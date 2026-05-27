@@ -43,6 +43,4 @@ describe('createLynxProcessEvalResultRuntimeModule', () => {
     expect(instance.name).toBe('Lynx process eval result');
     expect(instance.stage).toBe(STAGE_ATTACH);
   });
-
-
 });

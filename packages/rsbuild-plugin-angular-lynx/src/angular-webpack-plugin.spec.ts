@@ -27,14 +27,14 @@ import { AngularWebpackPlugin } from './angular-webpack-plugin';
 
 // Minimal ConcatSource that behaves like the real webpack one for testing
 class MockConcatSource {
-  private parts: (string | { source(): string })[];
+  #parts: (string | { source(): string })[];
 
   constructor(...parts: (string | { source(): string })[]) {
-    this.parts = parts;
+    this.#parts = parts;
   }
 
   source(): string {
-    return this.parts
+    return this.#parts
       .map((p) => (typeof p === 'string' ? p : p.source()))
       .join('');
   }
@@ -49,21 +49,29 @@ type MockAsset = {
 const mockSource = (content: string) => ({ source: () => content });
 
 // Builds a minimal compiler mock and returns helpers to trigger compilation hooks
-const createMockCompiler = (mode: 'development' | 'production' = 'development') => {
+const createMockCompiler = (
+  mode: 'development' | 'production' = 'development',
+) => {
   let capturedDefineArgs: Record<string, string> = {};
   let capturedEnvironmentArgs: Record<string, unknown> = {};
 
   // Must be real constructors because the plugin calls `new DefinePlugin(...)` etc.
   // Mutate (not reassign) so destructured references in tests stay valid.
-  function MockDefinePlugin(this: { apply: ReturnType<typeof vi.fn> }, args: Record<string, string>) {
+  const MockDefinePlugin = function (
+    this: { apply: ReturnType<typeof vi.fn> },
+    args: Record<string, string>,
+  ) {
     Object.assign(capturedDefineArgs, args);
     this.apply = vi.fn();
-  }
+  };
 
-  function MockEnvironmentPlugin(this: { apply: ReturnType<typeof vi.fn> }, args: Record<string, unknown>) {
+  const MockEnvironmentPlugin = function (
+    this: { apply: ReturnType<typeof vi.fn> },
+    args: Record<string, unknown>,
+  ) {
     Object.assign(capturedEnvironmentArgs, args);
     this.apply = vi.fn();
-  }
+  };
 
   const compilationCallbacks: Array<(compilation: unknown) => void> = [];
 
@@ -94,12 +102,8 @@ const createMockCompiler = (mode: 'development' | 'production' = 'development') 
     compiler,
     triggerCompilation: (compilation: unknown) =>
       compilationCallbacks.forEach((cb) => cb(compilation)),
-    get capturedDefineArgs() {
-      return capturedDefineArgs;
-    },
-    get capturedEnvironmentArgs() {
-      return capturedEnvironmentArgs;
-    },
+    capturedDefineArgs,
+    capturedEnvironmentArgs,
     MockDefinePlugin,
     MockEnvironmentPlugin,
   };
@@ -122,23 +126,34 @@ const createMockCompilation = () => {
       runtimeRequirementInTree: {
         for: vi.fn((req: string) => ({
           tap: vi.fn(
-            (_name: string, cb: (chunk: unknown, reqs: Set<string>) => void) => {
+            (
+              _name: string,
+              cb: (chunk: unknown, reqs: Set<string>) => void,
+            ) => {
               (runtimeRequirementCallbacks[req] ??= []).push(cb);
             },
           ),
         })),
       },
       processAssets: {
-        tap: vi.fn(({ stage }: { name: string; stage: number }, fn: () => void) => {
-          processAssetsCallbacks.push({ stage, fn });
-        }),
+        tap: vi.fn(
+          ({ stage }: { name: string; stage: number }, fn: () => void) => {
+            processAssetsCallbacks.push({ stage, fn });
+          },
+        ),
       },
     },
     chunkGroups: [] as unknown[],
     assets,
     getAsset: vi.fn((name: string) => assets[name] ?? null),
     updateAsset: vi.fn(
-      (name: string, updater: MockAsset['source'] | ((old: MockAsset['source']) => MockAsset['source']), newInfo?: Record<string, unknown>) => {
+      (
+        name: string,
+        updater:
+          | MockAsset['source']
+          | ((old: MockAsset['source']) => MockAsset['source']),
+        newInfo?: Record<string, unknown>,
+      ) => {
         if (!assets[name]) return;
         const current = assets[name];
         assets[name] = {
@@ -153,13 +168,23 @@ const createMockCompilation = () => {
     chunkGraph: {},
 
     // Test helpers
-    triggerRuntimeRequirement(req: string, chunk: unknown, reqs = new Set<string>()) {
+    triggerRuntimeRequirement(
+      req: string,
+      chunk: unknown,
+      reqs = new Set<string>(),
+    ) {
       (runtimeRequirementCallbacks[req] ?? []).forEach((cb) => cb(chunk, reqs));
     },
     triggerProcessAssets(stage: number) {
-      processAssetsCallbacks.filter((e) => e.stage === stage).forEach(({ fn }) => fn());
+      processAssetsCallbacks
+        .filter((e) => e.stage === stage)
+        .forEach(({ fn }) => fn());
     },
-    addAsset(name: string, content: string, info: Record<string, unknown> = {}) {
+    addAsset(
+      name: string,
+      content: string,
+      info: Record<string, unknown> = {},
+    ) {
       assets[name] = { name, source: mockSource(content), info };
     },
   };
@@ -180,7 +205,8 @@ const setupBeforeEncodeHook = () => {
   } as never);
 
   return (args: unknown) => {
-    if (!beforeEncodeCb) throw new Error('beforeEncode hook was not registered');
+    if (!beforeEncodeCb)
+      throw new Error('beforeEncode hook was not registered');
     return beforeEncodeCb(args);
   };
 };
@@ -219,7 +245,10 @@ describe('AngularWebpackPlugin', () => {
     });
 
     it('stores provided options', () => {
-      const options = { enableSSR: true, firstScreenSyncTiming: 'jsReady' as const };
+      const options = {
+        enableSSR: true,
+        firstScreenSyncTiming: 'jsReady' as const,
+      };
       const plugin = new AngularWebpackPlugin(options);
       expect(plugin.options).toBe(options);
     });
@@ -239,7 +268,8 @@ describe('AngularWebpackPlugin', () => {
 
     describe('DefinePlugin', () => {
       it('sets __DEV__ to true in development mode', () => {
-        const { compiler, capturedDefineArgs } = createMockCompiler('development');
+        const { compiler, capturedDefineArgs } =
+          createMockCompiler('development');
         setupBeforeEncodeHook();
 
         new AngularWebpackPlugin().apply(compiler as never);
@@ -248,7 +278,8 @@ describe('AngularWebpackPlugin', () => {
       });
 
       it('sets __DEV__ to false in production mode', () => {
-        const { compiler, capturedDefineArgs } = createMockCompiler('production');
+        const { compiler, capturedDefineArgs } =
+          createMockCompiler('production');
         setupBeforeEncodeHook();
 
         new AngularWebpackPlugin().apply(compiler as never);
@@ -257,15 +288,19 @@ describe('AngularWebpackPlugin', () => {
       });
 
       it('sets __PROFILE__ to match __DEV__', () => {
-        const { compiler: devCompiler, capturedDefineArgs: devArgs } = createMockCompiler('development');
+        const { compiler: devCompiler, capturedDefineArgs: devArgs } =
+          createMockCompiler('development');
         setupBeforeEncodeHook();
         new AngularWebpackPlugin().apply(devCompiler as never);
         expect(devArgs['__PROFILE__']).toBe('true');
 
         vi.clearAllMocks();
-        vi.mocked(createLynxProcessEvalResultRuntimeModule).mockReturnValue(class {} as never);
+        vi.mocked(createLynxProcessEvalResultRuntimeModule).mockReturnValue(
+          class {} as never,
+        );
 
-        const { compiler: prodCompiler, capturedDefineArgs: prodArgs } = createMockCompiler('production');
+        const { compiler: prodCompiler, capturedDefineArgs: prodArgs } =
+          createMockCompiler('production');
         setupBeforeEncodeHook();
         new AngularWebpackPlugin().apply(prodCompiler as never);
         expect(prodArgs['__PROFILE__']).toBe('false');
@@ -284,7 +319,9 @@ describe('AngularWebpackPlugin', () => {
         const { compiler, capturedDefineArgs } = createMockCompiler();
         setupBeforeEncodeHook();
 
-        new AngularWebpackPlugin({ extractStr: { strLength: 20 } }).apply(compiler as never);
+        new AngularWebpackPlugin({ extractStr: { strLength: 20 } }).apply(
+          compiler as never,
+        );
 
         expect(capturedDefineArgs['__EXTRACT_STR__']).toBe('true');
       });
@@ -293,9 +330,13 @@ describe('AngularWebpackPlugin', () => {
         const { compiler, capturedDefineArgs } = createMockCompiler();
         setupBeforeEncodeHook();
 
-        new AngularWebpackPlugin({ firstScreenSyncTiming: 'jsReady' }).apply(compiler as never);
+        new AngularWebpackPlugin({ firstScreenSyncTiming: 'jsReady' }).apply(
+          compiler as never,
+        );
 
-        expect(capturedDefineArgs['__FIRST_SCREEN_SYNC_TIMING__']).toBe('"jsReady"');
+        expect(capturedDefineArgs['__FIRST_SCREEN_SYNC_TIMING__']).toBe(
+          '"jsReady"',
+        );
       });
 
       it('sets __FIRST_SCREEN_SYNC_TIMING__ to "immediately" by default', () => {
@@ -304,7 +345,9 @@ describe('AngularWebpackPlugin', () => {
 
         new AngularWebpackPlugin().apply(compiler as never);
 
-        expect(capturedDefineArgs['__FIRST_SCREEN_SYNC_TIMING__']).toBe('"immediately"');
+        expect(capturedDefineArgs['__FIRST_SCREEN_SYNC_TIMING__']).toBe(
+          '"immediately"',
+        );
       });
 
       it('sets __ENABLE_SSR__ from option', () => {
@@ -374,7 +417,10 @@ describe('AngularWebpackPlugin', () => {
         triggerCompilation(compilation);
 
         const chunk = {};
-        compilation.triggerRuntimeRequirement(LynxRuntimeGlobals.lynxProcessEvalResult, chunk);
+        compilation.triggerRuntimeRequirement(
+          LynxRuntimeGlobals.lynxProcessEvalResult,
+          chunk,
+        );
 
         expect(compilation.addRuntimeModule).toHaveBeenCalledWith(
           chunk,
@@ -391,9 +437,18 @@ describe('AngularWebpackPlugin', () => {
         triggerCompilation(compilation);
 
         const chunk = {};
-        compilation.triggerRuntimeRequirement(LynxRuntimeGlobals.lynxProcessEvalResult, chunk);
-        compilation.triggerRuntimeRequirement(LynxRuntimeGlobals.lynxProcessEvalResult, chunk);
-        compilation.triggerRuntimeRequirement(LynxRuntimeGlobals.lynxProcessEvalResult, chunk);
+        compilation.triggerRuntimeRequirement(
+          LynxRuntimeGlobals.lynxProcessEvalResult,
+          chunk,
+        );
+        compilation.triggerRuntimeRequirement(
+          LynxRuntimeGlobals.lynxProcessEvalResult,
+          chunk,
+        );
+        compilation.triggerRuntimeRequirement(
+          LynxRuntimeGlobals.lynxProcessEvalResult,
+          chunk,
+        );
 
         expect(compilation.addRuntimeModule).toHaveBeenCalledTimes(1);
       });
@@ -408,8 +463,14 @@ describe('AngularWebpackPlugin', () => {
 
         const chunkA = {};
         const chunkB = {};
-        compilation.triggerRuntimeRequirement(LynxRuntimeGlobals.lynxProcessEvalResult, chunkA);
-        compilation.triggerRuntimeRequirement(LynxRuntimeGlobals.lynxProcessEvalResult, chunkB);
+        compilation.triggerRuntimeRequirement(
+          LynxRuntimeGlobals.lynxProcessEvalResult,
+          chunkA,
+        );
+        compilation.triggerRuntimeRequirement(
+          LynxRuntimeGlobals.lynxProcessEvalResult,
+          chunkB,
+        );
 
         expect(compilation.addRuntimeModule).toHaveBeenCalledTimes(2);
       });
@@ -448,7 +509,9 @@ describe('AngularWebpackPlugin', () => {
         const compilation = createMockCompilation();
         triggerCompilation(compilation);
 
-        expect(() => compilation.triggerProcessAssets(STAGE_ADDITIONAL)).toThrow();
+        expect(() =>
+          compilation.triggerProcessAssets(STAGE_ADDITIONAL),
+        ).toThrow();
       });
 
       it('marks non-initial main-thread layer chunk group files', () => {
@@ -556,7 +619,9 @@ describe('AngularWebpackPlugin', () => {
         compilation.triggerProcessAssets(STAGE_ADDITIONS);
 
         const asset = compilation.assets['main.js'];
-        expect(asset.source.source()).toContain('globalThis["__MAIN_THREAD__"]=true;');
+        expect(asset.source.source()).toContain(
+          'globalThis["__MAIN_THREAD__"]=true;',
+        );
       });
 
       it('prepends __MAIN_THREAD__=false for non-main-thread assets', () => {
@@ -573,7 +638,9 @@ describe('AngularWebpackPlugin', () => {
         compilation.triggerProcessAssets(STAGE_ADDITIONS);
 
         const asset = compilation.assets['bg.js'];
-        expect(asset.source.source()).toContain('globalThis["__MAIN_THREAD__"]=false;');
+        expect(asset.source.source()).toContain(
+          'globalThis["__MAIN_THREAD__"]=false;',
+        );
       });
 
       it('skips non-JS assets', () => {
@@ -658,7 +725,9 @@ describe('AngularWebpackPlugin', () => {
         triggerCompilation(compilation);
 
         // Should not throw — uses `if (!asset) continue`
-        expect(() => compilation.triggerProcessAssets(STAGE_ADDITIONS)).not.toThrow();
+        expect(() =>
+          compilation.triggerProcessAssets(STAGE_ADDITIONS),
+        ).not.toThrow();
       });
     });
 
@@ -679,7 +748,8 @@ describe('AngularWebpackPlugin', () => {
           },
         });
 
-        const finalSource = compilation.assets['main-thread.js'].source.source();
+        const finalSource =
+          compilation.assets['main-thread.js'].source.source();
         expect(finalSource).toContain('module.exports');
         expect(finalSource).toContain('globDynamicComponentEntry');
         expect(finalSource).toContain('return module.exports');

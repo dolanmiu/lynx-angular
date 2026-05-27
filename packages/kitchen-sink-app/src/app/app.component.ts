@@ -146,6 +146,18 @@ import lynxLogo from '../assets/lynx-logo.png';
             >
               <text class="nav-button-text">Text Measure</text>
             </view>
+            <view
+              class="nav-button"
+              (bindtap)="navigateTo('content-projection-demo')"
+            >
+              <text class="nav-button-text">Content Projection</text>
+            </view>
+            <view class="nav-button" (bindtap)="navigateTo('exposure-demo')">
+              <text class="nav-button-text">Exposure Demo</text>
+            </view>
+            <view class="nav-button" (bindtap)="navigateTo('main-thread-demo')">
+              <text class="nav-button-text">Main Thread Demo</text>
+            </view>
           </view>
         </view>
       </view>

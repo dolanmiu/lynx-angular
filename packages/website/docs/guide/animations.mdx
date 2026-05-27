@@ -41,7 +41,7 @@ export class FadeComponent {
   readonly active = signal(false);
 
   toggle(): void {
-    setTimeout(() => this.active.update((v) => !v), 0);
+    this.active.update((v) => !v);
   }
 }
 ```
@@ -92,7 +92,7 @@ export class SpinComponent {
   readonly spinning = signal(false);
 
   toggleSpin(): void {
-    setTimeout(() => this.spinning.update((v) => !v), 0);
+    this.spinning.update((v) => !v);
   }
 }
 ```

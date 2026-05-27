@@ -21,15 +21,15 @@ export interface InitDataRaw extends Record<string, unknown> {}
 export interface InitData extends Record<string, unknown> {}
 
 /**
- * Extend this interface to type the global props passed from the native host.
+ * Extend this interface to type the global data passed from the native host.
  *
  * @example
  * declare module '@blotch/angular-lynx' {
- *   interface GlobalProps { theme: 'light' | 'dark'; }
+ *   interface GlobalData { theme: 'light' | 'dark'; }
  * }
  */
 // oxlint-disable-next-line typescript/consistent-type-definitions -- interface required for module augmentation
-export interface GlobalProps extends Record<string, unknown> {}
+export interface GlobalData extends Record<string, unknown> {}
 
 export type DataProcessorDefinition = {
   /** Transform raw native init data before it is stored in LynxInitDataService. */
