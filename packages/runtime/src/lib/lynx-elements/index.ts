@@ -45,6 +45,7 @@ export { LynxScrollView } from './scroll-view';
 export { LynxSvg } from './svg';
 export { LynxText } from './text';
 export { LynxView } from './view';
+export { LynxViewPager, LynxViewPagerItem } from './viewpager';
 
 import { LynxFrame } from './frame';
 import { LynxImage } from './image';
@@ -56,6 +57,7 @@ import { LynxScrollView } from './scroll-view';
 import { LynxSvg } from './svg';
 import { LynxText } from './text';
 import { LynxView } from './view';
+import { LynxViewPager, LynxViewPagerItem } from './viewpager';
 
 /**
  * All Lynx native element directives as a single importable array.
@@ -76,4 +78,6 @@ export const LYNX_ELEMENTS = [
   LynxTextarea,
   LynxOverlay,
   LynxSvg,
+  LynxViewPager,
+  LynxViewPagerItem,
 ] as const;

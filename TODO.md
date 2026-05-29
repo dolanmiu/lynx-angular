@@ -32,18 +32,18 @@
 - [x] Main thread scripting (MTS) — `mainThreadFn()` factory registers worklet functions on the main thread via deterministic counter-based IDs (no compiler plugin needed); `LynxMainThreadEvent` directive binds worklet handlers to native events (`mainThreadBindtap`, `mainThreadBindscroll`, etc.); `LynxMainThreadService.runOnMainThread()` provides cross-thread RPC; `backgroundFn()` + `runOnBackground()` enables main→background callbacks from worklet functions; `MainThreadRef<T>` persists state across main-thread calls; types re-exported from `@lynx-js/types/main-thread` (`packages/runtime/src/lib/main-thread/`)
 - [x] Exposure/visibility detection — `LynxExposureService` wraps global `exposure`/`disexposure` events via `GlobalEventEmitter` with signal-based state + control APIs (`stopExposure()`, `resumeExposure()`, `setObserverFrameRate()`); `LynxExposureDirective` provides per-element `visible` signal via `binduiappear`/`binduidisappear`; advanced attributes (`exposure-area`, `exposure-screen-margin-*`, `exposure-ui-margin-*`) added to `LynxElementBase` (`packages/runtime/src/lib/exposure/`)
 - [ ] Pull-to-refresh — `<refresh>` element not implemented in the renderer
-- [ ] ViewPager — `<viewpager>` element not implemented in the renderer
+- [x] ViewPager — `<viewpager>` + `<viewpager-item>` elements with full attribute support (`initial-select-index`, `enable-scroll`, `bounces`, platform-specific attributes); events (`bindchange`, `bindoffsetchange`, `bindwillchange`) work via renderer event system (`packages/runtime/src/lib/lynx-elements/viewpager.ts`)
 - [ ] Scroll coordinator — `<scroll-coordinator>` for synchronizing multiple scrollable containers not implemented
 - [ ] Safe area / device adaptation — No helpers for notch/safe-area-aware layouts
 - [ ] Dark mode — Lynx supports `:dark` pseudo-class; no Angular integration
 - [ ] Native module bridge — `lynx.requireModule()` / `lynx.requireModuleAsync()` for calling platform-native APIs (Objective-C, Java/Kotlin, ETS). No typed Angular service wrapper.
 - [x] Session storage — `LynxSessionStorageService` wraps `setSessionStorageItem` / `getSessionStorageItem` / `subscribeSessionStorage` / `unsubscribeSessionStorage` as Angular injectable with signal-based `watch()` for reactive key tracking (`packages/runtime/src/lib/session-storage/`)
-- [ ] System info — `lynx.systemInfo` (device dimensions, OS, DPI) not exposed as Angular injectable
+- [x] System info — `LynxSystemInfoService` wraps the global `SystemInfo` object as Angular injectable with device dimensions (physical + logical CSS pixels), OS version, platform, engine version, runtime type, and theme (`packages/runtime/src/lib/system-info/`)
 - [x] Global event emitter — `LynxGlobalDataService` (signal-based `globalData`) and `LynxInitDataService` (signal-based `initData`) wrap `GlobalEventEmitter` as Angular injectables; `registerDataProcessors()` transforms raw `InitData` before delivery; all exported in the public API (`docs/guide/data-flow.mdx`)
 - [x] Animation system — `LynxAnimation` class provides `play()`, `pause()`, `cancel()` via `__ElementAnimate`; `element.animate(keyframes, options)` mirrors the Web Animations API; CSS `@keyframes` and `transition` work via standard CSS; documented with examples (`examples/animations/`, `docs/guide/animations.mdx`)
 - [x] Custom fonts — CSS `@font-face` works via the rsbuild CSS pipeline (the standard Angular approach); `LynxFontService` wraps `lynx.addFont()` for dynamic runtime font loading (`packages/runtime/src/lib/font/`)
 - [x] Text measurement — `LynxTextMeasureService` wraps `lynx.getTextInfo()` with typed options and px-unit conversion; only works with built-in platform fonts (`packages/runtime/src/lib/text-measure/`)
-- [ ] Resource prefetching — `lynx.requestResourcePrefetch()` / `lynx.cancelResourcePrefetch()` not exposed
+- [x] Resource prefetching — `LynxResourcePrefetchService` wraps `lynx.requestResourcePrefetch()` / `lynx.cancelResourcePrefetch()` with Promise-based API; ergonomic `PrefetchRequest` type with optional priority, cache target, and preload key; supports batch operations for images and videos (`packages/runtime/src/lib/resource-prefetch/`)
 
 ## Accessibility
 

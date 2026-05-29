@@ -14,3 +14,7 @@ export { createScrollViewElement } from './create-scroll-view-element';
 export { createSvgElement } from './create-svg-element';
 export { createTextElement } from './create-text-element';
 export { createViewElement } from './create-view-element';
+export {
+  createViewPagerElement,
+  createViewPagerItemElement,
+} from './create-viewpager-element';

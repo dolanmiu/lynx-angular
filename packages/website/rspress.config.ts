@@ -62,6 +62,7 @@ export default defineConfig({
     sidebar: {
       '/guide/': [
         { text: 'Quick Start', link: '/guide/quick-start' },
+        { text: 'Schematics', link: '/guide/schematics' },
         {
           dividerType: 'solid',
         },
@@ -79,7 +80,10 @@ export default defineConfig({
             { text: 'Overview', link: '/guide/host-data/' },
             { text: 'InitData', link: '/guide/host-data/init-data' },
             { text: 'GlobalData', link: '/guide/host-data/global-data' },
-            { text: 'Data Processors', link: '/guide/host-data/data-processors' },
+            {
+              text: 'Data Processors',
+              link: '/guide/host-data/data-processors',
+            },
           ],
         },
         { text: 'Session Storage', link: '/guide/session-storage' },
@@ -112,10 +116,32 @@ export default defineConfig({
             { text: 'Gesture Types', link: '/guide/gestures/gesture-types' },
             { text: 'Lifecycle', link: '/guide/gestures/lifecycle' },
             { text: 'Composition', link: '/guide/gestures/composition' },
-            { text: 'Complete Example', link: '/guide/gestures/complete-example' },
+            {
+              text: 'Complete Example',
+              link: '/guide/gestures/complete-example',
+            },
           ],
         },
-        { text: 'Animations', link: '/guide/animations' },
+        {
+          text: 'Animations',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/guide/animations/' },
+            {
+              text: 'CSS Transitions',
+              link: '/guide/animations/css-transitions',
+            },
+            { text: 'CSS @keyframes', link: '/guide/animations/css-keyframes' },
+            {
+              text: 'Programmatic API',
+              link: '/guide/animations/programmatic',
+            },
+            {
+              text: 'Enter/Leave Transitions',
+              link: '/guide/animations/enter-leave',
+            },
+          ],
+        },
         { text: '@defer', link: '/guide/defer' },
         { text: 'CSS Modules', link: '/guide/css-modules' },
         {

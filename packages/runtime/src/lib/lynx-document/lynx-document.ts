@@ -17,6 +17,8 @@ import {
   createSvgElement,
   createTextElement,
   createViewElement,
+  createViewPagerElement,
+  createViewPagerItemElement,
 } from './element-creators';
 import type { LynxDocumentBase } from './types';
 
@@ -94,6 +96,14 @@ export class LynxDocument implements LynxDocumentBase {
       }
       case 'svg': {
         element = createSvgElement(this.#pageId);
+        break;
+      }
+      case 'viewpager': {
+        element = createViewPagerElement(this.#pageId);
+        break;
+      }
+      case 'viewpager-item': {
+        element = createViewPagerItemElement(this.#pageId);
         break;
       }
       case 'page': {

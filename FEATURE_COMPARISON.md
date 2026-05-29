@@ -47,9 +47,9 @@
 | Feature                               |   AngularLynx    |     React Lynx     |                   Vue Lynx                    |
 | ------------------------------------- | :--------------: | :----------------: | :-------------------------------------------: |
 | `element.animate()` (JS keyframe API) |        ✅        |         ✅         |              ❌ (no direct API)               |
-| CSS transitions                       | ❌ (not exposed) | ❌ (worklet-based) |         ✅ (`<Transition>` component)         |
+| CSS transitions                       | ✅ (`LynxTransition`) | ❌ (worklet-based) |         ✅ (`<Transition>` component)         |
 | CSS `@keyframes` animations           |        ✅        |         ❌         |               ✅ (class-based)                |
-| Transition component                  |        ❌        |         ❌         | ✅ (experimental, needs explicit `:duration`) |
+| Transition component                  | ✅ (`LynxTransition`) |         ❌         | ✅ (experimental, needs explicit `:duration`) |
 | TransitionGroup                       |        ❌        |         ❌         |               ⚠️ (no move/FLIP)               |
 
 ## Main Thread Scripting (MTS)
@@ -72,14 +72,14 @@
 
 ## Data Flow / Platform Integration
 
-| Feature                 |          AngularLynx          |       React Lynx        | Vue Lynx |
-| ----------------------- | :---------------------------: | :---------------------: | :------: |
-| InitData pattern        |  ✅ (`LynxInitDataService`)   |  ✅ (provider + hook)   |    ❌    |
-| GlobalData pattern      | ✅ (`LynxGlobalDataService`)  |  ✅ (provider + hook)   |    ❌    |
-| Data processors         | ✅ (`registerDataProcessors`) |           ✅            |    ❌    |
-| Native module bridge    |              ❌               | ✅ (`lynx.getJSModule`) |    ❌    |
-| Session storage service |              ❌               |      ❌ (raw API)       |    ❌    |
-| System info service     |              ❌               |      ❌ (raw API)       |    ❌    |
+| Feature                 |           AngularLynx            |       React Lynx        | Vue Lynx |
+| ----------------------- | :------------------------------: | :---------------------: | :------: |
+| InitData pattern        |    ✅ (`LynxInitDataService`)    |  ✅ (provider + hook)   |    ❌    |
+| GlobalData pattern      |   ✅ (`LynxGlobalDataService`)   |  ✅ (provider + hook)   |    ❌    |
+| Data processors         |  ✅ (`registerDataProcessors`)   |           ✅            |    ❌    |
+| Native module bridge    |  ✅ (`LynxNativeModuleService`)  | ✅ (`lynx.getJSModule`) |    ❌    |
+| Session storage service | ✅ (`LynxSessionStorageService`) |      ❌ (raw API)       |    ❌    |
+| System info service     |   ✅ (`LynxSystemInfoService`)   |      ❌ (raw API)       |    ❌    |
 
 ## Lazy Loading / Code Splitting
 
@@ -102,7 +102,7 @@
 
 | Feature                        |               AngularLynx                |       React Lynx        |        Vue Lynx        |
 | ------------------------------ | :--------------------------------------: | :---------------------: | :--------------------: |
-| Error boundary / recovery      |                    ❌                    | ✅ (`useErrorBoundary`) | ✅ (`onErrorCaptured`) |
+| Error boundary / recovery      |     🚫 (won't do — `@error` coming)      | ✅ (`useErrorBoundary`) | ✅ (`onErrorCaptured`) |
 | Global unhandled error capture | ✅ (`LynxErrorHandler` + `_ReportError`) | ✅ (`lynx.reportError`) |           ✅           |
 | Component-level error UI       |                    ❌                    |           ✅            |           ✅           |
 
@@ -167,11 +167,11 @@
 ### Biggest gaps vs Vue Lynx
 
 1. HMR (Vue has component-level state preservation; Angular re-bootstraps the whole app)
-2. `<Transition>` / animation component abstraction
+2. ~~`<Transition>` / animation component abstraction~~ — implemented (`LynxTransition`)
 3. Project scaffolding CLI
 4. Documentation site & example gallery
 
 ### Both React & Vue have, Angular doesn't
 
-- Component-level error boundaries with recovery UI
+- ~~Component-level error boundaries with recovery UI~~ — won't do (Angular's `@error` control flow will handle this natively)
 - ~~Main thread refs and worklet event handlers~~ — implemented (`MainThreadRef`, `LynxMainThreadEvent`)

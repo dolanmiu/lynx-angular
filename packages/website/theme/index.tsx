@@ -48,7 +48,7 @@ const HeroCommandBox = () => {
   const [copied, setCopied] = useState(false);
 
   const copyCommand = useCallback(() => {
-    navigator.clipboard.writeText('npm create angular-lynx@latest').then(() => {
+    navigator.clipboard.writeText('ng add @blotch/angular-lynx').then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
@@ -63,7 +63,7 @@ const HeroCommandBox = () => {
         aria-label="Copy command"
       >
         <span className="prompt">$</span>
-        <span className="text">npm create angular-lynx@latest</span>
+        <span className="text">ng add @blotch/angular-lynx</span>
         <span className="icon" aria-hidden="true">
           {copied ? <CheckIcon /> : <CopyIcon />}
         </span>

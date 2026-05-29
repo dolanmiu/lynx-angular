@@ -2,51 +2,10 @@
 
 API reference for the core AngularLynx runtime package.
 
-## Bootstrap
-
-| Export                 | Kind     | Description                                                                                                                                                              |
-| ---------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `bootstrapApplication` | Function | Bootstraps an Angular standalone component in the Lynx runtime. Wraps Angular's `bootstrapApplication` with Lynx-specific error handling and polyfills.                  |
-| `provideRenderer`      | Function | Returns `EnvironmentProviders` that register `LynxRendererFactory2`, `LynxDocument`, and the Lynx-compatible `DOCUMENT` token. Required in every AngularLynx app config. |
-
-## Routing
-
-| Export                   | Kind     | Description                                                                                                                                                                                                                                           |
-| ------------------------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `provideRouter`          | Function | Provides Angular Router configured for the Lynx runtime. Uses in-memory routing (no browser History API), prevents unhandled navigation rejections from crashing the background thread, and enables route reuse to avoid exhausting the element pool. |
-| `LynxLocationStrategy`   | Class    | In-memory `LocationStrategy` — the Lynx equivalent of `PathLocationStrategy`. Lynx has no browser URL bar or History API, so all URL state is tracked in memory.                                                                                      |
-| `LynxPlatformLocation`   | Class    | Lynx-compatible `PlatformLocation`. Replaces Angular's `BrowserPlatformLocation` which relies on `window.location` (unavailable in Lynx).                                                                                                             |
-| `LynxRouteReuseStrategy` | Class    | Custom `RouteReuseStrategy` that detaches (rather than destroys) route components on navigation. Prevents element pool exhaustion — Lynx has ~256 native element slots, and `__RemoveElement` only detaches, it doesn't free slots.                   |
-
-## Elements
-
-| Export           | Kind      | Description                                                                                                                                                   |
-| ---------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `LYNX_ELEMENTS`  | Const     | Array of all Lynx element directives. Import this in your component's `imports` array for IDE autocompletion and type checking of Lynx elements in templates. |
-| `LynxView`       | Directive | `<view>` — primary container element (equivalent to `<div>`).                                                                                                 |
-| `LynxText`       | Directive | `<text>` — text display element. All visible text in Lynx must be inside a `<text>`.                                                                          |
-| `LynxImage`      | Directive | `<image>` — image element with `src` attribute.                                                                                                               |
-| `LynxScrollView` | Directive | `<scroll-view>` — scrollable container with `scroll-orientation` attribute.                                                                                   |
-| `LynxList`       | Directive | `<list>` — virtualized list for large datasets.                                                                                                               |
-| `LynxListItem`   | Directive | `<list-item>` — child of `<list>`, defines each item in a virtualized list.                                                                                   |
-| `LynxInput`      | Directive | `<input>` — single-line text input.                                                                                                                           |
-| `LynxTextarea`   | Directive | `<textarea>` — multi-line text input.                                                                                                                         |
-| `LynxOverlay`    | Directive | `<overlay>` — modal/popup overlay element.                                                                                                                    |
-| `LynxFrame`      | Directive | `<frame>` — loads another Lynx bundle inside the current view.                                                                                                |
-| `LynxBlock`      | Directive | `<block>` — non-rendering grouping element (similar to `<ng-container>`).                                                                                     |
-| `LynxSvg`        | Directive | `<svg>` — vector graphics element.                                                                                                                            |
-| `LynxIf`         | Directive | `<if>` — Lynx-native conditional rendering element.                                                                                                           |
-| `LynxFor`        | Directive | `<for>` — Lynx-native list rendering element.                                                                                                                 |
-
-## Animation
-
-| Export                 | Kind  | Description                                                                                                                                                                                 |
-| ---------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `LynxAnimation`        | Class | Represents a running animation on a Lynx element. Created via `element.animate()`. Provides `play()`, `pause()`, and `cancel()` methods.                                                    |
-| `LynxAnimationOptions` | Type  | Options for animation timing and behavior. Accepts both Web Animations API naming (`iterations`, `easing`, `fill`) and Lynx-native naming (`iterationCount`, `timingFunction`, `fillMode`). |
-
-## Services
-
-| Export              | Kind       | Description                                                                                                                                                                                                                                   |
-| ------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `LynxLoggerService` | Injectable | Remote logging service — sends log calls from on-device to the rspeedy dev server via `fetch()` so they appear in the developer's terminal. Methods: `log()`, `warn()`, `error()`, `info()`, `debug()`. All methods are no-ops in production. |
+| Section                  | Description                                               |
+| ------------------------ | --------------------------------------------------------- |
+| [Bootstrap](./bootstrap) | App startup: `bootstrapApplication`, `provideRenderer`    |
+| [Routing](./routing)     | `provideRouter`, location strategy, route reuse           |
+| [Elements](./elements)   | All Lynx element directives (`LYNX_ELEMENTS`, etc.)       |
+| [Animation](./animation) | `LynxAnimation`, `LynxAnimationOptions`                   |
+| [Services](./services)   | Data, session storage, exposure, fonts, logging, and more |

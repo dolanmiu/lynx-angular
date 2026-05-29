@@ -1,130 +1,38 @@
 # Quick Start
 
-This guide walks you through creating an AngularLynx app from scratch and running it on your device.
+This guide walks you through creating an AngularLynx app and running it on your device.
 
 ## Prerequisites
 
-- Angular 21+
-- [Official documentation as to what Angular needs](https://angular.dev/reference/versions)
+- [Node.js](https://nodejs.org/) v18.19 or later
+- [Angular CLI](https://angular.dev/tools/cli) v21+
+
+```bash
+npm install -g @angular/cli
+```
 
 ## Create a New Project
 
-### 1. Initialize the project
+### 1. Scaffold an Angular app
 
 ```bash
-mkdir my-lynx-app && cd my-lynx-app
-npm init -y
+ng new my-lynx-app
+cd my-lynx-app
 ```
 
-### 2. Install dependencies
+### 2. Add AngularLynx
 
 ```bash
-# Angular core
-npm install @angular/core @angular/common @angular/platform-browser @angular/compiler
-
-# AngularLynx renderer
-npm install @blotch/angular-lynx
-
-# Build tooling
-npm install -D @blotch/rsbuild-plugin-angular-lynx @lynx-js/rspeedy typescript
+ng add @blotch/angular-lynx
 ```
 
-If you want routing (most apps do):
+This single command transforms your Angular project into a Lynx-native application. It rewrites your entry point and root component to use Lynx elements, installs the build tooling, and creates the RSpeedy configuration. You'll be prompted whether to add Tailwind CSS as well.
 
-```bash
-npm install @angular/router
-```
+See the [Schematics](/guide/schematics) page for the full list of what `ng add` does.
 
-### 3. Create the build configuration
-
-```typescript title="lynx.config.ts"
-import { pluginAngularLynx } from '@blotch/rsbuild-plugin-angular-lynx';
-import { defineConfig } from '@lynx-js/rspeedy';
-
-export default defineConfig({
-  source: {
-    entry: './src/main.ts',
-  },
-  plugins: [pluginAngularLynx()],
-});
-```
-
-### 4. Create the entry point
-
-```typescript title="src/main.ts"
-import { bootstrapApplication } from '@blotch/angular-lynx';
-import { AppComponent } from './app/app.component';
-import { appConfig } from './app/app.config';
-
-bootstrapApplication(AppComponent, appConfig);
-```
-
-### 5. Create the app configuration
-
-```typescript title="src/app/app.config.ts"
-import {
-  type ApplicationConfig,
-  provideZonelessChangeDetection,
-} from '@angular/core';
-import { provideRenderer } from '@blotch/angular-lynx';
-
-export const appConfig: ApplicationConfig = {
-  providers: [provideZonelessChangeDetection(), provideRenderer()],
-};
-```
-
-### 6. Create the root component
-
-```typescript title="src/app/app.component.ts"
-import { Component, signal } from '@angular/core';
-import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
-
-@Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [LYNX_ELEMENTS],
-  template: `
-    <view class="container">
-      <text class="title">Hello, {{ name() }}!</text>
-      <view class="button" (bindtap)="greet()">
-        <text class="button-text">Tap me</text>
-      </view>
-    </view>
-  `,
-  styles: [
-    `
-      .container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-      }
-      .title {
-        font-size: 24px;
-        font-weight: bold;
-        margin-bottom: 16px;
-      }
-      .button {
-        background-color: #dd0031;
-        padding: 12px 24px;
-        border-radius: 8px;
-      }
-      .button-text {
-        color: white;
-        font-size: 16px;
-      }
-    `,
-  ],
-})
-export class AppComponent {
-  name = signal('AngularLynx');
-
-  greet(): void {
-    this.name.set('World');
-  }
-}
-```
+:::tip
+After running `ng add`, your root component's template uses Lynx native elements (`<view>`, `<text>`) instead of HTML. Open `src/app/app.component.ts` to see the generated code.
+:::
 
 ## Run the Dev Server
 
@@ -150,53 +58,30 @@ To see your app running as a true native experience, use [Lynx Explorer](https:/
 The QR code plugin (`@lynx-js/qrcode-rsbuild-plugin`) can be added to your `lynx.config.ts` to display a scannable QR code in the terminal during development. See the [kitchen-sink-app](https://github.com/nichenqin/angular-lynx/tree/master/packages/kitchen-sink-app) for an example.
 :::
 
-## Adding Routing
+## Generate Components
 
-To add navigation between views, install `@angular/router` and use `provideRouter`:
+Use the AngularLynx component schematic to generate components with Lynx templates:
 
-```typescript title="src/app/app.config.ts"
-import {
-  type ApplicationConfig,
-  provideZonelessChangeDetection,
-} from '@angular/core';
-import { provideRenderer, provideRouter } from '@blotch/angular-lynx';
-import { routes } from './app.routes';
-
-export const appConfig: ApplicationConfig = {
-  providers: [
-    provideZonelessChangeDetection(),
-    provideRenderer(),
-    provideRouter(routes), // [!code highlight]
-  ],
-};
+```bash
+ng generate @blotch/angular-lynx:component my-feature
 ```
 
-```typescript title="src/app/app.routes.ts"
-import type { Routes } from '@angular/router';
-
-export const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'home' },
-  {
-    path: 'home',
-    loadComponent: () =>
-      import('./home/home.component').then((m) => m.HomeComponent),
-  },
-];
-```
-
-See the [Routing guide](/guide/routing) for details on navigation patterns and the in-memory location strategy.
+This creates a standalone component with `<view>`/`<text>` elements, `OnPush` change detection, and a test file. See [Schematics](/guide/schematics#component--generate-components) for all options.
 
 ## Project Structure
+
+After running `ng add`, your project looks like this:
 
 ```
 my-lynx-app/
   lynx.config.ts              # RSpeedy build configuration
+  tailwind.config.ts           # Tailwind CSS config (if selected)
   src/
     main.ts                    # Entry point (bootstrapApplication)
     app/
       app.config.ts            # Providers (zoneless CD, renderer, router)
       app.component.ts         # Root component with Lynx elements
-      app.routes.ts            # Route definitions (optional)
+      app.routes.ts            # Route definitions
 ```
 
 ## What's Different from Web Angular?
@@ -213,6 +98,7 @@ my-lynx-app/
 
 ## Next Steps
 
+- [Schematics](/guide/schematics) — Generate components, add Tailwind CSS or testing
 - [Lynx Elements](/guide/elements/) — Learn what native elements are available
 - [Change Detection](/guide/change-detection) — Understand zoneless CD and signals
 - [Routing](/guide/routing) — Set up navigation between views

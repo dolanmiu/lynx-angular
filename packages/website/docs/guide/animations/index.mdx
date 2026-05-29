@@ -1,0 +1,18 @@
+# Animations
+
+AngularLynx supports three approaches to animation: CSS transitions, CSS `@keyframes`, and the programmatic `element.animate()` API.
+
+<Go example="animations" defaultFile="src/app/app.component.ts" />
+
+:::warning
+Angular's `@angular/animations` package is **not supported**. Lynx does not have the Web Animations API that Angular's animation DSL targets. Use the approaches below instead.
+:::
+
+## Choosing an Approach
+
+| Approach            | Best for                                                  |
+| ------------------- | --------------------------------------------------------- |
+| CSS transitions     | Simple property changes (color, size, opacity)            |
+| CSS @keyframes      | Continuous/looping animations (spinners, pulses)          |
+| `element.animate()` | One-shot sequences, imperative control, dynamic keyframes |
+| `LynxTransition`    | Enter/leave animations (show/hide content with animation) |

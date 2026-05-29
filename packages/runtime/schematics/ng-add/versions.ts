@@ -20,4 +20,10 @@ export const VERSIONS = {
   tailwindcss: '^3.4.19',
   /** @lynx-js/tailwind-preset — Lynx-specific Tailwind preset with native design tokens */
   tailwindPreset: '^0.4.0',
+  /** @blotch/angular-lynx-testing-library — Testing Library utilities for AngularLynx components */
+  angularLynxTestingLibrary: '^21.0.0',
+  /** vitest — fast unit test runner powered by Vite */
+  vitest: '^4.0.0',
+  /** jsdom — DOM environment for running component tests */
+  jsdom: '^25.0.0',
 } as const;

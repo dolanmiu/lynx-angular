@@ -12,8 +12,10 @@ import {
 import { AppComponent } from './app/app.component';
 import { appConfig } from './app/app.config';
 
-registerDataProcessors({ // [!code highlight]
-  defaultDataProcessor: (raw) => ({ // [!code highlight]
+registerDataProcessors({
+  // [!code highlight]
+  defaultDataProcessor: (raw) => ({
+    // [!code highlight]
     ...raw, // [!code highlight]
     theme: raw.theme ?? 'light', // [!code highlight]
     timestamp: Date.now(), // [!code highlight]

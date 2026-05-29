@@ -1,0 +1,8 @@
+# Routing
+
+| Export                   | Kind     | Description                                                                                                                                                                                                                                           |
+| ------------------------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `provideRouter`          | Function | Provides Angular Router configured for the Lynx runtime. Uses in-memory routing (no browser History API), prevents unhandled navigation rejections from crashing the background thread, and enables route reuse to avoid exhausting the element pool. |
+| `LynxLocationStrategy`   | Class    | In-memory `LocationStrategy` — the Lynx equivalent of `PathLocationStrategy`. Lynx has no browser URL bar or History API, so all URL state is tracked in memory.                                                                                      |
+| `LynxPlatformLocation`   | Class    | Lynx-compatible `PlatformLocation`. Replaces Angular's `BrowserPlatformLocation` which relies on `window.location` (unavailable in Lynx).                                                                                                             |
+| `LynxRouteReuseStrategy` | Class    | Custom `RouteReuseStrategy` that detaches (rather than destroys) route components on navigation. Prevents element pool exhaustion — Lynx has ~256 native element slots, and `__RemoveElement` only detaches, it doesn't free slots.                   |

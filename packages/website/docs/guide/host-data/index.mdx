@@ -4,8 +4,8 @@ Lynx apps receive data from the native host — initial card/page data, shared p
 
 <Go example="data-flow" defaultFile="src/app/app.component.ts" />
 
-| Service / API | Purpose |
-|---|---|
-| `LynxInitDataService` | Per-card initialization data passed by the host at creation time |
-| `LynxGlobalDataService` | Host-level data shared across all Lynx cards (theme, locale, etc.) |
+| Service / API              | Purpose                                                               |
+| -------------------------- | --------------------------------------------------------------------- |
+| `LynxInitDataService`      | Per-card initialization data passed by the host at creation time      |
+| `LynxGlobalDataService`    | Host-level data shared across all Lynx cards (theme, locale, etc.)    |
 | `registerDataProcessors()` | Transform raw native payloads before they reach `LynxInitDataService` |

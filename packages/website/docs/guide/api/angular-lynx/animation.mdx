@@ -1,0 +1,12 @@
+# Animation
+
+| Export                 | Kind  | Description                                                                                                                                                                                 |
+| ---------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `LynxAnimation`        | Class | Represents a running animation on a Lynx element. Created via `element.animate()`. Provides `play()`, `pause()`, and `cancel()` methods.                                                    |
+| `LynxAnimationOptions` | Type  | Options for animation timing and behavior. Accepts both Web Animations API naming (`iterations`, `easing`, `fill`) and Lynx-native naming (`iterationCount`, `timingFunction`, `fillMode`). |
+
+## Enter/Leave Transitions
+
+| Export           | Kind      | Description                                                                                                                                                                                                                                                                                                                        |
+| ---------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `LynxTransition` | Component | Animates content enter/leave using CSS transition classes (same convention as Vue's `<Transition>`). Inputs: `show` (boolean), `name` (class prefix, default `'v'`), `duration` (ms, default `300`). Outputs: `afterEnter`, `afterLeave`. Manages `shouldRender` internally — content is removed only after the leave animation ends. |
