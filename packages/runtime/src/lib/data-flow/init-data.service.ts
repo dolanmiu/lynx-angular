@@ -12,12 +12,16 @@ export class LynxInitDataService {
   );
 
   constructor() {
-    if (typeof lynx === 'undefined' || typeof lynx.getJSModule !== 'function')
+    if (
+      typeof lynx === 'undefined' ||
+      (typeof __MAIN_THREAD__ !== 'undefined' && __MAIN_THREAD__) ||
+      typeof lynx.getJSModule !== 'function'
+    )
       return;
-    lynx
-      .getJSModule('GlobalEventEmitter')
-      .addListener('onDataChanged', (...args: unknown[]) =>
-        this.initData.set(args[0] as InitData),
-      );
+    const emitter = lynx.getJSModule('GlobalEventEmitter');
+    if (!emitter?.addListener) return;
+    emitter.addListener('onDataChanged', (...args: unknown[]) =>
+      this.initData.set(args[0] as InitData),
+    );
   }
 }

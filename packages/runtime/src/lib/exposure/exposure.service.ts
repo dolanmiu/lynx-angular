@@ -18,17 +18,23 @@ export class LynxExposureService {
   readonly active = signal<boolean>(true);
 
   constructor() {
-    if (typeof lynx === 'undefined') return;
-    lynx
-      .getJSModule('GlobalEventEmitter')
-      .addListener('exposure', (...args: unknown[]) =>
-        this.exposures.set(args[0] as GlobalExposureEvent),
-      );
-    lynx
-      .getJSModule('GlobalEventEmitter')
-      .addListener('disexposure', (...args: unknown[]) =>
-        this.disexposures.set(args[0] as GlobalExposureEvent),
-      );
+    // GlobalEventEmitter is only available on the background thread (BTS context).
+    // On the main thread, getJSModule may return null or a stub without addListener,
+    // and calling it crashes the main-thread Angular app — which handles rendering.
+    // Since the main thread app stays broken, all subsequent route renders are blank.
+    if (
+      typeof lynx === 'undefined' ||
+      (typeof __MAIN_THREAD__ !== 'undefined' && __MAIN_THREAD__)
+    )
+      return;
+    const emitter = lynx.getJSModule('GlobalEventEmitter');
+    if (!emitter?.addListener) return;
+    emitter.addListener('exposure', (...args: unknown[]) =>
+      this.exposures.set(args[0] as GlobalExposureEvent),
+    );
+    emitter.addListener('disexposure', (...args: unknown[]) =>
+      this.disexposures.set(args[0] as GlobalExposureEvent),
+    );
   }
 
   // Pauses global exposure detection. Elements with exposure-id stop generating

@@ -1,0 +1,176 @@
+# Form Input
+
+Handling `<input>` and `<textarea>` with Lynx events — focus, blur, input, and confirm.
+
+```typescript
+import { Component, computed, signal } from '@angular/core';
+import { LYNX_ELEMENTS } from '@anthropic/angular-lynx';
+
+@Component({
+  selector: 'app-form-input',
+  standalone: true,
+  imports: [LYNX_ELEMENTS],
+  template: `
+    <scroll-view class="container" scroll-orientation="vertical">
+      <text class="title">Profile Form</text>
+
+      <!-- Name field -->
+      <text class="label">Name</text>
+      <input
+        class="input"
+        [class.input-focused]="focusedField() === 'name'"
+        [class.input-error]="submitted() && !name()"
+        placeholder="Enter your name"
+        [value]="name()"
+        (bindinput)="name.set($event.detail.value)"
+        (bindfocus)="focusedField.set('name')"
+        (bindblur)="focusedField.set(null)"
+        confirm-type="next"
+      />
+      @if (submitted() && !name()) {
+        <text class="error">Name is required</text>
+      }
+
+      <!-- Email field -->
+      <text class="label">Email</text>
+      <input
+        class="input"
+        [class.input-focused]="focusedField() === 'email'"
+        [class.input-error]="submitted() && !validEmail()"
+        placeholder="you@example.com"
+        input-type="email"
+        [value]="email()"
+        (bindinput)="email.set($event.detail.value)"
+        (bindfocus)="focusedField.set('email')"
+        (bindblur)="focusedField.set(null)"
+        confirm-type="next"
+      />
+      @if (submitted() && !validEmail()) {
+        <text class="error">Enter a valid email</text>
+      }
+
+      <!-- Bio field -->
+      <text class="label">Bio</text>
+      <textarea
+        class="textarea"
+        [class.input-focused]="focusedField() === 'bio'"
+        placeholder="Tell us about yourself..."
+        [value]="bio()"
+        (bindinput)="bio.set($event.detail.value)"
+        (bindfocus)="focusedField.set('bio')"
+        (bindblur)="focusedField.set(null)"
+      />
+      <text class="char-count">{{ bio().length }} / 200</text>
+
+      <!-- Submit -->
+      <view class="submit-button" (bindtap)="submit()">
+        <text class="submit-text">Save Profile</text>
+      </view>
+
+      @if (successMessage()) {
+        <text class="success">{{ successMessage() }}</text>
+      }
+    </scroll-view>
+  `,
+  styles: `
+    .container {
+      height: 100vh;
+      padding: 24px 16px;
+      background-color: #f7fafc;
+    }
+    .title {
+      font-size: 28px;
+      font-weight: bold;
+      color: #1a202c;
+      margin-bottom: 24px;
+    }
+    .label {
+      font-size: 14px;
+      font-weight: bold;
+      color: #4a5568;
+      margin-bottom: 4px;
+      margin-top: 16px;
+    }
+    .input {
+      padding: 12px;
+      font-size: 16px;
+      background-color: white;
+      border-radius: 8px;
+      border: 2px solid #e2e8f0;
+    }
+    .input-focused {
+      border-color: #4299e1;
+    }
+    .input-error {
+      border-color: #fc8181;
+    }
+    .textarea {
+      padding: 12px;
+      font-size: 16px;
+      background-color: white;
+      border-radius: 8px;
+      border: 2px solid #e2e8f0;
+      height: 100px;
+    }
+    .char-count {
+      font-size: 12px;
+      color: #a0aec0;
+      text-align: right;
+      margin-top: 4px;
+    }
+    .error {
+      font-size: 13px;
+      color: #e53e3e;
+      margin-top: 4px;
+    }
+    .submit-button {
+      background-color: #4299e1;
+      border-radius: 8px;
+      padding: 14px;
+      align-items: center;
+      margin-top: 24px;
+    }
+    .submit-text {
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    .success {
+      font-size: 16px;
+      color: #38a169;
+      text-align: center;
+      margin-top: 16px;
+    }
+  `,
+})
+export class FormInputComponent {
+  readonly name = signal('');
+  readonly email = signal('');
+  readonly bio = signal('');
+  readonly focusedField = signal<string | null>(null);
+  readonly submitted = signal(false);
+  readonly successMessage = signal('');
+
+  readonly validEmail = computed(() =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email()),
+  );
+
+  submit(): void {
+    this.submitted.set(true);
+    this.successMessage.set('');
+
+    if (!this.name() || !this.validEmail()) return;
+
+    this.successMessage.set(`Saved: ${this.name()} (${this.email()})`);
+    this.submitted.set(false);
+  }
+}
+```
+
+## Key concepts
+
+- **`(bindinput)`** — Fires on every keystroke; the new value is at `$event.detail.value`
+- **`(bindfocus)` / `(bindblur)`** — Track which field is focused for styling
+- **`confirm-type`** — Controls the keyboard return key label (`next`, `done`, `go`, `search`, `send`)
+- **`input-type`** — Sets the keyboard type (`text`, `email`, `number`, `password`)
+- **`<textarea>`** — Multiline input; works identically to `<input>` for events

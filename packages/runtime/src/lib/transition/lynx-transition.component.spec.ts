@@ -6,7 +6,15 @@ import {
   BrowserDynamicTestingModule,
   platformBrowserDynamicTesting,
 } from '@angular/platform-browser-dynamic/testing';
-import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import { LynxTransition } from './lynx-transition.component';
 
 type ClassOp = { op: 'add' | 'remove'; cls: string };
@@ -16,7 +24,10 @@ describe('LynxTransition', () => {
   let rAFCallbacks: (() => void)[];
 
   beforeAll(() => {
-    TestBed.initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting());
+    TestBed.initTestEnvironment(
+      BrowserDynamicTestingModule,
+      platformBrowserDynamicTesting(),
+    );
   });
 
   beforeEach(() => {
@@ -25,13 +36,20 @@ describe('LynxTransition', () => {
 
     vi.useFakeTimers();
 
-    vi.stubGlobal('requestAnimationFrame', vi.fn((cb: () => void) => {
-      rAFCallbacks.push(cb);
-      return rAFCallbacks.length;
-    }));
-    vi.stubGlobal('cancelAnimationFrame', vi.fn((id: number) => {
-      if (id > 0 && id <= rAFCallbacks.length) rAFCallbacks[id - 1] = () => {};
-    }));
+    vi.stubGlobal(
+      'requestAnimationFrame',
+      vi.fn((cb: () => void) => {
+        rAFCallbacks.push(cb);
+        return rAFCallbacks.length;
+      }),
+    );
+    vi.stubGlobal(
+      'cancelAnimationFrame',
+      vi.fn((id: number) => {
+        if (id > 0 && id <= rAFCallbacks.length)
+          rAFCallbacks[id - 1] = () => {};
+      }),
+    );
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({

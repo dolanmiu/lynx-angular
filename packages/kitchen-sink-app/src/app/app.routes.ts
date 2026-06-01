@@ -109,4 +109,25 @@ export const routes: Routes = [
         (m) => m.SessionStorageDemoComponent,
       ),
   },
+  {
+    path: 'worklet-directive-demo',
+    loadComponent: () =>
+      import('./worklet-directive-demo/worklet-directive-demo.component').then(
+        (m) => m.WorkletDirectiveDemoComponent,
+      ),
+  },
+  {
+    path: 'transition-demo',
+    loadComponent: () =>
+      import('./transition-demo/transition-demo.component').then(
+        (m) => m.TransitionDemoComponent,
+      ),
+  },
+  {
+    path: 'i18n-demo',
+    loadComponent: () =>
+      import('./i18n-demo/i18n-demo.component').then(
+        (m) => m.I18nDemoComponent,
+      ),
+  },
 ];

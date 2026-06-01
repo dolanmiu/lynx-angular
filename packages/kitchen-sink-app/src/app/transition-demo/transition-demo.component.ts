@@ -1,0 +1,82 @@
+import { Component, signal } from '@angular/core';
+import {
+  LYNX_ELEMENTS,
+  LynxTransition,
+  LynxTransitionGroup,
+} from '@blotch/angular-lynx';
+
+type Item = { id: number; label: string };
+
+@Component({
+  selector: 'app-transition-demo',
+  standalone: true,
+  imports: [LYNX_ELEMENTS, LynxTransition, LynxTransitionGroup],
+  styleUrl: './transition-demo.component.css',
+  template: `
+    <view class="container">
+      <!-- LynxTransition -->
+      <text class="section-title">LynxTransition</text>
+      <view class="btn" (bindtap)="togglePanel()">
+        <text class="btn-text">{{ showPanel() ? 'Hide' : 'Show' }} Panel</text>
+      </view>
+      <lynx-transition [show]="showPanel()" name="fade" [duration]="300">
+        <view class="panel">
+          <text class="panel-text">Fades and slides in/out</text>
+        </view>
+      </lynx-transition>
+
+      <!-- LynxTransitionGroup -->
+      <text class="section-title" style="margin-top: 24px;"
+        >LynxTransitionGroup</text
+      >
+      <view class="btn" (bindtap)="addItem()">
+        <text class="btn-text">+ Add Item</text>
+      </view>
+      <view style="margin-top: 12px;">
+        <lynx-transition-group
+          [each]="items()"
+          [trackBy]="trackById"
+          name="list"
+          [duration]="300"
+        >
+          <ng-template let-item>
+            <view class="list-item">
+              <text class="list-item-text">{{ item.label }}</text>
+              <view class="remove-btn" (bindtap)="removeItem(item)">
+                <text class="remove-btn-text">×</text>
+              </view>
+            </view>
+          </ng-template>
+        </lynx-transition-group>
+      </view>
+    </view>
+  `,
+})
+export class TransitionDemoComponent {
+  readonly showPanel = signal(false);
+  readonly items = signal<Item[]>([
+    { id: 1, label: 'Item 1' },
+    { id: 2, label: 'Item 2' },
+    { id: 3, label: 'Item 3' },
+  ]);
+  #nextId = 4;
+
+  readonly trackById = (item: Item) => item.id;
+
+  togglePanel(): void {
+    setTimeout(() => this.showPanel.update((v) => !v), 0);
+  }
+
+  addItem(): void {
+    setTimeout(() => {
+      const id = this.#nextId++;
+      this.items.update((items) => [...items, { id, label: `Item ${id}` }]);
+    }, 0);
+  }
+
+  removeItem(item: Item): void {
+    setTimeout(() => {
+      this.items.update((items) => items.filter((i) => i.id !== item.id));
+    }, 0);
+  }
+}

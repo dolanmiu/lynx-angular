@@ -1,0 +1,102 @@
+# DevTools
+
+AngularLynx includes built-in performance profiling that integrates with the Lynx native trace system (Perfetto). All instrumentation is gated behind the `__PROFILE__` compile-time flag — zero overhead in production.
+
+## Performance Profiling
+
+`LynxPerformanceService` wraps the native `lynx.performance` API for trace-based profiling:
+
+```typescript
+import { inject } from '@angular/core';
+import { LynxPerformanceService } from '@anthropic/angular-lynx';
+
+const perf = inject(LynxPerformanceService);
+
+// Named trace (shows up in Perfetto timeline)
+perf.profileStart('MyComponent::loadData', { args: { page: 3 } });
+await fetchData();
+perf.profileEnd();
+
+// Discrete mark
+perf.profileMark('dataLoaded', { args: { count: items.length } });
+
+// Check if recording is active
+if (perf.isRecording()) {
+  perf.profileStart('expensiveComputation');
+  // ...
+  perf.profileEnd();
+}
+
+// Flow IDs for cross-thread correlation
+const flowId = perf.profileFlowId();
+perf.profileStart('backgroundWork', { flowId });
+```
+
+### Automatic Instrumentation
+
+When `__PROFILE__` is enabled, AngularLynx automatically tracks:
+
+| Metric             | Description                                  |
+| ------------------ | -------------------------------------------- |
+| `cdCycles`         | Number of change detection cycles completed  |
+| `elementCreated`   | Total elements created via the renderer      |
+| `elementRemoved`   | Total elements removed from the tree         |
+| `flushCount`       | Number of `__FlushElementTree()` calls       |
+| `lastCdDurationMs` | Duration of the most recent CD + flush cycle |
+
+These counters are incremented inline in the renderer factory, document, and element classes with zero overhead when `__PROFILE__` is false (the `if (__PROFILE__)` branches are dead-code-eliminated by the build plugin).
+
+## DevTools Service
+
+`LynxDevToolsService` exposes the stats counters as Angular signals for on-device debug UIs:
+
+```typescript
+import { Component, inject } from '@angular/core';
+import { LynxDevToolsService, LYNX_ELEMENTS } from '@anthropic/angular-lynx';
+
+@Component({
+  selector: 'app-debug-overlay',
+  standalone: true,
+  imports: [LYNX_ELEMENTS],
+  template: `
+    <view class="debug-panel">
+      <text>CD cycles: {{ devtools.stats().cdCycles }}</text>
+      <text
+        >Elements: +{{ devtools.stats().elementCreated }} / -{{
+          devtools.stats().elementRemoved
+        }}</text
+      >
+      <text>Flushes: {{ devtools.stats().flushCount }}</text>
+      <view (bindtap)="devtools.reset()">
+        <text>Reset</text>
+      </view>
+      <view (bindtap)="devtools.refresh()">
+        <text>Refresh</text>
+      </view>
+    </view>
+  `,
+})
+export class DebugOverlayComponent {
+  readonly devtools = inject(LynxDevToolsService);
+}
+```
+
+### API
+
+| Method       | Description                                                                           |
+| ------------ | ------------------------------------------------------------------------------------- |
+| `stats()`    | Signal returning a `DevToolsStats` snapshot (re-evaluates on `refresh()` / `reset()`) |
+| `snapshot()` | Non-reactive one-shot read of current counters                                        |
+| `refresh()`  | Bump the signal so `stats()` picks up latest counter values                           |
+| `reset()`    | Zero all counters and update the signal                                               |
+
+## Enabling Profiling
+
+Profiling is controlled by the `__PROFILE__` build-time constant. It is automatically set to `true` in development builds and `false` in production. To explicitly enable or disable it, set it in your build configuration.
+
+When `__PROFILE__` is `false`:
+
+- All `if (__PROFILE__)` branches are dead-code-eliminated
+- `devStats` counters are never incremented
+- `LynxPerformanceService` methods are still callable but have negligible cost (they check `lynx.performance` availability and return)
+- `LynxDevToolsService.stats()` returns all zeros

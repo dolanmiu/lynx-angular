@@ -42,16 +42,22 @@ export const applyAngularConfig = (
       config.source.preEntry ??= [];
     }
     config.source.preEntry.push(path.resolve(__dirname, './polyfills'));
+    if (buildOptions.i18n.hasDefinedSourceLocale) {
+      config.source.preEntry.push('@angular/localize/init');
+    }
     const polyfills = buildOptions.polyfills;
     if (polyfills) {
       config.source.preEntry.push(...polyfills);
     }
     config.source.preEntry.push(...buildOptions.styles);
     config.source.tsconfigPath = buildOptions.tsconfig;
+    config.source.define ??= {};
+    config.source.define['__LYNX_SOURCE_LOCALE__'] = JSON.stringify(
+      buildOptions.i18n.sourceLocale,
+    );
     const isProd =
       process.env.NODE_ENV === 'production' || config.mode === 'production';
     if (isProd) {
-      config.source.define ??= {};
       config.source.define.ngDevMode = false;
     }
   });

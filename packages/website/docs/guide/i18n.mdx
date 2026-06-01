@@ -1,0 +1,154 @@
+# Internationalization (i18n)
+
+AngularLynx supports Angular's built-in `$localize` system for translating templates and code. Translations are loaded at runtime — one bundle serves all locales.
+
+## Setup
+
+### 1. Install `@angular/localize`
+
+```bash
+npm install @angular/localize
+```
+
+### 2. Configure angular.json
+
+Add the `i18n` section to your project definition:
+
+```json
+{
+  "projects": {
+    "my-app": {
+      "i18n": {
+        "sourceLocale": "en-US",
+        "locales": {
+          "fr": "src/locale/messages.fr.xlf",
+          "ja": "src/locale/messages.ja.xlf"
+        }
+      }
+    }
+  }
+}
+```
+
+When the build plugin detects `i18n.sourceLocale`, it automatically includes the `@angular/localize/init` polyfill and sets the `__LYNX_SOURCE_LOCALE__` compile-time constant.
+
+### 3. Add `provideLocale()` to your app config
+
+```typescript
+import { provideRenderer, provideLocale } from '@blotch/angular-lynx';
+
+bootstrapApplication(AppComponent, {
+  providers: [provideRenderer(), provideLocale()],
+});
+```
+
+This sets Angular's `LOCALE_ID` token from `lynx.__globalProps.appLocale`, falling back to the `sourceLocale` in angular.json.
+
+## Using i18n in Templates
+
+Mark translatable text with the `i18n` attribute:
+
+```typescript
+import { Component } from '@angular/core';
+import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
+
+@Component({
+  selector: 'app-greeting',
+  imports: [LYNX_ELEMENTS],
+  template: `
+    <view>
+      <text i18n>Hello, world!</text>
+      <text i18n="greeting|A friendly welcome message">Welcome back</text>
+    </view>
+  `,
+})
+export class GreetingComponent {}
+```
+
+Angular's AOT compiler converts `i18n`-marked elements into `$localize` calls.
+
+## Using $localize in Code
+
+Use the `$localize` tagged template literal directly in TypeScript:
+
+```typescript
+const title = $localize`Dashboard`;
+const greeting = $localize`:@@welcomeMsg:Welcome, ${userName}!`;
+```
+
+## Loading Translations at Runtime
+
+Load translations before bootstrapping the app:
+
+```typescript
+import '@angular/localize/init';
+import { loadTranslations } from '@angular/localize';
+
+// Load translations based on the runtime locale
+const locale = lynx?.__globalProps?.appLocale ?? 'en-US';
+
+if (locale === 'fr') {
+  loadTranslations({
+    'greeting': 'Bonjour le monde!',
+    'welcomeMsg': 'Bienvenue, {$PH}!',
+  });
+}
+
+// Then bootstrap
+bootstrapApplication(AppComponent, { providers: [...] });
+```
+
+## LynxLocaleService
+
+The `LynxLocaleService` provides reactive access to the current locale:
+
+```typescript
+import { inject } from '@angular/core';
+import { LynxLocaleService } from '@blotch/angular-lynx';
+
+const locale = inject(LynxLocaleService);
+
+// Reactive signal — updates when lynx.__globalProps.appLocale changes
+console.log(locale.locale()); // 'en-US', 'fr', 'ja', etc.
+```
+
+## Extracting Translation Files
+
+Use Angular's extraction tool to generate XLIFF files:
+
+```bash
+ng extract-i18n --output-path src/locale
+```
+
+This produces `messages.xlf` which translators can work with.
+
+## Important Limitations
+
+### Intl API Not Available
+
+Lynx's PrimJS runtime does **not** include the `Intl` API. Angular pipes like `DatePipe`, `DecimalPipe`, and `CurrencyPipe` will throw at runtime without polyfills:
+
+```bash
+npm install @formatjs/intl-numberformat @formatjs/intl-datetimeformat @formatjs/intl-pluralrules
+```
+
+Add them to your polyfills in angular.json:
+
+```json
+{
+  "polyfills": [
+    "@formatjs/intl-pluralrules/polyfill",
+    "@formatjs/intl-pluralrules/locale-data/en",
+    "@formatjs/intl-numberformat/polyfill",
+    "@formatjs/intl-numberformat/locale-data/en"
+  ]
+}
+```
+
+### Locale Changes Require Re-bootstrap
+
+`$localize` calls are evaluated at module load / component creation time. If the host app changes `lynx.__globalProps.appLocale` at runtime, you must re-bootstrap the Angular app for translations to update.
+
+### Build-time Inlining Not Supported
+
+Angular's build-time translation inlining (producing one bundle per locale) is not yet supported. The runtime `loadTranslations()` approach is the recommended pattern for Lynx apps.

@@ -31,12 +31,12 @@
 - [x] Gesture system — React Lynx has full gesture support (TAP, LONG_PRESS, PAN, FLING, PINCH, ROTATION, COMPOSED) with worklet-based callbacks and composition (`waitFor`, `simultaneousWith`, `continueWith`). `LynxGestureDetector` directive + `TapGesture`, `PanGesture`, `LongPressGesture`, `FlingGesture`, `PinchGesture`, `RotationGesture`, `ComposedGesture` implemented (`packages/runtime/src/lib/gesture/`).
 - [x] Main thread scripting (MTS) — `mainThreadFn()` factory registers worklet functions on the main thread via deterministic counter-based IDs (no compiler plugin needed); `LynxMainThreadEvent` directive binds worklet handlers to native events (`mainThreadBindtap`, `mainThreadBindscroll`, etc.); `LynxMainThreadService.runOnMainThread()` provides cross-thread RPC; `backgroundFn()` + `runOnBackground()` enables main→background callbacks from worklet functions; `MainThreadRef<T>` persists state across main-thread calls; types re-exported from `@lynx-js/types/main-thread` (`packages/runtime/src/lib/main-thread/`)
 - [x] Exposure/visibility detection — `LynxExposureService` wraps global `exposure`/`disexposure` events via `GlobalEventEmitter` with signal-based state + control APIs (`stopExposure()`, `resumeExposure()`, `setObserverFrameRate()`); `LynxExposureDirective` provides per-element `visible` signal via `binduiappear`/`binduidisappear`; advanced attributes (`exposure-area`, `exposure-screen-margin-*`, `exposure-ui-margin-*`) added to `LynxElementBase` (`packages/runtime/src/lib/exposure/`)
-- [ ] Pull-to-refresh — `<refresh>` element not implemented in the renderer
+- [x] Pull-to-refresh — `<refresh>` + `<refresh-header>` elements with `enable-refresh` attribute, `bindheaderoffset`/`bindrefreshstatechange`/`bindstartrefresh` events, and `autoStartRefresh()`/`finishRefresh()` methods via SelectorQuery (`packages/runtime/src/lib/lynx-elements/refresh.ts`)
 - [x] ViewPager — `<viewpager>` + `<viewpager-item>` elements with full attribute support (`initial-select-index`, `enable-scroll`, `bounces`, platform-specific attributes); events (`bindchange`, `bindoffsetchange`, `bindwillchange`) work via renderer event system (`packages/runtime/src/lib/lynx-elements/viewpager.ts`)
-- [ ] Scroll coordinator — `<scroll-coordinator>` for synchronizing multiple scrollable containers not implemented
-- [ ] Safe area / device adaptation — No helpers for notch/safe-area-aware layouts
-- [ ] Dark mode — Lynx supports `:dark` pseudo-class; no Angular integration
-- [ ] Native module bridge — `lynx.requireModule()` / `lynx.requireModuleAsync()` for calling platform-native APIs (Objective-C, Java/Kotlin, ETS). No typed Angular service wrapper.
+- [x] Scroll coordinator — `<scroll-coordinator>` + `<scroll-coordinator-header>`, `<scroll-coordinator-toolbar>`, `<scroll-coordinator-slot>` for synchronized nested scrolling with foldable header; `enable-scroll`, `bounces`, `granularity`, `header-over-slot`, `refresh-mode` attributes; `bindoffset` event; `setFoldExpanded()` method via SelectorQuery (`packages/runtime/src/lib/lynx-elements/scroll-coordinator.ts`)
+- [x] Safe area / device adaptation — `LynxSafeAreaService` exposes reactive `isNotchScreen()` signal; CSS `env(safe-area-inset-*)` works natively; `SAFE_AREA_INSET_TOP/BOTTOM/LEFT/RIGHT` constants exported for dynamic styles; documented with common patterns (`packages/runtime/src/lib/safe-area/`, `docs/guide/safe-area.mdx`)
+- [x] Dark mode — `LynxThemeService` exposes reactive `theme()` signal (`'Dark'` | `'Light'`) and `isDarkMode()` boolean from `lynx.__globalProps.theme`; CSS variable theming documented; class-based switching pattern (`packages/runtime/src/lib/theme/`, `docs/guide/dark-mode.mdx`)
+- [x] Native module bridge — `LynxNativeModuleService` wraps `NativeModules.bridge.call()` (Promise-based native method calls), `bridge.on()` (native events), `getNativeModule()` (typed access via `NativeModuleMap` augmentation), `getJSModule()` / `registerJSModule()` (JS module sharing within a LynxView). Graceful no-ops outside the Lynx runtime (`packages/runtime/src/lib/native-module/`)
 - [x] Session storage — `LynxSessionStorageService` wraps `setSessionStorageItem` / `getSessionStorageItem` / `subscribeSessionStorage` / `unsubscribeSessionStorage` as Angular injectable with signal-based `watch()` for reactive key tracking (`packages/runtime/src/lib/session-storage/`)
 - [x] System info — `LynxSystemInfoService` wraps the global `SystemInfo` object as Angular injectable with device dimensions (physical + logical CSS pixels), OS version, platform, engine version, runtime type, and theme (`packages/runtime/src/lib/system-info/`)
 - [x] Global event emitter — `LynxGlobalDataService` (signal-based `globalData`) and `LynxInitDataService` (signal-based `initData`) wrap `GlobalEventEmitter` as Angular injectables; `registerDataProcessors()` transforms raw `InitData` before delivery; all exported in the public API (`docs/guide/data-flow.mdx`)
@@ -49,8 +49,8 @@
 
 - [x] `accessibility-element`, `accessibility-label`, `accessibility-trait` attribute support on Lynx element directives — declared as `@Input()` on `BaseLynxDirective` (`base.ts:40-44`)
 - [x] `accessibility-elements` (focus order), `accessibility-elements-hidden` (hide from a11y tree) — declared as `@Input()` on `BaseLynxDirective` (`base.ts:78-84`)
-- [ ] `accessibilityAnnounce()` for dynamic screen reader announcements
-- [ ] `requestAccessibilityFocus()` for programmatic focus
+- [x] `accessibilityAnnounce()` — `LynxAccessibilityService.announce(content)` wraps `lynx.accessibilityAnnounce()` with Promise-based API for dynamic screen reader announcements (`packages/runtime/src/lib/accessibility/`)
+- [x] `requestAccessibilityFocus()` — `LynxAccessibilityService.requestFocus(selector)` wraps `lynx.createSelectorQuery().select().invoke()` for programmatic accessibility focus (`packages/runtime/src/lib/accessibility/`)
 
 ## Angular Feature Parity
 
@@ -60,9 +60,9 @@
 - [x] Deferred views (`@defer`) — lazy-loaded template blocks work; `@defer (when visible())` and timer-based conditions verified (`examples/defer/`)
 - [x] Error boundaries — `LynxErrorHandler` implements Angular `ErrorHandler`, routes errors to `_ReportError` (errorCode 1101), sets `__lynxLastError` for on-device debugging (`packages/runtime/src/lib/error-handler/`)
 - [x] Lazy bundle loading — `loadComponent()` routes currently work via `output.asyncChunks: false` (all code inlined into one bundle). True code-split lazy loading needs: re-enabling `asyncChunks`, packaging async chunks inside `.lynx.bundle` via `LynxTemplatePlugin`, and enabling `experimental_isLazyBundle`. Infrastructure is in place: `LynxChunkLoadingRuntimeModule` implemented (`lynx-chunk-loading-runtime-module.ts`), `asyncChunkName` hook re-enabled, background-thread exclusion removed (`LAZY_LOADING_PLAN.md`) - Won't do until Lynx fixes things upstream
-- [ ] Suspense / loading states — no equivalent to React Suspense for async component loading
-- [ ] Portal-like rendering — rendering into `<overlay>` from arbitrary component tree depth (like Angular CDK Portal)
-- [ ] i18n — Angular's `$localize` / i18n extraction not tested or configured in the build plugin
+- [x] Suspense / loading states — Angular's `@defer` with `@loading`, `@placeholder`, and `@error` blocks is the direct equivalent; already verified working on Lynx (line 60). Route-level loading uses `loadComponent()` with standard Angular patterns.
+- [x] Portal-like rendering — `LynxPortalService` programmatically renders components or templates inside native `<overlay>` elements from arbitrary component tree depth; `open(component, config)` and `openTemplate(template, config)` return a `PortalRef` for lifecycle management; inline `<overlay>` also works for declarative use (`packages/runtime/src/lib/portal/`)
+- [x] i18n — `@angular/localize/init` auto-polyfilled when i18n config detected in angular.json; `LynxLocaleService` reads locale from `lynx.__globalProps.appLocale`; `provideLocale()` sets `LOCALE_ID`; runtime translation via `loadTranslations()` (`packages/runtime/src/lib/locale/`, `docs/guide/i18n.mdx`)
 - [ ] SSR / pre-rendering — `__ENABLE_SSR__` flag exists in build plugin but is not implemented
 - [ ] Forms — `<input>` and `<textarea>` work at element level, but Angular forms (reactive & template-driven) need validation with Lynx events (`bindinput`, `bindfocus`, `bindblur`)
 
@@ -77,10 +77,11 @@
 ## Developer Experience
 
 - [x] Remote logging (`LynxLoggerService`) — fetch-based log transport to the dev server; IPC bridge (`lynx.getJSContext().dispatchEvent`) relays main-thread logs (no `fetch` available there) to the background thread; `__DEV__` gated (zero production overhead); unit tested (`lynx-logger.service.spec.ts`); documented (`docs/guide/remote-logging.mdx`)
-- [ ] DevTools — component tree inspector, state viewer, event debugger for on-device debugging (currently only `<text>`-based debug output)
+- [x] DevTools — `LynxPerformanceService` wraps `lynx.performance` (profileStart/End/Mark/FlowId) for Perfetto trace integration; `LynxDevToolsService` exposes reactive stats (CD cycles, element creates/removes, flush count); `devStats` module-level counters instrumented in renderer factory + document + element; all gated by `__PROFILE__` (zero production overhead) (`packages/runtime/src/lib/devtools/`)
 - [ ] Error overlay — surface build errors and runtime exceptions on-device instead of silent failures
 - [ ] CLI schematics — `ng generate` support for Lynx components (with Lynx element templates instead of HTML)
 - [x] Documentation — 31 guide pages in `packages/website/docs/guide/` covering gestures, animations, defer, error-handling, forms, routing, CSS modules, testing, data-flow, signals, tailwindcss, and all elements
+- [x] Example gallery — 12 standalone examples in `packages/website/docs/guide/examples/` covering counter, todo list, form input, infinite scroll, pull-to-refresh, gestures, modal dialog, animated cards, enter/leave transitions, dark mode, data dashboard, tab navigation
 - [ ] Starter template / `ng new` preset — scaffold a new AngularLynx project
 
 ## Testing

@@ -74,12 +74,12 @@ export default (options: Schema): Rule =>
     }
   };
 
-function buildComponentFile(
+const buildComponentFile = (
   selector: string,
   className: string,
   dasherized: string,
   options: Schema,
-): string {
+): string => {
   const lines: string[] = [];
 
   lines.push(
@@ -113,20 +113,20 @@ function buildComponentFile(
   lines.push('');
 
   return lines.join('\n');
-}
+};
 
-function buildTemplateFile(dasherized: string): string {
+const buildTemplateFile = (dasherized: string): string => {
   return `<view>
   <text>${dasherized} works!</text>
 </view>
 `;
-}
+};
 
-function buildStyleFile(): string {
+const buildStyleFile = (): string => {
   return '';
-}
+};
 
-function buildSpecFile(className: string, dasherized: string): string {
+const buildSpecFile = (className: string, dasherized: string): string => {
   return `import { describe, expect, it } from 'vitest';
 import { render } from '@blotch/angular-lynx-testing-library';
 
@@ -139,21 +139,21 @@ describe('${className}Component', () => {
   });
 });
 `;
-}
+};
 
 /** Converts "myComponent" or "MyComponent" to "my-component" */
-function dasherize(str: string): string {
+const dasherize = (str: string): string => {
   return str
     .replace(/([a-z\d])([A-Z])/g, '$1-$2')
     .replace(/([A-Z]+)([A-Z][a-z])/g, '$1-$2')
     .replace(/_/g, '-')
     .toLowerCase();
-}
+};
 
 /** Converts "my-component" to "MyComponent" */
-function classify(str: string): string {
+const classify = (str: string): string => {
   return str
     .split(/[-_]/)
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join('');
-}
+};

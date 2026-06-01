@@ -6,6 +6,7 @@ import {
   type RendererType2,
   ViewEncapsulation,
 } from '@angular/core';
+import { devStats } from '../devtools/stats';
 import type { LynxDocumentBase } from '../lynx-document';
 import { processPendingListUpdates } from '../lynx-element';
 import { EmulatedLynxRenderer } from './emulated-lynx-renderer';
@@ -47,13 +48,12 @@ export class LynxRendererFactory2 implements RendererFactory2 {
   begin?(): void {}
   end?(): void {
     if (__MAIN_THREAD__) {
-      // Bare flush first: commits all element creation/attribute changes.
-      // Lists have no update-list-info yet, so the engine skips list processing.
-      __FlushElementTree();
+      if (__PROFILE__) {
+        devStats.cdCycles++;
+        devStats.flushCount++;
+      }
 
-      // Now process pending lists: sets update-list-info + targeted flush
-      // per list element. Targeted flush avoids the intermittent native crash
-      // that bare __FlushElementTree() causes when processing lists.
+      __FlushElementTree();
       processPendingListUpdates();
     }
   }

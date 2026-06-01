@@ -4,6 +4,9 @@
   "projects": {
     "kitchen-sink-app": {
       "projectType": "application",
+      "i18n": {
+        "sourceLocale": "en-US"
+      },
       "root": ".",
       "sourceRoot": "src",
       "prefix": "app",

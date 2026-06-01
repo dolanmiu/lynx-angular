@@ -1,0 +1,13 @@
+{
+  "name": "create-angular-lynx",
+  "version": "21.0.0",
+  "description": "Create a new AngularLynx project",
+  "license": "MIT",
+  "bin": {
+    "create-angular-lynx": "./src/index.js"
+  },
+  "files": [
+    "src"
+  ],
+  "type": "module"
+}

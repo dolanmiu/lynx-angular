@@ -10,6 +10,16 @@ export { createListItemElement } from './create-list-item-element';
 export { createOverlayElement } from './create-overlay-element';
 export { createPageElement } from './create-page-element';
 export { createRawTextElement } from './create-raw-text-element';
+export {
+  createRefreshElement,
+  createRefreshHeaderElement,
+} from './create-refresh-element';
+export {
+  createScrollCoordinatorElement,
+  createScrollCoordinatorHeaderElement,
+  createScrollCoordinatorSlotElement,
+  createScrollCoordinatorToolbarElement,
+} from './create-scroll-coordinator-element';
 export { createScrollViewElement } from './create-scroll-view-element';
 export { createSvgElement } from './create-svg-element';
 export { createTextElement } from './create-text-element';

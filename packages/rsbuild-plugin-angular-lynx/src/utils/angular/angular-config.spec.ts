@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { applyAngularConfig } from './angular-config';
 
 const createMockApi = () => {
@@ -21,6 +21,8 @@ const createBuildOptions = (overrides: Record<string, any> = {}) => ({
   polyfills: [] as string[],
   styles: [] as string[],
   tsconfig: '/project/tsconfig.json',
+  i18n: { sourceLocale: 'en-US', hasDefinedSourceLocale: false },
+  i18nMissingTranslation: 'warning' as const,
   ...overrides,
 });
 
@@ -230,6 +232,58 @@ describe('applyAngularConfig', () => {
 
       expect(config.source.define).toBeDefined();
       expect(config.source.define.ngDevMode).toBe(false);
+    });
+  });
+
+  describe('i18n', () => {
+    it('pushes @angular/localize/init when i18n sourceLocale is defined', () => {
+      const { api, triggerHandler } = createMockApi();
+      const config = {} as any;
+
+      applyAngularConfig(
+        api as never,
+        createBuildOptions({
+          i18n: { sourceLocale: 'fr', hasDefinedSourceLocale: true },
+        }) as never,
+      );
+      triggerHandler(config);
+
+      expect(config.source.preEntry).toContain('@angular/localize/init');
+    });
+
+    it('does not push @angular/localize/init when i18n is not configured', () => {
+      const { api, triggerHandler } = createMockApi();
+      const config = {} as any;
+
+      applyAngularConfig(api as never, createBuildOptions() as never);
+      triggerHandler(config);
+
+      expect(config.source.preEntry).not.toContain('@angular/localize/init');
+    });
+
+    it('sets __LYNX_SOURCE_LOCALE__ define to the configured sourceLocale', () => {
+      const { api, triggerHandler } = createMockApi();
+      const config = {} as any;
+
+      applyAngularConfig(
+        api as never,
+        createBuildOptions({
+          i18n: { sourceLocale: 'ja-JP', hasDefinedSourceLocale: true },
+        }) as never,
+      );
+      triggerHandler(config);
+
+      expect(config.source.define['__LYNX_SOURCE_LOCALE__']).toBe('"ja-JP"');
+    });
+
+    it('sets __LYNX_SOURCE_LOCALE__ to en-US by default', () => {
+      const { api, triggerHandler } = createMockApi();
+      const config = {} as any;
+
+      applyAngularConfig(api as never, createBuildOptions() as never);
+      triggerHandler(config);
+
+      expect(config.source.define['__LYNX_SOURCE_LOCALE__']).toBe('"en-US"');
     });
   });
 });

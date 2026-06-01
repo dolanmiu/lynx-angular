@@ -13,25 +13,30 @@ npm install -g @angular/cli
 
 ## Create a New Project
 
-### 1. Scaffold an Angular app
+### Option A: Standalone CLI (recommended)
+
+```bash
+npm create angular-lynx my-lynx-app
+cd my-lynx-app
+npm install
+```
+
+This scaffolds a ready-to-run AngularLynx project with a counter demo app, RSpeedy config, and all dependencies pre-configured.
+
+### Option B: Add to an existing Angular project
 
 ```bash
 ng new my-lynx-app
 cd my-lynx-app
-```
-
-### 2. Add AngularLynx
-
-```bash
 ng add @blotch/angular-lynx
 ```
 
-This single command transforms your Angular project into a Lynx-native application. It rewrites your entry point and root component to use Lynx elements, installs the build tooling, and creates the RSpeedy configuration. You'll be prompted whether to add Tailwind CSS as well.
+`ng add` transforms your Angular project into a Lynx-native application — rewrites entry point and root component, installs build tooling, and creates the RSpeedy configuration. You'll be prompted whether to add Tailwind CSS.
 
 See the [Schematics](/guide/schematics) page for the full list of what `ng add` does.
 
 :::tip
-After running `ng add`, your root component's template uses Lynx native elements (`<view>`, `<text>`) instead of HTML. Open `src/app/app.component.ts` to see the generated code.
+After scaffolding, your root component's template uses Lynx native elements (`<view>`, `<text>`) instead of HTML. Open `src/app/app.component.ts` to see the generated code.
 :::
 
 ## Run the Dev Server

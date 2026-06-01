@@ -61,6 +61,11 @@ export const normalizeOptimization = (
   };
 };
 
+export type NormalizedI18nOptions = {
+  sourceLocale: string;
+  hasDefinedSourceLocale: boolean;
+};
+
 export type NormalizedOptions = {
   tsconfig: string;
   aot: boolean;
@@ -90,6 +95,8 @@ export type NormalizedOptions = {
   inlineStyleLanguage: string | undefined;
   outputHashing: OutputHashing;
   styles: string[];
+  i18n: NormalizedI18nOptions;
+  i18nMissingTranslation: 'error' | 'warning' | 'ignore';
 };
 type Replacement = {
   with: string;
@@ -198,6 +205,14 @@ export const readBuildOptions = async (
     workspaceRoot,
     buildOptions.outputPath as string,
   );
+  const i18n = normalizeI18nOptions(project.extensions['i18n']);
+  const i18nMissingTranslation =
+    (buildOptions.i18nMissingTranslation as
+      | 'error'
+      | 'warning'
+      | 'ignore'
+      | undefined) ?? 'warning';
+
   const normalizedOptions: NormalizedOptions = {
     aot,
     optimizationOptions,
@@ -215,6 +230,38 @@ export const readBuildOptions = async (
     inlineStyleLanguage,
     outputHashing,
     styles,
+    i18n,
+    i18nMissingTranslation,
   };
   return normalizedOptions;
+};
+
+/**
+ * Normalizes the `i18n` section from angular.json's project definition.
+ * Angular supports `sourceLocale` as either a string ('en-US') or an object
+ * ({ code: 'en-US' }). We extract the locale code either way.
+ */
+export const normalizeI18nOptions = (raw: unknown): NormalizedI18nOptions => {
+  if (!raw || typeof raw !== 'object') {
+    return { sourceLocale: 'en-US', hasDefinedSourceLocale: false };
+  }
+  const i18nConfig = raw as Record<string, unknown>;
+  let sourceLocale = 'en-US';
+  let hasDefinedSourceLocale = false;
+
+  if (typeof i18nConfig.sourceLocale === 'string') {
+    sourceLocale = i18nConfig.sourceLocale;
+    hasDefinedSourceLocale = true;
+  } else if (
+    i18nConfig.sourceLocale &&
+    typeof i18nConfig.sourceLocale === 'object' &&
+    typeof (i18nConfig.sourceLocale as Record<string, unknown>).code ===
+      'string'
+  ) {
+    sourceLocale = (i18nConfig.sourceLocale as Record<string, unknown>)
+      .code as string;
+    hasDefinedSourceLocale = true;
+  }
+
+  return { sourceLocale, hasDefinedSourceLocale };
 };

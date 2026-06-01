@@ -44,13 +44,13 @@
 
 ## Animations
 
-| Feature                               |   AngularLynx    |     React Lynx     |                   Vue Lynx                    |
-| ------------------------------------- | :--------------: | :----------------: | :-------------------------------------------: |
-| `element.animate()` (JS keyframe API) |        ✅        |         ✅         |              ❌ (no direct API)               |
-| CSS transitions                       | ✅ (`LynxTransition`) | ❌ (worklet-based) |         ✅ (`<Transition>` component)         |
-| CSS `@keyframes` animations           |        ✅        |         ❌         |               ✅ (class-based)                |
-| Transition component                  | ✅ (`LynxTransition`) |         ❌         | ✅ (experimental, needs explicit `:duration`) |
-| TransitionGroup                       |        ❌        |         ❌         |               ⚠️ (no move/FLIP)               |
+| Feature                               |               AngularLynx                |     React Lynx     |                   Vue Lynx                    |
+| ------------------------------------- | :--------------------------------------: | :----------------: | :-------------------------------------------: |
+| `element.animate()` (JS keyframe API) |                    ✅                    |         ✅         |              ❌ (no direct API)               |
+| CSS transitions                       |          ✅ (`LynxTransition`)           | ❌ (worklet-based) |         ✅ (`<Transition>` component)         |
+| CSS `@keyframes` animations           |                    ✅                    |         ❌         |               ✅ (class-based)                |
+| Transition component                  |          ✅ (`LynxTransition`)           |         ❌         | ✅ (experimental, needs explicit `:duration`) |
+| TransitionGroup                       | ✅ (`LynxTransitionGroup`, no move/FLIP) |         ❌         |               ⚠️ (no move/FLIP)               |
 
 ## Main Thread Scripting (MTS)
 
@@ -83,12 +83,12 @@
 
 ## Lazy Loading / Code Splitting
 
-| Feature                        |  AngularLynx  |      React Lynx       |          Vue Lynx           |
-| ------------------------------ | :-----------: | :-------------------: | :-------------------------: |
-| Route-level lazy loading       |      ✅       |          ❌           |             ✅              |
-| Component-level lazy loading   |      ❌       | ✅ (`loadLazyBundle`) | ✅ (`defineAsyncComponent`) |
-| Suspense / async boundaries    | ✅ (`@defer`) |          ✅           |             ✅              |
-| First-screen sync optimization |      ❌       |    ✅ (Lepus mode)    |             ❌              |
+| Feature                        |      AngularLynx      |      React Lynx       |          Vue Lynx           |
+| ------------------------------ | :-------------------: | :-------------------: | :-------------------------: |
+| Route-level lazy loading       |          ✅           |          ❌           |             ✅              |
+| Component-level lazy loading   | ✅ (`loadLazyBundle`) | ✅ (`loadLazyBundle`) | ✅ (`defineAsyncComponent`) |
+| Suspense / async boundaries    |     ✅ (`@defer`)     |          ✅           |             ✅              |
+| First-screen sync optimization |          ❌           |    ✅ (Lepus mode)    |             ❌              |
 
 ## SSR / Hydration
 
@@ -117,34 +117,34 @@
 
 ## Developer Experience
 
-| Feature                                  |            AngularLynx             |         React Lynx          |         Vue Lynx         |
-| ---------------------------------------- | :--------------------------------: | :-------------------------: | :----------------------: |
-| Project scaffolding CLI                  |                 ❌                 |             ❌              |  ✅ (`create-vue-lynx`)  |
-| IDE type support for Lynx elements       |        ✅ (directive stubs)        |             ✅              |    ✅ (Volar plugin)     |
-| HMR                                      | ⚠️ (module HMR, re-bootstraps app) |        ❌ (unclear)         |            ✅            |
-| Build diagnostics (invalid elements/CSS) |                 ✅                 |             ❌              |            ❌            |
-| DevTools integration                     |                 ❌                 | ⚠️ (profile hooks, logging) | ⚠️ (Vue devtools option) |
-| Documentation site                       |                 ❌                 |             ❌              |   ✅ (vue.lynxjs.org)    |
-| Example gallery                          |       ❌ (kitchen-sink only)       |             ❌              |     ✅ (26 examples)     |
+| Feature                                  |                     AngularLynx                      |         React Lynx          |         Vue Lynx         |
+| ---------------------------------------- | :--------------------------------------------------: | :-------------------------: | :----------------------: |
+| Project scaffolding CLI                  |              ✅ (`create-angular-lynx`)              |             ❌              |  ✅ (`create-vue-lynx`)  |
+| IDE type support for Lynx elements       |                 ✅ (directive stubs)                 |             ✅              |    ✅ (Volar plugin)     |
+| HMR                                      |          ⚠️ (module HMR, re-bootstraps app)          |        ❌ (unclear)         |            ✅            |
+| Build diagnostics (invalid elements/CSS) |                          ✅                          |             ❌              |            ❌            |
+| DevTools integration                     | ✅ (`LynxPerformanceService`, `LynxDevToolsService`) | ⚠️ (profile hooks, logging) | ⚠️ (Vue devtools option) |
+| Documentation site                       |                     ✅ (Rspress)                     |             ❌              |   ✅ (vue.lynxjs.org)    |
+| Example gallery                          |                   ✅ (12 examples)                   |             ❌              |     ✅ (26 examples)     |
 
 ## Build Plugin
 
-| Feature                               |    AngularLynx     |   React Lynx    |       Vue Lynx       |
-| ------------------------------------- | :----------------: | :-------------: | :------------------: |
-| AOT compilation                       |         ✅         |       N/A       |         N/A          |
-| JIT compilation                       |         ✅         |       N/A       |         N/A          |
-| Tailwind CSS                          | ✅ (auto-detected) |       ✅        |          ✅          |
-| CSS Modules                           |         ✅         |       ✅        |          ✅          |
-| Dual-thread entry splitting           |         ✅         |       ✅        |          ✅          |
-| Auto CUSTOM_ELEMENTS_SCHEMA injection |         ✅         |       N/A       |  N/A (isNativeTag)   |
-| Worklet transform                     |         ❌         | ✅ (SWC plugin) | ✅ (worklet loaders) |
+| Feature                               |          AngularLynx           |   React Lynx    |       Vue Lynx       |
+| ------------------------------------- | :----------------------------: | :-------------: | :------------------: |
+| AOT compilation                       |               ✅               |       N/A       |         N/A          |
+| JIT compilation                       |               ✅               |       N/A       |         N/A          |
+| Tailwind CSS                          |       ✅ (auto-detected)       |       ✅        |          ✅          |
+| CSS Modules                           |               ✅               |       ✅        |          ✅          |
+| Dual-thread entry splitting           |               ✅               |       ✅        |          ✅          |
+| Auto CUSTOM_ELEMENTS_SCHEMA injection |               ✅               |       N/A       |  N/A (isNativeTag)   |
+| Worklet transform                     | ✅ (`"main thread"` directive) | ✅ (SWC plugin) | ✅ (worklet loaders) |
 
 ## Accessibility
 
 | Feature                       | AngularLynx |    React Lynx    |     Vue Lynx     |
 | ----------------------------- | :---------: | :--------------: | :--------------: |
 | a11y attributes on directives |     ✅      | ❌ (passthrough) | ❌ (passthrough) |
-| Screen reader API wrapper     |     ❌      |        ❌        |        ❌        |
+| Screen reader API wrapper     |     ✅      |        ❌        |        ❌        |
 | `enableA11y` build option     |     ✅      |        ❌        |        ❌        |
 
 ## Summary
@@ -161,15 +161,15 @@
 ### Biggest gaps vs React Lynx
 
 1. ~~Main thread scripting / worklets~~ — implemented (`mainThreadFn`, `LynxMainThreadEvent`, `LynxMainThreadService`)
-2. Lazy bundle loading (non-route)
+2. ~~Lazy bundle loading (non-route)~~ — implemented (`loadLazyBundle`)
 3. SSR / hydration / first-screen optimization
 
 ### Biggest gaps vs Vue Lynx
 
 1. HMR (Vue has component-level state preservation; Angular re-bootstraps the whole app)
 2. ~~`<Transition>` / animation component abstraction~~ — implemented (`LynxTransition`)
-3. Project scaffolding CLI
-4. Documentation site & example gallery
+3. ~~Project scaffolding CLI~~ — implemented (`create-angular-lynx`)
+4. ~~Documentation site & example gallery~~ — implemented (Rspress docs site + 12 standalone examples)
 
 ### Both React & Vue have, Angular doesn't
 

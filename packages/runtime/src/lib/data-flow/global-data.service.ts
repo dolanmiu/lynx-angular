@@ -11,12 +11,16 @@ export class LynxGlobalDataService {
   );
 
   constructor() {
-    if (typeof lynx === 'undefined' || typeof lynx.getJSModule !== 'function')
+    if (
+      typeof lynx === 'undefined' ||
+      (typeof __MAIN_THREAD__ !== 'undefined' && __MAIN_THREAD__) ||
+      typeof lynx.getJSModule !== 'function'
+    )
       return;
-    lynx
-      .getJSModule('GlobalEventEmitter')
-      .addListener('onGlobalPropsChanged', (...args: unknown[]) =>
-        this.globalData.set(args[0] as GlobalData),
-      );
+    const emitter = lynx.getJSModule('GlobalEventEmitter');
+    if (!emitter?.addListener) return;
+    emitter.addListener('onGlobalPropsChanged', (...args: unknown[]) =>
+      this.globalData.set(args[0] as GlobalData),
+    );
   }
 }

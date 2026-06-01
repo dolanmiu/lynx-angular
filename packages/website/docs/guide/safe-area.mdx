@@ -1,0 +1,88 @@
+# Safe Area
+
+Lynx supports CSS `env()` variables for safe area insets, identical to the web platform. Use these to adapt your layout around display notches, status bars, and home indicators.
+
+## CSS Approach (Recommended)
+
+Use `env(safe-area-inset-*)` directly in your component styles:
+
+```css
+.page {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+```
+
+### Common Patterns
+
+**Full-screen layout with safe padding:**
+
+```css
+.app-container {
+  height: 100vh;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+```
+
+**Bottom navigation bar:**
+
+```css
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  /* 56px nav height + safe area for home indicator */
+  height: calc(56px + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+}
+```
+
+## LynxSafeAreaService
+
+For conditional logic in TypeScript, inject `LynxSafeAreaService` to check whether the device has a display notch:
+
+```typescript
+import { Component, inject } from '@angular/core';
+import { LynxSafeAreaService, LYNX_ELEMENTS } from '@blotch/angular-lynx';
+
+@Component({
+  selector: 'app-root',
+  imports: [LYNX_ELEMENTS],
+  template: `
+    <view [style.padding-top]="safeArea.isNotchScreen() ? '44px' : '20px'">
+      <text>Content</text>
+    </view>
+  `,
+})
+export class AppComponent {
+  protected readonly safeArea = inject(LynxSafeAreaService);
+}
+```
+
+### API
+
+| Property          | Type              | Description                                                                                    |
+| ----------------- | ----------------- | ---------------------------------------------------------------------------------------------- |
+| `isNotchScreen()` | `Signal<boolean>` | Whether the device has a display notch or cutout. Reactive — updates when global props change. |
+| `platform`        | `PlatformType`    | The current platform (`'iOS'`, `'Android'`, `'Harmony'`, etc.)                                 |
+
+### CSS Constants
+
+For dynamic styles that need `env()` values as strings:
+
+```typescript
+import {
+  SAFE_AREA_INSET_TOP,
+  SAFE_AREA_INSET_BOTTOM,
+} from '@blotch/angular-lynx';
+
+// SAFE_AREA_INSET_TOP === 'env(safe-area-inset-top)'
+// SAFE_AREA_INSET_BOTTOM === 'env(safe-area-inset-bottom)'
+```
+
+:::tip
+Prefer the CSS approach over TypeScript conditional logic. CSS `env()` values are resolved by the native rendering engine and automatically adapt to the device — no JavaScript needed.
+:::

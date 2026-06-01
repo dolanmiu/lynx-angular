@@ -9,6 +9,7 @@ import { JavaScriptTransformer } from '@angular/build/src/tools/esbuild/javascri
 import type { RsbuildPluginAPI } from '@lynx-js/rspeedy';
 import * as ts from 'typescript';
 import { applyAngularConfig } from './utils/angular/angular-config.js';
+import { transformWorklets } from './worklet-transform.js';
 import { generateComponentScopeId } from './utils/angular/component-scope-id.js';
 import { maxWorkers, useTypeChecking } from './utils/angular/env.js';
 import { readBuildOptions } from './utils/angular/options.js';
@@ -295,7 +296,10 @@ export const applyAngularRules = async (
           false,
         );
         return {
-          code: Buffer.from(contents).toString(),
+          code: transformWorklets(
+            Buffer.from(contents).toString(),
+            context.resourcePath,
+          ),
         };
       }
       const content = typeScriptFileCache.get(context.resourcePath);
@@ -338,6 +342,7 @@ export const applyAngularRules = async (
       ) {
         code += `\n;if (module.hot) { module.hot.accept(); }`;
       }
+      code = transformWorklets(code, context.resourcePath);
       return {
         code,
       };

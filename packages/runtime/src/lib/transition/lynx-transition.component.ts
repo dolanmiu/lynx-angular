@@ -47,7 +47,9 @@ import {
 @Component({
   selector: 'lynx-transition',
   standalone: true,
-  template: `@if (shouldRender()) { <ng-content /> }`,
+  template: `@if (shouldRender()) {
+    <ng-content />
+  }`,
 })
 export class LynxTransition {
   readonly show = input<boolean>(false);
@@ -59,111 +61,111 @@ export class LynxTransition {
 
   readonly shouldRender = signal(false);
 
-  private readonly renderer = inject(Renderer2);
-  private readonly el = inject(ElementRef);
-  private initialized = false;
-  private leaveTimer: ReturnType<typeof setTimeout> | null = null;
-  private enterTimer: ReturnType<typeof setTimeout> | null = null;
-  private enterRaf: number | null = null;
-  private leaveRaf: number | null = null;
+  readonly #renderer = inject(Renderer2);
+  readonly #el = inject(ElementRef);
+  #initialized = false;
+  #leaveTimer: ReturnType<typeof setTimeout> | null = null;
+  #enterTimer: ReturnType<typeof setTimeout> | null = null;
+  #enterRaf: number | null = null;
+  #leaveRaf: number | null = null;
 
   constructor() {
     effect(() => {
       const show = this.show();
 
-      if (!this.initialized) {
-        this.initialized = true;
+      if (!this.#initialized) {
+        this.#initialized = true;
         this.shouldRender.set(show);
         return;
       }
 
       if (show) {
-        this.enter();
+        this.#enter();
       } else {
-        this.leave();
+        this.#leave();
       }
     });
   }
 
-  private enter(): void {
-    this.cancelLeave();
+  #enter(): void {
+    this.#cancelLeave();
 
-    const el = this.el.nativeElement;
+    const el = this.#el.nativeElement;
     const name = this.name();
     const duration = this.duration();
 
-    this.renderer.addClass(el, `${name}-enter-from`);
-    this.renderer.addClass(el, `${name}-enter-active`);
+    this.#renderer.addClass(el, `${name}-enter-from`);
+    this.#renderer.addClass(el, `${name}-enter-active`);
     this.shouldRender.set(true);
 
-    this.enterRaf = requestAnimationFrame(() => {
-      this.enterRaf = null;
-      this.renderer.removeClass(el, `${name}-enter-from`);
-      this.renderer.addClass(el, `${name}-enter-to`);
+    this.#enterRaf = requestAnimationFrame(() => {
+      this.#enterRaf = null;
+      this.#renderer.removeClass(el, `${name}-enter-from`);
+      this.#renderer.addClass(el, `${name}-enter-to`);
 
-      this.enterTimer = setTimeout(() => {
-        this.enterTimer = null;
-        this.renderer.removeClass(el, `${name}-enter-active`);
-        this.renderer.removeClass(el, `${name}-enter-to`);
+      this.#enterTimer = setTimeout(() => {
+        this.#enterTimer = null;
+        this.#renderer.removeClass(el, `${name}-enter-active`);
+        this.#renderer.removeClass(el, `${name}-enter-to`);
         this.afterEnter.emit();
       }, duration);
     });
   }
 
-  private leave(): void {
-    this.cancelEnter();
+  #leave(): void {
+    this.#cancelEnter();
 
-    const el = this.el.nativeElement;
+    const el = this.#el.nativeElement;
     const name = this.name();
     const duration = this.duration();
 
-    this.renderer.addClass(el, `${name}-leave-from`);
-    this.renderer.addClass(el, `${name}-leave-active`);
+    this.#renderer.addClass(el, `${name}-leave-from`);
+    this.#renderer.addClass(el, `${name}-leave-active`);
 
-    this.leaveRaf = requestAnimationFrame(() => {
-      this.leaveRaf = null;
-      this.renderer.removeClass(el, `${name}-leave-from`);
-      this.renderer.addClass(el, `${name}-leave-to`);
+    this.#leaveRaf = requestAnimationFrame(() => {
+      this.#leaveRaf = null;
+      this.#renderer.removeClass(el, `${name}-leave-from`);
+      this.#renderer.addClass(el, `${name}-leave-to`);
 
-      this.leaveTimer = setTimeout(() => {
-        this.leaveTimer = null;
+      this.#leaveTimer = setTimeout(() => {
+        this.#leaveTimer = null;
         this.shouldRender.set(false);
-        this.renderer.removeClass(el, `${name}-leave-active`);
-        this.renderer.removeClass(el, `${name}-leave-to`);
+        this.#renderer.removeClass(el, `${name}-leave-active`);
+        this.#renderer.removeClass(el, `${name}-leave-to`);
         this.afterLeave.emit();
       }, duration);
     });
   }
 
-  private cancelEnter(): void {
-    if (this.enterRaf !== null) {
-      cancelAnimationFrame(this.enterRaf);
-      this.enterRaf = null;
+  #cancelEnter(): void {
+    if (this.#enterRaf !== null) {
+      cancelAnimationFrame(this.#enterRaf);
+      this.#enterRaf = null;
     }
-    if (this.enterTimer !== null) {
-      clearTimeout(this.enterTimer);
-      this.enterTimer = null;
+    if (this.#enterTimer !== null) {
+      clearTimeout(this.#enterTimer);
+      this.#enterTimer = null;
     }
-    const el = this.el.nativeElement;
+    const el = this.#el.nativeElement;
     const name = this.name();
-    this.renderer.removeClass(el, `${name}-enter-from`);
-    this.renderer.removeClass(el, `${name}-enter-active`);
-    this.renderer.removeClass(el, `${name}-enter-to`);
+    this.#renderer.removeClass(el, `${name}-enter-from`);
+    this.#renderer.removeClass(el, `${name}-enter-active`);
+    this.#renderer.removeClass(el, `${name}-enter-to`);
   }
 
-  private cancelLeave(): void {
-    if (this.leaveRaf !== null) {
-      cancelAnimationFrame(this.leaveRaf);
-      this.leaveRaf = null;
+  #cancelLeave(): void {
+    if (this.#leaveRaf !== null) {
+      cancelAnimationFrame(this.#leaveRaf);
+      this.#leaveRaf = null;
     }
-    if (this.leaveTimer !== null) {
-      clearTimeout(this.leaveTimer);
-      this.leaveTimer = null;
+    if (this.#leaveTimer !== null) {
+      clearTimeout(this.#leaveTimer);
+      this.#leaveTimer = null;
     }
-    const el = this.el.nativeElement;
+    const el = this.#el.nativeElement;
     const name = this.name();
-    this.renderer.removeClass(el, `${name}-leave-from`);
-    this.renderer.removeClass(el, `${name}-leave-active`);
-    this.renderer.removeClass(el, `${name}-leave-to`);
+    this.#renderer.removeClass(el, `${name}-leave-from`);
+    this.#renderer.removeClass(el, `${name}-leave-active`);
+    this.#renderer.removeClass(el, `${name}-leave-to`);
   }
 }

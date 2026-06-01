@@ -22,6 +22,12 @@ declare global {
    * Injected by the rsbuild plugin's DefinePlugin in dev builds only.
    */
   let __DEV_LOG_URL__: string;
+  /**
+   * The source locale from angular.json i18n config (e.g. 'en-US', 'fr').
+   * Injected by the rsbuild plugin's DefinePlugin. Used by LynxLocaleService
+   * as a fallback when lynx.__globalProps.appLocale is not set.
+   */
+  let __LYNX_SOURCE_LOCALE__: string;
 
   // MTS worklet registry — set up in runtime.ts, used by mainThreadFn()
   // oxlint-disable-next-line typescript/consistent-type-definitions -- interface required for global augmentation

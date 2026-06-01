@@ -158,6 +158,18 @@ import lynxLogo from '../assets/lynx-logo.png';
             <view class="nav-button" (bindtap)="navigateTo('main-thread-demo')">
               <text class="nav-button-text">Main Thread Demo</text>
             </view>
+            <view
+              class="nav-button"
+              (bindtap)="navigateTo('worklet-directive-demo')"
+            >
+              <text class="nav-button-text">Worklet Directive</text>
+            </view>
+            <view class="nav-button" (bindtap)="navigateTo('transition-demo')">
+              <text class="nav-button-text">Transition Demo</text>
+            </view>
+            <view class="nav-button" (bindtap)="navigateTo('i18n-demo')">
+              <text class="nav-button-text">i18n Demo</text>
+            </view>
           </view>
         </view>
       </view>

@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { normalizeOptimization, normalizeSourceMaps } from './options';
+import {
+  normalizeI18nOptions,
+  normalizeOptimization,
+  normalizeSourceMaps,
+} from './options';
 
 describe('normalizeSourceMaps', () => {
   it('boolean true expands to scripts and styles true', () => {
@@ -98,5 +102,63 @@ describe('normalizeOptimization', () => {
     const result = normalizeOptimization({ fonts: false });
 
     expect(result.fonts.inline).toBe(false);
+  });
+});
+
+describe('normalizeI18nOptions', () => {
+  it('returns defaults when input is undefined', () => {
+    const result = normalizeI18nOptions(undefined);
+
+    expect(result).toEqual({
+      sourceLocale: 'en-US',
+      hasDefinedSourceLocale: false,
+    });
+  });
+
+  it('returns defaults when input is null', () => {
+    const result = normalizeI18nOptions(null);
+
+    expect(result).toEqual({
+      sourceLocale: 'en-US',
+      hasDefinedSourceLocale: false,
+    });
+  });
+
+  it('parses sourceLocale as a string', () => {
+    const result = normalizeI18nOptions({ sourceLocale: 'fr' });
+
+    expect(result).toEqual({
+      sourceLocale: 'fr',
+      hasDefinedSourceLocale: true,
+    });
+  });
+
+  it('parses sourceLocale as an object with code property', () => {
+    const result = normalizeI18nOptions({
+      sourceLocale: { code: 'de-AT' },
+    });
+
+    expect(result).toEqual({
+      sourceLocale: 'de-AT',
+      hasDefinedSourceLocale: true,
+    });
+  });
+
+  it('returns defaults when sourceLocale is not provided', () => {
+    const result = normalizeI18nOptions({ locales: { fr: 'messages.fr.xlf' } });
+
+    expect(result).toEqual({
+      sourceLocale: 'en-US',
+      hasDefinedSourceLocale: false,
+    });
+  });
+
+  it('returns defaults for non-object input', () => {
+    const result = normalizeI18nOptions('invalid');
+
+    expect(result).toEqual({
+      sourceLocale: 'en-US',
+      hasDefinedSourceLocale: false,
+    });
   });
 });

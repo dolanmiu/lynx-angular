@@ -29,6 +29,7 @@ export default defineConfig({
   plugins: [checkVersionsPlugin()],
   define: {
     __DEV__: false,
+    __PROFILE__: false,
   },
   test: {
     include: ['packages/*/src/**/*.spec.ts'],

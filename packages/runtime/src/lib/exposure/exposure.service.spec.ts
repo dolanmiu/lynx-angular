@@ -4,6 +4,7 @@ import { LynxExposureService } from './exposure.service';
 describe('LynxExposureService', () => {
   afterEach(() => {
     delete (globalThis as any).lynx;
+    (globalThis as any).__MAIN_THREAD__ = false;
   });
 
   describe('when lynx is not defined', () => {
@@ -48,7 +49,49 @@ describe('LynxExposureService', () => {
     });
   });
 
-  describe('when lynx is defined', () => {
+  describe('on the main thread (__MAIN_THREAD__ = true)', () => {
+    beforeEach(() => {
+      (globalThis as any).__MAIN_THREAD__ = true;
+      (globalThis as any).lynx = {
+        getJSModule: vi.fn().mockReturnValue({ addListener: vi.fn() }),
+        stopExposure: vi.fn(),
+        resumeExposure: vi.fn(),
+        setObserverFrameRate: vi.fn(),
+      };
+    });
+
+    it('does not register GlobalEventEmitter listeners', () => {
+      const service = new LynxExposureService();
+
+      expect((globalThis as any).lynx.getJSModule).not.toHaveBeenCalled();
+      expect(service.exposures()).toEqual([]);
+    });
+  });
+
+  describe('when lynx is defined but GlobalEventEmitter is not available', () => {
+    beforeEach(() => {
+      (globalThis as any).lynx = {
+        getJSModule: vi.fn().mockReturnValue(null),
+        stopExposure: vi.fn(),
+        resumeExposure: vi.fn(),
+        setObserverFrameRate: vi.fn(),
+      };
+    });
+
+    it('does not throw when getJSModule returns null', () => {
+      expect(() => new LynxExposureService()).not.toThrow();
+    });
+
+    it('initializes signals to defaults', () => {
+      const service = new LynxExposureService();
+
+      expect(service.exposures()).toEqual([]);
+      expect(service.disexposures()).toEqual([]);
+      expect(service.active()).toBe(true);
+    });
+  });
+
+  describe('when lynx is defined (background thread)', () => {
     let addListener: ReturnType<typeof vi.fn>;
     let getJSModule: ReturnType<typeof vi.fn>;
     let stopExposureMock: ReturnType<typeof vi.fn>;
@@ -56,6 +99,7 @@ describe('LynxExposureService', () => {
     let setObserverFrameRateMock: ReturnType<typeof vi.fn>;
 
     beforeEach(() => {
+      (globalThis as any).__MAIN_THREAD__ = false;
       addListener = vi.fn();
       getJSModule = vi.fn().mockReturnValue({ addListener });
       stopExposureMock = vi.fn();

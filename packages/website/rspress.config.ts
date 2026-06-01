@@ -58,6 +58,10 @@ export default defineConfig({
         text: 'API',
         link: '/guide/api/angular-lynx/',
       },
+      {
+        text: 'Examples',
+        link: '/guide/examples/',
+      },
     ],
     sidebar: {
       '/guide/': [
@@ -97,6 +101,11 @@ export default defineConfig({
             { text: '<text>', link: '/guide/elements/text' },
             { text: '<image>', link: '/guide/elements/image' },
             { text: '<scroll-view>', link: '/guide/elements/scroll-view' },
+            { text: '<refresh>', link: '/guide/elements/refresh' },
+            {
+              text: '<scroll-coordinator>',
+              link: '/guide/elements/scroll-coordinator',
+            },
             { text: '<list>', link: '/guide/elements/list' },
             { text: '<input>', link: '/guide/elements/input' },
             { text: '<textarea>', link: '/guide/elements/textarea' },
@@ -156,8 +165,12 @@ export default defineConfig({
           ],
         },
         { text: 'Text Measurement', link: '/guide/text-measurement' },
+        { text: 'Safe Area', link: '/guide/safe-area' },
+        { text: 'Dark Mode', link: '/guide/dark-mode' },
+        { text: 'Internationalization', link: '/guide/i18n' },
         { text: 'Routing', link: '/guide/routing' },
         { text: 'Remote Logging', link: '/guide/remote-logging' },
+        { text: 'DevTools', link: '/guide/devtools' },
         {
           dividerType: 'solid',
         },
@@ -183,6 +196,10 @@ export default defineConfig({
               link: '/guide/main-thread/main-thread-service',
             },
             { text: 'backgroundFn', link: '/guide/main-thread/background-fn' },
+            {
+              text: 'Worklet Transform',
+              link: '/guide/main-thread/worklet-transform',
+            },
           ],
         },
         {
@@ -193,6 +210,52 @@ export default defineConfig({
         },
         { text: 'Tailwind CSS', link: '/guide/tailwindcss' },
         { text: 'AngularLynx Testing Library', link: '/guide/testing' },
+        {
+          dividerType: 'solid',
+        },
+        {
+          sectionHeaderText: 'Examples',
+        },
+        {
+          text: 'Examples',
+          collapsed: false,
+          items: [
+            { text: 'Overview', link: '/guide/examples/' },
+            { text: 'Counter', link: '/guide/examples/counter' },
+            { text: 'Todo List', link: '/guide/examples/todo-list' },
+            { text: 'Form Input', link: '/guide/examples/form-input' },
+            {
+              text: 'Infinite Scroll',
+              link: '/guide/examples/infinite-scroll',
+            },
+            {
+              text: 'Pull to Refresh',
+              link: '/guide/examples/pull-to-refresh',
+            },
+            {
+              text: 'Gesture Playground',
+              link: '/guide/examples/gesture-playground',
+            },
+            { text: 'Modal Dialog', link: '/guide/examples/modal-dialog' },
+            {
+              text: 'Animated Cards',
+              link: '/guide/examples/animated-cards',
+            },
+            {
+              text: 'Enter/Leave Transitions',
+              link: '/guide/examples/enter-leave',
+            },
+            { text: 'Dark Mode', link: '/guide/examples/dark-mode' },
+            {
+              text: 'Data Dashboard',
+              link: '/guide/examples/data-dashboard',
+            },
+            {
+              text: 'Tab Navigation',
+              link: '/guide/examples/tab-navigation',
+            },
+          ],
+        },
         {
           dividerType: 'solid',
         },

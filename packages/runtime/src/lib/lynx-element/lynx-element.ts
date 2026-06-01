@@ -2,6 +2,7 @@ import {
   LynxAnimation,
   type LynxAnimationOptions,
 } from '../animation/animation';
+import { devStats } from '../devtools/stats';
 import type { ElementRef } from '../types/lynx';
 import {
   type BaseLynxElement,
@@ -99,6 +100,7 @@ export class LynxElement implements BaseLynxElement {
 
   remove() {
     if (this.isRootPageElement) return;
+    if (__PROFILE__) devStats.elementRemoved++;
     if (this._virtualParent) {
       // Remove from virtual tree (e.g., when parent is an list).
       // Duck-typed to avoid a circular import with LynxListElement.

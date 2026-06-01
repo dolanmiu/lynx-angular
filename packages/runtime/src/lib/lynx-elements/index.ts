@@ -41,6 +41,13 @@ export { LynxInput, LynxTextarea } from './input';
 export { LynxList, LynxListItem } from './list';
 export { LynxBlock, LynxFor, LynxIf } from './misc';
 export { LynxOverlay } from './overlay';
+export { LynxRefresh, LynxRefreshHeader } from './refresh';
+export {
+  LynxScrollCoordinator,
+  LynxScrollCoordinatorHeader,
+  LynxScrollCoordinatorSlot,
+  LynxScrollCoordinatorToolbar,
+} from './scroll-coordinator';
 export { LynxScrollView } from './scroll-view';
 export { LynxSvg } from './svg';
 export { LynxText } from './text';
@@ -53,6 +60,13 @@ import { LynxInput, LynxTextarea } from './input';
 import { LynxList, LynxListItem } from './list';
 import { LynxBlock, LynxFor, LynxIf } from './misc';
 import { LynxOverlay } from './overlay';
+import { LynxRefresh, LynxRefreshHeader } from './refresh';
+import {
+  LynxScrollCoordinator,
+  LynxScrollCoordinatorHeader,
+  LynxScrollCoordinatorSlot,
+  LynxScrollCoordinatorToolbar,
+} from './scroll-coordinator';
 import { LynxScrollView } from './scroll-view';
 import { LynxSvg } from './svg';
 import { LynxText } from './text';
@@ -77,6 +91,12 @@ export const LYNX_ELEMENTS = [
   LynxInput,
   LynxTextarea,
   LynxOverlay,
+  LynxRefresh,
+  LynxRefreshHeader,
+  LynxScrollCoordinator,
+  LynxScrollCoordinatorHeader,
+  LynxScrollCoordinatorSlot,
+  LynxScrollCoordinatorToolbar,
   LynxSvg,
   LynxViewPager,
   LynxViewPagerItem,

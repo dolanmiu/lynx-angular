@@ -1,3 +1,4 @@
+import { devStats } from '../devtools/stats';
 import { LynxElement, type LynxListElement } from '../lynx-element';
 import type { ElementRef } from '../types/lynx';
 import {
@@ -13,6 +14,12 @@ import {
   createOverlayElement,
   createPageElement,
   createRawTextElement,
+  createRefreshElement,
+  createRefreshHeaderElement,
+  createScrollCoordinatorElement,
+  createScrollCoordinatorHeaderElement,
+  createScrollCoordinatorSlotElement,
+  createScrollCoordinatorToolbarElement,
   createScrollViewElement,
   createSvgElement,
   createTextElement,
@@ -40,6 +47,7 @@ export class LynxDocument implements LynxDocumentBase {
     return this.page;
   }
   createElement(tag: string, value?: string): LynxElement | LynxListElement {
+    if (__PROFILE__) devStats.elementCreated++;
     let element: ElementRef;
     switch (tag) {
       case 'view': {
@@ -104,6 +112,30 @@ export class LynxDocument implements LynxDocumentBase {
       }
       case 'viewpager-item': {
         element = createViewPagerItemElement(this.#pageId);
+        break;
+      }
+      case 'refresh': {
+        element = createRefreshElement(this.#pageId);
+        break;
+      }
+      case 'refresh-header': {
+        element = createRefreshHeaderElement(this.#pageId);
+        break;
+      }
+      case 'scroll-coordinator': {
+        element = createScrollCoordinatorElement(this.#pageId);
+        break;
+      }
+      case 'scroll-coordinator-header': {
+        element = createScrollCoordinatorHeaderElement(this.#pageId);
+        break;
+      }
+      case 'scroll-coordinator-toolbar': {
+        element = createScrollCoordinatorToolbarElement(this.#pageId);
+        break;
+      }
+      case 'scroll-coordinator-slot': {
+        element = createScrollCoordinatorSlotElement(this.#pageId);
         break;
       }
       case 'page': {
