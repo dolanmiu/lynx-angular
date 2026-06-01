@@ -8,9 +8,10 @@ Lynx uses a dual-thread model: **main thread** (native UI rendering) and **backg
 
 ## Monorepo Structure
 
-- `packages/runtime` — Core Angular renderer for Lynx (the main library)
+- `packages/runtime` — Core Angular renderer for Lynx (published as `@blotch/angular-lynx`)
+- `packages/rsbuild-plugin-angular-lynx` — Rsbuild plugin for building AngularLynx apps (published as `@blotch/rsbuild-plugin-angular-lynx`)
+- `packages/create-angular-lynx` — Zero-setup scaffolder: `npm create angular-lynx <name>` runs `ng new` then `ng add @blotch/angular-lynx` automatically
 - `packages/kitchen-sink-app` — Kitchen sink Angular app running on Lynx
-- `packages/rsbuild-plugin-angular-lynx` — Rsbuild plugin for building AngularLynx apps
 - `references/lynx-stack-main/packages/react` — **React Lynx** (production-proven reference implementation). Always refer to how React Lynx does things — it's battle-tested and used in production. When unsure about renderer design, element handling, or Lynx API usage, check this reference first.
 - `references/lynx-website-main` — **Lynx official documentation website**. Contains API docs, guides, element/CSS/native API compatibility data, and examples. Reference for understanding Lynx platform capabilities, supported elements, CSS properties, and API status across platforms.
 - `references/lynx` — **Lynx core source code**. The actual C++/JS implementation of the Lynx runtime. Check here to understand how native elements, the dual-thread model, and platform APIs are implemented under the hood.
@@ -29,6 +30,16 @@ Near-1:1 Angular parity — partial support isn't acceptable. Every Angular API 
 ## Code Style
 
 - Always write comments explaining **why** something is done, not just what. Future developers need to understand the reasoning and intent behind decisions.
+
+## Schematics (`ng add` / `ng generate`)
+
+The runtime package ships an Angular schematics collection (`packages/runtime/schematics/collection.json`). These are the primary developer onboarding paths:
+
+- **`ng add @blotch/angular-lynx`** — transforms an existing `ng new` project into a Lynx-native app: rewrites `main.ts`, `app.config.ts`, `app.component.ts`, adds `lynx.config.ts`, and optionally installs Tailwind (`--tailwind=false` to skip)
+- **`ng generate @blotch/angular-lynx:component <name>`** (alias `c`) — generates a standalone component with Lynx element templates, `ChangeDetectionStrategy.OnPush`, and a Vitest spec file; options: `--path`, `--prefix`, `--inlineStyle`, `--inlineTemplate`, `--skipTests`, `--flat`
+- **`ng generate @blotch/angular-lynx:add-tailwind`** — adds `tailwind.config.ts` with `@lynx-js/tailwind-preset` and updates `styles.css`
+- **`ng generate @blotch/angular-lynx:add-testing`** — adds `vitest.config.ts`, `src/setup.ts`, and installs `@blotch/angular-lynx-testing-library`
+- **`ng generate @blotch/angular-lynx:add-i18n`** — adds `@angular/localize`, configures `angular.json` i18n, and injects `provideLocale()` into app config
 
 ## Build & Run
 

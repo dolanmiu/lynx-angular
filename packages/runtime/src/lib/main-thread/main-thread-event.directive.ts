@@ -9,7 +9,13 @@ import {
 import type { BaseLynxElement } from '../lynx-element/types';
 import type { MainThreadFnHandle } from './main-thread-fn';
 
-type MaybeHandle = MainThreadFnHandle | undefined | null;
+// Plain functions are also accepted because the worklet build plugin transforms
+// them into MainThreadFnHandle objects at compile time.
+type MaybeHandle =
+  | MainThreadFnHandle
+  | ((...args: any[]) => any)
+  | undefined
+  | null;
 
 // Maps directive input names to [eventType, eventName] for __AddEvent.
 const INPUT_TO_EVENT: Record<string, [string, string]> = {
@@ -30,6 +36,10 @@ const INPUT_TO_EVENT: Record<string, [string, string]> = {
   mainThreadBindtransitionend: ['bindEvent', 'transitionend'],
   mainThreadBindlayoutchange: ['bindEvent', 'layoutchange'],
 };
+
+function isMainThreadHandle(h: MaybeHandle): h is MainThreadFnHandle {
+  return !!h && '__isMainThreadFn' in h && !!(h as MainThreadFnHandle).__isMainThreadFn;
+}
 
 @Directive({
   selector:
@@ -93,7 +103,7 @@ export class LynxMainThreadEvent implements OnChanges, OnDestroy {
       const [eventType, eventName] = mapping;
       const handle = (this as any)[inputName] as MaybeHandle;
 
-      if (handle && handle.__isMainThreadFn) {
+      if (isMainThreadHandle(handle)) {
         __AddEvent(elementRef, eventType, eventName, {
           type: 'worklet',
           value: { _wkltId: handle._wkltId, _workletType: 'main-thread' },

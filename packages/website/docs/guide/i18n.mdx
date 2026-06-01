@@ -44,9 +44,9 @@ bootstrapApplication(AppComponent, {
 
 This sets Angular's `LOCALE_ID` token from `lynx.__globalProps.appLocale`, falling back to the `sourceLocale` in angular.json.
 
-## Using i18n in Templates
+## Using $localize in Code
 
-Mark translatable text with the `i18n` attribute:
+Use the `$localize` tagged template literal in TypeScript and bind the result in your template:
 
 ```typescript
 import { Component } from '@angular/core';
@@ -57,23 +57,15 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   imports: [LYNX_ELEMENTS],
   template: `
     <view>
-      <text i18n>Hello, world!</text>
-      <text i18n="greeting|A friendly welcome message">Welcome back</text>
+      <text>{{ greeting }}</text>
+      <text>{{ welcome }}</text>
     </view>
   `,
 })
-export class GreetingComponent {}
-```
-
-Angular's AOT compiler converts `i18n`-marked elements into `$localize` calls.
-
-## Using $localize in Code
-
-Use the `$localize` tagged template literal directly in TypeScript:
-
-```typescript
-const title = $localize`Dashboard`;
-const greeting = $localize`:@@welcomeMsg:Welcome, ${userName}!`;
+export class GreetingComponent {
+  readonly greeting = $localize`Hello, world!`;
+  readonly welcome = $localize`:@@welcomeMsg:Welcome, ${this.userName}!`;
+}
 ```
 
 ## Loading Translations at Runtime
@@ -148,6 +140,19 @@ Add them to your polyfills in angular.json:
 ### Locale Changes Require Re-bootstrap
 
 `$localize` calls are evaluated at module load / component creation time. If the host app changes `lynx.__globalProps.appLocale` at runtime, you must re-bootstrap the Angular app for translations to update.
+
+### Template `i18n` Attribute Not Supported
+
+Angular's template `i18n` attribute (e.g. `<text i18n>Hello</text>`) is **not supported** on Lynx. The `i18n` attribute triggers Angular's internal `ɵɵi18n` instruction which creates DOM nodes that bypass the Lynx renderer, causing a blank screen.
+
+Use `$localize` in your TypeScript code instead and bind the result via interpolation:
+
+```typescript
+// Instead of: <text i18n>Hello</text>
+// Use:
+get greeting() { return $localize`Hello`; }
+// Template: <text>{{ greeting }}</text>
+```
 
 ### Build-time Inlining Not Supported
 

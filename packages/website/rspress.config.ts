@@ -92,6 +92,8 @@ export default defineConfig({
         },
         { text: 'Session Storage', link: '/guide/session-storage' },
         { text: 'Error Handling', link: '/guide/error-handling' },
+        { text: 'Portal (Programmatic Overlays)', link: '/guide/portal' },
+        { text: 'Accessibility', link: '/guide/accessibility' },
         {
           text: 'Lynx Elements',
           collapsed: true,
@@ -110,6 +112,7 @@ export default defineConfig({
             { text: '<input>', link: '/guide/elements/input' },
             { text: '<textarea>', link: '/guide/elements/textarea' },
             { text: '<overlay>', link: '/guide/elements/overlay' },
+            { text: '<viewpager>', link: '/guide/elements/viewpager' },
             { text: '<frame>', link: '/guide/elements/frame' },
             { text: '<block>', link: '/guide/elements/block' },
             { text: '<svg>', link: '/guide/elements/svg' },
@@ -177,6 +180,7 @@ export default defineConfig({
         {
           sectionHeaderText: 'Advanced',
         },
+        { text: 'SelectorQuery', link: '/guide/selector-query' },
         {
           text: 'Main Thread Scripts',
           collapsed: true,

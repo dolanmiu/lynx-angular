@@ -26,4 +26,6 @@ export const VERSIONS = {
   vitest: '^4.0.0',
   /** jsdom — DOM environment for running component tests */
   jsdom: '^25.0.0',
+  /** @angular/localize — Angular's runtime i18n / $localize support */
+  angularLocalize: '^21.0.0',
 } as const;

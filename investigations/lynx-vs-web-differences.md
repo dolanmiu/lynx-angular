@@ -2856,3 +2856,26 @@ For runtime theme switching via Angular style bindings (`[style]="themeVars()"`)
 **Always use `__SetClasses(element, classString)` when replacing the entire `class` attribute**, as it correctly parses space-separated class lists. `__AddClass` should only be called with a single class name at a time.
 
 This is why the Angular renderer's `setAttribute('class', value)` must call `__SetClasses`, not `__AddClass`. React Lynx does the same: it calls `__SetClasses(element, className)` when applying the `className` prop.
+
+---
+
+## Angular's template `i18n` attribute does not work — use `$localize` in code instead
+
+### What you'd expect (web)
+
+Angular's `i18n` attribute on template elements (e.g. `<span i18n>Hello</span>`) is the standard way to mark translatable content. The AOT compiler extracts the text and generates `ɵɵi18n` instructions in the compiled template.
+
+### What Lynx does
+
+The `ɵɵi18n` instruction creates i18n DOM nodes (text nodes, comment nodes) using internal Angular APIs that bypass `Renderer2`. These operations assume a browser DOM environment. On Lynx, where elements are created via `__CreateElement`/`__CreateRawText` and there's no real DOM, the i18n instruction fails silently — the component renders blank and crashes the router.
+
+### Workaround
+
+Use `$localize` tagged template literals in TypeScript code and bind the result via `{{ }}` interpolation. This goes through the normal text interpolation path (`ɵɵtextInterpolate`) which correctly uses the Lynx renderer:
+
+```typescript
+// DON'T: <text i18n>Hello</text>
+// DO:
+get greeting() { return $localize`Hello`; }
+// Template: <text>{{ greeting }}</text>
+```

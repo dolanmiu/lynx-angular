@@ -62,7 +62,7 @@
 - [x] Lazy bundle loading — `loadComponent()` routes currently work via `output.asyncChunks: false` (all code inlined into one bundle). True code-split lazy loading needs: re-enabling `asyncChunks`, packaging async chunks inside `.lynx.bundle` via `LynxTemplatePlugin`, and enabling `experimental_isLazyBundle`. Infrastructure is in place: `LynxChunkLoadingRuntimeModule` implemented (`lynx-chunk-loading-runtime-module.ts`), `asyncChunkName` hook re-enabled, background-thread exclusion removed (`LAZY_LOADING_PLAN.md`) - Won't do until Lynx fixes things upstream
 - [x] Suspense / loading states — Angular's `@defer` with `@loading`, `@placeholder`, and `@error` blocks is the direct equivalent; already verified working on Lynx (line 60). Route-level loading uses `loadComponent()` with standard Angular patterns.
 - [x] Portal-like rendering — `LynxPortalService` programmatically renders components or templates inside native `<overlay>` elements from arbitrary component tree depth; `open(component, config)` and `openTemplate(template, config)` return a `PortalRef` for lifecycle management; inline `<overlay>` also works for declarative use (`packages/runtime/src/lib/portal/`)
-- [x] i18n — `@angular/localize/init` auto-polyfilled when i18n config detected in angular.json; `LynxLocaleService` reads locale from `lynx.__globalProps.appLocale`; `provideLocale()` sets `LOCALE_ID`; runtime translation via `loadTranslations()` (`packages/runtime/src/lib/locale/`, `docs/guide/i18n.mdx`)
+- [x] i18n — `@angular/localize/init` auto-polyfilled when i18n config detected in angular.json; `LynxLocaleService` reads locale from `lynx.__globalProps.appLocale`; `provideLocale()` sets `LOCALE_ID`; runtime translation via `$localize` in code + `loadTranslations()`. Template `i18n` attribute NOT supported (Angular's `ɵɵi18n` instruction bypasses Renderer2) — use `$localize` in TypeScript instead (`packages/runtime/src/lib/locale/`, `docs/guide/i18n.mdx`)
 - [ ] SSR / pre-rendering — `__ENABLE_SSR__` flag exists in build plugin but is not implemented
 - [ ] Forms — `<input>` and `<textarea>` work at element level, but Angular forms (reactive & template-driven) need validation with Lynx events (`bindinput`, `bindfocus`, `bindblur`)
 
@@ -79,10 +79,10 @@
 - [x] Remote logging (`LynxLoggerService`) — fetch-based log transport to the dev server; IPC bridge (`lynx.getJSContext().dispatchEvent`) relays main-thread logs (no `fetch` available there) to the background thread; `__DEV__` gated (zero production overhead); unit tested (`lynx-logger.service.spec.ts`); documented (`docs/guide/remote-logging.mdx`)
 - [x] DevTools — `LynxPerformanceService` wraps `lynx.performance` (profileStart/End/Mark/FlowId) for Perfetto trace integration; `LynxDevToolsService` exposes reactive stats (CD cycles, element creates/removes, flush count); `devStats` module-level counters instrumented in renderer factory + document + element; all gated by `__PROFILE__` (zero production overhead) (`packages/runtime/src/lib/devtools/`)
 - [ ] Error overlay — surface build errors and runtime exceptions on-device instead of silent failures
-- [ ] CLI schematics — `ng generate` support for Lynx components (with Lynx element templates instead of HTML)
+- [x] CLI schematics — `ng add @blotch/angular-lynx` transforms an existing Angular project; `ng generate @blotch/angular-lynx:component` (alias `c`) generates components with Lynx element templates; `ng generate @blotch/angular-lynx:add-tailwind`, `add-testing`, `add-i18n` add feature support; defined in `packages/runtime/schematics/collection.json`
 - [x] Documentation — 31 guide pages in `packages/website/docs/guide/` covering gestures, animations, defer, error-handling, forms, routing, CSS modules, testing, data-flow, signals, tailwindcss, and all elements
 - [x] Example gallery — 12 standalone examples in `packages/website/docs/guide/examples/` covering counter, todo list, form input, infinite scroll, pull-to-refresh, gestures, modal dialog, animated cards, enter/leave transitions, dark mode, data dashboard, tab navigation
-- [ ] Starter template / `ng new` preset — scaffold a new AngularLynx project
+- [x] Starter template / `ng new` preset — `packages/create-angular-lynx` implements `npm create angular-lynx <name>`, which runs `ng new` then `ng add @blotch/angular-lynx` automatically
 
 ## Testing
 

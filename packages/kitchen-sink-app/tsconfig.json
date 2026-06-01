@@ -3,6 +3,7 @@
   "compilerOptions": {
     "rootDir": ".",
     "outDir": "./dist/out-tsc",
+    "types": ["@angular/localize"],
     "paths": {
       "@blotch/angular-lynx": ["../runtime/dist"],
       "@blotch/angular-lynx-testing-library": [
