@@ -137,4 +137,9 @@ export const routes: Routes = [
         (m) => m.FormsDemoComponent,
       ),
   },
+  {
+    path: 'ssr-demo',
+    loadComponent: () =>
+      import('./ssr-demo/ssr-demo.component').then((m) => m.SsrDemoComponent),
+  },
 ];

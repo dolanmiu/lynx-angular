@@ -179,6 +179,7 @@ export const applyEntry = (
       .use(AngularWebpackPlugin, [
         {
           mainThreadChunks,
+          enableSSR: options.enableSSR,
         },
       ]);
   });

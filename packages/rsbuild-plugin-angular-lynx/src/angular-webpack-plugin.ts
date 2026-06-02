@@ -153,6 +153,13 @@ class AngularWebpackPlugin {
       AngularWebpackPlugin.defaultOptions,
       this.options,
     );
+
+    // SSR requires synchronous first-frame rendering via the jsReady timing
+    // so the engine can call ssrEncode after the first render completes.
+    if (options.enableSSR && options.firstScreenSyncTiming !== 'jsReady') {
+      options.firstScreenSyncTiming = 'jsReady';
+    }
+
     const { DefinePlugin, EnvironmentPlugin } = compiler.webpack;
 
     new EnvironmentPlugin({

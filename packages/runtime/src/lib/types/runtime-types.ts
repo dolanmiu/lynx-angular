@@ -18,6 +18,12 @@ declare global {
    */
   let __PROFILE__: boolean;
   /**
+   * Whether SSR (Instant First-Frame Rendering) is enabled. When true, the
+   * runtime registers `ssrEncode` and `ssrHydrate` global callbacks that
+   * the Lynx engine calls to snapshot and restore the element tree.
+   */
+  let __ENABLE_SSR__: boolean;
+  /**
    * Full URL of the dev log server (e.g. http://192.168.1.91:3001/__dev_logs).
    * Injected by the rsbuild plugin's DefinePlugin in dev builds only.
    */

@@ -2,6 +2,10 @@ import type { ApplicationConfig, ApplicationRef, Type } from '@angular/core';
 import { bootstrapApplication as ngBootstrapApplication } from '@angular/platform-browser';
 import { firstValueFrom, Subject } from 'rxjs';
 import { MainThreadElement } from './main-thread/main-thread-element';
+import { __pageElementRef } from './lynx-document';
+import { buildElementQueueFromOpcodes } from './ssr/build-element-queue';
+import { OpcodeRecorder } from './ssr/opcodes';
+import { serializeElementTree } from './ssr/serialize-tree';
 
 // On-device diagnostic: capture the last unhandled error/rejection so Angular
 // components can render it via <text>. There is no console on the Lynx device.
@@ -171,6 +175,39 @@ globalThis.renderPage = () => {
 globalThis.updatePage = () => {};
 // @ts-expect-error
 globalThis.processData = () => {};
+
+// SSR (Instant First-Frame Rendering) callbacks — called by the Lynx engine
+// to snapshot the element tree after the first render (encode) and to
+// reconnect Angular to pre-existing native elements on subsequent loads (hydrate).
+if (__ENABLE_SSR__) {
+  (globalThis as any).ssrEncode = (): string => {
+    if (!__pageElementRef) {
+      throw new Error(
+        'ssrEncode called before Angular rendered the page element',
+      );
+    }
+    const recorder = new OpcodeRecorder();
+    serializeElementTree(__pageElementRef, recorder);
+    return JSON.stringify({ __opcodes: recorder.opcodes });
+  };
+
+  (globalThis as any).ssrHydrate = (info: string): void => {
+    const nativePage = __GetPageElement();
+    if (!nativePage) {
+      throw new Error('SSR hydration failed: no page element from snapshot');
+    }
+    const refsMap = __GetTemplateParts(nativePage);
+    const { __opcodes } = JSON.parse(info) as { __opcodes: unknown[] };
+    const elementQueue = buildElementQueueFromOpcodes(__opcodes, refsMap);
+
+    // Set hydration state for LynxHydrateDocument to consume during
+    // Angular's bootstrap. Cleared automatically once hydration completes.
+    (globalThis as any).__LYNX_IS_HYDRATING__ = true;
+    (globalThis as any).__LYNX_HYDRATE_PAGE__ = nativePage;
+    (globalThis as any).__LYNX_HYDRATE_QUEUE__ = elementQueue;
+  };
+}
+
 // Worklet registry — mainThreadFn() registers functions here on the main thread;
 // the native engine invokes them via runWorklet when MTS events fire.
 const __workletMap: Record<string, Function> = {};
@@ -393,5 +430,13 @@ export const bootstrapApplication = async (
 
   const appRef = await ngBootstrapApplication(rootComponent, options);
   (globalThis as any).__LYNX_ANGULAR_APP_REF__ = appRef;
+
+  // Clear hydration state so subsequent change detection cycles flush normally.
+  if (__ENABLE_SSR__ && (globalThis as any).__LYNX_IS_HYDRATING__) {
+    (globalThis as any).__LYNX_IS_HYDRATING__ = false;
+    (globalThis as any).__LYNX_HYDRATE_PAGE__ = undefined;
+    (globalThis as any).__LYNX_HYDRATE_QUEUE__ = undefined;
+  }
+
   return appRef;
 };

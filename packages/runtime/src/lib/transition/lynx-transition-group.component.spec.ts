@@ -21,13 +21,13 @@ import { LynxTransitionGroup } from './lynx-transition-group.component';
  * Sets an Angular InputSignal's value using Angular's internal reactive node API.
  * Needed because JIT mode doesn't wire up signal inputs for template binding or setInput().
  */
-function setInputSignal(signalFn: any, value: any): void {
+const setInputSignal = (signalFn: any, value: any): void => {
   const symbols = Object.getOwnPropertySymbols(signalFn);
   const signalSymbol = symbols.find((s) => s.toString() === 'Symbol(SIGNAL)')!;
   const node = signalFn[signalSymbol];
   const proto = Object.getPrototypeOf(node);
   proto.applyValueToInputSignal(node, value);
-}
+};
 
 type Item = { id: number; name: string };
 

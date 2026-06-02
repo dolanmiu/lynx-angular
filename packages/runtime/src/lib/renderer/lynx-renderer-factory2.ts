@@ -48,6 +48,12 @@ export class LynxRendererFactory2 implements RendererFactory2 {
   begin?(): void {}
   end?(): void {
     if (__MAIN_THREAD__) {
+      // During SSR hydration the native tree already exists from the snapshot
+      // — flushing would be redundant and could cause visual glitches.
+      if (__ENABLE_SSR__ && (globalThis as any).__LYNX_IS_HYDRATING__) {
+        return;
+      }
+
       if (__PROFILE__) {
         devStats.cdCycles++;
         devStats.flushCount++;

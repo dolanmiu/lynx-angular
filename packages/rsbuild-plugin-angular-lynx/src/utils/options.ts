@@ -12,6 +12,7 @@ export type PluginAngularLynxOptions = {
   enableNewGesture?: boolean;
   enableParallelElement?: boolean;
   enableRemoveCSSScope?: boolean;
+  enableSSR?: boolean;
   pipelineSchedulerConfig?: number;
   removeDescendantSelectorScope?: boolean;
   targetSdkVersion?: string;
@@ -35,6 +36,7 @@ export const normalizeOptions = (
     enableParallelElement: true,
     defaultDisplayLinear: true,
     enableRemoveCSSScope: false,
+    enableSSR: false,
     pipelineSchedulerConfig: 0x00010000,
     targetSdkVersion: '3.2',
     defaultOverflowVisible: true,

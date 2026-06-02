@@ -30,6 +30,7 @@ export default defineConfig({
   define: {
     __DEV__: false,
     __PROFILE__: false,
+    __ENABLE_SSR__: false,
   },
   test: {
     include: ['packages/*/src/**/*.spec.ts'],

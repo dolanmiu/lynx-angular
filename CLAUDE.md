@@ -30,6 +30,7 @@ Near-1:1 Angular parity — partial support isn't acceptable. Every Angular API 
 ## Code Style
 
 - Always write comments explaining **why** something is done, not just what. Future developers need to understand the reasoning and intent behind decisions.
+- Use ES private fields (`#myVar`) instead of the TypeScript `private` keyword. Test private state through the public API.
 
 ## Schematics (`ng add` / `ng generate`)
 

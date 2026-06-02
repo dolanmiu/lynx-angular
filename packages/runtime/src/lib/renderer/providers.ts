@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { LynxErrorHandler } from '../error-handler/lynx-error-handler';
 import { LynxBackgroundDocument, LynxDocument } from '../lynx-document';
+import { LynxHydrateDocument } from '../ssr/hydrate-document';
 import { LynxRendererFactory2 } from './lynx-renderer-factory2';
 import { LYNX_DOCUMENT } from './token';
 
@@ -17,6 +18,15 @@ export const provideRenderer = (): EnvironmentProviders => {
       provide: LYNX_DOCUMENT,
       useFactory: () => {
         if (__MAIN_THREAD__) {
+          // SSR hydration: the Lynx engine already reconstructed native
+          // elements from a snapshot. Return a document that reuses those
+          // elements instead of creating new ones.
+          if (__ENABLE_SSR__ && (globalThis as any).__LYNX_IS_HYDRATING__) {
+            return new LynxHydrateDocument(
+              (globalThis as any).__LYNX_HYDRATE_PAGE__,
+              (globalThis as any).__LYNX_HYDRATE_QUEUE__,
+            );
+          }
           return new LynxDocument();
         }
         return new LynxBackgroundDocument();

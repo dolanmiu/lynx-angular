@@ -13,6 +13,6 @@ export default defineConfig({
         return `${url}?fullscreen=true`;
       },
     }),
-    pluginAngularLynx(),
+    pluginAngularLynx({ enableSSR: true }),
   ],
 });

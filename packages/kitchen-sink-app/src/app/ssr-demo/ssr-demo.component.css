@@ -1,0 +1,70 @@
+.container {
+  padding: 24px;
+  align-items: center;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.status-panel {
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.status-ok {
+  background-color: #e8f5e9;
+}
+
+.status-fail {
+  background-color: #fbe9e7;
+}
+
+.status-heading {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.status-row {
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.btn {
+  padding: 12px 24px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.btn-primary {
+  background-color: #1565c0;
+}
+
+.btn-text {
+  color: white;
+  font-size: 16px;
+}
+
+.preview-panel {
+  background-color: #f5f5f5;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.preview-text {
+  font-size: 11px;
+  color: #333;
+}
+
+.hint {
+  font-size: 12px;
+  color: #999;
+  margin-top: 8px;
+}
