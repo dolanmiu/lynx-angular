@@ -17,10 +17,19 @@ import {
 } from 'vitest';
 import { LynxTransition } from './lynx-transition.component';
 
-type ClassOp = { op: 'add' | 'remove'; cls: string };
+/**
+ * Sets an Angular InputSignal's value using Angular's internal reactive node API.
+ * Needed because JIT mode doesn't wire up signal inputs for template binding or setInput().
+ */
+function setInputSignal(signalFn: any, value: any): void {
+  const symbols = Object.getOwnPropertySymbols(signalFn);
+  const signalSymbol = symbols.find((s) => s.toString() === 'Symbol(SIGNAL)')!;
+  const node = signalFn[signalSymbol];
+  const proto = Object.getPrototypeOf(node);
+  proto.applyValueToInputSignal(node, value);
+}
 
 describe('LynxTransition', () => {
-  let ops: ClassOp[];
   let rAFCallbacks: (() => void)[];
 
   beforeAll(() => {
@@ -31,7 +40,6 @@ describe('LynxTransition', () => {
   });
 
   beforeEach(() => {
-    ops = [];
     rAFCallbacks = [];
 
     vi.useFakeTimers();
@@ -70,146 +78,144 @@ describe('LynxTransition', () => {
     cbs.forEach((cb) => cb());
   };
 
-  const currentClasses = (): Set<string> => {
-    const classes = new Set<string>();
-    for (const { op, cls } of ops) {
-      if (op === 'add') classes.add(cls);
-      else classes.delete(cls);
-    }
-    return classes;
-  };
-
+  // Creates the component and runs the initial effect (show=false → shouldRender=false).
   const create = () => {
     const fixture = TestBed.createComponent(LynxTransition);
     fixture.detectChanges();
-    const c = fixture.componentInstance;
+    return fixture;
+  };
 
-    // Spy on the renderer that Angular injected.
-    const renderer = (c as any).renderer;
-    const origAdd = renderer.addClass.bind(renderer);
-    const origRemove = renderer.removeClass.bind(renderer);
-    renderer.addClass = (el: any, cls: string) => {
-      ops.push({ op: 'add', cls });
-      origAdd(el, cls);
-    };
-    renderer.removeClass = (el: any, cls: string) => {
-      ops.push({ op: 'remove', cls });
-      origRemove(el, cls);
-    };
-    return c;
+  // Triggers enter by setting show=true after initialization.
+  const triggerEnter = (fixture: any) => {
+    setInputSignal(fixture.componentInstance.show, true);
+    TestBed.flushEffects();
+  };
+
+  // Starts with show=true (initial render), then triggers leave.
+  const createShowing = () => {
+    const fixture = TestBed.createComponent(LynxTransition);
+    // Set show=true BEFORE first detectChanges so the initial effect
+    // initializes with shouldRender=true (no animation).
+    setInputSignal(fixture.componentInstance.show, true);
+    fixture.detectChanges();
+    return fixture;
+  };
+
+  const triggerLeave = (fixture: any) => {
+    setInputSignal(fixture.componentInstance.show, false);
+    TestBed.flushEffects();
   };
 
   describe('enter()', () => {
     it('results in enter-from and enter-active classes present', () => {
-      const c = create();
-      (c as any).enter();
+      const fixture = create();
+      triggerEnter(fixture);
 
-      expect(currentClasses()).toContain('v-enter-from');
-      expect(currentClasses()).toContain('v-enter-active');
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.classList.contains('v-enter-from')).toBe(true);
+      expect(el.classList.contains('v-enter-active')).toBe(true);
     });
 
     it('sets shouldRender to true', () => {
-      const c = create();
-      (c as any).enter();
+      const fixture = create();
+      triggerEnter(fixture);
 
-      expect(c.shouldRender()).toBe(true);
+      expect(fixture.componentInstance.shouldRender()).toBe(true);
     });
 
     it('on next frame: has enter-to and enter-active, no enter-from', () => {
-      const c = create();
-      (c as any).enter();
+      const fixture = create();
+      triggerEnter(fixture);
       flushFrame();
 
-      expect(currentClasses()).toContain('v-enter-active');
-      expect(currentClasses()).toContain('v-enter-to');
-      expect(currentClasses()).not.toContain('v-enter-from');
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.classList.contains('v-enter-active')).toBe(true);
+      expect(el.classList.contains('v-enter-to')).toBe(true);
+      expect(el.classList.contains('v-enter-from')).toBe(false);
     });
 
     it('after duration: all enter classes removed', () => {
-      const c = create();
-      (c as any).enter();
+      const fixture = create();
+      triggerEnter(fixture);
       flushFrame();
       vi.advanceTimersByTime(300);
 
-      expect(currentClasses()).not.toContain('v-enter-active');
-      expect(currentClasses()).not.toContain('v-enter-to');
-      expect(currentClasses()).not.toContain('v-enter-from');
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.classList.contains('v-enter-active')).toBe(false);
+      expect(el.classList.contains('v-enter-to')).toBe(false);
+      expect(el.classList.contains('v-enter-from')).toBe(false);
     });
   });
 
   describe('leave()', () => {
     it('results in leave-from and leave-active classes present', () => {
-      const c = create();
-      c.shouldRender.set(true);
-      (c as any).leave();
+      const fixture = createShowing();
+      triggerLeave(fixture);
 
-      expect(currentClasses()).toContain('v-leave-from');
-      expect(currentClasses()).toContain('v-leave-active');
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.classList.contains('v-leave-from')).toBe(true);
+      expect(el.classList.contains('v-leave-active')).toBe(true);
     });
 
     it('on next frame: has leave-to and leave-active, no leave-from', () => {
-      const c = create();
-      c.shouldRender.set(true);
-      (c as any).leave();
+      const fixture = createShowing();
+      triggerLeave(fixture);
       flushFrame();
 
-      expect(currentClasses()).toContain('v-leave-active');
-      expect(currentClasses()).toContain('v-leave-to');
-      expect(currentClasses()).not.toContain('v-leave-from');
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.classList.contains('v-leave-active')).toBe(true);
+      expect(el.classList.contains('v-leave-to')).toBe(true);
+      expect(el.classList.contains('v-leave-from')).toBe(false);
     });
 
     it('after duration: sets shouldRender false and all leave classes removed', () => {
-      const c = create();
-      c.shouldRender.set(true);
-      (c as any).leave();
+      const fixture = createShowing();
+      triggerLeave(fixture);
       flushFrame();
       vi.advanceTimersByTime(300);
 
-      expect(c.shouldRender()).toBe(false);
-      expect(currentClasses()).not.toContain('v-leave-active');
-      expect(currentClasses()).not.toContain('v-leave-to');
-      expect(currentClasses()).not.toContain('v-leave-from');
+      const el = fixture.nativeElement as HTMLElement;
+      expect(fixture.componentInstance.shouldRender()).toBe(false);
+      expect(el.classList.contains('v-leave-active')).toBe(false);
+      expect(el.classList.contains('v-leave-to')).toBe(false);
+      expect(el.classList.contains('v-leave-from')).toBe(false);
     });
   });
 
   describe('cancellation', () => {
     it('enter cancels in-progress leave', () => {
-      const c = create();
-      c.shouldRender.set(true);
-      (c as any).leave();
-      ops.length = 0;
+      const fixture = createShowing();
+      triggerLeave(fixture);
+      triggerEnter(fixture);
 
-      (c as any).enter();
-
-      expect(currentClasses()).not.toContain('v-leave-from');
-      expect(currentClasses()).not.toContain('v-leave-active');
-      expect(currentClasses()).toContain('v-enter-from');
-      expect(currentClasses()).toContain('v-enter-active');
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.classList.contains('v-leave-from')).toBe(false);
+      expect(el.classList.contains('v-leave-active')).toBe(false);
+      expect(el.classList.contains('v-enter-from')).toBe(true);
+      expect(el.classList.contains('v-enter-active')).toBe(true);
     });
 
     it('leave cancels in-progress enter', () => {
-      const c = create();
-      (c as any).enter();
-      ops.length = 0;
+      const fixture = create();
+      triggerEnter(fixture);
+      triggerLeave(fixture);
 
-      (c as any).leave();
-
-      expect(currentClasses()).not.toContain('v-enter-from');
-      expect(currentClasses()).not.toContain('v-enter-active');
-      expect(currentClasses()).toContain('v-leave-from');
-      expect(currentClasses()).toContain('v-leave-active');
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.classList.contains('v-enter-from')).toBe(false);
+      expect(el.classList.contains('v-enter-active')).toBe(false);
+      expect(el.classList.contains('v-leave-from')).toBe(true);
+      expect(el.classList.contains('v-leave-active')).toBe(true);
     });
 
     it('cancelled leave timer does not fire', () => {
-      const c = create();
-      c.shouldRender.set(true);
-      (c as any).leave();
+      const fixture = createShowing();
+      triggerLeave(fixture);
       flushFrame();
 
-      (c as any).enter();
+      triggerEnter(fixture);
       vi.advanceTimersByTime(500);
 
-      expect(c.shouldRender()).toBe(true);
+      expect(fixture.componentInstance.shouldRender()).toBe(true);
     });
   });
 });

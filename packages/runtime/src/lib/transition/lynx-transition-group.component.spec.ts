@@ -1,9 +1,6 @@
 // @vitest-environment jsdom
 import '@angular/compiler';
-import {
-  type EmbeddedViewRef,
-  provideZonelessChangeDetection,
-} from '@angular/core';
+import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
   BrowserDynamicTestingModule,
@@ -20,10 +17,21 @@ import {
 } from 'vitest';
 import { LynxTransitionGroup } from './lynx-transition-group.component';
 
-type ClassOp = { op: 'add' | 'remove'; cls: string };
+/**
+ * Sets an Angular InputSignal's value using Angular's internal reactive node API.
+ * Needed because JIT mode doesn't wire up signal inputs for template binding or setInput().
+ */
+function setInputSignal(signalFn: any, value: any): void {
+  const symbols = Object.getOwnPropertySymbols(signalFn);
+  const signalSymbol = symbols.find((s) => s.toString() === 'Symbol(SIGNAL)')!;
+  const node = signalFn[signalSymbol];
+  const proto = Object.getPrototypeOf(node);
+  proto.applyValueToInputSignal(node, value);
+}
+
+type Item = { id: number; name: string };
 
 describe('LynxTransitionGroup', () => {
-  let ops: ClassOp[];
   let rAFCallbacks: (() => void)[];
 
   beforeAll(() => {
@@ -34,7 +42,6 @@ describe('LynxTransitionGroup', () => {
   });
 
   beforeEach(() => {
-    ops = [];
     rAFCallbacks = [];
 
     vi.useFakeTimers();
@@ -73,232 +80,241 @@ describe('LynxTransitionGroup', () => {
     cbs.forEach((cb) => cb());
   };
 
-  const currentClasses = (): Set<string> => {
-    const classes = new Set<string>();
-    for (const { op, cls } of ops) {
-      if (op === 'add') classes.add(cls);
-      else classes.delete(cls);
-    }
-    return classes;
-  };
-
+  /**
+   * Creates the component with mocked contentChild/viewChild queries.
+   * JIT mode doesn't support signal-based content/view queries, so we override them
+   * with mock implementations that create real DOM elements.
+   */
   const create = () => {
-    const fixture = TestBed.createComponent(LynxTransitionGroup);
+    const fixture = TestBed.createComponent(LynxTransitionGroup<Item>);
+    const comp = fixture.componentInstance;
+    const hostEl = fixture.nativeElement as HTMLElement;
+
+    const views: any[] = [];
+
+    const mockTemplate = {
+      createEmbeddedView: (context: any) => {
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.textContent = context?.$implicit?.name ?? '';
+        return {
+          rootNodes: [div],
+          context,
+          markForCheck: () => {},
+          destroy: () => div.remove(),
+          detectChanges: () => {},
+        };
+      },
+    };
+
+    const mockVcr = {
+      createEmbeddedView: (tmpl: any, ctx: any) => {
+        const view = tmpl.createEmbeddedView(ctx);
+        views.push(view);
+        hostEl.appendChild(view.rootNodes[0]);
+        return view;
+      },
+      indexOf: (view: any) => views.indexOf(view),
+      move: (_view: any, _index: number) => {},
+      remove: (index: number) => {
+        const view = views[index];
+        if (view) {
+          view.rootNodes[0].remove();
+          views.splice(index, 1);
+        }
+      },
+    };
+
+    Object.defineProperty(comp, 'itemTemplate', {
+      value: () => mockTemplate,
+      writable: true,
+    });
+    Object.defineProperty(comp, 'vcr', {
+      value: () => mockVcr,
+      writable: true,
+    });
+
+    setInputSignal(comp.trackBy, (item: Item) => item.id);
     fixture.detectChanges();
-    const c = fixture.componentInstance;
-
-    // Spy on the injected renderer.
-    const renderer = (c as any).renderer;
-    const origAdd = renderer.addClass.bind(renderer);
-    const origRemove = renderer.removeClass.bind(renderer);
-    renderer.addClass = (el: any, cls: string) => {
-      ops.push({ op: 'add', cls });
-      origAdd(el, cls);
-    };
-    renderer.removeClass = (el: any, cls: string) => {
-      ops.push({ op: 'remove', cls });
-      origRemove(el, cls);
-    };
-
-    return c;
+    return { fixture, comp, hostEl };
   };
 
-  // Helper: create a mock ViewEntry with a root DOM element.
-  const mockEntry = (item: any = { id: 1 }) => {
-    const rootEl = document.createElement('div');
-    return {
-      viewRef: { rootNodes: [rootEl] } as unknown as EmbeddedViewRef<any>,
-      item,
-      leaving: false,
-      leaveRaf: null as number | null,
-      leaveTimer: null as ReturnType<typeof setTimeout> | null,
-    };
-  };
+  const getItemEls = (hostEl: HTMLElement): HTMLElement[] =>
+    Array.from(hostEl.querySelectorAll('.item'));
 
   describe('animateEnter()', () => {
     it('adds enter-from and enter-active classes', () => {
-      const c = create();
-      const entry = mockEntry();
-      (c as any).animateEnter(entry);
+      const { comp, hostEl } = create();
 
-      expect(currentClasses()).toContain('v-enter-from');
-      expect(currentClasses()).toContain('v-enter-active');
+      setInputSignal(comp.each, [{ id: 1, name: 'A' }]);
+      TestBed.flushEffects();
+
+      const items = getItemEls(hostEl);
+      expect(items.length).toBe(1);
+      expect(items[0].classList.contains('v-enter-from')).toBe(true);
+      expect(items[0].classList.contains('v-enter-active')).toBe(true);
     });
 
     it('transitions to enter-to on next frame', () => {
-      const c = create();
-      const entry = mockEntry();
-      (c as any).animateEnter(entry);
+      const { comp, hostEl } = create();
+
+      setInputSignal(comp.each, [{ id: 1, name: 'A' }]);
+      TestBed.flushEffects();
       flushFrame();
 
-      expect(currentClasses()).toContain('v-enter-active');
-      expect(currentClasses()).toContain('v-enter-to');
-      expect(currentClasses()).not.toContain('v-enter-from');
+      const items = getItemEls(hostEl);
+      expect(items[0].classList.contains('v-enter-active')).toBe(true);
+      expect(items[0].classList.contains('v-enter-to')).toBe(true);
+      expect(items[0].classList.contains('v-enter-from')).toBe(false);
     });
 
     it('cleans up all enter classes after duration', () => {
-      const c = create();
-      const entry = mockEntry();
-      (c as any).animateEnter(entry);
+      const { comp, hostEl } = create();
+
+      setInputSignal(comp.each, [{ id: 1, name: 'A' }]);
+      TestBed.flushEffects();
       flushFrame();
       vi.advanceTimersByTime(300);
 
-      expect(currentClasses()).not.toContain('v-enter-from');
-      expect(currentClasses()).not.toContain('v-enter-active');
-      expect(currentClasses()).not.toContain('v-enter-to');
+      const items = getItemEls(hostEl);
+      expect(items[0].classList.contains('v-enter-from')).toBe(false);
+      expect(items[0].classList.contains('v-enter-active')).toBe(false);
+      expect(items[0].classList.contains('v-enter-to')).toBe(false);
     });
   });
 
   describe('animateLeave()', () => {
     it('adds leave-from and leave-active classes', () => {
-      const c = create();
-      const entry = mockEntry();
-      (c as any).entries.set(1, entry);
-      (c as any).animateLeave(1, entry);
+      const { comp, hostEl } = create();
+      // Initial render with item (no animation on first render).
+      setInputSignal(comp.each, [{ id: 1, name: 'A' }]);
+      TestBed.flushEffects();
 
-      expect(entry.leaving).toBe(true);
-      expect(currentClasses()).toContain('v-leave-from');
-      expect(currentClasses()).toContain('v-leave-active');
+      const itemEl = getItemEls(hostEl)[0];
+
+      // Remove the item → triggers animateLeave.
+      setInputSignal(comp.each, []);
+      TestBed.flushEffects();
+
+      expect(itemEl.classList.contains('v-leave-from')).toBe(true);
+      expect(itemEl.classList.contains('v-leave-active')).toBe(true);
     });
 
     it('transitions to leave-to on next frame', () => {
-      const c = create();
-      const entry = mockEntry();
-      (c as any).entries.set(1, entry);
-      (c as any).animateLeave(1, entry);
+      const { comp, hostEl } = create();
+      setInputSignal(comp.each, [{ id: 1, name: 'A' }]);
+      TestBed.flushEffects();
+
+      const itemEl = getItemEls(hostEl)[0];
+
+      setInputSignal(comp.each, []);
+      TestBed.flushEffects();
       flushFrame();
 
-      expect(currentClasses()).toContain('v-leave-active');
-      expect(currentClasses()).toContain('v-leave-to');
-      expect(currentClasses()).not.toContain('v-leave-from');
+      expect(itemEl.classList.contains('v-leave-active')).toBe(true);
+      expect(itemEl.classList.contains('v-leave-to')).toBe(true);
+      expect(itemEl.classList.contains('v-leave-from')).toBe(false);
     });
 
     it('removes entry from map after duration', () => {
-      const c = create();
-      const entry = mockEntry();
-      (c as any).entries.set(1, entry);
+      const { comp, hostEl } = create();
+      setInputSignal(comp.each, [{ id: 1, name: 'A' }]);
+      TestBed.flushEffects();
 
-      // Mock vcr so destroyEntry can call indexOf/remove.
-      Object.defineProperty(c, 'vcr', {
-        value: () => ({ indexOf: () => 0, remove: vi.fn() }),
-      });
-
-      (c as any).animateLeave(1, entry);
+      setInputSignal(comp.each, []);
+      TestBed.flushEffects();
       flushFrame();
       vi.advanceTimersByTime(300);
 
-      expect((c as any).entries.has(1)).toBe(false);
+      expect(getItemEls(hostEl).length).toBe(0);
     });
   });
 
   describe('cancelLeave()', () => {
     it('cleans up leave classes and resets leaving flag', () => {
-      const c = create();
-      const entry = mockEntry();
-      entry.leaving = true;
-      (c as any).entries.set(1, entry);
-      (c as any).animateLeave(1, entry);
-      ops.length = 0;
+      const { comp, hostEl } = create();
+      setInputSignal(comp.each, [{ id: 1, name: 'A' }]);
+      TestBed.flushEffects();
 
-      (c as any).cancelLeave(1, entry);
+      const itemEl = getItemEls(hostEl)[0];
 
-      expect(entry.leaving).toBe(false);
-      expect(currentClasses()).not.toContain('v-leave-from');
-      expect(currentClasses()).not.toContain('v-leave-active');
-      expect(currentClasses()).not.toContain('v-leave-to');
+      // Start leave.
+      setInputSignal(comp.each, []);
+      TestBed.flushEffects();
+
+      // Cancel by re-adding the item.
+      setInputSignal(comp.each, [{ id: 1, name: 'A' }]);
+      TestBed.flushEffects();
+
+      expect(itemEl.classList.contains('v-leave-from')).toBe(false);
+      expect(itemEl.classList.contains('v-leave-active')).toBe(false);
+      expect(itemEl.classList.contains('v-leave-to')).toBe(false);
     });
 
     it('prevents leave timer from firing', () => {
-      const c = create();
-      const entry = mockEntry();
-      (c as any).entries.set(1, entry);
-      (c as any).animateLeave(1, entry);
+      const { comp, hostEl } = create();
+      setInputSignal(comp.each, [{ id: 1, name: 'A' }]);
+      TestBed.flushEffects();
+
+      // Start leave and advance to the timer phase.
+      setInputSignal(comp.each, []);
+      TestBed.flushEffects();
       flushFrame();
 
-      (c as any).cancelLeave(1, entry);
+      // Cancel the leave by re-adding the item.
+      setInputSignal(comp.each, [{ id: 1, name: 'A' }]);
+      TestBed.flushEffects();
       vi.advanceTimersByTime(500);
 
-      // Entry should still exist (not destroyed by leave timer).
-      expect((c as any).entries.has(1)).toBe(true);
+      // The item should still be rendered.
+      expect(getItemEls(hostEl).length).toBeGreaterThan(0);
     });
   });
 
   describe('reconcile()', () => {
     it('detects new items and calls animateEnter', () => {
-      const c = create();
-      const enterSpy = vi.fn();
-      (c as any).animateEnter = enterSpy;
+      const { comp, hostEl } = create();
 
-      // Provide a mock template that creates div elements.
-      const mockTemplate = {} as any;
-      Object.defineProperty(c, 'itemTemplate', {
-        value: () => mockTemplate,
-      });
+      setInputSignal(comp.each, [{ id: 1, name: 'A' }]);
+      TestBed.flushEffects();
 
-      // Mock vcr to return a fake view ref.
-      const mockVcr = {
-        createEmbeddedView: vi.fn(() => ({
-          rootNodes: [document.createElement('div')],
-          context: { $implicit: null },
-          markForCheck: vi.fn(),
-        })),
-        indexOf: vi.fn(() => 0),
-        move: vi.fn(),
-      };
-      Object.defineProperty(c, 'vcr', { value: () => mockVcr });
-
-      (c as any).reconcile([{ id: 1, name: 'A' }], (item: any) => item.id);
-
-      expect(mockVcr.createEmbeddedView).toHaveBeenCalled();
-      expect(enterSpy).toHaveBeenCalled();
+      const items = getItemEls(hostEl);
+      expect(items.length).toBe(1);
+      expect(items[0].classList.contains('v-enter-from')).toBe(true);
+      expect(items[0].classList.contains('v-enter-active')).toBe(true);
     });
 
     it('detects removed items and calls animateLeave', () => {
-      const c = create();
-      const leaveSpy = vi.fn();
-      (c as any).animateLeave = leaveSpy;
+      const { comp, hostEl } = create();
+      setInputSignal(comp.each, [{ id: 1, name: 'A' }]);
+      TestBed.flushEffects();
 
-      // Pre-populate with an entry.
-      const entry = mockEntry({ id: 1, name: 'A' });
-      (c as any).entries.set(1, entry);
+      const itemEl = getItemEls(hostEl)[0];
 
-      // Provide a mock template.
-      Object.defineProperty(c, 'itemTemplate', { value: () => ({}) });
-      Object.defineProperty(c, 'vcr', {
-        value: () => ({
-          createEmbeddedView: vi.fn(),
-          indexOf: vi.fn(() => 0),
-          move: vi.fn(),
-        }),
-      });
+      setInputSignal(comp.each, []);
+      TestBed.flushEffects();
 
-      (c as any).reconcile([], (item: any) => item.id);
-
-      expect(leaveSpy).toHaveBeenCalledWith(1, entry);
+      expect(itemEl.classList.contains('v-leave-from')).toBe(true);
+      expect(itemEl.classList.contains('v-leave-active')).toBe(true);
     });
 
     it('cancels leave when item reappears', () => {
-      const c = create();
-      const cancelSpy = vi.fn();
-      (c as any).cancelLeave = cancelSpy;
+      const { comp, hostEl } = create();
+      setInputSignal(comp.each, [{ id: 1, name: 'A' }]);
+      TestBed.flushEffects();
 
-      // Pre-populate with a leaving entry.
-      const entry = mockEntry({ id: 1, name: 'A' });
-      entry.leaving = true;
-      (c as any).entries.set(1, entry);
+      const itemEl = getItemEls(hostEl)[0];
 
-      Object.defineProperty(c, 'itemTemplate', { value: () => ({}) });
-      Object.defineProperty(c, 'vcr', {
-        value: () => ({
-          createEmbeddedView: vi.fn(),
-          indexOf: vi.fn(() => 0),
-          move: vi.fn(),
-        }),
-      });
+      // Start leave.
+      setInputSignal(comp.each, []);
+      TestBed.flushEffects();
 
-      (c as any).reconcile([{ id: 1, name: 'A' }], (item: any) => item.id);
+      // Re-add the same item → should cancel leave.
+      setInputSignal(comp.each, [{ id: 1, name: 'A' }]);
+      TestBed.flushEffects();
 
-      expect(cancelSpy).toHaveBeenCalledWith(1, entry);
+      expect(itemEl.classList.contains('v-leave-from')).toBe(false);
+      expect(itemEl.classList.contains('v-leave-active')).toBe(false);
     });
   });
 });
