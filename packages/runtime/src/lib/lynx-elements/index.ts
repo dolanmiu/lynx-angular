@@ -35,7 +35,11 @@
  *   via renderer.listen() which handles all unrecognized event names.
  */
 export { LynxElementBase } from './base';
-export { LYNX_FORM_ACCESSORS, LynxInputValueAccessor, LynxTextareaValueAccessor } from '../forms';
+export {
+  LYNX_FORM_ACCESSORS,
+  LynxInputValueAccessor,
+  LynxTextareaValueAccessor,
+} from '../forms';
 export { LynxFrame } from './frame';
 export { LynxImage } from './image';
 export { LynxInput, LynxTextarea } from './input';

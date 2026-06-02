@@ -130,4 +130,11 @@ export const routes: Routes = [
         (m) => m.I18nDemoComponent,
       ),
   },
+  {
+    path: 'forms-demo',
+    loadComponent: () =>
+      import('./forms-demo/forms-demo.component').then(
+        (m) => m.FormsDemoComponent,
+      ),
+  },
 ];

@@ -67,29 +67,29 @@ export class MyComponent {
 
 ## PortalConfig
 
-| Option | Type | Description |
-|--------|------|-------------|
-| `level` | `number` (1–4) | Overlay z-level. Higher levels render above lower ones. |
-| `injector` | `EnvironmentInjector` | Custom DI context for the rendered component. |
-| `inputs` | `Record<string, unknown>` | Initial input values set immediately after creation. |
+| Option     | Type                      | Description                                             |
+| ---------- | ------------------------- | ------------------------------------------------------- |
+| `level`    | `number` (1–4)            | Overlay z-level. Higher levels render above lower ones. |
+| `injector` | `EnvironmentInjector`     | Custom DI context for the rendered component.           |
+| `inputs`   | `Record<string, unknown>` | Initial input values set immediately after creation.    |
 
 ## PortalRef API
 
 `open()` and `openTemplate()` both return a `PortalRef`:
 
-| Member | Description |
-|--------|-------------|
-| `instance` | The rendered component instance. `null` for template portals. |
-| `setInput(name, value)` | Update a component input. No-op for template portals. |
-| `destroy()` | Tear down the overlay: removes the native element, destroys the component, detaches from change detection. |
+| Member                  | Description                                                                                                |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `instance`              | The rendered component instance. `null` for template portals.                                              |
+| `setInput(name, value)` | Update a component input. No-op for template portals.                                                      |
+| `destroy()`             | Tear down the overlay: removes the native element, destroys the component, detaches from change detection. |
 
 ## Comparison: Declarative vs Imperative
 
-| | `<overlay>` in template | `LynxPortalService` |
-|---|---|---|
-| Content | Defined in template | Any component or template |
-| Visibility control | `[attr.visible]` binding | `ref.destroy()` |
-| Best for | Toggleable UI in one component | Shared dialogs, toasts, service-driven overlays |
+|                    | `<overlay>` in template        | `LynxPortalService`                             |
+| ------------------ | ------------------------------ | ----------------------------------------------- |
+| Content            | Defined in template            | Any component or template                       |
+| Visibility control | `[attr.visible]` binding       | `ref.destroy()`                                 |
+| Best for           | Toggleable UI in one component | Shared dialogs, toasts, service-driven overlays |
 
 :::tip
 Always call `ref.destroy()` when you're done. Portal overlays are not automatically removed when the component that created them is destroyed.

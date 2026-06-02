@@ -170,6 +170,9 @@ import lynxLogo from '../assets/lynx-logo.png';
             <view class="nav-button" (bindtap)="navigateTo('i18n-demo')">
               <text class="nav-button-text">i18n Demo</text>
             </view>
+            <view class="nav-button" (bindtap)="navigateTo('forms-demo')">
+              <text class="nav-button-text">Forms</text>
+            </view>
           </view>
         </view>
       </view>

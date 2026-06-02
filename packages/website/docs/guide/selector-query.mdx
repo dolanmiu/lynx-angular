@@ -11,8 +11,9 @@ You rarely call this directly in AngularLynx — most platform operations are wr
 ```typescript
 lynx
   .createSelectorQuery()
-  .select('#my-element')       // select by id, class, or tag
-  .invoke({                    // call a native element method
+  .select('#my-element') // select by id, class, or tag
+  .invoke({
+    // call a native element method
     method: 'methodName',
     params: {},
     success: (res) => console.log(res),
@@ -23,11 +24,11 @@ lynx
 
 ## Selectors
 
-| Selector | Example | Description |
-|----------|---------|-------------|
-| ID | `'#my-id'` | Matches `[attr.name]="'my-id'"` on the element |
-| Class | `'.my-class'` | Matches `class="my-class"` |
-| Tag | `'view'` | Matches by element tag name |
+| Selector | Example       | Description                                    |
+| -------- | ------------- | ---------------------------------------------- |
+| ID       | `'#my-id'`    | Matches `[attr.name]="'my-id'"` on the element |
+| Class    | `'.my-class'` | Matches `class="my-class"`                     |
+| Tag      | `'view'`      | Matches by element tag name                    |
 
 :::warning
 ID selectors match the `name` attribute, not the HTML `id` attribute. Set `[attr.name]="'my-id'"` on the target element.
@@ -46,10 +47,7 @@ import { Component, inject } from '@angular/core';
 
 @Component({
   template: `
-    <refresh
-      [attr.name]="'page-refresh'"
-      (bindstartrefresh)="onRefresh()"
-    >
+    <refresh [attr.name]="'page-refresh'" (bindstartrefresh)="onRefresh()">
       ...
     </refresh>
   `,
@@ -57,7 +55,8 @@ import { Component, inject } from '@angular/core';
 export class MyComponent {
   onRefresh(): void {
     this.loadData().then(() => {
-      lynx.createSelectorQuery()
+      lynx
+        .createSelectorQuery()
         .select('#page-refresh')
         .invoke({ method: 'finishRefresh', params: {} })
         .exec();
@@ -116,7 +115,11 @@ lynx
 The callback-based API is easier to use as a Promise:
 
 ```typescript
-function invokeElement(selector: string, method: string, params = {}): Promise<unknown> {
+function invokeElement(
+  selector: string,
+  method: string,
+  params = {},
+): Promise<unknown> {
   return new Promise((resolve, reject) => {
     lynx
       .createSelectorQuery()
@@ -146,10 +149,7 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 @Component({
   imports: [LYNX_ELEMENTS],
   template: `
-    <refresh
-      [attr.name]="refreshId"
-      (bindstartrefresh)="onRefresh()"
-    >
+    <refresh [attr.name]="refreshId" (bindstartrefresh)="onRefresh()">
       <refresh-header>
         <text>{{ refreshing() ? 'Loading...' : 'Pull to refresh' }}</text>
       </refresh-header>

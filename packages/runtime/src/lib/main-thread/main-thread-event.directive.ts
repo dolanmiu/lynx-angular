@@ -37,9 +37,10 @@ const INPUT_TO_EVENT: Record<string, [string, string]> = {
   mainThreadBindlayoutchange: ['bindEvent', 'layoutchange'],
 };
 
-function isMainThreadHandle(h: MaybeHandle): h is MainThreadFnHandle {
-  return !!h && '__isMainThreadFn' in h && !!(h as MainThreadFnHandle).__isMainThreadFn;
-}
+const isMainThreadHandle = (h: MaybeHandle): h is MainThreadFnHandle =>
+  !!h &&
+  '__isMainThreadFn' in h &&
+  !!(h as MainThreadFnHandle).__isMainThreadFn;
 
 @Directive({
   selector:

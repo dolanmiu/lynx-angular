@@ -1,5 +1,12 @@
-import { Directive, ElementRef, HostListener, Renderer2, forwardRef, inject } from '@angular/core';
-import type { ControlValueAccessor} from '@angular/forms';
+import {
+  Directive,
+  ElementRef,
+  HostListener,
+  Renderer2,
+  forwardRef,
+  inject,
+} from '@angular/core';
+import type { ControlValueAccessor } from '@angular/forms';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 
 /**
@@ -11,7 +18,8 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
  * ngModel, or formField) — bare <input> elements continue to use LynxInput alone.
  */
 @Directive({
-  selector: 'input[formControlName],input[formControl],input[ngModel],input[formField]',
+  selector:
+    'input[formControlName],input[formControl],input[ngModel],input[formField]',
   standalone: true,
   providers: [
     {
@@ -32,7 +40,9 @@ export class LynxInputValueAccessor implements ControlValueAccessor {
   @HostListener('bindinput', ['$event'])
   onInput(event: Event): void {
     // Lynx bindinput carries the typed value in event.detail.value, not event.target.value.
-    this.#onChange((event as CustomEvent<{ value: string }>).detail?.value ?? '');
+    this.#onChange(
+      (event as CustomEvent<{ value: string }>).detail?.value ?? '',
+    );
   }
 
   @HostListener('bindblur')

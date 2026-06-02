@@ -47,11 +47,7 @@ const addI18nToAngularJson = (projectName: string): Rule => {
   return (tree: Tree) => {
     const angularJson = new JSONFile(tree, '/angular.json');
 
-    const existingI18n = angularJson.get([
-      'projects',
-      projectName,
-      'i18n',
-    ]);
+    const existingI18n = angularJson.get(['projects', projectName, 'i18n']);
     if (!existingI18n) {
       angularJson.modify(['projects', projectName, 'i18n'], {
         sourceLocale: 'en-US',
@@ -85,7 +81,8 @@ const addLocalizeTypes = (projectRoot: string): Rule => {
     }
 
     const tsconfig = new JSONFile(tree, tsconfigPath);
-    const types = (tsconfig.get(['compilerOptions', 'types']) as string[]) ?? [];
+    const types =
+      (tsconfig.get(['compilerOptions', 'types']) as string[]) ?? [];
 
     if (!types.includes('@angular/localize')) {
       tsconfig.modify(

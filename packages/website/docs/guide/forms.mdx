@@ -6,15 +6,17 @@ AngularLynx supports all three of Angular's form APIs — **reactive forms**, **
 Lynx input elements fire `bindinput` instead of the standard DOM `input` event, and carry the value in `event.detail.value` instead of `event.target.value`. Angular's built-in form value accessors expect DOM semantics, so `LYNX_ELEMENTS` ships its own `ControlValueAccessor` implementations that bridge to Lynx events automatically.
 :::
 
+<Go example="forms" defaultFile="src/app/app.component.ts" />
+
 ## Setup
 
 Import `LYNX_ELEMENTS` as usual — the form value accessors are already bundled in. You still need to import the Angular form modules you want to use:
 
-| API | Required import |
-|-----|-----------------|
-| Reactive forms | `ReactiveFormsModule` (or individual directives) |
-| Template-driven (`ngModel`) | `FormsModule` |
-| Signal Forms | `FormField` from `@angular/forms/signals` |
+| API                         | Required import                                  |
+| --------------------------- | ------------------------------------------------ |
+| Reactive forms              | `ReactiveFormsModule` (or individual directives) |
+| Template-driven (`ngModel`) | `FormsModule`                                    |
+| Signal Forms                | `FormField` from `@angular/forms/signals`        |
 
 ## Reactive Forms
 
@@ -22,25 +24,24 @@ Use `[formControl]` or `formControlName` directly on `<input>` and `<textarea>`:
 
 ```typescript title="src/app/contact.component.ts"
 import { Component } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
 @Component({
   imports: [LYNX_ELEMENTS, ReactiveFormsModule],
   template: `
     <view>
-      <input
-        placeholder="Your name"
-        [formControl]="name"
-      />
+      <input placeholder="Your name" [formControl]="name" />
       @if (name.invalid && name.touched) {
         <text style="color: red">Name is required</text>
       }
 
-      <textarea
-        placeholder="Message"
-        [formControl]="message"
-      />
+      <textarea placeholder="Message" [formControl]="message" />
 
       <view (bindtap)="submit()">
         <text>Submit</text>
@@ -112,10 +113,7 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   imports: [LYNX_ELEMENTS, FormField],
   template: `
     <view>
-      <input
-        placeholder="Email"
-        [formField]="signup.fields.email"
-      />
+      <input placeholder="Email" [formField]="signup.fields.email" />
       @if (signup.fields.email.state().errors().length) {
         <text style="color: red">Email is required</text>
       }
@@ -133,13 +131,10 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   `,
 })
 export class SignupComponent {
-  signup = form(
-    { email: '', password: '' },
-    (f) => {
-      required(f.email);
-      required(f.password);
-    },
-  );
+  signup = form({ email: '', password: '' }, (f) => {
+    required(f.email);
+    required(f.password);
+  });
 
   submit() {
     const { email, password } = this.signup.value();
@@ -172,7 +167,7 @@ All three APIs respect `setDisabledState`:
 
 ```typescript
 ctrl.disable(); // sets the native 'disabled' attribute
-ctrl.enable();  // removes it
+ctrl.enable(); // removes it
 ```
 
 ## Caveats

@@ -29,17 +29,17 @@ export class CardComponent {}
 
 ## HTML to Lynx Mapping
 
-| HTML                             | Lynx                     | Notes                       |
-| -------------------------------- | ------------------------ | --------------------------- |
-| `<div>`                          | `<view>`                 | Generic container           |
-| `<span>`, `<p>`, `<h1>`...`<h6>` | `<text>`                 | All text content            |
-| `<img>`                          | `<image>`                | Different attribute names   |
-| `<div style="overflow:auto">`    | `<scroll-view>`          | Dedicated scrolling element |
-| `<ul>` / virtual scroll          | `<list>` + `<list-item>` | Native virtualization       |
-| `<input>`                        | `<input>`                | Events use `bindinput`      |
-| `<textarea>`                     | `<textarea>`             | Events use `bindinput`      |
-| `<button>`                       | `<view>` + `(bindtap)`   | No native button element    |
-| `<a>`                            | `<view>` + `(bindtap)`   | No native link element      |
-| Modal / Dialog                   | `<overlay>`              | Native floating layer       |
-| Swipeable page carousel          | `<viewpager>` + `<viewpager-item>` | Native horizontal paging |
-| `<iframe>`                       | `<frame>`                | Loads Lynx bundles          |
+| HTML                             | Lynx                               | Notes                       |
+| -------------------------------- | ---------------------------------- | --------------------------- |
+| `<div>`                          | `<view>`                           | Generic container           |
+| `<span>`, `<p>`, `<h1>`...`<h6>` | `<text>`                           | All text content            |
+| `<img>`                          | `<image>`                          | Different attribute names   |
+| `<div style="overflow:auto">`    | `<scroll-view>`                    | Dedicated scrolling element |
+| `<ul>` / virtual scroll          | `<list>` + `<list-item>`           | Native virtualization       |
+| `<input>`                        | `<input>`                          | Events use `bindinput`      |
+| `<textarea>`                     | `<textarea>`                       | Events use `bindinput`      |
+| `<button>`                       | `<view>` + `(bindtap)`             | No native button element    |
+| `<a>`                            | `<view>` + `(bindtap)`             | No native link element      |
+| Modal / Dialog                   | `<overlay>`                        | Native floating layer       |
+| Swipeable page carousel          | `<viewpager>` + `<viewpager-item>` | Native horizontal paging    |
+| `<iframe>`                       | `<frame>`                          | Loads Lynx bundles          |
