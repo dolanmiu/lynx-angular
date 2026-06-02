@@ -61,12 +61,14 @@ export type {
 } from './lib/gesture';
 export {
   LYNX_ELEMENTS,
+  LYNX_FORM_ACCESSORS,
   LynxBlock,
   LynxFor,
   LynxFrame,
   LynxIf,
   LynxImage,
   LynxInput,
+  LynxInputValueAccessor,
   LynxList,
   LynxListItem,
   LynxOverlay,
@@ -80,6 +82,7 @@ export {
   LynxSvg,
   LynxText,
   LynxTextarea,
+  LynxTextareaValueAccessor,
   LynxView,
   LynxViewPager,
   LynxViewPagerItem,

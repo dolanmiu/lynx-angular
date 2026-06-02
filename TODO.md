@@ -64,7 +64,7 @@
 - [x] Portal-like rendering — `LynxPortalService` programmatically renders components or templates inside native `<overlay>` elements from arbitrary component tree depth; `open(component, config)` and `openTemplate(template, config)` return a `PortalRef` for lifecycle management; inline `<overlay>` also works for declarative use (`packages/runtime/src/lib/portal/`)
 - [x] i18n — `@angular/localize/init` auto-polyfilled when i18n config detected in angular.json; `LynxLocaleService` reads locale from `lynx.__globalProps.appLocale`; `provideLocale()` sets `LOCALE_ID`; runtime translation via `$localize` in code + `loadTranslations()`. Template `i18n` attribute NOT supported (Angular's `ɵɵi18n` instruction bypasses Renderer2) — use `$localize` in TypeScript instead (`packages/runtime/src/lib/locale/`, `docs/guide/i18n.mdx`)
 - [ ] SSR / pre-rendering — `__ENABLE_SSR__` flag exists in build plugin but is not implemented
-- [ ] Forms — `<input>` and `<textarea>` work at element level, but Angular forms (reactive & template-driven) need validation with Lynx events (`bindinput`, `bindfocus`, `bindblur`)
+- [x] Forms — `LynxInputValueAccessor` and `LynxTextareaValueAccessor` implement `ControlValueAccessor`, bridging reactive forms (`formControl`/`formControlName`), template-driven (`[(ngModel)]`), and Signal Forms (`[formField]`) to Lynx native events (`bindinput`, `bindblur`); included in `LYNX_ELEMENTS` and exported as `LYNX_FORM_ACCESSORS` (`packages/runtime/src/lib/forms/`)
 
 ## Build Plugin
 

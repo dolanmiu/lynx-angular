@@ -35,6 +35,7 @@
  *   via renderer.listen() which handles all unrecognized event names.
  */
 export { LynxElementBase } from './base';
+export { LYNX_FORM_ACCESSORS, LynxInputValueAccessor, LynxTextareaValueAccessor } from '../forms';
 export { LynxFrame } from './frame';
 export { LynxImage } from './image';
 export { LynxInput, LynxTextarea } from './input';
@@ -54,6 +55,7 @@ export { LynxText } from './text';
 export { LynxView } from './view';
 export { LynxViewPager, LynxViewPagerItem } from './viewpager';
 
+import { LYNX_FORM_ACCESSORS } from '../forms';
 import { LynxFrame } from './frame';
 import { LynxImage } from './image';
 import { LynxInput, LynxTextarea } from './input';
@@ -90,6 +92,9 @@ export const LYNX_ELEMENTS = [
   LynxFrame,
   LynxInput,
   LynxTextarea,
+  // CVA directives — activate on top of LynxInput/LynxTextarea when form attributes
+  // (formControl, formControlName, ngModel, formField) are present on the element.
+  ...LYNX_FORM_ACCESSORS,
   LynxOverlay,
   LynxRefresh,
   LynxRefreshHeader,

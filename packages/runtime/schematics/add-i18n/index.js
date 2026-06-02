@@ -34,11 +34,25 @@ const addI18nToAngularJson = (projectName) => {
             projectName,
             'i18n',
         ]);
-        // Don't overwrite if i18n is already configured
         if (!existingI18n) {
             angularJson.modify(['projects', projectName, 'i18n'], {
                 sourceLocale: 'en-US',
             });
+        }
+        const polyfillsPath = [
+            'projects',
+            projectName,
+            'architect',
+            'build',
+            'options',
+            'polyfills',
+        ];
+        const polyfills = angularJson.get(polyfillsPath) ?? [];
+        if (!polyfills.includes('@angular/localize/init')) {
+            angularJson.modify(polyfillsPath, [
+                ...polyfills,
+                '@angular/localize/init',
+            ]);
         }
     };
 };

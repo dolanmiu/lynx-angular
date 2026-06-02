@@ -172,6 +172,7 @@ export default defineConfig({
         { text: 'Dark Mode', link: '/guide/dark-mode' },
         { text: 'Internationalization', link: '/guide/i18n' },
         { text: 'Routing', link: '/guide/routing' },
+        { text: 'Forms', link: '/guide/forms' },
         { text: 'Remote Logging', link: '/guide/remote-logging' },
         { text: 'DevTools', link: '/guide/devtools' },
         {
