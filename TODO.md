@@ -63,7 +63,7 @@
 - [x] Suspense / loading states — Angular's `@defer` with `@loading`, `@placeholder`, and `@error` blocks is the direct equivalent; already verified working on Lynx (line 60). Route-level loading uses `loadComponent()` with standard Angular patterns.
 - [x] Portal-like rendering — `LynxPortalService` programmatically renders components or templates inside native `<overlay>` elements from arbitrary component tree depth; `open(component, config)` and `openTemplate(template, config)` return a `PortalRef` for lifecycle management; inline `<overlay>` also works for declarative use (`packages/runtime/src/lib/portal/`)
 - [x] i18n — `@angular/localize/init` auto-polyfilled when i18n config detected in angular.json; `LynxLocaleService` reads locale from `lynx.__globalProps.appLocale`; `provideLocale()` sets `LOCALE_ID`; runtime translation via `$localize` in code + `loadTranslations()`. Template `i18n` attribute NOT supported (Angular's `ɵɵi18n` instruction bypasses Renderer2) — use `$localize` in TypeScript instead (`packages/runtime/src/lib/locale/`, `docs/guide/i18n.mdx`)
-- [ ] SSR / pre-rendering — `__ENABLE_SSR__` flag exists in build plugin but is not implemented
+- [x] SSR / pre-rendering — `ssrEncode()` opcode serialization, `LynxHydrateDocument` hydration, and `buildElementQueueFromOpcodes` all implemented (`packages/runtime/src/lib/ssr/`); `__ENABLE_SSR__` flag wired in build plugin
 - [x] Forms — `LynxInputValueAccessor` and `LynxTextareaValueAccessor` implement `ControlValueAccessor`, bridging reactive forms (`formControl`/`formControlName`), template-driven (`[(ngModel)]`), and Signal Forms (`[formField]`) to Lynx native events (`bindinput`, `bindblur`); included in `LYNX_ELEMENTS` and exported as `LYNX_FORM_ACCESSORS` (`packages/runtime/src/lib/forms/`)
 
 ## Build Plugin
@@ -88,7 +88,7 @@
 
 - [x] Background-thread element operations — covered in `lynx-background-element.spec.ts` (addEventListener, event cleanup, tree operations)
 - [x] Event handling edge cases (touch events, propagation, catch semantics) — `bindtap`, `catchtap`, `capture-bindtap` propagation/catch semantics tested in `lynx-element.spec.ts`
-- [ ] Style flags (important, dash-case)
+- [x] Style flags (important, dash-case) — `RendererStyleFlags2.DashCase` and `Important` tested in `renderer.spec.ts`; element-level `setStyle`/`removeStyle`/`setInlineStyles` covered in `lynx-element.spec.ts` and `lynx-background-element.spec.ts`
 - [x] List virtualization — component-level tests in `list-example.component.spec.ts` cover item toggling, dynamic addition, and tap events via the testing library
 - [ ] Error handling paths
 - [x] Unit testing harness — `packages/testing-library/` provides `render()`, `cleanup()`, `waitForUpdate()`, `fireEvent()` with mocked `__CreateElement`, `__AppendElement`, etc.

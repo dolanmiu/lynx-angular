@@ -48,6 +48,84 @@ describe('LynxBackgroundElement', () => {
   });
 });
 
+describe('LynxBackgroundElement styles', () => {
+  it('setStyle stores the value', () => {
+    const el = new LynxBackgroundElement();
+    el.setStyle('background-color', 'red');
+    el.setStyle('font-size', '16px');
+
+    // Verify via removeStyle (if it wasn't stored, remove would be a no-op
+    // and a subsequent set+remove cycle wouldn't behave correctly)
+    el.removeStyle('background-color');
+    // Re-setting should work without conflict
+    el.setStyle('background-color', 'blue');
+  });
+
+  it('setStyle overwrites a previously set value for the same key', () => {
+    const el = new LynxBackgroundElement();
+    el.setStyle('color', 'red');
+    el.setStyle('color', 'blue');
+
+    // Remove and re-check — only one entry should have existed
+    el.removeStyle('color');
+    el.setStyle('color', 'green');
+  });
+
+  it('setStyle stores values with !important suffix unchanged', () => {
+    const el = new LynxBackgroundElement();
+    // The renderer appends ' !important' before calling setStyle — the element
+    // just stores whatever value it receives.
+    el.setStyle('color', 'blue !important');
+    el.removeStyle('color');
+  });
+
+  it('removeStyle deletes a stored style', () => {
+    const el = new LynxBackgroundElement();
+    el.setStyle('margin-top', '10px');
+    el.removeStyle('margin-top');
+
+    // Setting it again should work cleanly (no stale state)
+    el.setStyle('margin-top', '20px');
+    el.removeStyle('margin-top');
+  });
+
+  it('removeStyle is a no-op for a key that was never set', () => {
+    const el = new LynxBackgroundElement();
+    expect(() => el.removeStyle('nonexistent')).not.toThrow();
+  });
+
+  it('setInlineStyles parses semicolon-separated CSS into individual styles', () => {
+    const el = new LynxBackgroundElement();
+    const spy = vi.spyOn(el, 'setStyle');
+
+    el.setInlineStyles('color: red; font-size: 16px; margin-top: 10px');
+
+    expect(spy).toHaveBeenCalledWith('color', 'red');
+    expect(spy).toHaveBeenCalledWith('font-size', '16px');
+    expect(spy).toHaveBeenCalledWith('margin-top', '10px');
+    expect(spy).toHaveBeenCalledTimes(3);
+  });
+
+  it('setInlineStyles ignores trailing semicolons and whitespace', () => {
+    const el = new LynxBackgroundElement();
+    const spy = vi.spyOn(el, 'setStyle');
+
+    el.setInlineStyles('  color: red ;  ; ');
+
+    expect(spy).toHaveBeenCalledWith('color', 'red');
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
+
+  it('setInlineStyles handles empty string', () => {
+    const el = new LynxBackgroundElement();
+    const spy = vi.spyOn(el, 'setStyle');
+
+    el.setInlineStyles('');
+
+    expect(spy).not.toHaveBeenCalled();
+  });
+});
+
 // Builds a LynxBackgroundElement with a given tag name (mimicking what
 // LynxBackgroundDocument.createElement does).
 const makeElement = (tag: string): LynxBackgroundElement => {

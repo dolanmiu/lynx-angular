@@ -56,6 +56,76 @@ describe('LynxElement', () => {
     });
   });
 
+  describe('setStyle', () => {
+    it('calls __AddInlineStyle with the key and value', () => {
+      globalThis.__AddInlineStyle = vi.fn();
+      element = new LynxElement(fakeRef);
+
+      element.setStyle('background-color', 'red');
+
+      expect(globalThis.__AddInlineStyle).toHaveBeenCalledWith(
+        fakeRef,
+        'background-color',
+        'red',
+      );
+    });
+
+    it('passes dash-case keys through unchanged', () => {
+      globalThis.__AddInlineStyle = vi.fn();
+      element = new LynxElement(fakeRef);
+
+      element.setStyle('margin-top', '10px');
+
+      expect(globalThis.__AddInlineStyle).toHaveBeenCalledWith(
+        fakeRef,
+        'margin-top',
+        '10px',
+      );
+    });
+
+    it('passes values with !important suffix through unchanged', () => {
+      globalThis.__AddInlineStyle = vi.fn();
+      element = new LynxElement(fakeRef);
+
+      element.setStyle('color', 'blue !important');
+
+      expect(globalThis.__AddInlineStyle).toHaveBeenCalledWith(
+        fakeRef,
+        'color',
+        'blue !important',
+      );
+    });
+  });
+
+  describe('removeStyle', () => {
+    it('calls __AddInlineStyle with null to clear the style', () => {
+      globalThis.__AddInlineStyle = vi.fn();
+      element = new LynxElement(fakeRef);
+
+      element.removeStyle('background-color');
+
+      expect(globalThis.__AddInlineStyle).toHaveBeenCalledWith(
+        fakeRef,
+        'background-color',
+        null,
+      );
+    });
+  });
+
+  describe('setInlineStyles', () => {
+    it('calls __SetInlineStyles with the raw style string', () => {
+      globalThis.__SetInlineStyles = vi.fn();
+      element = new LynxElement(fakeRef);
+
+      element.setInlineStyles('color: red; font-size: 16px');
+
+      expect(globalThis.__SetInlineStyles).toHaveBeenCalledWith(
+        fakeRef,
+        'color: red; font-size: 16px',
+      );
+    });
+  });
+
   it('addEventListener with bindtap calls __AddEvent with bindEvent', () => {
     element = new LynxElement(fakeRef);
     const cb = vi.fn();
