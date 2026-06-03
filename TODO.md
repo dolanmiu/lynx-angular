@@ -71,7 +71,7 @@
 - [ ] HMR — currently disabled; Angular's `_enableHmr` crashes because `new URL()` rejects `file://` base and Lynx dev server lacks `/__angular_hmr/*` endpoints. Full page reload works as fallback.
 - [ ] Lazy bundles (non-route) — `LynxChunkLoadingRuntimeModule` implemented and wired via `ensureChunkHandlers`; `asyncChunkName` hook re-enabled; `experimental_isLazyBundle: false` still gating `LynxTemplatePlugin` async chunk packaging; `output.asyncChunks: false` keeps everything inlined until the full pipeline is ready
 - [ ] Production optimizations — tree-shaking, dead code elimination, and bundle size analysis for Lynx targets
-- [ ] Asset pipeline — font files, SVG sprites, and other static assets beyond images
+- [x] Asset pipeline — font files (`.ttf`, `.woff`, `.woff2`), SVG, and other static assets handled by rsbuild's built-in asset rules; `@font-face` via CSS pipeline verified in kitchen-sink app (`src/assets/fonts/`)
 - [ ] Multi-page / multi-entry — building multiple Lynx pages from one Angular workspace
 
 ## Developer Experience
