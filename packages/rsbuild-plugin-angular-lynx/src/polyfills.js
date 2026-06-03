@@ -81,6 +81,15 @@ try {
 } catch {
   // Read-only in web environment — window already exists on globalThis
 }
+// Angular's DefaultValueAccessor (from @angular/forms) is instantiated on every
+// <input [formControl]> / <textarea [formControl]> element — even when a custom
+// ControlValueAccessor is the *selected* accessor. Its constructor calls
+// _isAndroid() → getDOM().getUserAgent() → BrowserDomAdapter.getUserAgent(),
+// which reads window.navigator.userAgent. Lynx has no navigator global, so this
+// throws a TypeError that crashes the component mid-creation and blanks the page.
+if (typeof navigator === 'undefined') {
+  globalThis.navigator = { userAgent: '' };
+}
 // BrowserPlatformLocation reads window.location and window.history in its
 // constructor. Even though LynxPlatformLocation replaces it via DI, Angular
 // may still construct BrowserPlatformLocation as a transitive dependency

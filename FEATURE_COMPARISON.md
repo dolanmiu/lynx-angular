@@ -92,11 +92,11 @@
 
 ## SSR / Hydration
 
-| Feature                   |            AngularLynx            |             React Lynx              | Vue Lynx |
-| ------------------------- | :-------------------------------: | :---------------------------------: | :------: |
-| Server-side rendering     | ❌ (flag exists, not implemented) |     ✅ (snapshot serialization)     |    ❌    |
-| Hydration                 |                ❌                 |                 ✅                  |    ❌    |
-| First-screen optimization |                ❌                 | ✅ (`__FIRST_SCREEN_SYNC_TIMING__`) |    ❌    |
+| Feature                   |             AngularLynx             |             React Lynx              | Vue Lynx |
+| ------------------------- | :---------------------------------: | :---------------------------------: | :------: |
+| Server-side rendering     |     ✅ (snapshot serialization)     |     ✅ (snapshot serialization)     |    ❌    |
+| Hydration                 |  ✅ (`LynxHydrateDocument` queue)   |                 ✅                  |    ❌    |
+| First-screen optimization | ✅ (`__FIRST_SCREEN_SYNC_TIMING__`) | ✅ (`__FIRST_SCREEN_SYNC_TIMING__`) |    ❌    |
 
 ## Error Handling
 
@@ -162,7 +162,7 @@
 
 1. ~~Main thread scripting / worklets~~ — implemented (`mainThreadFn`, `LynxMainThreadEvent`, `LynxMainThreadService`)
 2. ~~Lazy bundle loading (non-route)~~ — implemented (`loadLazyBundle`)
-3. SSR / hydration / first-screen optimization
+3. ~~SSR / hydration / first-screen optimization~~ — implemented (`ssrEncode`/`ssrHydrate` callbacks, `LynxHydrateDocument`, opcode-based snapshot serialization)
 
 ### Biggest gaps vs Vue Lynx
 

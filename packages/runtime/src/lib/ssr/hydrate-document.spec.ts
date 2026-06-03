@@ -103,7 +103,7 @@ describe('LynxHydrateDocument', () => {
     it('is a no-op (tree already correct from snapshot)', () => {
       const ref0 = { _id: 0 } as any as ElementRef;
       const doc = new LynxHydrateDocument(pageRef, [ref0]);
-      const root = doc.createRootElement();
+      const _root = doc.createRootElement();
       const child = doc.createElement('view');
 
       // Should not throw or modify anything

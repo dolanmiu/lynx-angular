@@ -134,6 +134,18 @@ try {
   // globalThis.window is a non-configurable getter on the Window object)
 }
 
+// Angular's DefaultValueAccessor (from @angular/forms) is instantiated on every
+// <input [formControl]> / <textarea [formControl]> element — even when our custom
+// LynxInputValueAccessor is the *selected* accessor, DefaultValueAccessor still
+// gets created because its selector matches. Its constructor calls _isAndroid()
+// → getDOM().getUserAgent() → BrowserDomAdapter.getUserAgent(), which reads
+// window.navigator.userAgent. Lynx has no navigator global, so this throws a
+// TypeError that crashes the component mid-creation, blanks the page, and
+// corrupts the Router state (making subsequent routes also blank).
+if (typeof navigator === 'undefined') {
+  (globalThis as any).navigator = { userAgent: '' };
+}
+
 // BrowserPlatformLocation.onPopState/onHashChange call window.addEventListener.
 // Lynx runtime doesn't have this API, so stub it out as a no-op.
 if (typeof globalThis.addEventListener !== 'function') {

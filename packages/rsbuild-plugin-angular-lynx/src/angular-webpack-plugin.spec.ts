@@ -373,6 +373,17 @@ describe('AngularWebpackPlugin', () => {
           ],
         ).toBe('true');
       });
+
+      it('forces __FIRST_SCREEN_SYNC_TIMING__ to "jsReady" when enableSSR is true', () => {
+        const { compiler, capturedDefineArgs } = createMockCompiler();
+        setupBeforeEncodeHook();
+
+        new AngularWebpackPlugin({ enableSSR: true }).apply(compiler as never);
+
+        expect(capturedDefineArgs['__FIRST_SCREEN_SYNC_TIMING__']).toBe(
+          '"jsReady"',
+        );
+      });
     });
 
     describe('thisCompilation hook', () => {
@@ -600,6 +611,51 @@ describe('AngularWebpackPlugin', () => {
 
         expect(compilation.updateAsset).not.toHaveBeenCalled();
       });
+
+      it('ignores chunk groups with mixed main-thread and background-layer origins', () => {
+        const { compiler, triggerCompilation } = createMockCompiler();
+        setupBeforeEncodeHook();
+
+        new AngularWebpackPlugin().apply(compiler as never);
+        const compilation = createMockCompilation();
+        compilation.addAsset('mixed.js', 'mixed code');
+        compilation.chunkGroups = [
+          {
+            isInitial: () => false,
+            origins: [
+              { module: { layer: 'main' } },
+              { module: { layer: 'background' } },
+            ],
+            getFiles: () => ['mixed.js'],
+          },
+        ];
+        triggerCompilation(compilation);
+
+        compilation.triggerProcessAssets(STAGE_ADDITIONAL);
+
+        expect(compilation.updateAsset).not.toHaveBeenCalled();
+      });
+
+      it('ignores chunk groups where an origin has no module', () => {
+        const { compiler, triggerCompilation } = createMockCompiler();
+        setupBeforeEncodeHook();
+
+        new AngularWebpackPlugin().apply(compiler as never);
+        const compilation = createMockCompilation();
+        compilation.addAsset('nullmod.js', 'code');
+        compilation.chunkGroups = [
+          {
+            isInitial: () => false,
+            origins: [{ module: { layer: 'main' } }, { module: null }],
+            getFiles: () => ['nullmod.js'],
+          },
+        ];
+        triggerCompilation(compilation);
+
+        compilation.triggerProcessAssets(STAGE_ADDITIONAL);
+
+        expect(compilation.updateAsset).not.toHaveBeenCalled();
+      });
     });
 
     describe('processAssets ADDITIONS stage — thread globals', () => {
@@ -728,6 +784,43 @@ describe('AngularWebpackPlugin', () => {
         expect(() =>
           compilation.triggerProcessAssets(STAGE_ADDITIONS),
         ).not.toThrow();
+      });
+
+      it('includes "use strict" prefix when injecting globDynamicComponentEntry into a source starting with "use strict"', () => {
+        const { compiler, triggerCompilation } = createMockCompiler();
+        setupBeforeEncodeHook();
+
+        new AngularWebpackPlugin({ mainThreadChunks: ['main.js'] }).apply(
+          compiler as never,
+        );
+        const compilation = createMockCompilation();
+        compilation.addAsset('main.js', "'use strict';code();");
+
+        // Override getAsset to isolate the useStrictPrefix regex branch.
+        // The __MAIN_THREAD__ loop uses Object.entries(compilation.assets),
+        // not getAsset, so this override only affects the globDynamicComponentEntry loop.
+        vi.mocked(compilation.getAsset).mockReturnValue({
+          name: 'main.js',
+          source: mockSource("'use strict';code();"),
+          info: {},
+        } as never);
+
+        triggerCompilation(compilation);
+        compilation.triggerProcessAssets(STAGE_ADDITIONS);
+
+        const mainCalls = vi
+          .mocked(compilation.updateAsset)
+          .mock.calls.filter(([name]) => name === 'main.js');
+        const globDynCall = mainCalls[1];
+        expect(globDynCall).toBeDefined();
+
+        const updater = globDynCall[1] as (old: { source(): string }) => {
+          source(): string;
+        };
+        const result = updater(mockSource("'use strict';code();"));
+        expect(result.source()).toContain(
+          "'use strict';var globDynamicComponentEntry",
+        );
       });
     });
 

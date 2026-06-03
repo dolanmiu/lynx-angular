@@ -15,8 +15,12 @@ describe('buildElementQueueFromOpcodes', () => {
     const ref0 = makeRef('view-0');
     const ref1 = makeRef('text-1');
     const opcodes = [
-      Opcode.Begin, '0', 'view',
-      Opcode.Begin, '1', 'text',
+      Opcode.Begin,
+      '0',
+      'view',
+      Opcode.Begin,
+      '1',
+      'text',
       Opcode.End,
       Opcode.End,
     ];
@@ -40,8 +44,12 @@ describe('buildElementQueueFromOpcodes', () => {
   it('skips Begin opcodes with no matching ref in the map', () => {
     const ref1 = makeRef('exists');
     const opcodes = [
-      Opcode.Begin, '0', 'view',
-      Opcode.Begin, '1', 'text',
+      Opcode.Begin,
+      '0',
+      'view',
+      Opcode.Begin,
+      '1',
+      'text',
       Opcode.End,
       Opcode.End,
     ];
@@ -61,9 +69,15 @@ describe('buildElementQueueFromOpcodes', () => {
   it('skips Attr opcodes without adding to queue', () => {
     const ref0 = makeRef('view');
     const opcodes = [
-      Opcode.Begin, '0', 'view',
-      Opcode.Attr, 'class', 'container',
-      Opcode.Attr, 'id', 'main',
+      Opcode.Begin,
+      '0',
+      'view',
+      Opcode.Attr,
+      'class',
+      'container',
+      Opcode.Attr,
+      'id',
+      'main',
       Opcode.End,
     ];
     const refsMap: Record<string, ElementRef> = { '0': ref0 };
@@ -81,11 +95,7 @@ describe('buildElementQueueFromOpcodes', () => {
 
   it('handles unknown opcodes by advancing one position', () => {
     const ref0 = makeRef('view');
-    const opcodes = [
-      999,
-      Opcode.Begin, '0', 'view',
-      Opcode.End,
-    ];
+    const opcodes = [999, Opcode.Begin, '0', 'view', Opcode.End];
     const refsMap: Record<string, ElementRef> = { '0': ref0 };
 
     const result = buildElementQueueFromOpcodes(opcodes, refsMap);
@@ -98,10 +108,18 @@ describe('buildElementQueueFromOpcodes', () => {
     const refB = makeRef('b');
     const refC = makeRef('c');
     const opcodes = [
-      Opcode.Begin, 'a', 'view',
-      Opcode.Attr, 'x', '1',
-      Opcode.Text, 'b', 'hello',
-      Opcode.Begin, 'c', 'text',
+      Opcode.Begin,
+      'a',
+      'view',
+      Opcode.Attr,
+      'x',
+      '1',
+      Opcode.Text,
+      'b',
+      'hello',
+      Opcode.Begin,
+      'c',
+      'text',
       Opcode.End,
       Opcode.End,
     ];

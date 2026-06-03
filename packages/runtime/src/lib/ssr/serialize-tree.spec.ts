@@ -71,7 +71,10 @@ describe('serializeElementTree', () => {
   it('serializes attributes from __GetAttributes', () => {
     const root = {} as ElementRef;
     vi.mocked(__GetTag).mockReturnValue('image');
-    vi.mocked(__GetAttributes).mockReturnValue({ src: 'pic.png', alt: 'A pic' });
+    vi.mocked(__GetAttributes).mockReturnValue({
+      src: 'pic.png',
+      alt: 'A pic',
+    });
 
     serializeElementTree(root, recorder);
 
@@ -85,7 +88,11 @@ describe('serializeElementTree', () => {
   it('skips null/undefined attribute values', () => {
     const root = {} as ElementRef;
     vi.mocked(__GetTag).mockReturnValue('view');
-    vi.mocked(__GetAttributes).mockReturnValue({ valid: 'yes', empty: null, undef: undefined });
+    vi.mocked(__GetAttributes).mockReturnValue({
+      valid: 'yes',
+      empty: null,
+      undef: undefined,
+    });
 
     serializeElementTree(root, recorder);
 

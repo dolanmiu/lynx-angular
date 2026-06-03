@@ -80,11 +80,19 @@ describe('OpcodeRecorder', () => {
       recorder.end();
 
       expect(recorder.opcodes).toEqual([
-        Opcode.Begin, '0', 'view',
-        Opcode.Attr, 'class', 'container',
-        Opcode.Begin, '1', 'text',
+        Opcode.Begin,
+        '0',
+        'view',
+        Opcode.Attr,
+        'class',
+        'container',
+        Opcode.Begin,
+        '1',
+        'text',
         Opcode.End,
-        Opcode.Text, '2', 'content',
+        Opcode.Text,
+        '2',
+        'content',
         Opcode.End,
       ]);
     });
