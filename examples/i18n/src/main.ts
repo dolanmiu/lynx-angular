@@ -11,6 +11,7 @@ const locale =
     : undefined;
 
 if (locale === 'fr') {
+  // cspell:disable
   loadTranslations({
     'app.greeting': 'Bonjour le monde !',
     'app.welcome': 'Bienvenue, {$userName} !',
@@ -19,6 +20,7 @@ if (locale === 'fr') {
     'app.counter': 'Compteur : {$count}',
     'app.tap_button': 'Appuyez pour incrémenter',
   });
+  // cspell:enable
 }
 
 bootstrapApplication(AppComponent, appConfig);

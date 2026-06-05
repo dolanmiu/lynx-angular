@@ -207,22 +207,19 @@ describe('LynxElement', () => {
     cleanup();
   });
 
-  it('cleanup function calls __GetEvents and __SetEvents to remove the event', () => {
+  it('cleanup function calls __AddEvent with null to remove the event', () => {
     element = new LynxElement(fakeRef);
     const cb = vi.fn();
-    const otherCb = vi.fn();
-
-    globalThis.__GetEvents = vi.fn(() => ({
-      'bindEvent:tap': { type: 'worklet', value: cb },
-      'bindEvent:scroll': { type: 'worklet', value: otherCb },
-    }));
 
     const cleanup = element.addEventListener('bindtap', cb);
+    (globalThis.__AddEvent as ReturnType<typeof vi.fn>).mockClear();
     cleanup();
 
-    expect(globalThis.__GetEvents).toHaveBeenCalledWith(fakeRef);
-    expect(globalThis.__SetEvents).toHaveBeenCalledWith(fakeRef, [
-      { type: 'worklet', value: otherCb },
-    ]);
+    expect(globalThis.__AddEvent).toHaveBeenCalledWith(
+      fakeRef,
+      'bindEvent',
+      'tap',
+      null,
+    );
   });
 });

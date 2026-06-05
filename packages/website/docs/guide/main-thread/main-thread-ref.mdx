@@ -24,4 +24,3 @@ const handleTap = mainThreadFn((event: MainThread.TouchEvent) => {
 - `createMainThreadRef(initialValue)` creates a `MainThreadRef<T>`
 - Access via `.current` (getter and setter)
 - On the main thread, refs are stored in `globalThis.__workletRefMap` for worklet access
-- Serializes to `{ _wvid: number }` for cross-thread transport

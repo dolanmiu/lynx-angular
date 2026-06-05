@@ -66,7 +66,7 @@ describe('LynxErrorHandler', () => {
       expect(reportError).toHaveBeenCalledWith(err, { errorCode: 1101 });
     });
 
-    it('passes a synthesised Error (not the raw value) to _ReportError for non-Error inputs', () => {
+    it('passes a synthesized Error (not the raw value) to _ReportError for non-Error inputs', () => {
       const reportError = vi.fn();
       (globalThis as any)._ReportError = reportError;
 

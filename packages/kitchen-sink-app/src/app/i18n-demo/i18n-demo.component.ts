@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { loadTranslations } from '@angular/localize';
 import { LYNX_ELEMENTS, LynxLocaleService } from '@blotch/angular-lynx';
 
+// cspell:disable
 const FRENCH_TRANSLATIONS: Record<string, string> = {
   'kitchen.greeting': 'Bonjour depuis le kitchen sink !',
   'kitchen.welcome': 'Bienvenue dans la démo i18n !',
@@ -10,6 +11,7 @@ const FRENCH_TRANSLATIONS: Record<string, string> = {
   'kitchen.switchToFr': 'Passer en anglais',
   'kitchen.switchToEn': 'Passer en français',
 };
+// cspell:enable
 
 @Component({
   selector: 'app-i18n-demo',

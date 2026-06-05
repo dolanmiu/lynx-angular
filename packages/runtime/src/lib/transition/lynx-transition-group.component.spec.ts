@@ -108,8 +108,8 @@ describe('LynxTransitionGroup', () => {
     };
 
     const mockVcr = {
-      createEmbeddedView: (tmpl: any, ctx: any) => {
-        const view = tmpl.createEmbeddedView(ctx);
+      createEmbeddedView: (template: any, context: any) => {
+        const view = template.createEmbeddedView(context);
         views.push(view);
         hostEl.appendChild(view.rootNodes[0]);
         return view;

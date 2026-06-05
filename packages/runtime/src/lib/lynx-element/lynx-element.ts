@@ -173,16 +173,9 @@ export class LynxElement implements BaseLynxElement {
     });
 
     return () => {
-      const events = __GetEvents(this.element);
-      const filtered = Object.entries(events).reduce<
-        Record<string, Record<string, any>>
-      >((acc, [key, value]) => {
-        if (key !== `${eventType}:${eventName}`) {
-          acc[key] = value;
-        }
-        return acc;
-      }, {});
-      __SetEvents(this.element, Object.values(filtered));
+      // Passing null as the listener tells the Lynx SDK to remove the
+      // corresponding event listener for this type+name combination.
+      __AddEvent(this.element, eventType, eventName, null);
     };
   }
 }

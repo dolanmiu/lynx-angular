@@ -58,10 +58,10 @@ Values can be any serializable object — numbers, strings, arrays, or nested ob
 `getItem` performs a single asynchronous read:
 
 ```typescript
-const prefs = await sessionStorage.getItem<{ theme: string }>(
+const preferences = await sessionStorage.getItem<{ theme: string }>(
   'user-preferences',
 );
-console.log(prefs.theme); // 'dark'
+console.log(preferences.theme); // 'dark'
 ```
 
 ### Reactive Signal

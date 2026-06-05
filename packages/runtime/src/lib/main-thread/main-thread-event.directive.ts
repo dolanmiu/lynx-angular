@@ -118,22 +118,8 @@ export class LynxMainThreadEvent implements OnChanges, OnDestroy {
     const elementRef = (this.#el as any).element;
     if (!elementRef) return;
 
-    try {
-      const events = __GetEvents(elementRef);
-      const registered = new Set(
-        this.#registeredEvents.map(([t, n]) => `${t}:${n}`),
-      );
-      const filtered = Object.entries(events).reduce<
-        Record<string, Record<string, any>>
-      >((acc, [key, value]) => {
-        if (!registered.has(key)) {
-          acc[key] = value;
-        }
-        return acc;
-      }, {});
-      __SetEvents(elementRef, Object.values(filtered));
-    } catch {
-      // Element may already be destroyed
+    for (const [eventType, eventName] of this.#registeredEvents) {
+      __AddEvent(elementRef, eventType, eventName, null);
     }
     this.#registeredEvents = [];
   }

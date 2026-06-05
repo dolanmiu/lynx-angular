@@ -246,7 +246,7 @@ declare global {
     node: ElementRef,
     type: string,
     name: string,
-    func: string | Record<string, unknown>,
+    func: string | Record<string, unknown> | null | undefined,
   ): void;
 
   function __SetEvents(
@@ -260,7 +260,7 @@ declare global {
     type: string,
   ): Record<string, any>;
 
-  function __GetEvents(node: ElementRef): Record<string, Record<string, any>>;
+  function __GetEvents(node: ElementRef): Record<string, any>[];
 
   function __AddDataset(node: ElementRef, key: string, value: unknown): void;
 

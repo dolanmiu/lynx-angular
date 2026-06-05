@@ -113,7 +113,7 @@ const createMockCompiler = (
 const createMockCompilation = () => {
   const runtimeRequirementCallbacks: Record<
     string,
-    Array<(chunk: unknown, reqs: Set<string>) => void>
+    Array<(chunk: unknown, requests: Set<string>) => void>
   > = {};
 
   type ProcessAssetsEntry = { stage: number; fn: () => void };
@@ -128,7 +128,7 @@ const createMockCompilation = () => {
           tap: vi.fn(
             (
               _name: string,
-              cb: (chunk: unknown, reqs: Set<string>) => void,
+              cb: (chunk: unknown, requests: Set<string>) => void,
             ) => {
               (runtimeRequirementCallbacks[req] ??= []).push(cb);
             },
@@ -171,9 +171,9 @@ const createMockCompilation = () => {
     triggerRuntimeRequirement(
       req: string,
       chunk: unknown,
-      reqs = new Set<string>(),
+      requests = new Set<string>(),
     ) {
-      (runtimeRequirementCallbacks[req] ?? []).forEach((cb) => cb(chunk, reqs));
+      (runtimeRequirementCallbacks[req] ?? []).forEach((cb) => cb(chunk, requests));
     },
     triggerProcessAssets(stage: number) {
       processAssetsCallbacks
@@ -409,14 +409,14 @@ describe('AngularWebpackPlugin', () => {
         const compilation = createMockCompilation();
         triggerCompilation(compilation);
 
-        const reqs = new Set<string>();
+        const requests = new Set<string>();
         compilation.triggerRuntimeRequirement(
           compiler.webpack.RuntimeGlobals.ensureChunkHandlers,
           {},
-          reqs,
+          requests,
         );
 
-        expect(reqs.has(LynxRuntimeGlobals.lynxProcessEvalResult)).toBe(true);
+        expect(requests.has(LynxRuntimeGlobals.lynxProcessEvalResult)).toBe(true);
       });
 
       it('adds runtime module to chunk when lynxProcessEvalResult is required', () => {
