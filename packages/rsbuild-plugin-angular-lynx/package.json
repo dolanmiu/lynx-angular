@@ -23,7 +23,8 @@
     "format": "oxfmt --write .",
     "format:check": "oxfmt --check .",
     "cspell": "cspell .",
-    "postinstall": "node ./patch/patch-angular-build.cjs"
+    "postinstall": "node ./patch/patch-angular-build.cjs",
+    "publish:local": "yalc publish --push"
   },
   "dependencies": {
     "@lynx-js/css-extract-webpack-plugin": "^0.7.1",

@@ -176,6 +176,10 @@ export default defineConfig({
         { text: 'Remote Logging', link: '/guide/remote-logging' },
         { text: 'DevTools', link: '/guide/devtools' },
         {
+          text: 'Building for Production',
+          link: '/guide/building-for-production',
+        },
+        {
           dividerType: 'solid',
         },
         {

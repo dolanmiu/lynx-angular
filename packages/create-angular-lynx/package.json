@@ -15,6 +15,7 @@
     "lint:fix": "oxlint --fix .",
     "format": "oxfmt --write .",
     "format:check": "oxfmt --check .",
-    "cspell": "cspell ."
+    "cspell": "cspell .",
+    "publish:local": "yalc publish --push"
   }
 }

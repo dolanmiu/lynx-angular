@@ -48,6 +48,11 @@
       "dependsOn": ["^build"],
       "cache": false,
       "persistent": true
+    },
+    "publish:local": {
+      "dependsOn": ["build"],
+      "outputs": [],
+      "cache": false
     }
   }
 }
