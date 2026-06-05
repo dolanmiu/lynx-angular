@@ -17,6 +17,7 @@ import {
   getAngularWorkspace,
   getProjectByCwd,
 } from './utils/angular/read-workspace.js';
+import { resolvePages } from './utils/angular/resolve-pages.js';
 import { injectLynxSchema } from './utils/inject-lynx-schema.js';
 import {
   reportLynxDiagnostics,
@@ -25,18 +26,44 @@ import {
   scanSourcesForUnsupportedCss,
   scanSourcesForUnsupportedPatterns,
 } from './lynx-diagnostics.js';
+import type { PluginAngularLynxOptions } from './utils/options.js';
 
 export const applyAngularRules = async (
   api: RsbuildPluginAPI,
+  pluginOptions: Required<PluginAngularLynxOptions>,
 ): Promise<void> => {
   const { basePath, workspace } = await getAngularWorkspace();
-  const project = getProjectByCwd(workspace, basePath);
-  if (!project) {
+
+  // When `pages` is set, resolve multiple angular.json projects into entries.
+  // Each project's `browser` field becomes a named entry that the entry-splitting
+  // loop in entry.ts will duplicate into main-thread + background pairs.
+  if (pluginOptions.pages) {
+    const pages = resolvePages(workspace, basePath, pluginOptions.pages);
+    api.modifyRsbuildConfig((config) => {
+      config.source ??= {};
+      config.source.entry = Object.fromEntries(
+        pages.map((page) => [page.name, page.browser]),
+      );
+    });
+  }
+
+  // The primary project provides shared build config (tsconfig, polyfills, styles,
+  // output path). When using `pages`, use the first resolved page's project.
+  // Otherwise fall back to the CWD-based single-project resolution.
+  const primaryProjectName = pluginOptions.pages
+    ? ((Array.isArray(pluginOptions.pages)
+        ? pluginOptions.pages[0]
+        : Array.from(workspace.projects.entries()).find(
+            ([, def]) => def.extensions['projectType'] === 'application',
+          )?.[0]) ?? null)
+    : getProjectByCwd(workspace, basePath);
+
+  if (!primaryProjectName) {
     throw new Error("couldn't find the project");
   }
-  const projectDefinition = workspace.projects.get(project);
+  const projectDefinition = workspace.projects.get(primaryProjectName);
   if (!projectDefinition) {
-    throw new Error(`Project "${project}" not found in workspace`);
+    throw new Error(`Project "${primaryProjectName}" not found in workspace`);
   }
   const buildOptions = await readBuildOptions(projectDefinition, basePath);
   applyAngularConfig(api, buildOptions);

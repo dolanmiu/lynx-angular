@@ -24,7 +24,7 @@ export const pluginAngularLynx = (
       applyTailwind(api);
       applyEntry(api, normalizedOptions);
       applyLayers(api);
-      applyAngularRules(api);
+      applyAngularRules(api, normalizedOptions);
       applyGenerator(api);
       applySplitChunksRule(api, normalizedOptions);
       applyDevLogger(api);

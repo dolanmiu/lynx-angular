@@ -16,9 +16,7 @@ import { AngularWebpackPlugin } from './angular-webpack-plugin.js';
 import { LAYERS } from './layers.js';
 import type { PluginAngularLynxOptions } from './utils/options.js';
 
-// const DEFAULT_DIST_PATH_INTERMEDIATE = ".rspeedy";
-// const DEFAULT_FILENAME_HASH = ".[contenthash:8]";
-// const EMPTY_HASH = "";
+const DEFAULT_DIST_PATH_INTERMEDIATE = '.rspeedy';
 const PLUGIN_NAME_TEMPLATE = 'lynx:template';
 const PLUGIN_NAME_RUNTIME_WRAPPER = 'lynx:runtime-wrapper';
 const PLUGIN_NAME_ANGULAR = 'lynx:angular';
@@ -122,6 +120,10 @@ export const applyEntry = (
             filename: templateFilename
               .replaceAll('[name]', entryName)
               .replaceAll('[platform]', environment.name),
+            intermediate: path.posix.join(
+              DEFAULT_DIST_PATH_INTERMEDIATE,
+              entryName,
+            ),
             chunks: [mainThreadEntry, backgroundEntry],
             cssPlugins: [CSSPlugins.parserPlugins.removeFunctionWhiteSpace()],
             customCSSInheritanceList,

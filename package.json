@@ -11,9 +11,10 @@
   ],
   "main": "index.js",
   "scripts": {
-    "build": "npm run build -w packages/rsbuild-plugin-angular-lynx && npm run build -w packages/runtime && npm run build -w packages/kitchen-sink-app",
-    "test": "vitest run && npm run test -w packages/testing-library",
-    "demo": "npm run build && npm run start --workspace=packages/kitchen-sink-app",
+    "build": "turbo run build",
+    "test": "turbo run test //#test:root",
+    "test:root": "vitest run",
+    "demo": "turbo run start --filter=kitchen-sink-app",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "format": "oxfmt --write .",
@@ -24,6 +25,8 @@
     "cspell": "^9.7.0",
     "oxfmt": "^0.48.0",
     "oxlint": "^1.63.0",
+    "turbo": "^2.9.16",
     "vitest": "^4.0.8"
-  }
+  },
+  "packageManager": "npm@10.9.2"
 }

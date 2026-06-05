@@ -1,0 +1,26 @@
+{
+  "name": "@angular-lynx-example/multi-page-workspace",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "rspeedy dev",
+    "build": "rspeedy build --environment lynx && rspeedy build --environment web"
+  },
+  "dependencies": {
+    "@angular/common": "^21.0.0",
+    "@angular/compiler": "^21.0.0",
+    "@angular/core": "^21.0.0",
+    "@angular/platform-browser": "^21.0.0",
+    "@blotch/angular-lynx": "*"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "^21.0.0",
+    "@angular/cli": "^21.0.0",
+    "@angular/compiler-cli": "^21.0.0",
+    "@blotch/rsbuild-plugin-angular-lynx": "*",
+    "@lynx-js/rspeedy": "^0.14.3",
+    "@lynx-js/types": "^3.7.0",
+    "typescript": "~5.9.0"
+  }
+}

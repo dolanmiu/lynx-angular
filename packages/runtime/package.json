@@ -2,6 +2,15 @@
   "name": "@blotch/angular-lynx",
   "version": "21.0.0",
   "sideEffects": false,
+  "exports": {
+    "./package.json": {
+      "default": "./package.json"
+    },
+    ".": {
+      "types": "./dist/types/blotch-angular-lynx.d.ts",
+      "default": "./dist/fesm2022/blotch-angular-lynx.mjs"
+    }
+  },
   "scripts": {
     "build:schematics": "tsc -p tsconfig.schematics.json",
     "build": "npm run build:schematics && ng-packagr -p ng-package.json -c tsconfig.lib.prod.json"

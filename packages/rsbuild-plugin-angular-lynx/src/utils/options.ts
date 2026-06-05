@@ -13,6 +13,16 @@ export type PluginAngularLynxOptions = {
   enableParallelElement?: boolean;
   enableRemoveCSSScope?: boolean;
   enableSSR?: boolean;
+  /**
+   * Build multiple angular.json projects as separate Lynx pages.
+   * Each project's `browser` field becomes a named entry producing its own .lynx.bundle.
+   *
+   * - `string[]` — list of angular.json project names to build
+   * - `'all'` — build all `application`-type projects in the workspace
+   *
+   * When omitted, uses `source.entry` from lynx.config.ts (single or multi-entry).
+   */
+  pages?: string[] | 'all' | undefined;
   pipelineSchedulerConfig?: number;
   removeDescendantSelectorScope?: boolean;
   targetSdkVersion?: string;
@@ -37,6 +47,8 @@ export const normalizeOptions = (
     defaultDisplayLinear: true,
     enableRemoveCSSScope: false,
     enableSSR: false,
+    //@ts-expect-error
+    pages: undefined,
     pipelineSchedulerConfig: 0x00010000,
     targetSdkVersion: '3.2',
     defaultOverflowVisible: true,

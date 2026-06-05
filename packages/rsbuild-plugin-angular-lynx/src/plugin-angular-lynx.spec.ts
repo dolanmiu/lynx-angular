@@ -100,7 +100,10 @@ describe('pluginAngularLynx', () => {
       const plugin = pluginAngularLynx();
       plugin.setup(mockApi);
 
-      expect(applyAngularRules).toHaveBeenCalledWith(mockApi);
+      expect(applyAngularRules).toHaveBeenCalledWith(
+        mockApi,
+        expect.any(Object),
+      );
     });
 
     it('calls applyGenerator with api', () => {
