@@ -8,7 +8,12 @@
     "dev": "npm run prepare-examples && rspress dev",
     "dev:fast": "rspress dev",
     "build": "npm run prepare-examples && rspress build",
-    "preview": "rspress preview"
+    "preview": "rspress preview",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check .",
+    "cspell": "cspell ."
   },
   "dependencies": {
     "@lynx-js/css-serializer": "^0.1.6",

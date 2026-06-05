@@ -17,6 +17,12 @@
   "scripts": {
     "build": "rslib build",
     "dev": "rslib build --watch",
+    "test": "vitest run",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check .",
+    "cspell": "cspell .",
     "postinstall": "node ./patch/patch-angular-build.cjs"
   },
   "dependencies": {

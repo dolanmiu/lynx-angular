@@ -246,7 +246,7 @@ declare global {
     node: ElementRef,
     type: string,
     name: string,
-    func: string | Record<string, unknown> | null | undefined,
+    func: string | Record<string, unknown> | undefined,
   ): void;
 
   function __SetEvents(

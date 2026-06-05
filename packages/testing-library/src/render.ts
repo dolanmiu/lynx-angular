@@ -75,8 +75,9 @@ let currentAppRef: ApplicationRef | null = null;
 
 export const cleanup = (): void => {
   if (currentAppRef) {
-    currentAppRef.destroy();
+    const ref = currentAppRef;
     currentAppRef = null;
+    ref.destroy();
   }
 };
 

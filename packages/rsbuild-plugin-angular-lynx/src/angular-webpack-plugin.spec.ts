@@ -173,7 +173,9 @@ const createMockCompilation = () => {
       chunk: unknown,
       requests = new Set<string>(),
     ) {
-      (runtimeRequirementCallbacks[req] ?? []).forEach((cb) => cb(chunk, requests));
+      (runtimeRequirementCallbacks[req] ?? []).forEach((cb) =>
+        cb(chunk, requests),
+      );
     },
     triggerProcessAssets(stage: number) {
       processAssetsCallbacks
@@ -416,7 +418,9 @@ describe('AngularWebpackPlugin', () => {
           requests,
         );
 
-        expect(requests.has(LynxRuntimeGlobals.lynxProcessEvalResult)).toBe(true);
+        expect(requests.has(LynxRuntimeGlobals.lynxProcessEvalResult)).toBe(
+          true,
+        );
       });
 
       it('adds runtime module to chunk when lynxProcessEvalResult is required', () => {

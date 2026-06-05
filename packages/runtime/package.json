@@ -13,7 +13,13 @@
   },
   "scripts": {
     "build:schematics": "tsc -p tsconfig.schematics.json",
-    "build": "npm run build:schematics && ng-packagr -p ng-package.json -c tsconfig.lib.prod.json"
+    "build": "npm run build:schematics && ng-packagr -p ng-package.json -c tsconfig.lib.prod.json",
+    "test": "vitest run",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check .",
+    "cspell": "cspell ."
   },
   "dependencies": {
     "tslib": "^2.3.0"

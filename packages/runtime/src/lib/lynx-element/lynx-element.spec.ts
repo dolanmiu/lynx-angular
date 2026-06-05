@@ -207,7 +207,7 @@ describe('LynxElement', () => {
     cleanup();
   });
 
-  it('cleanup function calls __AddEvent with null to remove the event', () => {
+  it('cleanup function calls __AddEvent with undefined to remove the event', () => {
     element = new LynxElement(fakeRef);
     const cb = vi.fn();
 
@@ -219,7 +219,7 @@ describe('LynxElement', () => {
       fakeRef,
       'bindEvent',
       'tap',
-      null,
+      undefined,
     );
   });
 });

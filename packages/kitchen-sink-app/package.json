@@ -6,7 +6,12 @@
     "start": "rspeedy dev",
     "build": "rspeedy build",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check .",
+    "cspell": "cspell ."
   },
   "dependencies": {
     "@angular/common": "^21.0.0",

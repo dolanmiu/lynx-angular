@@ -12,14 +12,14 @@
   "main": "index.js",
   "scripts": {
     "build": "turbo run build",
-    "test": "turbo run test //#test:root",
-    "test:root": "vitest run",
+    "test": "turbo run test",
+    "test:no-cache": "turbo run test --force",
     "demo": "turbo run start --filter=kitchen-sink-app",
-    "lint": "oxlint .",
-    "lint:fix": "oxlint --fix .",
-    "format": "oxfmt --write .",
-    "format:check": "oxfmt --check .",
-    "cspell": "cspell ."
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "format": "turbo run format",
+    "format:check": "turbo run format:check",
+    "cspell": "turbo run cspell"
   },
   "devDependencies": {
     "cspell": "^9.7.0",

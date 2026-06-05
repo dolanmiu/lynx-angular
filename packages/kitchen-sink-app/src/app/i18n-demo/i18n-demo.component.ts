@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { loadTranslations } from '@angular/localize';
+import { clearTranslations, loadTranslations } from '@angular/localize';
 import { LYNX_ELEMENTS, LynxLocaleService } from '@blotch/angular-lynx';
 
 // cspell:disable
@@ -100,8 +100,7 @@ export class I18nDemoComponent {
     if (switchingToFrench) {
       loadTranslations(FRENCH_TRANSLATIONS);
     } else {
-      // Clear translations to restore English source strings
-      (globalThis.$localize as any).TRANSLATIONS = {};
+      clearTranslations();
     }
   }
 }

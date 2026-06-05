@@ -119,7 +119,7 @@ export class LynxMainThreadEvent implements OnChanges, OnDestroy {
     if (!elementRef) return;
 
     for (const [eventType, eventName] of this.#registeredEvents) {
-      __AddEvent(elementRef, eventType, eventName, null);
+      __AddEvent(elementRef, eventType, eventName, undefined);
     }
     this.#registeredEvents = [];
   }

@@ -9,5 +9,12 @@
   "files": [
     "src"
   ],
-  "type": "module"
+  "type": "module",
+  "scripts": {
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check .",
+    "cspell": "cspell ."
+  }
 }

@@ -1,5 +1,12 @@
 {
   "name": "@blotch/oxlint-plugin",
   "version": "0.0.1",
-  "private": true
+  "private": true,
+  "scripts": {
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check .",
+    "cspell": "cspell ."
+  }
 }

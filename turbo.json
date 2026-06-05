@@ -14,8 +14,30 @@
     "test": {
       "dependsOn": ["^build"]
     },
-    "//#test:root": {
-      "dependsOn": ["build"]
+    "lint": {
+      "dependsOn": [],
+      "outputs": [],
+      "cache": false
+    },
+    "lint:fix": {
+      "dependsOn": [],
+      "outputs": [],
+      "cache": false
+    },
+    "format": {
+      "dependsOn": [],
+      "outputs": [],
+      "cache": false
+    },
+    "format:check": {
+      "dependsOn": [],
+      "outputs": [],
+      "cache": false
+    },
+    "cspell": {
+      "dependsOn": [],
+      "outputs": [],
+      "cache": false
     },
     "dev": {
       "dependsOn": ["^build"],

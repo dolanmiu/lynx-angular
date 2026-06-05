@@ -173,9 +173,9 @@ export class LynxElement implements BaseLynxElement {
     });
 
     return () => {
-      // Passing null as the listener tells the Lynx SDK to remove the
+      // Passing undefined as the listener tells the Lynx SDK to remove the
       // corresponding event listener for this type+name combination.
-      __AddEvent(this.element, eventType, eventName, null);
+      __AddEvent(this.element, eventType, eventName, undefined);
     };
   }
 }
