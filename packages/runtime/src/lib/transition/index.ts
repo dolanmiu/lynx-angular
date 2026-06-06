@@ -1,2 +1,2 @@
-export { LynxTransition } from './lynx-transition.component';
-export { LynxTransitionGroup } from './lynx-transition-group.component';
+export { LynxTransition } from './lynx-transition';
+export { LynxTransitionGroup } from './lynx-transition-group';

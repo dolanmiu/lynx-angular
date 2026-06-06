@@ -2,7 +2,7 @@
 
 AngularLynx supports custom fonts via CSS `@font-face` — the same approach Angular developers use on the web. The build system automatically bundles font files as static assets with content-hashed filenames. For fonts loaded dynamically at runtime, `LynxFontService` wraps the native `lynx.addFont()` API.
 
-<Go example="custom-fonts" defaultFile="src/app/app.component.ts" />
+<Go example="custom-fonts" defaultFile="src/app/app.ts" />
 
 ## CSS @font-face (Recommended)
 
@@ -17,7 +17,7 @@ Place your font file in `src/assets/fonts/` and declare it in your global styles
 
 Then apply it in component styles:
 
-```typescript title="src/app/heading.component.ts"
+```typescript title="src/app/heading.ts"
 import { Component } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
@@ -39,7 +39,7 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
     `,
   ],
 })
-export class HeadingComponent {}
+export class Heading {}
 ```
 
 At build time, Rsbuild processes the font file, hashes the filename (e.g., `CustomFont.a1b2c3d4.ttf`), and emits it to `dist/static/font/`.

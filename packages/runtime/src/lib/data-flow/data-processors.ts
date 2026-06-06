@@ -15,7 +15,7 @@ import type {
  * registerDataProcessors({
  *   defaultDataProcessor: (raw) => ({ ...raw, theme: raw.theme ?? 'light' }),
  * });
- * bootstrapApplication(AppComponent, appConfig);
+ * bootstrapApplication(App, appConfig);
  */
 export const registerDataProcessors = (
   definition: DataProcessorDefinition,

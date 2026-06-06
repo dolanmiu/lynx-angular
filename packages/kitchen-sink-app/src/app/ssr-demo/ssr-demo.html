@@ -1,0 +1,35 @@
+<view class="container">
+  <text class="title">SSR Diagnostics</text>
+
+  <view
+    class="status-panel"
+    [class]="ssrStatus().ok ? 'status-ok' : 'status-fail'"
+  >
+    <text class="status-heading">Status</text>
+    <text class="status-row">
+      ssrEncode: {{ ssrStatus().encodeRegistered ? 'YES' : 'NO' }}
+    </text>
+    <text class="status-row">
+      ssrHydrate: {{ ssrStatus().hydrateRegistered ? 'YES' : 'NO' }}
+    </text>
+    <text class="status-row"> Opcodes: {{ ssrStatus().opcodeCount }} </text>
+    <text class="status-row">
+      Snapshot: {{ ssrStatus().snapshotSize }} bytes
+    </text>
+  </view>
+
+  <view class="btn btn-primary" (bindtap)="runEncode()">
+    <text class="btn-text">Run ssrEncode()</text>
+  </view>
+
+  @if (snapshotPreview()) {
+  <view class="preview-panel">
+    <text class="preview-text">{{ snapshotPreview() }}</text>
+  </view>
+  }
+
+  <text class="hint">
+    Tap the button to serialize the current element tree into SSR opcodes. A
+    green status panel means both ssrEncode and ssrHydrate are registered.
+  </text>
+</view>

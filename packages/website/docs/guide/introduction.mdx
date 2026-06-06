@@ -24,7 +24,7 @@ If you know Angular and are familiar with Lynx, you already know how to use Angu
 
 A simple counter built with Angular signals and Lynx elements:
 
-<Go example="hello-world" defaultFile="src/app/app.component.ts" />
+<Go example="hello-world" defaultFile="src/app/app.ts" />
 
 ## For Angular Web Developers
 
@@ -35,11 +35,11 @@ If you've built Angular apps for the web, most of your knowledge transfers direc
 ```typescript
 // Web Angular
 import { bootstrapApplication } from '@angular/platform-browser';
-bootstrapApplication(AppComponent, appConfig);
+bootstrapApplication(App, appConfig);
 
 // AngularLynx
 import { bootstrapApplication } from '@blotch/angular-lynx'; // [!code highlight]
-bootstrapApplication(AppComponent, appConfig); // [!code highlight]
+bootstrapApplication(App, appConfig); // [!code highlight]
 ```
 
 ### Different elements

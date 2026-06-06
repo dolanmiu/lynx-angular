@@ -1,6 +1,6 @@
 import { loadTranslations } from '@angular/localize';
 import { bootstrapApplication } from '@blotch/angular-lynx';
-import { AppComponent } from './app/app.component';
+import { App } from './app/app';
 import { appConfig } from './app/app.config';
 
 // Determine the runtime locale from Lynx global props.
@@ -23,4 +23,4 @@ if (locale === 'fr') {
   // cspell:enable
 }
 
-bootstrapApplication(AppComponent, appConfig);
+bootstrapApplication(App, appConfig);

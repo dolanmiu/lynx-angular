@@ -36,7 +36,7 @@ ng add @blotch/angular-lynx
 See the [Schematics](/guide/schematics) page for the full list of what `ng add` does.
 
 :::tip
-After scaffolding, your root component's template uses Lynx native elements (`<view>`, `<text>`) instead of HTML. Open `src/app/app.component.ts` to see the generated code.
+After scaffolding, your root component's template uses Lynx native elements (`<view>`, `<text>`) instead of HTML. Open `src/app/app.ts` to see the generated code.
 :::
 
 ## Run the Dev Server
@@ -85,7 +85,7 @@ my-lynx-app/
     main.ts                    # Entry point (bootstrapApplication)
     app/
       app.config.ts            # Providers (zoneless CD, renderer, router)
-      app.component.ts         # Root component with Lynx elements
+      app.ts         # Root component with Lynx elements
       app.routes.ts            # Route definitions
 ```
 

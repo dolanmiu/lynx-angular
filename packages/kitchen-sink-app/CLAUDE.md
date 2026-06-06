@@ -13,12 +13,12 @@ Example app demonstrating the runtime library. Uses standalone components, zonel
 
 ## Routes
 
-| Path              | Component                   |
-| ----------------- | --------------------------- |
-| `/`               | `AppComponent`              |
-| `/list-example`   | `ListExampleComponent`      |
-| `/scroll-example` | `ScrollExampleComponent`    |
-| `/showcase`       | `ElementsShowcaseComponent` |
+| Path              | Component          |
+| ----------------- | ------------------ |
+| `/`               | `App`              |
+| `/list-example`   | `ListExample`      |
+| `/scroll-example` | `ScrollExample`    |
+| `/showcase`       | `ElementsShowcase` |
 
 ## Key Files
 
@@ -29,7 +29,7 @@ src/
   app/
     app.config.ts                  # App config (zoneless CD + provideRenderer())
     app.routes.ts                  # Route definitions (all lazy-loaded)
-    app.component.ts               # Root component
+    app.ts                         # Root component
     elements-showcase/             # Showcases all supported Lynx elements
     list-example/                  # list usage example
     scroll-example/                # scroll-view usage example

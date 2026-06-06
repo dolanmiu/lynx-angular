@@ -94,12 +94,12 @@ Each page needs its own entry file with `bootstrapApplication()`:
 src/
   main.ts                          # Main page entry
   app/
-    app.component.ts
+    app.ts
     app.config.ts
   pages/
     settings/
       main.ts                      # Settings page entry
-      settings.component.ts
+      settings.ts
       settings.config.ts
 ```
 
@@ -107,10 +107,10 @@ Each entry file follows the standard bootstrap pattern:
 
 ```typescript title="src/pages/settings/main.ts"
 import { bootstrapApplication } from '@blotch/angular-lynx';
-import { SettingsComponent } from './settings.component';
+import { Settings } from './settings';
 import { settingsConfig } from './settings.config';
 
-bootstrapApplication(SettingsComponent, settingsConfig);
+bootstrapApplication(Settings, settingsConfig);
 ```
 
 ## Build Output

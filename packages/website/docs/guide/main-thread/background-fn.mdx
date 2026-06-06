@@ -10,7 +10,7 @@ Main thread scripts directly manipulate native elements, **bypassing Angular's s
 
 Define a background function at module scope with `backgroundFn()`. Like `mainThreadFn`, it uses a deterministic counter so both thread bundles generate matching IDs.
 
-```typescript title="src/app/my.component.ts"
+```typescript title="src/app/my.ts"
 import {
   mainThreadFn,
   backgroundFn, // [!code highlight]

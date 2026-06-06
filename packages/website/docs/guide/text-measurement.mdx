@@ -8,7 +8,7 @@ Only built-in platform fonts are supported. Custom fonts loaded via `@font-face`
 
 ## Usage
 
-```typescript title="src/app/layout.component.ts"
+```typescript title="src/app/layout.ts"
 import { Component, inject, signal } from '@angular/core';
 import { LYNX_ELEMENTS, LynxTextMeasureService } from '@blotch/angular-lynx'; // [!code highlight]
 
@@ -16,7 +16,7 @@ import { LYNX_ELEMENTS, LynxTextMeasureService } from '@blotch/angular-lynx'; //
   imports: [LYNX_ELEMENTS],
   template: ` <text>Text width: {{ width() }}px</text> `,
 })
-export class LayoutComponent {
+export class Layout {
   readonly #textMeasure = inject(LynxTextMeasureService); // [!code highlight]
   readonly width = signal(0);
 

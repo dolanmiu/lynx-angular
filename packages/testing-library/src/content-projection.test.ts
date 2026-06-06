@@ -103,7 +103,7 @@ describe('content projection — multi-slot', () => {
       imports: [LYNX_ELEMENTS],
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
-    class PanelComponent {}
+    class Panel {}
 
     @Component({
       selector: 'test-multi-slot',
@@ -113,7 +113,7 @@ describe('content projection — multi-slot', () => {
           <text>Body text</text>
         </panel-component>
       `,
-      imports: [PanelComponent, LYNX_ELEMENTS],
+      imports: [Panel, LYNX_ELEMENTS],
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
     class MultiSlotHost {}

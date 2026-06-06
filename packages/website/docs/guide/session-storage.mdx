@@ -1,6 +1,6 @@
 # Session Storage
 
-<Go example="session-storage" defaultFile="src/app/app.component.ts" />
+<Go example="session-storage" defaultFile="src/app/app.ts" />
 
 Lynx session storage is a cross-LynxView key-value store that persists for the lifetime of the host app session. Use it to share data between multiple cards, pages, or LynxView instances. AngularLynx wraps the native API with `LynxSessionStorageService` — an injectable service providing Promise-based reads, direct writes, and reactive signals.
 
@@ -25,7 +25,7 @@ Unlike browser `localStorage`, Lynx session storage:
 
 No extra providers needed — `LynxSessionStorageService` is `providedIn: 'root'`:
 
-```typescript title="src/app/my.component.ts"
+```typescript title="src/app/my.ts"
 import { Component, inject } from '@angular/core';
 import { LynxSessionStorageService, LYNX_ELEMENTS } from '@blotch/angular-lynx'; // [!code highlight]
 
@@ -33,7 +33,7 @@ import { LynxSessionStorageService, LYNX_ELEMENTS } from '@blotch/angular-lynx';
   imports: [LYNX_ELEMENTS],
   template: `...`,
 })
-export class MyComponent {
+export class Example {
   readonly #sessionStorage = inject(LynxSessionStorageService); // [!code highlight]
 }
 ```
@@ -68,7 +68,7 @@ console.log(preferences.theme); // 'dark'
 
 `watch` creates an Angular signal that automatically stays in sync with the session storage key. When any LynxView writes to that key, the signal updates:
 
-```typescript title="src/app/counter.component.ts"
+```typescript title="src/app/counter.ts"
 import { Component, inject } from '@angular/core';
 import { LynxSessionStorageService, LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
@@ -80,7 +80,7 @@ import { LynxSessionStorageService, LYNX_ELEMENTS } from '@blotch/angular-lynx';
     </view>
   `,
 })
-export class CounterComponent {
+export class Counter {
   readonly #sessionStorage = inject(LynxSessionStorageService);
 
   // Auto-updates when any LynxView calls setItem('counter', ...)
@@ -151,7 +151,7 @@ readonly theme = this.#sessionStorage.watch<{ mode: string }>('theme');
 
 ## Complete Example
 
-```typescript title="src/app/session-storage-demo.component.ts"
+```typescript title="src/app/session-storage-demo.ts"
 import { Component, inject, signal } from '@angular/core';
 import { LYNX_ELEMENTS, LynxSessionStorageService } from '@blotch/angular-lynx';
 
@@ -180,7 +180,7 @@ import { LYNX_ELEMENTS, LynxSessionStorageService } from '@blotch/angular-lynx';
     </view>
   `,
 })
-export class SessionStorageDemoComponent {
+export class SessionStorageDemo {
   readonly #sessionStorage = inject(LynxSessionStorageService);
 
   readonly counter = this.#sessionStorage.watch<number>('counter');

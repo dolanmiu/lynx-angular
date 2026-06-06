@@ -85,7 +85,7 @@ interface FeedItem {
     }
   `,
 })
-export class PullToRefreshComponent {
+export class PullToRefresh {
   readonly refreshLabel = signal('Pull to refresh');
   readonly items = signal<FeedItem[]>(this.generateItems(1));
 

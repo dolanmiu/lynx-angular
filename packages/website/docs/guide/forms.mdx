@@ -6,7 +6,7 @@ AngularLynx supports all three of Angular's form APIs — **reactive forms**, **
 Lynx input elements fire `bindinput` instead of the standard DOM `input` event, and carry the value in `event.detail.value` instead of `event.target.value`. Angular's built-in form value accessors expect DOM semantics, so `LYNX_ELEMENTS` ships its own `ControlValueAccessor` implementations that bridge to Lynx events automatically.
 :::
 
-<Go example="forms" defaultFile="src/app/app.component.ts" />
+<Go example="forms" defaultFile="src/app/app.ts" />
 
 ## Setup
 
@@ -22,7 +22,7 @@ Import `LYNX_ELEMENTS` as usual — the form value accessors are already bundled
 
 Use `[formControl]` or `formControlName` directly on `<input>` and `<textarea>`:
 
-```typescript title="src/app/contact.component.ts"
+```typescript title="src/app/contact.ts"
 import { Component } from '@angular/core';
 import {
   FormControl,
@@ -49,7 +49,7 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
     </view>
   `,
 })
-export class ContactComponent {
+export class Contact {
   name = new FormControl('', Validators.required);
   message = new FormControl('');
 
@@ -79,7 +79,7 @@ form = new FormGroup({
 
 Use `[(ngModel)]` for two-way binding:
 
-```typescript title="src/app/settings.component.ts"
+```typescript title="src/app/settings.ts"
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
@@ -94,7 +94,7 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
     </view>
   `,
 })
-export class SettingsComponent {
+export class Settings {
   displayName = '';
   bio = '';
 }
@@ -104,7 +104,7 @@ export class SettingsComponent {
 
 Signal Forms (`[formField]`) is an experimental Angular API (v21+). It works with `<input>` and `<textarea>` because the `FormField` directive detects the Lynx `ControlValueAccessor`:
 
-```typescript title="src/app/signup.component.ts"
+```typescript title="src/app/signup.ts"
 import { Component } from '@angular/core';
 import { form, schema, required, FormField } from '@angular/forms/signals';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
@@ -130,7 +130,7 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
     </view>
   `,
 })
-export class SignupComponent {
+export class Signup {
   signup = form({ email: '', password: '' }, (f) => {
     required(f.email);
     required(f.password);

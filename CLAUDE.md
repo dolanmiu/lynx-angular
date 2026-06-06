@@ -22,7 +22,7 @@ Near-1:1 Angular parity — partial support isn't acceptable. Every Angular API 
 
 ## Key Patterns
 
-- `bootstrapApplication(AppComponent, config)` replaces Angular's browser bootstrap
+- `bootstrapApplication(App, config)` replaces Angular's browser bootstrap
 - `provideRenderer()` + zoneless change detection in app config
 - Templates use Lynx elements: `<view>`, `<text>`, not HTML
 - Standalone components, signals, `@if`/`@for` control flow, lazy-loaded routes all work
@@ -36,7 +36,7 @@ Near-1:1 Angular parity — partial support isn't acceptable. Every Angular API 
 
 The runtime package ships an Angular schematics collection (`packages/runtime/schematics/collection.json`). These are the primary developer onboarding paths:
 
-- **`ng add @blotch/angular-lynx`** — transforms an existing `ng new` project into a Lynx-native app: rewrites `main.ts`, `app.config.ts`, `app.component.ts`, adds `lynx.config.ts`, and optionally installs Tailwind (`--tailwind=false` to skip)
+- **`ng add @blotch/angular-lynx`** — transforms an existing `ng new` project into a Lynx-native app: rewrites `main.ts`, `app.config.ts`, `app.ts`, adds `lynx.config.ts`, and optionally installs Tailwind (`--tailwind=false` to skip)
 - **`ng generate @blotch/angular-lynx:component <name>`** (alias `c`) — generates a standalone component with Lynx element templates, `ChangeDetectionStrategy.OnPush`, and a Vitest spec file; options: `--path`, `--prefix`, `--inlineStyle`, `--inlineTemplate`, `--skipTests`, `--flat`
 - **`ng generate @blotch/angular-lynx:add-tailwind`** — adds `tailwind.config.ts` with `@lynx-js/tailwind-preset` and updates `styles.css`
 - **`ng generate @blotch/angular-lynx:add-testing`** — adds `vitest.config.ts`, `src/setup.ts`, and installs `@blotch/angular-lynx-testing-library`

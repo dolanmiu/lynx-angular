@@ -49,7 +49,7 @@ const handleMove = function (event: MainThread.TouchEvent) {
 };
 
 // Class property
-class MyComponent {
+class Example {
   handleTap = (event: MainThread.TouchEvent) => {
     'main thread';
     event.currentTarget.setStyleProperty('color', 'red');
@@ -79,7 +79,7 @@ This happens transparently during the build — no configuration needed.
 
 Bind the worklet-transformed function to a template event via `LynxMainThreadEvent`:
 
-```typescript title="src/app/my.component.ts"
+```typescript title="src/app/my.ts"
 import { Component } from '@angular/core';
 import { LYNX_ELEMENTS, LynxMainThreadEvent } from '@blotch/angular-lynx';
 import type { MainThread } from '@blotch/angular-lynx';
@@ -98,7 +98,7 @@ const handleTap = (event: MainThread.TouchEvent) => {
     </view>
   `,
 })
-export class MyComponent {
+export class Example {
   readonly handleTap = handleTap;
 }
 ```

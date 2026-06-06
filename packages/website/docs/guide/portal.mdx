@@ -9,14 +9,14 @@ For **declarative** overlays (content defined in a template), use `<overlay>` di
 ```typescript
 import { Component, inject } from '@angular/core';
 import { LynxPortalService } from '@blotch/angular-lynx';
-import { ConfirmDialogComponent } from './confirm-dialog.component';
+import { ConfirmDialog } from './confirm-dialog';
 
 @Component({ ... })
-export class MyComponent {
+export class Example {
   readonly #portal = inject(LynxPortalService);
 
   openDialog(): void {
-    const ref = this.#portal.open(ConfirmDialogComponent, {
+    const ref = this.#portal.open(ConfirmDialog, {
       level: 2,
       inputs: { title: 'Delete item?', message: 'This cannot be undone.' },
     });
@@ -30,7 +30,7 @@ export class MyComponent {
 }
 ```
 
-The `ConfirmDialogComponent` participates fully in Angular change detection and dependency injection. It can inject services, use signals, and define lifecycle hooks normally.
+The `ConfirmDialog` participates fully in Angular change detection and dependency injection. It can inject services, use signals, and define lifecycle hooks normally.
 
 ## Opening a Template
 
@@ -54,7 +54,7 @@ import { LynxPortalService, LYNX_ELEMENTS } from '@blotch/angular-lynx';
     </ng-template>
   `,
 })
-export class MyComponent {
+export class Example {
   readonly #portal = inject(LynxPortalService);
   toastTemplate = viewChild.required<TemplateRef<void>>('toast');
 

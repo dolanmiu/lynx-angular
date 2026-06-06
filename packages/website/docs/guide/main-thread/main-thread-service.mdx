@@ -8,7 +8,7 @@ Main thread scripts directly manipulate native elements, **bypassing Angular's s
 
 ## Usage
 
-```typescript title="src/app/my.component.ts"
+```typescript title="src/app/my.ts"
 import { Component, inject } from '@angular/core';
 import {
   mainThreadFn,
@@ -34,7 +34,7 @@ const flashElement = mainThreadFn(() => {
     </view>
   `,
 })
-export class MyComponent {
+export class Example {
   readonly #mts = inject(LynxMainThreadService); // [!code highlight]
 
   flash(): void {

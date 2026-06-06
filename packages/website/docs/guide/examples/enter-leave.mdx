@@ -186,7 +186,7 @@ interface Notification {
     }
   `,
 })
-export class EnterLeaveComponent {
+export class EnterLeave {
   readonly showBanner = signal(true);
   readonly notifications = signal<Notification[]>([]);
   private nextId = 1;

@@ -2,7 +2,7 @@
 
 For imperative control, use the `animate()` method on native Lynx elements. Access the element via `viewChild` and call `animate()` with keyframes and options:
 
-```typescript title="src/app/pulse.component.ts"
+```typescript title="src/app/pulse.ts"
 import { Component, viewChild, type ElementRef } from '@angular/core';
 import { LYNX_ELEMENTS, type LynxAnimation } from '@blotch/angular-lynx'; // [!code highlight]
 
@@ -25,7 +25,7 @@ import { LYNX_ELEMENTS, type LynxAnimation } from '@blotch/angular-lynx'; // [!c
     `,
   ],
 })
-export class PulseComponent {
+export class Pulse {
   readonly boxRef = viewChild<ElementRef>('box');
   #animation: LynxAnimation | null = null;
 

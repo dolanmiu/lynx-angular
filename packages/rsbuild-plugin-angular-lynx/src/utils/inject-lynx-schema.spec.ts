@@ -32,7 +32,7 @@ class MyService {}`;
     const source = `@Component({
   selector: 'app-root',
 })
-class AppComponent {}`;
+class App {}`;
 
     const result = injectLynxSchema(source);
 
@@ -45,7 +45,7 @@ class AppComponent {}`;
     const source = `@Component  ({
   selector: 'app-root',
 })
-class AppComponent {}`;
+class App {}`;
 
     const result = injectLynxSchema(source);
 
@@ -57,7 +57,7 @@ class AppComponent {}`;
     const source = `@Component\n({
   selector: 'app-root',
 })
-class AppComponent {}`;
+class App {}`;
 
     const result = injectLynxSchema(source);
 
@@ -86,7 +86,7 @@ class ComponentB {}`;
   it('prepends the import before everything else', () => {
     const source = `import { Component } from '@angular/core';
 @Component({ selector: 'app-root' })
-class AppComponent {}`;
+class App {}`;
 
     const result = injectLynxSchema(source);
 
@@ -95,7 +95,7 @@ class AppComponent {}`;
 
   it('preserves existing properties after injected schema', () => {
     const source = `@Component({ selector: 'app-root', template: '<view></view>' })
-class AppComponent {}`;
+class App {}`;
 
     const result = injectLynxSchema(source);
 

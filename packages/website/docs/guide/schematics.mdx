@@ -44,13 +44,13 @@ This creates a component with `<view>`/`<text>` elements, `OnPush` change detect
 
 ```
 src/app/my-feature/
-  my-feature.component.ts       # Component with Lynx template
-  my-feature.component.spec.ts  # Vitest test using render()
+  my-feature.ts       # Component with Lynx template
+  my-feature.spec.ts  # Vitest test using render()
 ```
 
 **Example output:**
 
-```typescript title="my-feature.component.ts"
+```typescript title="my-feature.ts"
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
@@ -65,18 +65,18 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   `,
   styles: [``],
 })
-export class MyFeatureComponent {}
+export class MyFeature {}
 ```
 
-```typescript title="my-feature.component.spec.ts"
+```typescript title="my-feature.spec.ts"
 import { describe, expect, it } from 'vitest';
 import { render } from '@blotch/angular-lynx-testing-library';
 
-import { MyFeatureComponent } from './my-feature.component';
+import { MyFeature } from './my-feature';
 
-describe('MyFeatureComponent', () => {
+describe('MyFeature', () => {
   it('should render', async () => {
-    const { getByText } = await render(MyFeatureComponent);
+    const { getByText } = await render(MyFeature);
     expect(getByText('my-feature works!')).toBeTruthy();
   });
 });
@@ -96,7 +96,7 @@ describe('MyFeatureComponent', () => {
 **Nested paths:**
 
 ```bash
-# Creates src/app/pages/dashboard/dashboard.component.ts
+# Creates src/app/pages/dashboard/dashboard.ts
 ng generate @blotch/angular-lynx:component pages/dashboard
 ```
 

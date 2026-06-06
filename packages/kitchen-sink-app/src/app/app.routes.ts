@@ -1,145 +1,124 @@
 import type { Routes } from '@angular/router';
-import { ScrollExampleComponent } from './scroll-example/scroll-example.component';
+import { ScrollExample } from './scroll-example/scroll-example';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'list-example' },
   {
     path: 'list-example',
     loadComponent: () =>
-      import('./list-example/list-example.component').then(
-        (m) => m.ListExampleComponent,
-      ),
+      import('./list-example/list-example').then((m) => m.ListExample),
   },
-  { path: 'scroll-example', component: ScrollExampleComponent },
+  { path: 'scroll-example', component: ScrollExample },
   {
     path: 'showcase',
     loadComponent: () =>
-      import('./elements-showcase/elements-showcase.component').then(
-        (m) => m.ElementsShowcaseComponent,
+      import('./elements-showcase/elements-showcase').then(
+        (m) => m.ElementsShowcase,
       ),
   },
   {
     path: 'query-selector-demo',
     loadComponent: () =>
-      import('./query-selector-demo/query-selector-demo.component').then(
-        (m) => m.QuerySelectorDemoComponent,
+      import('./query-selector-demo/query-selector-demo').then(
+        (m) => m.QuerySelectorDemo,
       ),
   },
   {
     path: 'tailwind-demo',
     loadComponent: () =>
-      import('./tailwind-demo/tailwind-demo.component').then(
-        (m) => m.TailwindDemoComponent,
-      ),
+      import('./tailwind-demo/tailwind-demo').then((m) => m.TailwindDemo),
   },
   {
     path: 'motion-demo',
     loadComponent: () =>
-      import('./motion-demo/motion-demo.component').then(
-        (m) => m.MotionDemoComponent,
-      ),
+      import('./motion-demo/motion-demo').then((m) => m.MotionDemo),
   },
   {
     path: 'overlay-motion-demo',
     loadComponent: () =>
-      import('./overlay-motion-demo/overlay-motion-demo.component').then(
-        (m) => m.OverlayMotionDemoComponent,
+      import('./overlay-motion-demo/overlay-motion-demo').then(
+        (m) => m.OverlayMotionDemo,
       ),
   },
   {
     path: 'css-modules-demo',
     loadComponent: () =>
-      import('./css-modules-demo/css-modules-demo.component').then(
-        (m) => m.CssModulesDemoComponent,
+      import('./css-modules-demo/css-modules-demo').then(
+        (m) => m.CssModulesDemo,
       ),
   },
   {
     path: 'defer-demo',
     loadComponent: () =>
-      import('./defer-demo/defer-demo.component').then(
-        (m) => m.DeferDemoComponent,
-      ),
+      import('./defer-demo/defer-demo').then((m) => m.DeferDemo),
   },
   {
     path: 'gesture-demo',
     loadComponent: () =>
-      import('./gesture-demo/gesture-demo.component').then(
-        (m) => m.GestureDemoComponent,
-      ),
+      import('./gesture-demo/gesture-demo').then((m) => m.GestureDemo),
   },
   {
     path: 'fonts-demo',
     loadComponent: () =>
-      import('./fonts-demo/fonts-demo.component').then(
-        (m) => m.FontsDemoComponent,
-      ),
+      import('./fonts-demo/fonts-demo').then((m) => m.FontsDemo),
   },
   {
     path: 'text-measure-demo',
     loadComponent: () =>
-      import('./text-measure-demo/text-measure-demo.component').then(
-        (m) => m.TextMeasureDemoComponent,
+      import('./text-measure-demo/text-measure-demo').then(
+        (m) => m.TextMeasureDemo,
       ),
   },
   {
     path: 'content-projection-demo',
     loadComponent: () =>
-      import('./content-projection-demo/content-projection-demo.component').then(
-        (m) => m.ContentProjectionDemoComponent,
+      import('./content-projection-demo/content-projection-demo').then(
+        (m) => m.ContentProjectionDemo,
       ),
   },
   {
     path: 'exposure-demo',
     loadComponent: () =>
-      import('./exposure-demo/exposure-demo.component').then(
-        (m) => m.ExposureDemoComponent,
-      ),
+      import('./exposure-demo/exposure-demo').then((m) => m.ExposureDemo),
   },
   {
     path: 'main-thread-demo',
     loadComponent: () =>
-      import('./main-thread-demo/main-thread-demo.component').then(
-        (m) => m.MainThreadDemoComponent,
+      import('./main-thread-demo/main-thread-demo').then(
+        (m) => m.MainThreadDemo,
       ),
   },
   {
     path: 'session-storage-demo',
     loadComponent: () =>
-      import('./session-storage-demo/session-storage-demo.component').then(
-        (m) => m.SessionStorageDemoComponent,
+      import('./session-storage-demo/session-storage-demo').then(
+        (m) => m.SessionStorageDemo,
       ),
   },
   {
     path: 'worklet-directive-demo',
     loadComponent: () =>
-      import('./worklet-directive-demo/worklet-directive-demo.component').then(
-        (m) => m.WorkletDirectiveDemoComponent,
+      import('./worklet-directive-demo/worklet-directive-demo').then(
+        (m) => m.WorkletDirectiveDemo,
       ),
   },
   {
     path: 'transition-demo',
     loadComponent: () =>
-      import('./transition-demo/transition-demo.component').then(
-        (m) => m.TransitionDemoComponent,
-      ),
+      import('./transition-demo/transition-demo').then((m) => m.TransitionDemo),
   },
   {
     path: 'i18n-demo',
     loadComponent: () =>
-      import('./i18n-demo/i18n-demo.component').then(
-        (m) => m.I18nDemoComponent,
-      ),
+      import('./i18n-demo/i18n-demo').then((m) => m.I18nDemo),
   },
   {
     path: 'forms-demo',
     loadComponent: () =>
-      import('./forms-demo/forms-demo.component').then(
-        (m) => m.FormsDemoComponent,
-      ),
+      import('./forms-demo/forms-demo').then((m) => m.FormsDemo),
   },
   {
     path: 'ssr-demo',
-    loadComponent: () =>
-      import('./ssr-demo/ssr-demo.component').then((m) => m.SsrDemoComponent),
+    loadComponent: () => import('./ssr-demo/ssr-demo').then((m) => m.SsrDemo),
   },
 ];

@@ -205,29 +205,29 @@ describe('runtime', () => {
 
   describe('bootstrapApplication', () => {
     it('calls ngBootstrapApplication with the root component and config', async () => {
-      class AppComponent {}
+      class App {}
       const config = { providers: [] };
-      await bootstrapApplication(AppComponent, config as any);
-      expect(mockNgBootstrap).toHaveBeenCalledWith(AppComponent, config);
+      await bootstrapApplication(App, config as any);
+      expect(mockNgBootstrap).toHaveBeenCalledWith(App, config);
     });
 
     it('returns the ApplicationRef', async () => {
-      class AppComponent {}
-      const result = await bootstrapApplication(AppComponent);
+      class App {}
+      const result = await bootstrapApplication(App);
       expect(result).toBe(mockAppRef);
     });
 
     it('stores the ApplicationRef on globalThis.__LYNX_ANGULAR_APP_REF__', async () => {
-      class AppComponent {}
-      await bootstrapApplication(AppComponent);
+      class App {}
+      await bootstrapApplication(App);
       expect((globalThis as any).__LYNX_ANGULAR_APP_REF__).toBe(mockAppRef);
     });
 
     describe('on the background thread (__MAIN_THREAD__ = false)', () => {
       it('bootstraps immediately without waiting for renderPage', async () => {
-        class AppComponent {}
+        class App {}
         // __MAIN_THREAD__ is already false from beforeEach
-        await bootstrapApplication(AppComponent);
+        await bootstrapApplication(App);
         expect(mockNgBootstrap).toHaveBeenCalled();
       });
     });
@@ -235,10 +235,10 @@ describe('runtime', () => {
     describe('on the main thread (__MAIN_THREAD__ = true)', () => {
       it('waits for the renderPage callback before bootstrapping', async () => {
         vi.stubGlobal('__MAIN_THREAD__', true);
-        class AppComponent {}
+        class App {}
 
         let resolved = false;
-        const promise = bootstrapApplication(AppComponent).then(() => {
+        const promise = bootstrapApplication(App).then(() => {
           resolved = true;
         });
 
@@ -262,8 +262,8 @@ describe('runtime', () => {
         const prevAppRef = { destroy: vi.fn() };
         (globalThis as any).__LYNX_ANGULAR_APP_REF__ = prevAppRef;
 
-        class AppComponent {}
-        await bootstrapApplication(AppComponent);
+        class App {}
+        await bootstrapApplication(App);
 
         expect(prevAppRef.destroy).toHaveBeenCalled();
         expect((globalThis as any).__LYNX_ANGULAR_APP_REF__).toBe(mockAppRef);
@@ -275,8 +275,8 @@ describe('runtime', () => {
 
         (globalThis as any).__LYNX_ANGULAR_APP_REF__ = { destroy: vi.fn() };
 
-        class AppComponent {}
-        await bootstrapApplication(AppComponent);
+        class App {}
+        await bootstrapApplication(App);
 
         (globalThis as any).runWorklet({ _wkltId: 'stale-worklet' }, []);
         expect(staleFn).not.toHaveBeenCalled();
@@ -286,9 +286,9 @@ describe('runtime', () => {
         vi.stubGlobal('__MAIN_THREAD__', true);
         (globalThis as any).__LYNX_ANGULAR_APP_REF__ = { destroy: vi.fn() };
 
-        class AppComponent {}
+        class App {}
         // Should resolve without renderPage since prev is set
-        await bootstrapApplication(AppComponent);
+        await bootstrapApplication(App);
 
         expect(mockNgBootstrap).toHaveBeenCalled();
       });

@@ -8,7 +8,7 @@
  *     imports: [LYNX_ELEMENTS],
  *     template: `<view><text>Hello</text></view>`,
  *   })
- *   export class MyComponent {}
+ *   export class My {}
  *
  * The rsbuild plugin automatically injects CUSTOM_ELEMENTS_SCHEMA at build time
  * so the build always succeeds even without importing LYNX_ELEMENTS. These stubs

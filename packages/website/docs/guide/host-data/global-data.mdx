@@ -2,7 +2,7 @@
 
 `LynxGlobalDataService` provides host-level data shared across all Lynx cards — typically theme, locale, or feature flags. Like InitData, it's a signal that updates reactively when the host changes global data.
 
-```typescript title="src/app/theme.component.ts"
+```typescript title="src/app/theme.ts"
 import { Component, computed, inject } from '@angular/core';
 import { LynxGlobalDataService, LYNX_ELEMENTS } from '@blotch/angular-lynx'; // [!code highlight]
 
@@ -14,7 +14,7 @@ import { LynxGlobalDataService, LYNX_ELEMENTS } from '@blotch/angular-lynx'; // 
     </view>
   `,
 })
-export class ThemeComponent {
+export class Theme {
   readonly globalDataService = inject(LynxGlobalDataService); // [!code highlight]
 
   readonly themeClass = computed(() =>

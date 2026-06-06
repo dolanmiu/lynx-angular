@@ -18,14 +18,14 @@ import { render, cleanup, waitForUpdate } from './index.js';
   template: `<view></view>`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class SingleViewComponent {}
+class SingleView {}
 
 @Component({
   selector: 'test-text',
   template: `<text>Hello Lynx</text>`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class TextComponent {}
+class TextDisplay {}
 
 @Component({
   selector: 'test-nested',
@@ -37,11 +37,11 @@ class TextComponent {}
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class NestedComponent {}
+class Nested {}
 
 describe('render', () => {
   it('renders a single view element', async () => {
-    const { container, asFragment } = await render(SingleViewComponent);
+    const { container, asFragment } = await render(SingleView);
     expect(container.querySelector('view')).not.toBeNull();
     expect(asFragment()).toMatchInlineSnapshot(`
       <DocumentFragment>
@@ -55,7 +55,7 @@ describe('render', () => {
   });
 
   it('renders a text element with content', async () => {
-    const { container, asFragment } = await render(TextComponent);
+    const { container, asFragment } = await render(TextDisplay);
     const textEl = container.querySelector('text');
     expect(textEl).not.toBeNull();
     expect(textEl!.textContent).toBe('Hello Lynx');
@@ -73,7 +73,7 @@ describe('render', () => {
   });
 
   it('renders nested elements', async () => {
-    const { container, asFragment } = await render(NestedComponent);
+    const { container, asFragment } = await render(Nested);
     const texts = container.querySelectorAll('text');
     expect(texts.length).toBe(2);
     expect(texts[0]!.textContent).toBe('First');
@@ -102,17 +102,17 @@ describe('render', () => {
       template: `<text>First render</text>`,
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
-    class FirstComponent {}
+    class First {}
 
     @Component({
       selector: 'test-second',
       template: `<text>Second render</text>`,
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
-    class SecondComponent {}
+    class Second {}
 
-    await render(FirstComponent);
-    const { container } = await render(SecondComponent);
+    await render(First);
+    const { container } = await render(Second);
 
     const texts = container.querySelectorAll('text');
     expect(texts.length).toBe(1);
@@ -128,11 +128,11 @@ describe('render', () => {
       template: `<text>{{ label() }}</text>`,
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
-    class SignalUpdateComponent {
+    class SignalUpdate {
       label = label;
     }
 
-    const { container, asFragment } = await render(SignalUpdateComponent);
+    const { container, asFragment } = await render(SignalUpdate);
     expect(container.querySelector('text')!.textContent).toBe('initial');
     expect(asFragment()).toMatchInlineSnapshot(`
       <DocumentFragment>
@@ -175,11 +175,11 @@ describe('@if control flow', () => {
       `,
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
-    class IfComponent {
+    class ConditionalIf {
       show = signal(true);
     }
 
-    const { container, asFragment } = await render(IfComponent);
+    const { container, asFragment } = await render(ConditionalIf);
     expect(container.querySelector('text')!.textContent).toBe('Visible');
     expect(asFragment()).toMatchInlineSnapshot(`
       <DocumentFragment>
@@ -209,11 +209,11 @@ describe('@for control flow', () => {
       `,
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
-    class ForComponent {
+    class ForLoop {
       items = signal(['Alpha', 'Beta', 'Gamma']);
     }
 
-    const { container, asFragment } = await render(ForComponent);
+    const { container, asFragment } = await render(ForLoop);
     const texts = container.querySelectorAll('text');
     expect(texts.length).toBe(3);
     expect(texts[0]!.textContent).toBe('Alpha');
@@ -251,11 +251,11 @@ describe('@for control flow', () => {
       `,
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
-    class ForEmptyComponent {
+    class ForEmpty {
       items = signal<string[]>([]);
     }
 
-    const { container, asFragment } = await render(ForEmptyComponent);
+    const { container, asFragment } = await render(ForEmpty);
     expect(container.querySelectorAll('text').length).toBe(0);
     expect(asFragment()).toMatchInlineSnapshot(`
       <DocumentFragment>
@@ -282,11 +282,11 @@ describe('@for control flow', () => {
       `,
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
-    class ForUpdateComponent {
+    class ForUpdate {
       items = items;
     }
 
-    const { container, asFragment } = await render(ForUpdateComponent);
+    const { container, asFragment } = await render(ForUpdate);
     expect(container.querySelectorAll('text').length).toBe(1);
     expect(asFragment()).toMatchInlineSnapshot(`
       <DocumentFragment>
@@ -343,11 +343,11 @@ describe('@if control flow — reactive toggle', () => {
       `,
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
-    class IfFalseComponent {
+    class IfFalse {
       show = show;
     }
 
-    const { container, asFragment } = await render(IfFalseComponent);
+    const { container, asFragment } = await render(IfFalse);
     expect(container.querySelector('text')).toBeNull();
     expect(asFragment()).toMatchInlineSnapshot(`
       <DocumentFragment>
@@ -374,11 +374,11 @@ describe('@if control flow — reactive toggle', () => {
       `,
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
-    class IfToggleComponent {
+    class IfToggle {
       show = show;
     }
 
-    const { container, asFragment } = await render(IfToggleComponent);
+    const { container, asFragment } = await render(IfToggle);
     expect(container.querySelector('text')).not.toBeNull();
     expect(asFragment()).toMatchInlineSnapshot(`
       <DocumentFragment>
@@ -415,7 +415,7 @@ describe('@if control flow — reactive toggle', () => {
 
 describe('cleanup', () => {
   it('destroys the app without error', async () => {
-    await render(SingleViewComponent);
+    await render(SingleView);
     expect(() => cleanup()).not.toThrow();
   });
 
@@ -427,12 +427,12 @@ describe('cleanup', () => {
 
 describe('unmount', () => {
   it('destroys the app without error', async () => {
-    const { unmount } = await render(SingleViewComponent);
+    const { unmount } = await render(SingleView);
     expect(() => unmount()).not.toThrow();
   });
 
   it('makes waitForUpdate a no-op afterwards', async () => {
-    const { unmount } = await render(SingleViewComponent);
+    const { unmount } = await render(SingleView);
     unmount();
     await expect(waitForUpdate()).resolves.toBeUndefined();
   });
@@ -452,16 +452,16 @@ describe('rerender', () => {
       template: `<text>Component A</text>`,
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
-    class ComponentA {}
+    class RerenderA {}
 
     @Component({
       selector: 'test-rerender-b',
       template: `<text>Component B</text>`,
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
-    class ComponentB {}
+    class RerenderB {}
 
-    const { container, rerender, asFragment } = await render(ComponentA);
+    const { container, rerender, asFragment } = await render(RerenderA);
     expect(container.querySelector('text')!.textContent).toBe('Component A');
     expect(asFragment()).toMatchInlineSnapshot(`
       <DocumentFragment>
@@ -475,7 +475,7 @@ describe('rerender', () => {
       </DocumentFragment>
     `);
 
-    const result = await rerender(ComponentB);
+    const result = await rerender(RerenderB);
     expect(result.container.querySelector('text')!.textContent).toBe(
       'Component B',
     );
@@ -498,17 +498,17 @@ describe('rerender', () => {
       template: `<text>Old</text><text>Also old</text>`,
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
-    class OldComponent {}
+    class Old {}
 
     @Component({
       selector: 'test-rerender-cleanup-b',
       template: `<text>New</text>`,
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
-    class NewComponent {}
+    class New {}
 
-    const { rerender } = await render(OldComponent);
-    const { container } = await rerender(NewComponent);
+    const { rerender } = await render(Old);
+    const { container } = await rerender(New);
 
     const texts = container.querySelectorAll('text');
     expect(texts.length).toBe(1);
@@ -523,7 +523,7 @@ describe('rerender', () => {
       template: `<text>{{ value }}</text>`,
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
-    class WithTokenComponent {
+    class WithToken {
       value = inject(TOKEN);
     }
 
@@ -532,10 +532,10 @@ describe('rerender', () => {
       template: `<text>initial</text>`,
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
-    class InitialComponent {}
+    class Initial {}
 
-    const { rerender } = await render(InitialComponent);
-    const { container } = await rerender(WithTokenComponent, {
+    const { rerender } = await render(Initial);
+    const { container } = await rerender(WithToken, {
       providers: [{ provide: TOKEN, useValue: 'from-rerender' }],
     });
 
@@ -548,17 +548,17 @@ describe('rerender', () => {
       template: `<text>Before</text>`,
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
-    class BeforeComponent {}
+    class Before {}
 
     @Component({
       selector: 'test-rerender-queries-b',
       template: `<text>After</text>`,
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
-    class AfterComponent {}
+    class After {}
 
-    const { rerender } = await render(BeforeComponent);
-    const { getByText, queryByText } = await rerender(AfterComponent);
+    const { rerender } = await render(Before);
+    const { getByText, queryByText } = await rerender(After);
 
     expect(getByText('After')).not.toBeNull();
     expect(queryByText('Before')).toBeNull();
@@ -570,17 +570,17 @@ describe('rerender', () => {
       template: `<view></view>`,
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
-    class FragmentBeforeComponent {}
+    class FragmentBefore {}
 
     @Component({
       selector: 'test-rerender-fragment-b',
       template: `<text>Fragment content</text>`,
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
-    class FragmentAfterComponent {}
+    class FragmentAfter {}
 
-    const { rerender } = await render(FragmentBeforeComponent);
-    const { asFragment } = await rerender(FragmentAfterComponent);
+    const { rerender } = await render(FragmentBefore);
+    const { asFragment } = await rerender(FragmentAfter);
     const fragment = asFragment();
 
     expect(fragment).toBeInstanceOf(DocumentFragment);
@@ -595,19 +595,19 @@ describe('rerender', () => {
       template: `<view></view>`,
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
-    class ComponentRefBeforeComponent {}
+    class ComponentRefBefore {}
 
     @Component({
       selector: 'test-rerender-component-ref-b',
       template: `<view></view>`,
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
-    class ComponentRefAfterComponent {}
+    class ComponentRefAfter {}
 
-    const { rerender } = await render(ComponentRefBeforeComponent);
-    const { componentRef } = await rerender(ComponentRefAfterComponent);
+    const { rerender } = await render(ComponentRefBefore);
+    const { componentRef } = await rerender(ComponentRefAfter);
 
-    expect(componentRef.instance).toBeInstanceOf(ComponentRefAfterComponent);
+    expect(componentRef.instance).toBeInstanceOf(ComponentRefAfter);
   });
 
   it('custom queries option works on the rerendered result', async () => {
@@ -622,17 +622,17 @@ describe('rerender', () => {
       template: `<view></view>`,
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
-    class CustomQBeforeComponent {}
+    class CustomQBefore {}
 
     @Component({
       selector: 'test-rerender-custom-q-b',
       template: `<text>Custom</text>`,
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
-    class CustomQAfterComponent {}
+    class CustomQAfter {}
 
-    const { rerender } = await render(CustomQBeforeComponent);
-    const result = await rerender(CustomQAfterComponent, {
+    const { rerender } = await render(CustomQBefore);
+    const result = await rerender(CustomQAfter, {
       queries: { getByTag },
     });
 
@@ -642,14 +642,14 @@ describe('rerender', () => {
 
 describe('asFragment', () => {
   it('returns a DocumentFragment containing the rendered output', async () => {
-    const { asFragment } = await render(TextComponent);
+    const { asFragment } = await render(TextDisplay);
     const fragment = asFragment();
     expect(fragment).toBeInstanceOf(DocumentFragment);
     expect(fragment.querySelector('text')!.textContent).toBe('Hello Lynx');
   });
 
   it('matches a snapshot', async () => {
-    const { asFragment } = await render(NestedComponent);
+    const { asFragment } = await render(Nested);
     expect(asFragment()).toMatchInlineSnapshot(`
       <DocumentFragment>
         <page
@@ -676,11 +676,11 @@ describe('asFragment', () => {
       template: `<text>{{ label() }}</text>`,
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
-    class FragmentSignalComponent {
+    class FragmentSignal {
       label = label;
     }
 
-    const { asFragment } = await render(FragmentSignalComponent);
+    const { asFragment } = await render(FragmentSignal);
     expect(asFragment().querySelector('text')!.textContent).toBe('before');
 
     label.set('after');
@@ -699,11 +699,11 @@ describe('options.providers', () => {
       template: `<text>{{ value }}</text>`,
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
-    class WithProviderComponent {
+    class WithProvider {
       value = inject(TOKEN);
     }
 
-    const { container, asFragment } = await render(WithProviderComponent, {
+    const { container, asFragment } = await render(WithProvider, {
       providers: [{ provide: TOKEN, useValue: 'hello-from-provider' }],
     });
 
@@ -726,9 +726,9 @@ describe('options.providers', () => {
 
 describe('componentRef', () => {
   it('is present in the render result', async () => {
-    const { componentRef } = await render(SingleViewComponent);
+    const { componentRef } = await render(SingleView);
     expect(componentRef).toBeDefined();
-    expect(componentRef.instance).toBeInstanceOf(SingleViewComponent);
+    expect(componentRef.instance).toBeInstanceOf(SingleView);
   });
 
   it('provides injector access for retrieving services', async () => {
@@ -739,9 +739,9 @@ describe('componentRef', () => {
       template: `<view></view>`,
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
-    class InjectorTestComponent {}
+    class InjectorTest {}
 
-    const { componentRef } = await render(InjectorTestComponent, {
+    const { componentRef } = await render(InjectorTest, {
       providers: [{ provide: TOKEN, useValue: 'from-injector' }],
     });
 
@@ -759,14 +759,14 @@ describe('componentRef', () => {
       template: `<text>{{ label() }}</text>`,
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
-    class InstanceSignalComponent {
+    class InstanceSignal {
       label = signal('initial');
     }
 
-    const { container, componentRef } = await render(InstanceSignalComponent);
+    const { container, componentRef } = await render(InstanceSignal);
     expect(container.querySelector('text')!.textContent).toBe('initial');
 
-    (componentRef.instance as InstanceSignalComponent).label.set('updated');
+    (componentRef.instance as InstanceSignal).label.set('updated');
     await waitForUpdate();
 
     expect(container.querySelector('text')!.textContent).toBe('updated');
@@ -775,12 +775,12 @@ describe('componentRef', () => {
 
 describe('returned queries', () => {
   it('getByText finds an element by its text content', async () => {
-    const { getByText } = await render(TextComponent);
+    const { getByText } = await render(TextDisplay);
     expect(getByText('Hello Lynx')).not.toBeNull();
   });
 
   it('queryByText returns null when the text is absent', async () => {
-    const { queryByText } = await render(TextComponent);
+    const { queryByText } = await render(TextDisplay);
     expect(queryByText('Not present')).toBeNull();
   });
 });
@@ -800,25 +800,25 @@ describe('options.queries', () => {
   const customQueries = { queryByTag, getByTag };
 
   it('merges custom queries into the render result', async () => {
-    const result = await render(TextComponent, { queries: customQueries });
+    const result = await render(TextDisplay, { queries: customQueries });
     expect(typeof result.getByTag).toBe('function');
     expect(typeof result.queryByTag).toBe('function');
   });
 
   it('custom query finds the correct element', async () => {
-    const result = await render(TextComponent, { queries: customQueries });
+    const result = await render(TextDisplay, { queries: customQueries });
     const el = result.getByTag('text');
     expect(el).not.toBeNull();
     expect(el.textContent).toBe('Hello Lynx');
   });
 
   it('custom query returns null when the element is absent', async () => {
-    const result = await render(TextComponent, { queries: customQueries });
+    const result = await render(TextDisplay, { queries: customQueries });
     expect(result.queryByTag('image')).toBeNull();
   });
 
   it('standard queries still work alongside custom queries', async () => {
-    const result = await render(TextComponent, { queries: customQueries });
+    const result = await render(TextDisplay, { queries: customQueries });
     expect(result.getByText('Hello Lynx')).not.toBeNull();
     expect(result.getByTag('text')).not.toBeNull();
   });

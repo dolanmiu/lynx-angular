@@ -2,7 +2,7 @@
 
 AngularLynx automatically routes unhandled errors to the native Lynx error reporting system. No manual setup is required — `provideRenderer()` registers `LynxErrorHandler` as Angular's `ErrorHandler`.
 
-<Go example="error-handling" defaultFile="src/app/app.component.ts" />
+<Go example="error-handling" defaultFile="src/app/app.ts" />
 
 ## How It Works
 
@@ -18,7 +18,7 @@ The error code `1101` follows the Lynx convention (`LYNX_ERROR_CODE_LEPUS`), mat
 
 Since Lynx apps run on-device with no browser console, `LynxErrorHandler` stores the last error in a global string. Render it in your template to see errors on screen:
 
-```typescript title="src/app/app.component.ts"
+```typescript title="src/app/app.ts"
 import { Component } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
@@ -38,7 +38,7 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
     </view>
   `,
 })
-export class AppComponent {
+export class App {
   get lastError(): string {
     return (globalThis as any).__lynxLastError ?? '';
   }

@@ -27,7 +27,8 @@
     "oxfmt": "^0.48.0",
     "oxlint": "^1.63.0",
     "turbo": "^2.9.16",
-    "vitest": "^4.0.8"
+    "vitest": "^4.0.8",
+    "yalc": "^1.0.0-pre.53"
   },
   "packageManager": "npm@10.9.2"
 }

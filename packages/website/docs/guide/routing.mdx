@@ -28,9 +28,9 @@ import type { Routes } from '@angular/router';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
-  { path: 'home', component: HomeComponent },
-  { path: 'settings', component: SettingsComponent },
-  { path: 'profile/:id', component: ProfileComponent },
+  { path: 'home', component: Home },
+  { path: 'settings', component: Settings },
+  { path: 'profile/:id', component: Profile },
 ];
 ```
 
@@ -42,7 +42,7 @@ Always define a default route that redirects from `''`. Without one, Angular thr
 
 `RouterOutlet` works the same as web Angular. The key difference is that navigation must be triggered via `setTimeout`:
 
-```typescript title="src/app/app.component.ts"
+```typescript title="src/app/app.ts"
 import { Component, inject } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
@@ -63,7 +63,7 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
     </view>
   `,
 })
-export class AppComponent {
+export class App {
   #router = inject(Router);
 
   navigateTo(path: string): void {
@@ -113,18 +113,15 @@ export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
   {
     path: 'home',
-    loadComponent: () =>
-      import('./home/home.component').then((m) => m.HomeComponent),
+    loadComponent: () => import('./home/home').then((m) => m.Home),
   },
   {
     path: 'settings',
-    loadComponent: () =>
-      import('./settings/settings.component').then((m) => m.SettingsComponent),
+    loadComponent: () => import('./settings/settings').then((m) => m.Settings),
   },
   {
     path: 'profile/:id',
-    loadComponent: () =>
-      import('./profile/profile.component').then((m) => m.ProfileComponent),
+    loadComponent: () => import('./profile/profile').then((m) => m.Profile),
   },
 ];
 ```
@@ -149,7 +146,7 @@ With `withComponentInputBinding`, route parameters are automatically bound to ma
   imports: [LYNX_ELEMENTS],
   template: `<text>Profile: {{ id() }}</text>`,
 })
-export class ProfileComponent {
+export class Profile {
   id = input.required<string>(); // Bound from :id route param
 }
 ```

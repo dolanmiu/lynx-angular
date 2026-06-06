@@ -6,7 +6,7 @@ Add `imports: [LYNX_ELEMENTS]` from `@blotch/angular-lynx` to your component for
 
 Displays images from local imports or remote URLs.
 
-<Go example="element-image" defaultFile="src/app/app.component.ts" />
+<Go example="element-image" defaultFile="src/app/app.ts" />
 
 ```typescript
 import logo from '../assets/logo.png';
@@ -15,7 +15,7 @@ import logo from '../assets/logo.png';
   imports: [LYNX_ELEMENTS],
   template: ` <image [src]="logo" style="width: 80px; height: 80px;" /> `,
 })
-export class LogoComponent {
+export class Logo {
   logo = logo;
 }
 ```

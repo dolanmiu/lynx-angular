@@ -8,7 +8,7 @@ Main thread scripts directly manipulate native elements, **bypassing Angular's s
 
 ## Setup
 
-```typescript title="src/app/my.component.ts"
+```typescript title="src/app/my.ts"
 import { Component } from '@angular/core';
 import {
   mainThreadFn, // [!code highlight]
@@ -31,7 +31,7 @@ const handleTap = mainThreadFn((event: MainThread.TouchEvent) => {
     </view>
   `,
 })
-export class MyComponent {
+export class Example {
   readonly handleTap = handleTap;
 }
 ```

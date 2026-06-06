@@ -112,7 +112,7 @@ interface Contact {
     }
   `,
 })
-export class InfiniteScrollComponent {
+export class InfiniteScroll {
   readonly contacts = signal<Contact[]>(this.generateContacts(0, 20));
   readonly loading = signal(false);
 

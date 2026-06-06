@@ -6,7 +6,7 @@ The `LynxTransition` component animates content as it enters and leaves the scre
 
 Wrap your content in `<lynx-transition>` and control visibility with the `show` input:
 
-```typescript title="src/app/fade-panel.component.ts"
+```typescript title="src/app/fade-panel.ts"
 import { Component, signal } from '@angular/core';
 import { LYNX_ELEMENTS, LynxTransition } from '@blotch/angular-lynx'; // [!code highlight]
 
@@ -37,7 +37,7 @@ import { LYNX_ELEMENTS, LynxTransition } from '@blotch/angular-lynx'; // [!code 
     `,
   ],
 })
-export class FadePanelComponent {
+export class FadePanel {
   readonly visible = signal(false);
 
   toggle() {
@@ -108,7 +108,7 @@ Make sure your `duration` input matches the `transition-duration` in your CSS. I
 
 ## Slide Example
 
-```typescript title="src/app/slide-panel.component.ts"
+```typescript title="src/app/slide-panel.ts"
 @Component({
   imports: [LYNX_ELEMENTS, LynxTransition],
   template: `
@@ -133,7 +133,7 @@ Make sure your `duration` input matches the `transition-duration` in your CSS. I
     `,
   ],
 })
-export class SlidePanelComponent {
+export class SlidePanel {
   readonly open = signal(true);
 }
 ```
@@ -144,7 +144,7 @@ export class SlidePanelComponent {
 
 Since Angular's `@for` destroys views immediately on removal (no hook to delay), `LynxTransitionGroup` manages its own views via `ViewContainerRef`. You provide the list and an item template:
 
-```typescript title="src/app/animated-list.component.ts"
+```typescript title="src/app/animated-list.ts"
 import { Component, signal } from '@angular/core';
 import { LYNX_ELEMENTS, LynxTransitionGroup } from '@blotch/angular-lynx'; // [!code highlight]
 
@@ -187,7 +187,7 @@ import { LYNX_ELEMENTS, LynxTransitionGroup } from '@blotch/angular-lynx'; // [!
     `,
   ],
 })
-export class AnimatedListComponent {
+export class AnimatedList {
   private nextId = 0;
   readonly items = signal<{ id: number; name: string }[]>([]);
 

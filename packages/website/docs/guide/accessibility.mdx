@@ -61,7 +61,7 @@ import { Component, inject } from '@angular/core';
 import { LynxAccessibilityService } from '@blotch/angular-lynx';
 
 @Component({ ... })
-export class CheckoutComponent {
+export class Checkout {
   readonly #a11y = inject(LynxAccessibilityService);
 
   async addToCart(item: Item): Promise<void> {

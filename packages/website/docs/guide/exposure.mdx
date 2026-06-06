@@ -19,7 +19,7 @@ Attach the `lynxExposure` directive to any element to get a reactive `visible` s
 
 ### Setup
 
-```typescript title="src/app/my.component.ts"
+```typescript title="src/app/my.ts"
 import { Component } from '@angular/core';
 import {
   LynxExposureDirective, // [!code highlight]
@@ -30,7 +30,7 @@ import {
   imports: [LYNX_ELEMENTS, LynxExposureDirective], // [!code highlight]
   template: `...`,
 })
-export class MyComponent {}
+export class Example {}
 ```
 
 ### Usage
@@ -49,7 +49,7 @@ The directive:
 
 ### Example: Conditional rendering on visibility
 
-```typescript title="src/app/feed-item.component.ts"
+```typescript title="src/app/feed-item.ts"
 import { Component } from '@angular/core';
 import { LynxExposureDirective, LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
@@ -65,7 +65,7 @@ import { LynxExposureDirective, LYNX_ELEMENTS } from '@blotch/angular-lynx';
     </view>
   `,
 })
-export class FeedItemComponent {}
+export class FeedItem {}
 ```
 
 ## LynxExposureService
@@ -76,7 +76,7 @@ The service subscribes to the Lynx engine's global `exposure` / `disexposure` ev
 
 No imports needed in the template — just inject the service:
 
-```typescript title="src/app/analytics.component.ts"
+```typescript title="src/app/analytics.ts"
 import { Component, inject, effect } from '@angular/core';
 import { LynxExposureService, LYNX_ELEMENTS } from '@blotch/angular-lynx'; // [!code highlight]
 
@@ -88,7 +88,7 @@ import { LynxExposureService, LYNX_ELEMENTS } from '@blotch/angular-lynx'; // [!
     </view>
   `,
 })
-export class AnalyticsComponent {
+export class Analytics {
   readonly #exposure = inject(LynxExposureService); // [!code highlight]
 
   constructor() {
@@ -160,7 +160,7 @@ exposure.setObserverFrameRate({
 
 ## Complete Example
 
-```typescript title="src/app/exposure-demo.component.ts"
+```typescript title="src/app/exposure-demo.ts"
 import { Component, computed, inject, signal } from '@angular/core';
 import {
   LYNX_ELEMENTS,
@@ -198,7 +198,7 @@ import {
     </view>
   `,
 })
-export class ExposureDemoComponent {
+export class ExposureDemo {
   readonly #exposure = inject(LynxExposureService);
 
   readonly items = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon'];

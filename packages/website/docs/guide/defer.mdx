@@ -2,21 +2,21 @@
 
 Angular's [deferrable views](https://angular.dev/guide/defer) work on Lynx, enabling code splitting to reduce your initial bundle size. Deferred components are split into separate async chunks at build time and loaded on demand.
 
-<Go example="defer" defaultFile="src/app/app.component.ts" />
+<Go example="defer" defaultFile="src/app/app.ts" />
 
 ## Basic Usage
 
 Use `@defer` with a `when` condition to load a component when a signal becomes true:
 
-```typescript title="src/app/feed.component.ts"
+```typescript title="src/app/feed.ts"
 import { Component, signal } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
 @Component({
   imports: [LYNX_ELEMENTS],
-  templateUrl: './feed.component.html',
+  templateUrl: './feed.html',
 })
-export class FeedComponent {
+export class Feed {
   readonly showComments = signal(false);
 
   loadComments(): void {
@@ -25,7 +25,7 @@ export class FeedComponent {
 }
 ```
 
-```angular-html title="src/app/feed.component.html"
+```angular-html title="src/app/feed.html"
 <view>
   <view (bindtap)="loadComments()">
     <text>Show Comments</text>

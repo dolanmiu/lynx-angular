@@ -39,7 +39,7 @@ import { LynxThemeService, LYNX_ELEMENTS } from '@blotch/angular-lynx';
     </view>
   `,
 })
-export class AppComponent {
+export class App {
   private readonly theme = inject(LynxThemeService);
   protected readonly themeClass = computed(() =>
     this.theme.isDarkMode() ? 'dark' : 'light',

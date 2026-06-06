@@ -10,7 +10,7 @@ Main thread scripts directly manipulate native elements, **bypassing Angular's s
 Try the standard background-thread approach first. Only reach for main thread scripts when you've measured and confirmed the latency is unacceptable for your use case.
 :::
 
-<Go example="main-thread" defaultFile="src/app/app.component.ts" />
+<Go example="main-thread" defaultFile="src/app/app.ts" />
 
 ## Overview
 
@@ -63,7 +63,7 @@ Main thread functions cannot capture closures over component state. They can onl
 
 ## Complete Example
 
-```typescript title="src/app/main-thread-demo.component.ts"
+```typescript title="src/app/main-thread-demo.ts"
 import { Component, signal } from '@angular/core';
 import {
   LYNX_ELEMENTS,
@@ -135,7 +135,7 @@ const handleTouchEnd = mainThreadFn((event: MainThread.TouchEvent) => {
     </view>
   `,
 })
-export class MainThreadDemoComponent {
+export class MainThreadDemo {
   readonly handleTap = handleTap;
   readonly handleTouchMove = handleTouchMove;
   readonly handleTouchEnd = handleTouchEnd;

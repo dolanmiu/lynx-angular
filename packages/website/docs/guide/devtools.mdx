@@ -13,7 +13,7 @@ import { LynxPerformanceService } from '@anthropic/angular-lynx';
 const perf = inject(LynxPerformanceService);
 
 // Named trace (shows up in Perfetto timeline)
-perf.profileStart('MyComponent::loadData', { args: { page: 3 } });
+perf.profileStart('My::loadData', { args: { page: 3 } });
 await fetchData();
 perf.profileEnd();
 
@@ -76,7 +76,7 @@ import { LynxDevToolsService, LYNX_ELEMENTS } from '@anthropic/angular-lynx';
     </view>
   `,
 })
-export class DebugOverlayComponent {
+export class DebugOverlay {
   readonly devtools = inject(LynxDevToolsService);
 }
 ```

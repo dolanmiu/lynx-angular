@@ -42,7 +42,7 @@ export default (options: Schema): Rule =>
       ? `${sourceRoot}/${basePath}${additionalPath ? '/' + additionalPath : ''}`
       : `${sourceRoot}/${basePath}${additionalPath ? '/' + additionalPath : ''}/${dasherized}`;
 
-    const componentPath = `${dirPath}/${dasherized}.component.ts`;
+    const componentPath = `${dirPath}/${dasherized}.ts`;
 
     if (tree.exists(componentPath)) {
       throw new SchematicsException(
@@ -59,17 +59,17 @@ export default (options: Schema): Rule =>
     tree.create(componentPath, componentContent);
 
     if (!options.inlineTemplate) {
-      const templatePath = `${dirPath}/${dasherized}.component.html`;
+      const templatePath = `${dirPath}/${dasherized}.html`;
       tree.create(templatePath, buildTemplateFile(dasherized));
     }
 
     if (!options.inlineStyle) {
-      const stylePath = `${dirPath}/${dasherized}.component.css`;
+      const stylePath = `${dirPath}/${dasherized}.css`;
       tree.create(stylePath, buildStyleFile());
     }
 
     if (!options.skipTests) {
-      const specPath = `${dirPath}/${dasherized}.component.spec.ts`;
+      const specPath = `${dirPath}/${dasherized}.spec.ts`;
       tree.create(specPath, buildSpecFile(classified, dasherized));
     }
   };
@@ -99,17 +99,17 @@ const buildComponentFile = (
     lines.push(`    </view>`);
     lines.push(`  \`,`);
   } else {
-    lines.push(`  templateUrl: './${dasherized}.component.html',`);
+    lines.push(`  templateUrl: './${dasherized}.html',`);
   }
 
   if (options.inlineStyle !== false) {
     lines.push(`  styles: [\`\`],`);
   } else {
-    lines.push(`  styleUrl: './${dasherized}.component.css',`);
+    lines.push(`  styleUrl: './${dasherized}.css',`);
   }
 
   lines.push(`})`);
-  lines.push(`export class ${className}Component {}`);
+  lines.push(`export class ${className} {}`);
   lines.push('');
 
   return lines.join('\n');
@@ -130,11 +130,11 @@ const buildSpecFile = (className: string, dasherized: string): string => {
   return `import { describe, expect, it } from 'vitest';
 import { render } from '@blotch/angular-lynx-testing-library';
 
-import { ${className}Component } from './${dasherized}.component';
+import { ${className} } from './${dasherized}';
 
-describe('${className}Component', () => {
+describe('${className}', () => {
   it('should render', async () => {
-    const { getByText } = await render(${className}Component);
+    const { getByText } = await render(${className});
     expect(getByText('${dasherized} works!')).toBeTruthy();
   });
 });
@@ -150,7 +150,7 @@ const dasherize = (str: string): string => {
     .toLowerCase();
 };
 
-/** Converts "my-component" to "MyComponent" */
+/** Converts "my-component" to "MyComponent" (PascalCase) */
 const classify = (str: string): string => {
   return str
     .split(/[-_]/)

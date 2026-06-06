@@ -63,12 +63,12 @@ import { render } from '@blotch/angular-lynx-testing-library';
   template: `<text>Hello {{ name() }}</text>`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class GreetingComponent {
+class Greeting {
   name = signal('World');
 }
 
 it('renders a greeting', async () => {
-  const { getByText } = await render(GreetingComponent);
+  const { getByText } = await render(Greeting);
   expect(getByText('Hello World')).toBeTruthy();
 });
 ```
@@ -87,12 +87,12 @@ const API_URL = new InjectionToken<string>('API_URL');
   template: `<text>{{ url }}</text>`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class MyComponent {
+class Example {
   url = inject(API_URL);
 }
 
 it('uses injected value', async () => {
-  const { getByText } = await render(MyComponent, {
+  const { getByText } = await render(Example, {
     providers: [{ provide: API_URL, useValue: 'https://api.example.com' }],
   });
   expect(getByText('https://api.example.com')).toBeTruthy();
@@ -116,7 +116,7 @@ The returned queries from `render()` are identical to `@testing-library/dom`. Us
 
 ```ts
 it('finds an element by text', async () => {
-  const { getByText, queryByText } = await render(TextComponent);
+  const { getByText, queryByText } = await render(TextDisplay);
   expect(getByText('Hello Lynx')).toBeTruthy();
   expect(queryByText('Not here')).toBeNull();
 });
@@ -128,7 +128,7 @@ You can also use the `screen` export for global queries that always target the c
 import { render, screen } from '@blotch/angular-lynx-testing-library';
 
 it('uses screen queries', async () => {
-  await render(TextComponent);
+  await render(TextDisplay);
   expect(screen.getByText('Hello Lynx')).toBeTruthy();
 });
 ```
@@ -153,14 +153,14 @@ it('queries within a specific item', async () => {
     `,
     changeDetection: ChangeDetectionStrategy.OnPush,
   })
-  class ProductListComponent {
+  class ProductList {
     items = signal([
       { id: 1, name: 'Widget', price: '$9.99' },
       { id: 2, name: 'Gadget', price: '$19.99' },
     ]);
   }
 
-  const { container } = await render(ProductListComponent);
+  const { container } = await render(ProductList);
   const views = container.querySelectorAll('view');
 
   // Scope queries to the second item only — avoids ambiguity.
@@ -188,8 +188,8 @@ it('swaps components', async () => {
 Pass new providers in the second argument:
 
 ```ts
-const { rerender } = await render(PlaceholderComponent);
-const { container } = await rerender(WithTokenComponent, {
+const { rerender } = await render(Placeholder);
+const { container } = await rerender(WithToken, {
   providers: [{ provide: MY_TOKEN, useValue: 'new-value' }],
 });
 ```
@@ -200,7 +200,7 @@ const { container } = await rerender(WithTokenComponent, {
 
 ```ts
 it('matches snapshot', async () => {
-  const { asFragment } = await render(MyComponent);
+  const { asFragment } = await render(Example);
   expect(asFragment()).toMatchSnapshot();
 });
 ```
@@ -209,7 +209,7 @@ Because `asFragment()` is called lazily, you can capture state before and after 
 
 ```ts
 const label = signal('before');
-const { asFragment } = await render(LabelComponent);
+const { asFragment } = await render(Label);
 expect(asFragment().querySelector('text')!.textContent).toBe('before');
 
 label.set('after');
@@ -226,7 +226,7 @@ expect(asFragment().querySelector('text')!.textContent).toBe('after');
 ```ts
 const TOKEN = new InjectionToken<string>('my-token');
 
-const { componentRef } = await render(MyComponent, {
+const { componentRef } = await render(Example, {
   providers: [{ provide: TOKEN, useValue: 'hello' }],
 });
 
@@ -241,12 +241,12 @@ expect(componentRef.injector.get(TOKEN)).toBe('hello');
   template: `<text>{{ label() }}</text>`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class MyComponent {
+class Example {
   label = signal('initial');
 }
 
-const { container, componentRef } = await render(MyComponent);
-(componentRef.instance as MyComponent).label.set('updated');
+const { container, componentRef } = await render(Example);
+(componentRef.instance as Example).label.set('updated');
 await waitForUpdate();
 expect(container.querySelector('text')!.textContent).toBe('updated');
 ```
@@ -263,9 +263,9 @@ import {
   type ComponentRef,
 } from '@blotch/angular-lynx-testing-library';
 
-let ref: ComponentRef<MyComponent>;
-const result = await render(MyComponent);
-ref = result.componentRef as ComponentRef<MyComponent>;
+let ref: ComponentRef<My>;
+const result = await render(Example);
+ref = result.componentRef as ComponentRef<My>;
 ```
 
 ## Reactive Updates with Signals
@@ -283,11 +283,11 @@ it('reflects signal changes in the DOM', async () => {
     template: `<text>{{ label() }}</text>`,
     changeDetection: ChangeDetectionStrategy.OnPush,
   })
-  class LabelComponent {
+  class Label {
     label = label;
   }
 
-  const { container } = await render(LabelComponent);
+  const { container } = await render(Label);
   expect(container.querySelector('text')!.textContent).toBe('initial');
 
   label.set('updated');
@@ -320,14 +320,14 @@ it('increments count on tap', async () => {
     >`,
     changeDetection: ChangeDetectionStrategy.OnPush,
   })
-  class CounterComponent {
+  class Counter {
     count = signal(0);
     increment() {
       this.count.update((n) => n + 1);
     }
   }
 
-  const { container } = await render(CounterComponent);
+  const { container } = await render(Counter);
   expect(container.querySelector('text')!.textContent).toBe('0');
 
   fireEvent.tap(container.querySelector('view')!);
@@ -419,7 +419,7 @@ Pass custom properties in the second argument — they are assigned to the dispa
   template: `<view (bindinput)="onInput($event)"></view>`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class InputComponent {
+class InputHandler {
   value = signal('');
   onInput(event: any) {
     this.value.set(event.value);
@@ -427,7 +427,7 @@ class InputComponent {
 }
 
 it('passes event data to handler', async () => {
-  const { container } = await render(InputComponent);
+  const { container } = await render(InputHandler);
   fireEvent.input(container.querySelector('view')!, { value: 'hello' });
   // handler receives event.value === 'hello'
 });
@@ -461,7 +461,7 @@ export const getByLynxTag = (container: HTMLElement, tag: string) => {
 import { queryByLynxTag, getByLynxTag } from './custom-queries';
 
 it('finds a view element', async () => {
-  const result = await render(MyComponent, {
+  const result = await render(Example, {
     queries: { queryByLynxTag, getByLynxTag },
   });
 
@@ -488,11 +488,11 @@ it('conditionally renders content', async () => {
     }`,
     changeDetection: ChangeDetectionStrategy.OnPush,
   })
-  class CondComponent {
+  class ConditionalView {
     show = show;
   }
 
-  const { container } = await render(CondComponent);
+  const { container } = await render(ConditionalView);
   expect(container.querySelector('text')).toBeTruthy();
 
   show.set(false);
@@ -511,11 +511,11 @@ it('renders a list', async () => {
     }`,
     changeDetection: ChangeDetectionStrategy.OnPush,
   })
-  class ListComponent {
+  class ItemList {
     items = signal(['Alpha', 'Beta', 'Gamma']);
   }
 
-  const { container } = await render(ListComponent);
+  const { container } = await render(ItemList);
   const texts = container.querySelectorAll('text');
   expect(texts.length).toBe(3);
   expect(texts[0]!.textContent).toBe('Alpha');
@@ -530,7 +530,7 @@ You can also use the `unmount` function returned by `render()`:
 
 ```ts
 it('can unmount explicitly', async () => {
-  const { unmount } = await render(MyComponent);
+  const { unmount } = await render(Example);
   unmount();
 });
 ```

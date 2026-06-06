@@ -2,7 +2,7 @@
 
 [CSS Modules](https://github.com/css-modules/css-modules) let you import class names as JavaScript objects, where each class is locally scoped with a unique hash. They work out of the box with the AngularLynx build plugin — no extra configuration needed.
 
-<Go example="css-modules" defaultFile="src/app/app.component.ts" />
+<Go example="css-modules" defaultFile="src/app/app.ts" />
 
 ## Setup
 
@@ -42,7 +42,7 @@ Create a `.module.css` file with your styles:
 
 Import and apply in your component:
 
-```typescript title="src/app/card/card.component.ts"
+```typescript title="src/app/card/card.ts"
 import { Component } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 import styles from './card.module.css'; // [!code highlight]
@@ -58,7 +58,7 @@ import styles from './card.module.css'; // [!code highlight]
     </view>
   `,
 })
-export class CardComponent {
+export class Card {
   readonly styles = styles; // [!code highlight]
 }
 ```

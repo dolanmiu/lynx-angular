@@ -44,7 +44,7 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
     </view>
   `,
 })
-export class CounterComponent {
+export class Counter {
   count = signal(0);
   double = computed(() => this.count() * 2);
 
@@ -77,7 +77,7 @@ All signal changes within a single macrotask are committed together in one flush
 Computed signals and effects work identically to web Angular:
 
 ```typescript
-export class ProductComponent {
+export class Product {
   price = signal(10);
   quantity = signal(2);
 
@@ -103,7 +103,7 @@ Since AngularLynx is zoneless, Observables alone **do not trigger change detecti
 import { inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 
-export class UsersComponent {
+export class Users {
   #http = inject(HttpClient);
 
   users = toSignal(this.#http.get<User[]>('/api/users'), { initialValue: [] });

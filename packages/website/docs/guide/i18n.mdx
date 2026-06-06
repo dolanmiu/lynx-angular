@@ -37,7 +37,7 @@ When the build plugin detects `i18n.sourceLocale`, it automatically includes the
 ```typescript
 import { provideRenderer, provideLocale } from '@blotch/angular-lynx';
 
-bootstrapApplication(AppComponent, {
+bootstrapApplication(App, {
   providers: [provideRenderer(), provideLocale()],
 });
 ```
@@ -62,7 +62,7 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
     </view>
   `,
 })
-export class GreetingComponent {
+export class Greeting {
   readonly greeting = $localize`Hello, world!`;
   readonly welcome = $localize`:@@welcomeMsg:Welcome, ${this.userName}!`;
 }
@@ -89,7 +89,7 @@ if (locale === 'fr') {
 }
 
 // Then bootstrap
-bootstrapApplication(AppComponent, { providers: [...] });
+bootstrapApplication(App, { providers: [...] });
 ```
 
 ## LynxLocaleService

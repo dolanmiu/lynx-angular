@@ -15,7 +15,7 @@ import { LynxLocaleService } from './lynx-locale.service';
  *
  * @usageNotes
  * ```typescript
- * bootstrapApplication(AppComponent, {
+ * bootstrapApplication(App, {
  *   providers: [provideRenderer(), provideLocale()],
  * });
  * ```

@@ -130,7 +130,7 @@ interface Todo {
     }
   `,
 })
-export class TodoListComponent {
+export class TodoList {
   readonly draft = signal('');
   readonly todos = signal<Todo[]>([
     { id: 1, text: 'Learn AngularLynx', done: false },

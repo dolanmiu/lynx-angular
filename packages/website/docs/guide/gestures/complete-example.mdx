@@ -1,6 +1,6 @@
 # Complete Example
 
-```typescript title="src/app/gesture-demo.component.ts"
+```typescript title="src/app/gesture-demo.ts"
 import { Component, signal } from '@angular/core';
 import {
   Gesture,
@@ -42,7 +42,7 @@ import {
     </view>
   `,
 })
-export class GestureDemoComponent {
+export class GestureDemo {
   readonly panX = signal(0);
   readonly panY = signal(0);
   readonly tapCount = signal(0);

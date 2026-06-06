@@ -9,7 +9,7 @@ import {
   bootstrapApplication,
   registerDataProcessors,
 } from '@blotch/angular-lynx'; // [!code highlight]
-import { AppComponent } from './app/app.component';
+import { App } from './app/app';
 import { appConfig } from './app/app.config';
 
 registerDataProcessors({
@@ -22,7 +22,7 @@ registerDataProcessors({
   }), // [!code highlight]
 }); // [!code highlight]
 
-bootstrapApplication(AppComponent, appConfig);
+bootstrapApplication(App, appConfig);
 ```
 
 :::warning

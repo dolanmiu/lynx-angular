@@ -13,7 +13,7 @@ describe('scanCompiledOutputForHtmlElements', () => {
   it('detects HTML elements in compiled Angular output', () => {
     const fileCache = new Map<string, string>();
     fileCache.set(
-      '/src/app/app.component.ts',
+      '/src/app/app.ts',
       `
       function AppComponent_Template(rf, ctx) {
         if (rf & 1) {
@@ -39,7 +39,7 @@ describe('scanCompiledOutputForHtmlElements', () => {
   it('does not warn for valid Lynx elements', () => {
     const fileCache = new Map<string, string>();
     fileCache.set(
-      '/src/app/app.component.ts',
+      '/src/app/app.ts',
       `
       i0.ɵɵelementStart(0, "view");
       i0.ɵɵelement(1, "text");
@@ -57,7 +57,7 @@ describe('scanCompiledOutputForHtmlElements', () => {
   it('does not warn for hyphenated elements (Lynx or Angular components)', () => {
     const fileCache = new Map<string, string>();
     fileCache.set(
-      '/src/app/app.component.ts',
+      '/src/app/app.ts',
       `
       i0.ɵɵelementStart(0, "scroll-view");
       i0.ɵɵelement(1, "list-item");
@@ -73,7 +73,7 @@ describe('scanCompiledOutputForHtmlElements', () => {
   it('deduplicates warnings per file', () => {
     const fileCache = new Map<string, string>();
     fileCache.set(
-      '/src/app/app.component.ts',
+      '/src/app/app.ts',
       `
       i0.ɵɵelementStart(0, "div");
       i0.ɵɵelementEnd();
@@ -101,7 +101,7 @@ describe('scanCompiledOutputForHtmlElements', () => {
 
   it('reports elements with no Lynx equivalent differently', () => {
     const fileCache = new Map<string, string>();
-    fileCache.set('/src/app/app.component.ts', `i0.ɵɵelement(0, "canvas");`);
+    fileCache.set('/src/app/app.ts', `i0.ɵɵelement(0, "canvas");`);
 
     const result = scanCompiledOutputForHtmlElements(fileCache);
 
@@ -113,7 +113,7 @@ describe('scanCompiledOutputForHtmlElements', () => {
   it('handles Uint8Array contents', () => {
     const fileCache = new Map<string, string | Uint8Array>();
     const code = `i0.ɵɵelementStart(0, "div");`;
-    fileCache.set('/src/app/app.component.ts', Buffer.from(code));
+    fileCache.set('/src/app/app.ts', Buffer.from(code));
 
     const result = scanCompiledOutputForHtmlElements(fileCache);
     expect(result).toHaveLength(1);
@@ -123,7 +123,7 @@ describe('scanCompiledOutputForHtmlElements', () => {
   it('detects text-replacement elements', () => {
     const fileCache = new Map<string, string>();
     fileCache.set(
-      '/src/app/app.component.ts',
+      '/src/app/app.ts',
       `
       i0.ɵɵelementStart(0, "h1");
       i0.ɵɵelementStart(1, "p");
@@ -144,7 +144,7 @@ describe('scanCompiledOutputForStructuralIssues', () => {
   it('detects list-item without list parent', () => {
     const fileCache = new Map<string, string>();
     fileCache.set(
-      '/src/app/app.component.ts',
+      '/src/app/app.ts',
       `
       i0.ɵɵelementStart(0, "view");
       i0.ɵɵelementStart(1, "list-item");
@@ -164,7 +164,7 @@ describe('scanCompiledOutputForStructuralIssues', () => {
   it('does not warn when list-item is inside list', () => {
     const fileCache = new Map<string, string>();
     fileCache.set(
-      '/src/app/app.component.ts',
+      '/src/app/app.ts',
       `
       i0.ɵɵelementStart(0, "list");
       i0.ɵɵelementStart(1, "list-item");
@@ -201,12 +201,10 @@ describe('scanSourcesForUnsupportedPatterns', () => {
         encapsulation: ViewEncapsulation.ShadowDom,
         template: '<view></view>',
       })
-      export class MyComponent {}
+      export class Example {}
     `);
 
-    const result = scanSourcesForUnsupportedPatterns([
-      '/src/app/my.component.ts',
-    ]);
+    const result = scanSourcesForUnsupportedPatterns(['/src/app/my.ts']);
 
     expect(result).toHaveLength(1);
     expect(result[0]!.message).toContain('ViewEncapsulation.ShadowDom');
@@ -221,12 +219,10 @@ describe('scanSourcesForUnsupportedPatterns', () => {
         encapsulation: ViewEncapsulation.Emulated,
         template: '<view></view>',
       })
-      export class MyComponent {}
+      export class Example {}
     `);
 
-    const result = scanSourcesForUnsupportedPatterns([
-      '/src/app/my.component.ts',
-    ]);
+    const result = scanSourcesForUnsupportedPatterns(['/src/app/my.ts']);
     expect(result).toHaveLength(0);
   });
 
@@ -265,10 +261,10 @@ describe('scanSourcesForUnsupportedCss', () => {
           .container { float: left; text-transform: uppercase; }
         \`],
       })
-      export class MyComponent {}
+      export class Example {}
     `);
 
-    const result = scanSourcesForUnsupportedCss(['/src/app/my.component.ts']);
+    const result = scanSourcesForUnsupportedCss(['/src/app/my.ts']);
 
     expect(result).toHaveLength(2);
     expect(result[0]!.message).toContain("'float'");
@@ -291,10 +287,10 @@ describe('scanSourcesForUnsupportedCss', () => {
           }
         \`],
       })
-      export class MyComponent {}
+      export class Example {}
     `);
 
-    const result = scanSourcesForUnsupportedCss(['/src/app/my.component.ts']);
+    const result = scanSourcesForUnsupportedCss(['/src/app/my.ts']);
     expect(result).toHaveLength(0);
   });
 
@@ -308,10 +304,10 @@ describe('scanSourcesForUnsupportedCss', () => {
           .b { float: right; }
         \`],
       })
-      export class MyComponent {}
+      export class Example {}
     `);
 
-    const result = scanSourcesForUnsupportedCss(['/src/app/my.component.ts']);
+    const result = scanSourcesForUnsupportedCss(['/src/app/my.ts']);
     expect(result).toHaveLength(1);
   });
 
@@ -325,10 +321,10 @@ describe('scanSourcesForUnsupportedCss', () => {
           .container { display: flex; }
         \`],
       })
-      export class MyComponent {}
+      export class Example {}
     `);
 
-    const result = scanSourcesForUnsupportedCss(['/src/app/my.component.ts']);
+    const result = scanSourcesForUnsupportedCss(['/src/app/my.ts']);
     expect(result).toHaveLength(0);
   });
 

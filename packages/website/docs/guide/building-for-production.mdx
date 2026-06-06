@@ -30,11 +30,11 @@ dist/
         └── custom.g7h8i9.woff2
 ```
 
-| File | Purpose |
-|------|---------|
-| `main.lynx.bundle` | The primary bundle loaded when your app starts |
-| `async/*.lynx.bundle` | Chunks for lazy-loaded routes (loaded on demand) |
-| `static/` | Images, fonts, and other assets referenced in your code |
+| File                  | Purpose                                                 |
+| --------------------- | ------------------------------------------------------- |
+| `main.lynx.bundle`    | The primary bundle loaded when your app starts          |
+| `async/*.lynx.bundle` | Chunks for lazy-loaded routes (loaded on demand)        |
+| `static/`             | Images, fonts, and other assets referenced in your code |
 
 :::tip
 Lazy-loaded routes (`loadComponent(() => import('./path'))`) are automatically split into separate async bundles. See [Routing](/guide/routing) for more on lazy loading.
@@ -72,9 +72,10 @@ Host bundle files on a CDN or web server. The host app fetches them over HTTP at
 
 :::note
 Setting up the native host app (adding the Lynx SDK, creating a `LynxView`, configuring bundle loading) is handled by the native team. See the official Lynx documentation:
+
 - [Integrate with Existing Apps](https://lynxjs.org/guide/start/integrate-with-existing-apps.html) — Platform-specific setup for iOS, Android, and more
 - [Embedding LynxView](https://lynxjs.org/guide/embed-lynx-to-native.html) — Configuring LynxView size and layout within native views
-:::
+  :::
 
 ## Over-the-Air Updates
 

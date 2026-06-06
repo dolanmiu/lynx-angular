@@ -54,7 +54,7 @@ Angular templates are TypeScript string literals, not `.html` files. Point `cont
 
 Use Tailwind utility classes directly in your Lynx element templates:
 
-```typescript title="src/app/dashboard.component.ts"
+```typescript title="src/app/dashboard.ts"
 import { Component } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
@@ -83,7 +83,7 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
     </scroll-view>
   `,
 })
-export class DashboardComponent {}
+export class Dashboard {}
 ```
 
 ## What Works
@@ -151,7 +151,7 @@ You can combine Tailwind utilities with Angular's component-scoped styles:
     `,
   ],
 })
-export class CardComponent {}
+export class Card {}
 ```
 
 Tailwind utility classes come from the global stylesheet, while component styles are scoped as usual.
@@ -184,7 +184,7 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
     </view>
   `,
 })
-export class CounterComponent {
+export class Counter {
   count = signal(0);
 
   increment(): void {
