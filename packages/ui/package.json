@@ -1,0 +1,36 @@
+{
+  "name": "@blotch/ui",
+  "version": "0.0.1",
+  "description": "shadcn-style UI components for Angular Lynx",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check .",
+    "cspell": "cspell ."
+  },
+  "dependencies": {
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.3.0"
+  },
+  "peerDependencies": {
+    "@angular/core": ">=19.0.0",
+    "@blotch/angular-lynx": "*",
+    "tailwindcss": ">=3.4.0"
+  },
+  "peerDependenciesMeta": {
+    "@angular/core": {
+      "optional": true
+    },
+    "@blotch/angular-lynx": {
+      "optional": true
+    },
+    "tailwindcss": {
+      "optional": true
+    }
+  }
+}

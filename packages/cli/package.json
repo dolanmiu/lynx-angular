@@ -1,0 +1,27 @@
+{
+  "name": "@blotch/cli",
+  "version": "0.0.1",
+  "description": "CLI for adding @blotch/ui components to your project",
+  "license": "MIT",
+  "bin": {
+    "blotch": "./dist/index.js"
+  },
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check .",
+    "cspell": "cspell ."
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.10.0",
+    "commander": "^13.0.0",
+    "picocolors": "^1.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0"
+  }
+}
