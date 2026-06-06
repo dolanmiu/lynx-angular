@@ -2,7 +2,7 @@
 
 `lynx.createSelectorQuery()` is Lynx's API for running imperative operations on native elements — measuring layout, calling element methods, and invoking platform commands. It is the Lynx equivalent of `document.querySelector()` combined with the Web Animations API's `Element.requestAnimationFrame`.
 
-You rarely call this directly in AngularLynx — most platform operations are wrapped by services (`LynxAccessibilityService`, element methods on `refresh` and `scroll-coordinator`). This page documents the raw API for cases where no wrapper exists.
+You rarely call this directly in AngularLynx — most platform operations are wrapped by services (`LynxAccessibility`, element methods on `refresh` and `scroll-coordinator`). This page documents the raw API for cases where no wrapper exists.
 
 ## How It Works
 
@@ -81,7 +81,7 @@ lynx
 
 ### Accessibility Focus
 
-`LynxAccessibilityService.requestFocus()` wraps this pattern:
+`LynxAccessibility.requestFocus()` wraps this pattern:
 
 ```typescript
 lynx

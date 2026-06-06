@@ -30,7 +30,7 @@ declare global {
   let __DEV_LOG_URL__: string;
   /**
    * The source locale from angular.json i18n config (e.g. 'en-US', 'fr').
-   * Injected by the rsbuild plugin's DefinePlugin. Used by LynxLocaleService
+   * Injected by the rsbuild plugin's DefinePlugin. Used by LynxLocale
    * as a fallback when lynx.__globalProps.appLocale is not set.
    */
   let __LYNX_SOURCE_LOCALE__: string;

@@ -1,1 +1,1 @@
-export { LynxLoggerService } from './lynx-logger.service';
+export { LynxLogger } from './lynx-logger';

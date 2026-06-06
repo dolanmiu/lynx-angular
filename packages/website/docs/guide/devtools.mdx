@@ -4,13 +4,13 @@ AngularLynx includes built-in performance profiling that integrates with the Lyn
 
 ## Performance Profiling
 
-`LynxPerformanceService` wraps the native `lynx.performance` API for trace-based profiling:
+`LynxPerformance` wraps the native `lynx.performance` API for trace-based profiling:
 
 ```typescript
 import { inject } from '@angular/core';
-import { LynxPerformanceService } from '@anthropic/angular-lynx';
+import { LynxPerformance } from '@anthropic/angular-lynx';
 
-const perf = inject(LynxPerformanceService);
+const perf = inject(LynxPerformance);
 
 // Named trace (shows up in Perfetto timeline)
 perf.profileStart('My::loadData', { args: { page: 3 } });
@@ -48,11 +48,11 @@ These counters are incremented inline in the renderer factory, document, and ele
 
 ## DevTools Service
 
-`LynxDevToolsService` exposes the stats counters as Angular signals for on-device debug UIs:
+`LynxDevTools` exposes the stats counters as Angular signals for on-device debug UIs:
 
 ```typescript
 import { Component, inject } from '@angular/core';
-import { LynxDevToolsService, LYNX_ELEMENTS } from '@anthropic/angular-lynx';
+import { LynxDevTools, LYNX_ELEMENTS } from '@anthropic/angular-lynx';
 
 @Component({
   selector: 'app-debug-overlay',
@@ -77,7 +77,7 @@ import { LynxDevToolsService, LYNX_ELEMENTS } from '@anthropic/angular-lynx';
   `,
 })
 export class DebugOverlay {
-  readonly devtools = inject(LynxDevToolsService);
+  readonly devtools = inject(LynxDevTools);
 }
 ```
 
@@ -98,5 +98,5 @@ When `__PROFILE__` is `false`:
 
 - All `if (__PROFILE__)` branches are dead-code-eliminated
 - `devStats` counters are never incremented
-- `LynxPerformanceService` methods are still callable but have negligible cost (they check `lynx.performance` availability and return)
-- `LynxDevToolsService.stats()` returns all zeros
+- `LynxPerformance` methods are still callable but have negligible cost (they check `lynx.performance` availability and return)
+- `LynxDevTools.stats()` returns all zeros

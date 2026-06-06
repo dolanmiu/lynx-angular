@@ -1,4 +1,4 @@
-# `LynxMainThreadService`
+# `LynxMainThread`
 
 An injectable service for invoking main thread functions from the background thread. Unlike `LynxMainThreadEvent` (which binds to native events), this lets you programmatically trigger main thread execution — useful for animations, timers, or responding to state changes.
 
@@ -12,7 +12,7 @@ Main thread scripts directly manipulate native elements, **bypassing Angular's s
 import { Component, inject } from '@angular/core';
 import {
   mainThreadFn,
-  LynxMainThreadService, // [!code highlight]
+  LynxMainThread, // [!code highlight]
   LYNX_ELEMENTS,
 } from '@blotch/angular-lynx';
 
@@ -35,7 +35,7 @@ const flashElement = mainThreadFn(() => {
   `,
 })
 export class Example {
-  readonly #mts = inject(LynxMainThreadService); // [!code highlight]
+  readonly #mts = inject(LynxMainThread); // [!code highlight]
 
   flash(): void {
     this.#mts.runOnMainThread(flashElement); // [!code highlight]

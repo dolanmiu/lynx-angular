@@ -1,19 +1,19 @@
 # Portal (Programmatic Overlays)
 
-`LynxPortalService` renders Angular components or templates into a native `<overlay>` element from anywhere in the component tree — the Lynx equivalent of Angular CDK's `Overlay` / `DomPortalOutlet`.
+`LynxPortal` renders Angular components or templates into a native `<overlay>` element from anywhere in the component tree — the Lynx equivalent of Angular CDK's `Overlay` / `DomPortalOutlet`.
 
-For **declarative** overlays (content defined in a template), use `<overlay>` directly. Use `LynxPortalService` when you need to **create overlays imperatively from code**: modal dialogs triggered by a service call, toast notifications, or components opened from a route guard.
+For **declarative** overlays (content defined in a template), use `<overlay>` directly. Use `LynxPortal` when you need to **create overlays imperatively from code**: modal dialogs triggered by a service call, toast notifications, or components opened from a route guard.
 
 ## Opening a Component
 
 ```typescript
 import { Component, inject } from '@angular/core';
-import { LynxPortalService } from '@blotch/angular-lynx';
+import { LynxPortal } from '@blotch/angular-lynx';
 import { ConfirmDialog } from './confirm-dialog';
 
 @Component({ ... })
 export class Example {
-  readonly #portal = inject(LynxPortalService);
+  readonly #portal = inject(LynxPortal);
 
   openDialog(): void {
     const ref = this.#portal.open(ConfirmDialog, {
@@ -38,7 +38,7 @@ Use `openTemplate` when you have a `TemplateRef` from `@ViewChild`:
 
 ```typescript
 import { Component, inject, viewChild, type TemplateRef } from '@angular/core';
-import { LynxPortalService, LYNX_ELEMENTS } from '@blotch/angular-lynx';
+import { LynxPortal, LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
 @Component({
   imports: [LYNX_ELEMENTS],
@@ -55,7 +55,7 @@ import { LynxPortalService, LYNX_ELEMENTS } from '@blotch/angular-lynx';
   `,
 })
 export class Example {
-  readonly #portal = inject(LynxPortalService);
+  readonly #portal = inject(LynxPortal);
   toastTemplate = viewChild.required<TemplateRef<void>>('toast');
 
   open(): void {
@@ -85,7 +85,7 @@ export class Example {
 
 ## Comparison: Declarative vs Imperative
 
-|                    | `<overlay>` in template        | `LynxPortalService`                             |
+|                    | `<overlay>` in template        | `LynxPortal`                             |
 | ------------------ | ------------------------------ | ----------------------------------------------- |
 | Content            | Defined in template            | Any component or template                       |
 | Visibility control | `[attr.visible]` binding       | `ref.destroy()`                                 |

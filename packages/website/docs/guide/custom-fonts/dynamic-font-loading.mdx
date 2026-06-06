@@ -1,10 +1,10 @@
 # Dynamic Font Loading
 
-For fonts that aren't known at build time — loaded from a CDN or determined by user settings — use `LynxFontService`:
+For fonts that aren't known at build time — loaded from a CDN or determined by user settings — use `LynxFont`:
 
 ```typescript title="src/app/dynamic-font.ts"
 import { Component, inject } from '@angular/core';
-import { LYNX_ELEMENTS, LynxFontService } from '@blotch/angular-lynx'; // [!code highlight]
+import { LYNX_ELEMENTS, LynxFont } from '@blotch/angular-lynx'; // [!code highlight]
 
 @Component({
   imports: [LYNX_ELEMENTS],
@@ -28,7 +28,7 @@ import { LYNX_ELEMENTS, LynxFontService } from '@blotch/angular-lynx'; // [!code
   ],
 })
 export class DynamicFont {
-  readonly fontService = inject(LynxFontService); // [!code highlight]
+  readonly fontService = inject(LynxFont); // [!code highlight]
 
   loadFont(): void {
     setTimeout(async () => {
@@ -42,7 +42,7 @@ export class DynamicFont {
 }
 ```
 
-## LynxFontService API
+## LynxFont API
 
 | Member                  | Type                                            | Description                                                      |
 | ----------------------- | ----------------------------------------------- | ---------------------------------------------------------------- |

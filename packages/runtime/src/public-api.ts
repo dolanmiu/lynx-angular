@@ -2,9 +2,9 @@
  * Public API Surface of @blotch/angular-lynx
  */
 
-export { LynxAccessibilityService } from './lib/accessibility';
+export { LynxAccessibility } from './lib/accessibility';
 export { LynxAnimation } from './lib/animation/animation';
-export { LynxDevToolsService, LynxPerformanceService } from './lib/devtools';
+export { LynxDevTools, LynxPerformance } from './lib/devtools';
 export type { DevToolsStats } from './lib/devtools';
 export type { LynxAnimationOptions } from './lib/animation/animation';
 export { registerDataProcessors } from './lib/data-flow/data-processors';
@@ -14,18 +14,18 @@ export type {
   InitData,
   InitDataRaw,
 } from './lib/data-flow/data-flow.types';
-export { LynxGlobalDataService } from './lib/data-flow/global-data.service';
-export { LynxInitDataService } from './lib/data-flow/init-data.service';
+export { LynxGlobalData } from './lib/data-flow/global-data';
+export { LynxInitData } from './lib/data-flow/init-data';
 export { LynxErrorHandler } from './lib/error-handler/lynx-error-handler';
-export { LynxExposureDirective, LynxExposureService } from './lib/exposure';
+export { LynxExposure, LynxGlobalExposure } from './lib/exposure';
 export type {
   ExposureEventDetail,
   GlobalExposureEvent,
   ObserverFrameRateOptions,
 } from './lib/exposure';
-export { LynxFontService } from './lib/font';
+export { LynxFont } from './lib/font';
 export { loadLazyBundle } from './lib/lazy-bundle';
-export { LynxLocaleService, provideLocale } from './lib/locale';
+export { LynxLocale, provideLocale } from './lib/locale';
 export type {
   LynxFontEntry,
   LynxFontFaceConfig,
@@ -87,9 +87,9 @@ export {
   LynxViewPager,
   LynxViewPagerItem,
 } from './lib/lynx-elements';
-export { LynxLoggerService } from './lib/lynx-logger';
-export { LynxNativeModuleService } from './lib/native-module';
-export { LynxPortalService, PortalRef } from './lib/portal';
+export { LynxLogger } from './lib/lynx-logger';
+export { LynxNativeModule } from './lib/native-module';
+export { LynxPortal, PortalRef } from './lib/portal';
 export type { PortalConfig } from './lib/portal';
 export type { NativeModuleMap } from './lib/native-module';
 export {
@@ -99,13 +99,13 @@ export {
   createMainThreadRef,
   MainThreadElement,
   LynxMainThreadEvent,
-  LynxMainThreadService,
+  LynxMainThread,
 } from './lib/main-thread';
 export type { MainThreadFnHandle, BackgroundFnHandle } from './lib/main-thread';
 export type { MainThread } from './lib/main-thread';
-export { LynxResourcePrefetchService } from './lib/resource-prefetch';
+export { LynxResourcePrefetch } from './lib/resource-prefetch';
 export {
-  LynxSafeAreaService,
+  LynxSafeArea,
   SAFE_AREA_INSET_BOTTOM,
   SAFE_AREA_INSET_LEFT,
   SAFE_AREA_INSET_RIGHT,
@@ -117,11 +117,11 @@ export type {
   PrefetchRequest,
   PrefetchResultDetail,
 } from './lib/resource-prefetch';
-export { LynxSessionStorageService } from './lib/session-storage';
+export { LynxSessionStorage } from './lib/session-storage';
 export type { SessionStorageSubscription } from './lib/session-storage';
-export { LynxSystemInfoService } from './lib/system-info';
-export { LynxTextMeasureService } from './lib/text-measure';
-export { LynxThemeService } from './lib/theme';
+export { LynxSystemInfo } from './lib/system-info';
+export { LynxTextMeasure } from './lib/text-measure';
+export { LynxTheme } from './lib/theme';
 export { LynxTransition, LynxTransitionGroup } from './lib/transition';
 export { provideRenderer } from './lib/renderer/providers';
 export { LynxLocationStrategy } from './lib/router/lynx-location-strategy';

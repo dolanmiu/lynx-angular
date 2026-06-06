@@ -83,7 +83,7 @@ Read [list-virtualization.md](references/list-virtualization.md)
 
 ## Debugging
 
-No browser console on device. `LynxLoggerService` sends logs to the dev server. `globalThis.__lynxLastError` captures uncaught errors. Render errors on screen with `<text>` elements.
+No browser console on device. `LynxLogger` sends logs to the dev server. `globalThis.__lynxLastError` captures uncaught errors. Render errors on screen with `<text>` elements.
 
 Read [debugging.md](references/debugging.md)
 

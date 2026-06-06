@@ -18,7 +18,7 @@ The `angular-lynx` skill teaches AI agents how to:
 - **Style components** with Lynx CSS (linear layout, `rpx` units, no CSS inheritance)
 - **Route** with in-memory navigation and element-pool-aware route reuse
 - **Animate** with CSS transitions, `@keyframes`, and `element.animate()`
-- **Debug** on-device with `LynxLoggerService` and on-screen error rendering
+- **Debug** on-device with `LynxLogger` and on-screen error rendering
 - **Avoid gotchas** — curated list of 50+ Lynx-vs-web platform differences
 
 ## About AngularLynx

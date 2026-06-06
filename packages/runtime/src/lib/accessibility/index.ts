@@ -1,1 +1,1 @@
-export { LynxAccessibilityService } from './accessibility.service';
+export { LynxAccessibility } from './accessibility';

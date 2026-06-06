@@ -1,1 +1,1 @@
-export { LynxSystemInfoService } from './system-info.service';
+export { LynxSystemInfo } from './system-info';

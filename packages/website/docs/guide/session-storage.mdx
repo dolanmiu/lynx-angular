@@ -2,7 +2,7 @@
 
 <Go example="session-storage" defaultFile="src/app/app.ts" />
 
-Lynx session storage is a cross-LynxView key-value store that persists for the lifetime of the host app session. Use it to share data between multiple cards, pages, or LynxView instances. AngularLynx wraps the native API with `LynxSessionStorageService` — an injectable service providing Promise-based reads, direct writes, and reactive signals.
+Lynx session storage is a cross-LynxView key-value store that persists for the lifetime of the host app session. Use it to share data between multiple cards, pages, or LynxView instances. AngularLynx wraps the native API with `LynxSessionStorage` — an injectable service providing Promise-based reads, direct writes, and reactive signals.
 
 ## Overview
 
@@ -23,18 +23,18 @@ Unlike browser `localStorage`, Lynx session storage:
 
 ## Setup
 
-No extra providers needed — `LynxSessionStorageService` is `providedIn: 'root'`:
+No extra providers needed — `LynxSessionStorage` is `providedIn: 'root'`:
 
 ```typescript title="src/app/my.ts"
 import { Component, inject } from '@angular/core';
-import { LynxSessionStorageService, LYNX_ELEMENTS } from '@blotch/angular-lynx'; // [!code highlight]
+import { LynxSessionStorage, LYNX_ELEMENTS } from '@blotch/angular-lynx'; // [!code highlight]
 
 @Component({
   imports: [LYNX_ELEMENTS],
   template: `...`,
 })
 export class Example {
-  readonly #sessionStorage = inject(LynxSessionStorageService); // [!code highlight]
+  readonly #sessionStorage = inject(LynxSessionStorage); // [!code highlight]
 }
 ```
 
@@ -43,7 +43,7 @@ export class Example {
 `setItem` writes a value to session storage. All subscribers (including those in other LynxViews) are notified immediately.
 
 ```typescript
-const sessionStorage = inject(LynxSessionStorageService);
+const sessionStorage = inject(LynxSessionStorage);
 
 sessionStorage.setItem('user-preferences', { theme: 'dark', fontSize: 16 });
 sessionStorage.setItem('counter', 42);
@@ -70,7 +70,7 @@ console.log(preferences.theme); // 'dark'
 
 ```typescript title="src/app/counter.ts"
 import { Component, inject } from '@angular/core';
-import { LynxSessionStorageService, LYNX_ELEMENTS } from '@blotch/angular-lynx';
+import { LynxSessionStorage, LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
 @Component({
   imports: [LYNX_ELEMENTS],
@@ -81,7 +81,7 @@ import { LynxSessionStorageService, LYNX_ELEMENTS } from '@blotch/angular-lynx';
   `,
 })
 export class Counter {
-  readonly #sessionStorage = inject(LynxSessionStorageService);
+  readonly #sessionStorage = inject(LynxSessionStorage);
 
   // Auto-updates when any LynxView calls setItem('counter', ...)
   readonly counter = this.#sessionStorage.watch<number>('counter'); // [!code highlight]
@@ -153,7 +153,7 @@ readonly theme = this.#sessionStorage.watch<{ mode: string }>('theme');
 
 ```typescript title="src/app/session-storage-demo.ts"
 import { Component, inject, signal } from '@angular/core';
-import { LYNX_ELEMENTS, LynxSessionStorageService } from '@blotch/angular-lynx';
+import { LYNX_ELEMENTS, LynxSessionStorage } from '@blotch/angular-lynx';
 
 @Component({
   imports: [LYNX_ELEMENTS],
@@ -181,7 +181,7 @@ import { LYNX_ELEMENTS, LynxSessionStorageService } from '@blotch/angular-lynx';
   `,
 })
 export class SessionStorageDemo {
-  readonly #sessionStorage = inject(LynxSessionStorageService);
+  readonly #sessionStorage = inject(LynxSessionStorage);
 
   readonly counter = this.#sessionStorage.watch<number>('counter');
   readonly lastRead = signal<string>('(not yet read)');
@@ -207,5 +207,5 @@ export class SessionStorageDemo {
 ```
 
 :::info
-`LynxSessionStorageService` is safe to inject in any environment. When the native Lynx session storage API is not available (e.g., during unit tests, SSR, or web preview), the service falls back to an in-memory store. All methods — `setItem`, `getItem`, `watch`, and `subscribe` — work correctly, though data will not persist across page reloads or be shared across LynxViews.
+`LynxSessionStorage` is safe to inject in any environment. When the native Lynx session storage API is not available (e.g., during unit tests, SSR, or web preview), the service falls back to an in-memory store. All methods — `setItem`, `getItem`, `watch`, and `subscribe` — work correctly, though data will not persist across page reloads or be shared across LynxViews.
 :::

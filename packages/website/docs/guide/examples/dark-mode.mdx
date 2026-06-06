@@ -1,10 +1,10 @@
 # Dark Mode
 
-Reactive theme switching using `LynxThemeService` with CSS variable theming.
+Reactive theme switching using `LynxTheme` with CSS variable theming.
 
 ```typescript
 import { Component, computed, inject } from '@angular/core';
-import { LYNX_ELEMENTS, LynxThemeService } from '@anthropic/angular-lynx';
+import { LYNX_ELEMENTS, LynxTheme } from '@anthropic/angular-lynx';
 
 @Component({
   selector: 'app-dark-mode',
@@ -116,7 +116,7 @@ import { LYNX_ELEMENTS, LynxThemeService } from '@anthropic/angular-lynx';
   `,
 })
 export class DarkMode {
-  private readonly themeService = inject(LynxThemeService);
+  private readonly themeService = inject(LynxTheme);
 
   readonly theme = this.themeService.theme;
   readonly isDark = this.themeService.isDarkMode;
@@ -124,7 +124,7 @@ export class DarkMode {
   readonly cards = [
     {
       title: 'Reactive Theming',
-      body: 'LynxThemeService exposes a signal that updates when the system theme changes.',
+      body: 'LynxTheme exposes a signal that updates when the system theme changes.',
     },
     {
       title: 'No Manual Polling',
@@ -140,7 +140,7 @@ export class DarkMode {
 
 ## Key concepts
 
-- **`LynxThemeService`** — Injectable service that provides reactive `theme()` (`'Dark'` | `'Light'`) and `isDarkMode()` signals
+- **`LynxTheme`** — Injectable service that provides reactive `theme()` (`'Dark'` | `'Light'`) and `isDarkMode()` signals
 - **Automatic updates** — The service reads from `lynx.__globalProps.theme` and updates when the system theme changes
 - **Inline style binding** — Use `[style.property]` with ternary expressions for per-element theming
 - **CSS variable approach** — For larger apps, define `--bg`, `--text`, etc. as custom properties and swap a root class instead

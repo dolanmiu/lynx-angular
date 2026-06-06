@@ -68,7 +68,7 @@ npm run demo              # Runs rspeedy dev for the kitchen-sink-app
 2. Open **Lynx Explorer** app on your device
 3. Scan QR code — loads your app on-device
 4. Edit code — hot reload updates the app
-5. Check terminal for logs from `LynxLoggerService`
+5. Check terminal for logs from `LynxLogger`
 
 ## Dependencies
 

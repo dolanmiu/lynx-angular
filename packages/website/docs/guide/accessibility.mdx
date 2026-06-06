@@ -1,6 +1,6 @@
 # Accessibility
 
-AngularLynx provides first-class accessibility support through element attributes and the `LynxAccessibilityService`. These map to the native platform's accessibility APIs (VoiceOver on iOS, TalkBack on Android).
+AngularLynx provides first-class accessibility support through element attributes and the `LynxAccessibility`. These map to the native platform's accessibility APIs (VoiceOver on iOS, TalkBack on Android).
 
 ## Element Attributes
 
@@ -52,17 +52,17 @@ All Lynx element directives accept the following accessibility attributes. They 
 | `accessibility-elements-hidden` | `boolean` | Hides all child elements from the accessibility tree.                                           |
 | `accessibility-exclusive-focus` | `boolean` | Traps accessibility focus within this element (useful for modals).                              |
 
-## LynxAccessibilityService
+## LynxAccessibility
 
-Import and inject `LynxAccessibilityService` for programmatic screen reader control.
+Import and inject `LynxAccessibility` for programmatic screen reader control.
 
 ```typescript
 import { Component, inject } from '@angular/core';
-import { LynxAccessibilityService } from '@blotch/angular-lynx';
+import { LynxAccessibility } from '@blotch/angular-lynx';
 
 @Component({ ... })
 export class Checkout {
-  readonly #a11y = inject(LynxAccessibilityService);
+  readonly #a11y = inject(LynxAccessibility);
 
   async addToCart(item: Item): Promise<void> {
     await this.cartService.add(item);

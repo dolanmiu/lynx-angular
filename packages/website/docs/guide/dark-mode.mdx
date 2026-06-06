@@ -1,6 +1,6 @@
 # Dark Mode
 
-Lynx drives the theme via `lynx.__globalProps.theme`, which the native host sets to `'Dark'` or `'Light'` based on the OS appearance. The `LynxThemeService` exposes this as reactive signals.
+Lynx drives the theme via `lynx.__globalProps.theme`, which the native host sets to `'Dark'` or `'Light'` based on the OS appearance. The `LynxTheme` exposes this as reactive signals.
 
 ## CSS Variables (Recommended)
 
@@ -8,7 +8,7 @@ Define theme-aware CSS variables and switch them based on the theme signal:
 
 ```typescript
 import { Component, inject, computed } from '@angular/core';
-import { LynxThemeService, LYNX_ELEMENTS } from '@blotch/angular-lynx';
+import { LynxTheme, LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
 @Component({
   selector: 'app-root',
@@ -40,22 +40,22 @@ import { LynxThemeService, LYNX_ELEMENTS } from '@blotch/angular-lynx';
   `,
 })
 export class App {
-  private readonly theme = inject(LynxThemeService);
+  private readonly theme = inject(LynxTheme);
   protected readonly themeClass = computed(() =>
     this.theme.isDarkMode() ? 'dark' : 'light',
   );
 }
 ```
 
-## LynxThemeService
+## LynxTheme
 
 For conditional logic in TypeScript:
 
 ```typescript
 import { inject } from '@angular/core';
-import { LynxThemeService } from '@blotch/angular-lynx';
+import { LynxTheme } from '@blotch/angular-lynx';
 
-const theme = inject(LynxThemeService);
+const theme = inject(LynxTheme);
 
 // Current theme: 'Dark' or 'Light'
 const currentTheme = theme.theme();

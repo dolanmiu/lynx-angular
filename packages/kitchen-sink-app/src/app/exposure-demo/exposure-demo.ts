@@ -1,19 +1,19 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import {
   LYNX_ELEMENTS,
-  LynxExposureDirective,
-  LynxExposureService,
+  LynxExposure,
+  LynxGlobalExposure,
 } from '@blotch/angular-lynx';
 
 @Component({
   selector: 'app-exposure-demo',
   standalone: true,
-  imports: [LYNX_ELEMENTS, LynxExposureDirective],
+  imports: [LYNX_ELEMENTS, LynxExposure],
   templateUrl: './exposure-demo.html',
   styleUrl: './exposure-demo.css',
 })
 export class ExposureDemo {
-  readonly #exposureService = inject(LynxExposureService);
+  readonly #exposureService = inject(LynxGlobalExposure);
 
   // Directive-based: per-element visibility tracking
   readonly itemLabels = ['Item A', 'Item B', 'Item C', 'Item D', 'Item E'];

@@ -92,15 +92,15 @@ if (locale === 'fr') {
 bootstrapApplication(App, { providers: [...] });
 ```
 
-## LynxLocaleService
+## LynxLocale
 
-The `LynxLocaleService` provides reactive access to the current locale:
+The `LynxLocale` provides reactive access to the current locale:
 
 ```typescript
 import { inject } from '@angular/core';
-import { LynxLocaleService } from '@blotch/angular-lynx';
+import { LynxLocale } from '@blotch/angular-lynx';
 
-const locale = inject(LynxLocaleService);
+const locale = inject(LynxLocale);
 
 // Reactive signal — updates when lynx.__globalProps.appLocale changes
 console.log(locale.locale()); // 'en-US', 'fr', 'ja', etc.

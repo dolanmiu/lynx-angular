@@ -23,7 +23,7 @@ class MyComponent {}`;
   it('returns source unchanged when no @Component decorator is present', () => {
     const source = `import { Injectable } from '@angular/core';
 @Injectable()
-class MyService {}`;
+class MyClass {}`;
 
     expect(injectLynxSchema(source)).toBe(source);
   });

@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
-import { LYNX_ELEMENTS, LynxLoggerService } from '@blotch/angular-lynx';
+import { LYNX_ELEMENTS, LynxLogger } from '@blotch/angular-lynx';
 import type { TouchEvent } from '@lynx-js/types';
 import angularLogo from '../assets/angular-logo.png';
 import arrow from '../assets/arrow.png';
@@ -184,7 +184,7 @@ import lynxLogo from '../assets/lynx-logo.png';
 })
 export class App {
   #router = inject(Router);
-  #logger = inject(LynxLoggerService);
+  #logger = inject(LynxLogger);
   alterLogo = signal(false);
   showOverlay = signal(false);
 

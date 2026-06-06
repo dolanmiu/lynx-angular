@@ -1,6 +1,6 @@
 # Data Processors
 
-Data processors transform raw native data before it reaches `LynxInitDataService`. Use them to normalize payloads, add defaults, or reshape data structures.
+Data processors transform raw native data before it reaches `LynxInitData`. Use them to normalize payloads, add defaults, or reshape data structures.
 
 Call `registerDataProcessors()` **before** `bootstrapApplication()` so the first `onDataChanged` event delivers already-processed data:
 

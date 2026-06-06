@@ -4,27 +4,27 @@ AngularLynx apps run entirely on-device — there is no browser console. Remote 
 
 ## How It Works
 
-When your device connects to the dev server via the Lynx Go QR Code, a persistent channel is established between the device and your machine. `LynxLoggerService` writes log messages through this channel; the dev server appends them to `.dev-logs` in your project root.
+When your device connects to the dev server via the Lynx Go QR Code, a persistent channel is established between the device and your machine. `LynxLogger` writes log messages through this channel; the dev server appends them to `.dev-logs` in your project root.
 
 ## Setup
 
-`LynxLoggerService` ships with `@blotch/angular-lynx`. Inject it wherever you need to log:
+`LynxLogger` ships with `@blotch/angular-lynx`. Inject it wherever you need to log:
 
 ```ts
 import { Component, inject } from '@angular/core';
-import { LynxLoggerService } from '@blotch/angular-lynx'; // [!code highlight]
+import { LynxLogger } from '@blotch/angular-lynx'; // [!code highlight]
 
 @Component({
   selector: 'app-root',
   template: `<view><text>Hello</text></view>`,
 })
 export class App {
-  private logger = inject(LynxLoggerService); // [!code highlight]
+  private logger = inject(LynxLogger); // [!code highlight]
 }
 ```
 
 :::info
-`LynxLoggerService` is provided at the root level — no extra `providers` entry is required in `app.config.ts`.
+`LynxLogger` is provided at the root level — no extra `providers` entry is required in `app.config.ts`.
 :::
 
 ## Writing Logs

@@ -1,13 +1,13 @@
 # Data Dashboard
 
-Receiving data from the host app via `LynxInitDataService` and `LynxGlobalDataService`.
+Receiving data from the host app via `LynxInitData` and `LynxGlobalData`.
 
 ```typescript
 import { Component, computed, inject } from '@angular/core';
 import {
   LYNX_ELEMENTS,
-  LynxInitDataService,
-  LynxGlobalDataService,
+  LynxInitData,
+  LynxGlobalData,
 } from '@anthropic/angular-lynx';
 
 @Component({
@@ -142,8 +142,8 @@ import {
   `,
 })
 export class DataDashboard {
-  private readonly initDataService = inject(LynxInitDataService);
-  private readonly globalDataService = inject(LynxGlobalDataService);
+  private readonly initDataService = inject(LynxInitData);
+  private readonly globalDataService = inject(LynxGlobalData);
 
   readonly initEntries = computed(() =>
     this.toEntries(this.initDataService.initData()),
@@ -167,7 +167,7 @@ export class DataDashboard {
 
 ## Key concepts
 
-- **`LynxInitDataService`** — Provides `initData()` signal with data passed once at page load
-- **`LynxGlobalDataService`** — Provides `globalData()` signal that updates live when the host app pushes new data
+- **`LynxInitData`** — Provides `initData()` signal with data passed once at page load
+- **`LynxGlobalData`** — Provides `globalData()` signal that updates live when the host app pushes new data
 - Both services wrap Lynx's `GlobalEventEmitter` and expose Angular signals for reactive rendering
 - The host app sends data via the Lynx page API — see the [Host Data guide](/guide/host-data/) for details

@@ -1,5 +1,5 @@
 export {
-  LynxPortalService,
+  LynxPortal,
   PortalRef,
   type PortalConfig,
-} from './portal.service';
+} from './portal';

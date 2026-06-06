@@ -9,7 +9,7 @@ import type {
  * delivering init data to the app. Maps to the global `processData` callback.
  *
  * Call this before bootstrapApplication so that native data is transformed
- * before LynxInitDataService receives the first onDataChanged event.
+ * before LynxInitData receives the first onDataChanged event.
  *
  * @example
  * registerDataProcessors({

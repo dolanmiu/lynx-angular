@@ -4,7 +4,7 @@ import {
   LOCALE_ID,
   makeEnvironmentProviders,
 } from '@angular/core';
-import { LynxLocaleService } from './lynx-locale.service';
+import { LynxLocale } from './lynx-locale';
 
 /**
  * Provides Angular's `LOCALE_ID` token from the Lynx runtime locale.
@@ -24,7 +24,7 @@ export const provideLocale = (): EnvironmentProviders => {
   return makeEnvironmentProviders([
     {
       provide: LOCALE_ID,
-      useFactory: () => inject(LynxLocaleService).locale(),
+      useFactory: () => inject(LynxLocale).locale(),
     },
   ]);
 };

@@ -40,13 +40,13 @@ Use `env(safe-area-inset-*)` directly in your component styles:
 }
 ```
 
-## LynxSafeAreaService
+## LynxSafeArea
 
-For conditional logic in TypeScript, inject `LynxSafeAreaService` to check whether the device has a display notch:
+For conditional logic in TypeScript, inject `LynxSafeArea` to check whether the device has a display notch:
 
 ```typescript
 import { Component, inject } from '@angular/core';
-import { LynxSafeAreaService, LYNX_ELEMENTS } from '@blotch/angular-lynx';
+import { LynxSafeArea, LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
 @Component({
   selector: 'app-root',
@@ -58,7 +58,7 @@ import { LynxSafeAreaService, LYNX_ELEMENTS } from '@blotch/angular-lynx';
   `,
 })
 export class App {
-  protected readonly safeArea = inject(LynxSafeAreaService);
+  protected readonly safeArea = inject(LynxSafeArea);
 }
 ```
 

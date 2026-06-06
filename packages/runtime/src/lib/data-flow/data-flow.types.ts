@@ -32,7 +32,7 @@ export interface InitData extends Record<string, unknown> {}
 export interface GlobalData extends Record<string, unknown> {}
 
 export type DataProcessorDefinition = {
-  /** Transform raw native init data before it is stored in LynxInitDataService. */
+  /** Transform raw native init data before it is stored in LynxInitData. */
   defaultDataProcessor?: (rawInitData: InitDataRaw) => InitData;
   /** Named processors callable by the native side via processData(data, processorName). */
   dataProcessors?: Record<string, (...args: any[]) => any>;

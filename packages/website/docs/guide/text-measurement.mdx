@@ -1,23 +1,23 @@
 # Text Measurement
 
-`LynxTextMeasureService` wraps the native `lynx.getTextInfo()` API, letting you measure text width and perform line-breaking calculations before rendering.
+`LynxTextMeasure` wraps the native `lynx.getTextInfo()` API, letting you measure text width and perform line-breaking calculations before rendering.
 
 :::warning
-Only built-in platform fonts are supported. Custom fonts loaded via `@font-face` or `LynxFontService` will fall back to the default system font and return **inaccurate** measurements.
+Only built-in platform fonts are supported. Custom fonts loaded via `@font-face` or `LynxFont` will fall back to the default system font and return **inaccurate** measurements.
 :::
 
 ## Usage
 
 ```typescript title="src/app/layout.ts"
 import { Component, inject, signal } from '@angular/core';
-import { LYNX_ELEMENTS, LynxTextMeasureService } from '@blotch/angular-lynx'; // [!code highlight]
+import { LYNX_ELEMENTS, LynxTextMeasure } from '@blotch/angular-lynx'; // [!code highlight]
 
 @Component({
   imports: [LYNX_ELEMENTS],
   template: ` <text>Text width: {{ width() }}px</text> `,
 })
 export class Layout {
-  readonly #textMeasure = inject(LynxTextMeasureService); // [!code highlight]
+  readonly #textMeasure = inject(LynxTextMeasure); // [!code highlight]
   readonly width = signal(0);
 
   ngOnInit(): void {

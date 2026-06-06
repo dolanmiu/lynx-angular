@@ -1,4 +1,4 @@
-export { LynxFontService } from './font.service';
+export { LynxFont } from './font';
 export type {
   LynxFontEntry,
   LynxFontFaceConfig,

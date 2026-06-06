@@ -1,1 +1,1 @@
-export { LynxTextMeasureService } from './text-measure.service';
+export { LynxTextMeasure } from './text-measure';

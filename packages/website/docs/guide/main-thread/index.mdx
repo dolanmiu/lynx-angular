@@ -58,7 +58,7 @@ Use main thread scripts for **visual feedback** that must feel instant (color, o
 :::
 
 :::warning
-Main thread functions cannot capture closures over component state. They can only access their arguments, `MainThreadRef` values, and the global `lynx` API. If you need to communicate results back to Angular, use `LynxMainThreadService.runOnMainThread()` which returns a `Promise`.
+Main thread functions cannot capture closures over component state. They can only access their arguments, `MainThreadRef` values, and the global `lynx` API. If you need to communicate results back to Angular, use `LynxMainThread.runOnMainThread()` which returns a `Promise`.
 :::
 
 ## Complete Example

@@ -1,1 +1,1 @@
-export { LynxThemeService } from './theme.service';
+export { LynxTheme } from './theme';

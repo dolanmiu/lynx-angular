@@ -1,4 +1,4 @@
-export { LynxResourcePrefetchService } from './resource-prefetch.service';
+export { LynxResourcePrefetch } from './resource-prefetch';
 export type {
   PrefetchCacheTarget,
   PrefetchPriority,
@@ -6,4 +6,4 @@ export type {
   PrefetchResultDetail,
   ResourcePrefetchData,
   ResourcePrefetchResult,
-} from './resource-prefetch.service';
+} from './resource-prefetch';

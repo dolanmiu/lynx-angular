@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { LYNX_ELEMENTS, LynxLocaleService } from '@blotch/angular-lynx';
+import { LYNX_ELEMENTS, LynxLocale } from '@blotch/angular-lynx';
 
 @Component({
   selector: 'app-root',
@@ -51,7 +51,7 @@ import { LYNX_ELEMENTS, LynxLocaleService } from '@blotch/angular-lynx';
   imports: [LYNX_ELEMENTS],
 })
 export class App {
-  readonly localeService = inject(LynxLocaleService);
+  readonly localeService = inject(LynxLocale);
   readonly count = signal(0);
   readonly userName = 'Angular Developer';
 

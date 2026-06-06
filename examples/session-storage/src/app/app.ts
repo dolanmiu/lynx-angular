@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { LYNX_ELEMENTS, LynxSessionStorageService } from '@blotch/angular-lynx';
+import { LYNX_ELEMENTS, LynxSessionStorage } from '@blotch/angular-lynx';
 
 @Component({
   selector: 'app-root',
@@ -45,7 +45,7 @@ import { LYNX_ELEMENTS, LynxSessionStorageService } from '@blotch/angular-lynx';
   imports: [LYNX_ELEMENTS],
 })
 export class App {
-  readonly #sessionStorage = inject(LynxSessionStorageService);
+  readonly #sessionStorage = inject(LynxSessionStorage);
 
   readonly counter = this.#sessionStorage.watch<number>('counter');
   readonly lastRead = signal<string>('(not yet read)');

@@ -1,2 +1,2 @@
-export { LynxLocaleService } from './lynx-locale.service';
+export { LynxLocale } from './lynx-locale';
 export { provideLocale } from './providers';

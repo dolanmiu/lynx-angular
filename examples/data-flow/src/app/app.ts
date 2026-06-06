@@ -1,8 +1,8 @@
 import { Component, inject } from '@angular/core';
 import {
   LYNX_ELEMENTS,
-  LynxInitDataService,
-  LynxGlobalDataService,
+  LynxInitData,
+  LynxGlobalData,
 } from '@blotch/angular-lynx';
 
 @Component({
@@ -39,8 +39,8 @@ import {
   imports: [LYNX_ELEMENTS],
 })
 export class App {
-  readonly #initData = inject(LynxInitDataService);
-  readonly #globalData = inject(LynxGlobalDataService);
+  readonly #initData = inject(LynxInitData);
+  readonly #globalData = inject(LynxGlobalData);
 
   initDataJson() {
     return JSON.stringify(this.#initData.initData(), null, 2);

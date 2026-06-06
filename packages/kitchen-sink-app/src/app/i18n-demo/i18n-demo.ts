@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { clearTranslations, loadTranslations } from '@angular/localize';
-import { LYNX_ELEMENTS, LynxLocaleService } from '@blotch/angular-lynx';
+import { LYNX_ELEMENTS, LynxLocale } from '@blotch/angular-lynx';
 
 // cspell:disable
 const FRENCH_TRANSLATIONS: Record<string, string> = {
@@ -64,7 +64,7 @@ const FRENCH_TRANSLATIONS: Record<string, string> = {
   `,
 })
 export class I18nDemo {
-  readonly localeService = inject(LynxLocaleService);
+  readonly localeService = inject(LynxLocale);
   readonly count = signal(0);
   readonly isFrench = signal(false);
 

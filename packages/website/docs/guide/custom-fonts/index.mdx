@@ -1,6 +1,6 @@
 # Custom Fonts
 
-AngularLynx supports custom fonts via CSS `@font-face` — the same approach Angular developers use on the web. The build system automatically bundles font files as static assets with content-hashed filenames. For fonts loaded dynamically at runtime, `LynxFontService` wraps the native `lynx.addFont()` API.
+AngularLynx supports custom fonts via CSS `@font-face` — the same approach Angular developers use on the web. The build system automatically bundles font files as static assets with content-hashed filenames. For fonts loaded dynamically at runtime, `LynxFont` wraps the native `lynx.addFont()` API.
 
 <Go example="custom-fonts" defaultFile="src/app/app.ts" />
 
@@ -75,4 +75,4 @@ To use multiple weights or styles, declare each variant with a different `font-f
 | Approach          | Best for                                                           |
 | ----------------- | ------------------------------------------------------------------ |
 | CSS `@font-face`  | Fonts known at build time (bundled, hashed, zero runtime cost)     |
-| `LynxFontService` | Fonts loaded from remote URLs or determined dynamically at runtime |
+| `LynxFont` | Fonts loaded from remote URLs or determined dynamically at runtime |

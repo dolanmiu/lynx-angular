@@ -1,2 +1,2 @@
-export { LynxSessionStorageService } from './session-storage.service';
+export { LynxSessionStorage } from './session-storage';
 export type { SessionStorageSubscription } from './session-storage.types';

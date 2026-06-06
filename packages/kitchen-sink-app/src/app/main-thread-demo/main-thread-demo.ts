@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import {
   LYNX_ELEMENTS,
   LynxMainThreadEvent,
-  LynxMainThreadService,
+  LynxMainThread,
   mainThreadFn,
   backgroundFn,
   createMainThreadRef,
@@ -71,7 +71,7 @@ const handleCrossThreadTap = mainThreadFn((event: MainThread.TouchEvent) => {
 });
 
 // Main-thread function callable from the background thread via
-// LynxMainThreadService.runOnMainThread(). Demonstrates background→main
+// LynxMainThread.runOnMainThread(). Demonstrates background→main
 // communication for triggering native animations or element manipulation.
 const flashElement = mainThreadFn((color: string, elementSelector: string) => {
   const page = __GetPageElement();
@@ -93,7 +93,7 @@ const flashElement = mainThreadFn((color: string, elementSelector: string) => {
   styleUrl: './main-thread-demo.css',
 })
 export class MainThreadDemo {
-  readonly #mts = inject(LynxMainThreadService);
+  readonly #mts = inject(LynxMainThread);
 
   // Expose handles to the template
   readonly handleTap = handleTap;

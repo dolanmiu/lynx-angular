@@ -4,16 +4,16 @@
 
 Lynx apps run on-device (iPhone/Android via Lynx Explorer). There is no browser console, no DevTools, no `console.log` visible panel. You must use alternative approaches to see logs and errors.
 
-## LynxLoggerService
+## LynxLogger
 
 Remote logger that sends logs from device to your dev terminal via the rspeedy dev server.
 
 ```typescript
 import { inject } from '@angular/core';
-import { LynxLoggerService } from '@blotch/angular-lynx';
+import { LynxLogger } from '@blotch/angular-lynx';
 
 export class MyComponent {
-  #logger = inject(LynxLoggerService);
+  #logger = inject(LynxLogger);
 
   onTap() {
     this.#logger.log('tap event fired');
@@ -88,7 +88,7 @@ Read `globalThis.__lynxLastError` at any point to see the last uncaught error.
 ## Debugging Strategies
 
 1. **Render state on screen** — add `<text>{{ debugSignal() }}</text>` to see values in real-time
-2. **Use LynxLoggerService** — logs appear in your terminal where rspeedy is running
+2. **Use LynxLogger** — logs appear in your terminal where rspeedy is running
 3. **Check `__lynxLastError`** — after operations that might fail (navigation, data loading)
 4. **Wrap in try/catch** — catch errors in event handlers and display them
 

@@ -59,7 +59,7 @@ lynx.getCoreContext().addEventListener('my-event', (event) => {
 });
 ```
 
-The `LynxLoggerService` uses this pattern to relay logs from main-thread event handlers to the background thread where `fetch` is available.
+The `LynxLogger` uses this pattern to relay logs from main-thread event handlers to the background thread where `fetch` is available.
 
 ## ECMAScript Support
 

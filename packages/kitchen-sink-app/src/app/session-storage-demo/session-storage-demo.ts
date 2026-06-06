@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { LYNX_ELEMENTS, LynxSessionStorageService } from '@blotch/angular-lynx';
+import { LYNX_ELEMENTS, LynxSessionStorage } from '@blotch/angular-lynx';
 
 @Component({
   selector: 'app-session-storage-demo',
@@ -9,7 +9,7 @@ import { LYNX_ELEMENTS, LynxSessionStorageService } from '@blotch/angular-lynx';
   styleUrl: './session-storage-demo.css',
 })
 export class SessionStorageDemo {
-  readonly #sessionStorage = inject(LynxSessionStorageService);
+  readonly #sessionStorage = inject(LynxSessionStorage);
 
   // Reactive signal that auto-updates when any LynxView writes to "counter"
   readonly counter = this.#sessionStorage.watch<number>('counter');

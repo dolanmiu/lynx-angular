@@ -201,7 +201,7 @@ export default defineConfig({
               link: '/guide/main-thread/main-thread-ref',
             },
             {
-              text: 'LynxMainThreadService',
+              text: 'LynxMainThread',
               link: '/guide/main-thread/main-thread-service',
             },
             { text: 'backgroundFn', link: '/guide/main-thread/background-fn' },

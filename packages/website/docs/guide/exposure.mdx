@@ -8,12 +8,12 @@ Lynx's exposure system detects when elements enter or leave the viewport. It ope
 
 | Level           | Mechanism                                                      | API                     |
 | --------------- | -------------------------------------------------------------- | ----------------------- |
-| **Per-element** | `binduiappear` / `binduidisappear` native events               | `LynxExposureDirective` |
-| **Global**      | `GlobalEventEmitter` batched `exposure` / `disexposure` events | `LynxExposureService`   |
+| **Per-element** | `binduiappear` / `binduidisappear` native events               | `LynxExposure` |
+| **Global**      | `GlobalEventEmitter` batched `exposure` / `disexposure` events | `LynxGlobalExposure`   |
 
 The directive is ideal for reacting to individual element visibility (e.g., lazy-loading content when it scrolls into view). The service is better suited for analytics — it receives batched reports of all elements that have an `exposure-id` attribute.
 
-## LynxExposureDirective
+## LynxExposure
 
 Attach the `lynxExposure` directive to any element to get a reactive `visible` signal tracking whether it's currently in the viewport.
 
@@ -22,12 +22,12 @@ Attach the `lynxExposure` directive to any element to get a reactive `visible` s
 ```typescript title="src/app/my.ts"
 import { Component } from '@angular/core';
 import {
-  LynxExposureDirective, // [!code highlight]
+  LynxExposure, // [!code highlight]
   LYNX_ELEMENTS,
 } from '@blotch/angular-lynx';
 
 @Component({
-  imports: [LYNX_ELEMENTS, LynxExposureDirective], // [!code highlight]
+  imports: [LYNX_ELEMENTS, LynxExposure], // [!code highlight]
   template: `...`,
 })
 export class Example {}
@@ -51,10 +51,10 @@ The directive:
 
 ```typescript title="src/app/feed-item.ts"
 import { Component } from '@angular/core';
-import { LynxExposureDirective, LYNX_ELEMENTS } from '@blotch/angular-lynx';
+import { LynxExposure, LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
 @Component({
-  imports: [LYNX_ELEMENTS, LynxExposureDirective],
+  imports: [LYNX_ELEMENTS, LynxExposure],
   template: `
     <view lynxExposure #exp="lynxExposure" style="height: 200px;">
       @if (exp.visible()) {
@@ -68,7 +68,7 @@ import { LynxExposureDirective, LYNX_ELEMENTS } from '@blotch/angular-lynx';
 export class FeedItem {}
 ```
 
-## LynxExposureService
+## LynxGlobalExposure
 
 The service subscribes to the Lynx engine's global `exposure` / `disexposure` events that fire for elements with an `exposure-id` attribute. The engine batches visibility changes at ~20fps and dispatches them as arrays.
 
@@ -78,7 +78,7 @@ No imports needed in the template — just inject the service:
 
 ```typescript title="src/app/analytics.ts"
 import { Component, inject, effect } from '@angular/core';
-import { LynxExposureService, LYNX_ELEMENTS } from '@blotch/angular-lynx'; // [!code highlight]
+import { LynxGlobalExposure, LYNX_ELEMENTS } from '@blotch/angular-lynx'; // [!code highlight]
 
 @Component({
   imports: [LYNX_ELEMENTS],
@@ -89,7 +89,7 @@ import { LynxExposureService, LYNX_ELEMENTS } from '@blotch/angular-lynx'; // [!
   `,
 })
 export class Analytics {
-  readonly #exposure = inject(LynxExposureService); // [!code highlight]
+  readonly #exposure = inject(LynxGlobalExposure); // [!code highlight]
 
   constructor() {
     effect(() => {
@@ -129,7 +129,7 @@ type ExposureEventDetail = {
 The service provides methods to pause and resume global exposure detection. Pausing prevents `exposure`/`disexposure` `GlobalEventEmitter` events from firing. Per-element `binduiappear`/`binduidisappear` events (used by the directive) continue regardless.
 
 ```typescript
-const exposure = inject(LynxExposureService);
+const exposure = inject(LynxGlobalExposure);
 
 // Pause — optionally send one final disexposure event for visible elements
 exposure.stopExposure({ sendEvent: true });
@@ -164,12 +164,12 @@ exposure.setObserverFrameRate({
 import { Component, computed, inject, signal } from '@angular/core';
 import {
   LYNX_ELEMENTS,
-  LynxExposureDirective,
-  LynxExposureService,
+  LynxExposure,
+  LynxGlobalExposure,
 } from '@blotch/angular-lynx';
 
 @Component({
-  imports: [LYNX_ELEMENTS, LynxExposureDirective],
+  imports: [LYNX_ELEMENTS, LynxExposure],
   template: `
     <view>
       <!-- Directive: per-element visibility -->
@@ -199,7 +199,7 @@ import {
   `,
 })
 export class ExposureDemo {
-  readonly #exposure = inject(LynxExposureService);
+  readonly #exposure = inject(LynxGlobalExposure);
 
   readonly items = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon'];
   readonly active = this.#exposure.active;

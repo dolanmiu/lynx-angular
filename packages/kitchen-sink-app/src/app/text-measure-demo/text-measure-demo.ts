@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { LYNX_ELEMENTS, LynxTextMeasureService } from '@blotch/angular-lynx';
+import { LYNX_ELEMENTS, LynxTextMeasure } from '@blotch/angular-lynx';
 import type { TextMetrics } from '@lynx-js/types';
 
 @Component({
@@ -72,7 +72,7 @@ import type { TextMetrics } from '@lynx-js/types';
   ],
 })
 export class TextMeasureDemo {
-  readonly #textMeasure = inject(LynxTextMeasureService);
+  readonly #textMeasure = inject(LynxTextMeasure);
 
   readonly small = signal<TextMetrics>({ width: 0 });
   readonly large = signal<TextMetrics>({ width: 0 });

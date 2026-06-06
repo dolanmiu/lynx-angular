@@ -330,7 +330,7 @@ describe('scanSourcesForUnsupportedCss', () => {
 
   it('skips files without @Component', () => {
     vi.spyOn(fs, 'readFileSync').mockReturnValue(`
-      export class MyService {
+      export class MyClass {
         float = 'left';
       }
     `);

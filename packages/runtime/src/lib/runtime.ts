@@ -408,7 +408,7 @@ if (!__MAIN_THREAD__) {
   }
 }
 
-// Exposed for LynxMainThreadService to dispatch cross-thread calls
+// Exposed for LynxMainThread to dispatch cross-thread calls
 globalThis.__lynxMtsPendingResolvers = __pendingResolvers;
 globalThis.__lynxMtsNextResolveId = () => __nextResolveId++;
 
