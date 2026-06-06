@@ -1,5 +1,1 @@
-export {
-  LynxPortal,
-  PortalRef,
-  type PortalConfig,
-} from './portal';
+export { LynxPortal, PortalRef, type PortalConfig } from './portal';

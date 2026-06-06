@@ -8,9 +8,7 @@ describe('LynxSystemInfo', () => {
 
   describe('when SystemInfo is unavailable', () => {
     it('constructor throws', () => {
-      expect(() => new LynxSystemInfo()).toThrow(
-        'SystemInfo is not available',
-      );
+      expect(() => new LynxSystemInfo()).toThrow('SystemInfo is not available');
     });
   });
 

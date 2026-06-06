@@ -6,10 +6,10 @@ AngularLynx provides two complementary APIs for tracking element visibility — 
 
 Lynx's exposure system detects when elements enter or leave the viewport. It operates at two levels:
 
-| Level           | Mechanism                                                      | API                     |
-| --------------- | -------------------------------------------------------------- | ----------------------- |
-| **Per-element** | `binduiappear` / `binduidisappear` native events               | `LynxExposure` |
-| **Global**      | `GlobalEventEmitter` batched `exposure` / `disexposure` events | `LynxGlobalExposure`   |
+| Level           | Mechanism                                                      | API                  |
+| --------------- | -------------------------------------------------------------- | -------------------- |
+| **Per-element** | `binduiappear` / `binduidisappear` native events               | `LynxExposure`       |
+| **Global**      | `GlobalEventEmitter` batched `exposure` / `disexposure` events | `LynxGlobalExposure` |
 
 The directive is ideal for reacting to individual element visibility (e.g., lazy-loading content when it scrolls into view). The service is better suited for analytics — it receives batched reports of all elements that have an `exposure-id` attribute.
 
