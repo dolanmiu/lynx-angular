@@ -65,11 +65,15 @@ if (typeof queueMicrotask === 'undefined') {
 // Lynx runtime doesn't have browser globals. Mock them early (before Angular
 // platform initialization) so BrowserPlatformLocation's constructor doesn't
 // crash when accessing window.location / window.history.
-if (typeof document === 'undefined') {
-  globalThis.document = {
-    defaultView: globalThis,
-    querySelector: () => null,
-  };
+try {
+  if (typeof document === 'undefined') {
+    globalThis.document = {
+      defaultView: globalThis,
+      querySelector: () => null,
+    };
+  }
+} catch {
+  // Read-only in Web Worker — document already exists
 }
 // In native Lynx, window doesn't exist — assign globalThis as a stub.
 // In web bundles, the code runs inside lynx-view which shadows window=void 0
@@ -87,42 +91,54 @@ try {
 // _isAndroid() → getDOM().getUserAgent() → BrowserDomAdapter.getUserAgent(),
 // which reads window.navigator.userAgent. Lynx has no navigator global, so this
 // throws a TypeError that crashes the component mid-creation and blanks the page.
-if (typeof navigator === 'undefined') {
-  globalThis.navigator = { userAgent: '' };
+try {
+  if (typeof navigator === 'undefined') {
+    globalThis.navigator = { userAgent: '' };
+  }
+} catch {
+  // Read-only in Web Worker — navigator already exists
 }
 // BrowserPlatformLocation reads window.location and window.history in its
 // constructor. Even though LynxPlatformLocation replaces it via DI, Angular
 // may still construct BrowserPlatformLocation as a transitive dependency
 // (e.g. through providedIn:'platform' factories). These stubs prevent the
 // constructor from crashing with "cannot read property 'pathname' of undefined".
-if (typeof globalThis.location === 'undefined') {
-  globalThis.location = {
-    href: 'lynx://app/',
-    protocol: 'lynx:',
-    host: 'app',
-    hostname: 'app',
-    port: '',
-    pathname: '/',
-    search: '',
-    hash: '',
-    origin: 'lynx://app',
-    assign: () => {},
-    reload: () => {},
-    replace: () => {},
-    toString: () => 'lynx://app/',
-  };
+try {
+  if (typeof globalThis.location === 'undefined') {
+    globalThis.location = {
+      href: 'lynx://app/',
+      protocol: 'lynx:',
+      host: 'app',
+      hostname: 'app',
+      port: '',
+      pathname: '/',
+      search: '',
+      hash: '',
+      origin: 'lynx://app',
+      assign: () => {},
+      reload: () => {},
+      replace: () => {},
+      toString: () => 'lynx://app/',
+    };
+  }
+} catch {
+  // Read-only in Web Worker — location already exists
 }
-if (typeof globalThis.history === 'undefined') {
-  globalThis.history = {
-    length: 1,
-    state: null,
-    scrollRestoration: 'auto',
-    back: () => {},
-    forward: () => {},
-    go: () => {},
-    pushState: () => {},
-    replaceState: () => {},
-  };
+try {
+  if (typeof globalThis.history === 'undefined') {
+    globalThis.history = {
+      length: 1,
+      state: null,
+      scrollRestoration: 'auto',
+      back: () => {},
+      forward: () => {},
+      go: () => {},
+      pushState: () => {},
+      replaceState: () => {},
+    };
+  }
+} catch {
+  // Read-only in Web Worker — history already exists
 }
 if (typeof globalThis.addEventListener !== 'function') {
   globalThis.addEventListener = () => {};

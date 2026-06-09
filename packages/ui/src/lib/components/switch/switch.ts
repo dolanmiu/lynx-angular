@@ -33,7 +33,7 @@ export class UiSwitch {
 
   readonly changed = output<boolean>();
 
-  readonly #thumbRef = viewChild<ElementRef>('thumb');
+  private readonly thumbRef = viewChild<ElementRef>('thumb');
   #activeAnimation?: { cancel(): void };
 
   protected readonly trackClass = computed(() =>
@@ -57,7 +57,7 @@ export class UiSwitch {
   toggle(): void {
     if (this.disabled()) return;
 
-    const thumb = this.#thumbRef()?.nativeElement;
+    const thumb = this.thumbRef()?.nativeElement;
     const wasChecked = this.checked();
     const next = !wasChecked;
 

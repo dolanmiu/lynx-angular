@@ -142,8 +142,15 @@ try {
 // window.navigator.userAgent. Lynx has no navigator global, so this throws a
 // TypeError that crashes the component mid-creation, blanks the page, and
 // corrupts the Router state (making subsequent routes also blank).
-if (typeof navigator === 'undefined') {
-  (globalThis as any).navigator = { userAgent: '' };
+// In a Web Worker (e.g. @lynx-js/go-web preview), `navigator` is a read-only
+// getter on WorkerGlobalScope — assignment throws. Only polyfill when it's
+// truly missing (native Lynx background thread).
+try {
+  if (typeof navigator === 'undefined') {
+    (globalThis as any).navigator = { userAgent: '' };
+  }
+} catch {
+  // navigator exists as a read-only property (Web Worker) — no polyfill needed
 }
 
 // BrowserPlatformLocation.onPopState/onHashChange call window.addEventListener.

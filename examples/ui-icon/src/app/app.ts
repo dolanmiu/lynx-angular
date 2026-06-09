@@ -1,0 +1,117 @@
+import { Component } from '@angular/core';
+import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
+import { UiIcon, UiText, type IconName } from '@blotch/ui';
+
+@Component({
+  selector: 'app-root',
+  imports: [LYNX_ELEMENTS, UiIcon, UiText],
+  template: `
+    <scroll-view scroll-orientation="vertical" class="flex-1">
+      <view class="flex flex-col gap-6 p-6">
+        <text class="text-2xl font-bold text-foreground">Icon</text>
+        <text class="text-sm text-muted-foreground">
+          SVG icons rendered natively via Lynx's svg element.
+        </text>
+
+        <!-- All Icons -->
+        <view class="flex flex-col gap-3">
+          <text class="text-lg font-semibold text-foreground">All Icons</text>
+          <view class="flex flex-row flex-wrap gap-4">
+            @for (icon of icons; track icon) {
+              <view
+                class="flex flex-col items-center justify-center gap-1 rounded-md border border-border p-3"
+                style="width: 80px;"
+              >
+                <ui-icon [name]="icon" size="md" />
+                <text class="text-xs text-muted-foreground">{{ icon }}</text>
+              </view>
+            }
+          </view>
+        </view>
+
+        <!-- Sizes -->
+        <view class="flex flex-col gap-3">
+          <text class="text-lg font-semibold text-foreground">Sizes</text>
+          <view class="flex flex-row items-end gap-6">
+            <view class="flex flex-col items-center gap-1">
+              <ui-icon name="heart" size="xs" />
+              <text class="text-xs text-muted-foreground">xs (16px)</text>
+            </view>
+            <view class="flex flex-col items-center gap-1">
+              <ui-icon name="heart" size="sm" />
+              <text class="text-xs text-muted-foreground">sm (20px)</text>
+            </view>
+            <view class="flex flex-col items-center gap-1">
+              <ui-icon name="heart" size="md" />
+              <text class="text-xs text-muted-foreground">md (24px)</text>
+            </view>
+            <view class="flex flex-col items-center gap-1">
+              <ui-icon name="heart" size="lg" />
+              <text class="text-xs text-muted-foreground">lg (32px)</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- Custom Colors -->
+        <view class="flex flex-col gap-3">
+          <text class="text-lg font-semibold text-foreground">
+            Custom Colors
+          </text>
+          <view class="flex flex-row flex-wrap gap-4">
+            <view class="flex flex-col items-center gap-1">
+              <ui-icon name="heart" size="lg" color="#ef4444" />
+              <text class="text-xs text-muted-foreground">Red</text>
+            </view>
+            <view class="flex flex-col items-center gap-1">
+              <ui-icon name="star" size="lg" color="#eab308" />
+              <text class="text-xs text-muted-foreground">Yellow</text>
+            </view>
+            <view class="flex flex-col items-center gap-1">
+              <ui-icon name="check" size="lg" color="#22c55e" />
+              <text class="text-xs text-muted-foreground">Green</text>
+            </view>
+            <view class="flex flex-col items-center gap-1">
+              <ui-icon name="info" size="lg" color="#3b82f6" />
+              <text class="text-xs text-muted-foreground">Blue</text>
+            </view>
+            <view class="flex flex-col items-center gap-1">
+              <ui-icon name="alert-triangle" size="lg" color="#f97316" />
+              <text class="text-xs text-muted-foreground">Orange</text>
+            </view>
+            <view class="flex flex-col items-center gap-1">
+              <ui-icon name="settings" size="lg" color="#8b5cf6" />
+              <text class="text-xs text-muted-foreground">Purple</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  `,
+})
+export class App {
+  readonly icons: IconName[] = [
+    'check',
+    'x',
+    'plus',
+    'minus',
+    'chevron-down',
+    'chevron-up',
+    'chevron-left',
+    'chevron-right',
+    'arrow-left',
+    'arrow-right',
+    'search',
+    'menu',
+    'info',
+    'alert-triangle',
+    'loader',
+    'circle',
+    'ellipsis',
+    'eye',
+    'eye-off',
+    'settings',
+    'trash',
+    'heart',
+    'star',
+  ];
+}

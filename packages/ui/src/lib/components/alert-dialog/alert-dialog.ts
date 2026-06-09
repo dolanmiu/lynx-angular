@@ -47,8 +47,8 @@ export class UiAlertDialog {
 
   protected readonly overlayVisible = signal(false);
 
-  readonly #backdropRef = viewChild<ElementRef>('backdrop');
-  readonly #panelRef = viewChild<ElementRef>('panel');
+  private readonly backdropRef = viewChild<ElementRef>('backdrop');
+  private readonly panelRef = viewChild<ElementRef>('panel');
   #backdropAnim?: { cancel(): void };
   #panelAnim?: { cancel(): void };
   #hasBeenOpen = false;
@@ -94,8 +94,8 @@ export class UiAlertDialog {
   }
 
   #animateIn(): void {
-    const backdrop = this.#backdropRef()?.nativeElement;
-    const panel = this.#panelRef()?.nativeElement;
+    const backdrop = this.backdropRef()?.nativeElement;
+    const panel = this.panelRef()?.nativeElement;
     if (!backdrop || !panel) return;
 
     this.#backdropAnim?.cancel();
@@ -121,8 +121,8 @@ export class UiAlertDialog {
   }
 
   #animateOut(): void {
-    const backdrop = this.#backdropRef()?.nativeElement;
-    const panel = this.#panelRef()?.nativeElement;
+    const backdrop = this.backdropRef()?.nativeElement;
+    const panel = this.panelRef()?.nativeElement;
     if (!backdrop || !panel) return;
 
     this.#backdropAnim?.cancel();

@@ -26,11 +26,11 @@ export class UiSpinner {
   readonly size = input<'xs' | 'sm' | 'md' | 'lg'>('md');
   readonly color = input<string | undefined>(undefined);
 
-  readonly #spinnerRef = viewChild<ElementRef>('spinner');
+  private readonly spinnerRef = viewChild<ElementRef>('spinner');
 
   constructor() {
     effect(() => {
-      const el = this.#spinnerRef()?.nativeElement;
+      const el = this.spinnerRef()?.nativeElement;
       if (!el) return;
       el.animate(
         [{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }],

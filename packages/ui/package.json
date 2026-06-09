@@ -4,6 +4,11 @@
   "description": "shadcn-style UI components for Angular Lynx",
   "license": "MIT",
   "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./plugin": "./src/lib/theme/tailwind-plugin.ts",
+    "./theme/*": "./src/lib/theme/*"
+  },
   "scripts": {
     "test": "vitest run",
     "lint": "oxlint .",

@@ -67,9 +67,9 @@ export class UiSelect {
   protected readonly overlayVisible = signal(false);
   protected readonly chevronSvg = CHEVRON_SVG;
 
-  readonly #itemRefs = contentChildren(forwardRef(() => UiSelectItem));
-  readonly #backdropRef = viewChild<ElementRef>('backdrop');
-  readonly #panelRef = viewChild<ElementRef>('panel');
+  private readonly itemRefs = contentChildren(forwardRef(() => UiSelectItem));
+  private readonly backdropRef = viewChild<ElementRef>('backdrop');
+  private readonly panelRef = viewChild<ElementRef>('panel');
   #backdropAnim?: { cancel(): void };
   #panelAnim?: { cancel(): void };
   #isOpen = false;
@@ -77,7 +77,7 @@ export class UiSelect {
   protected readonly displayText = computed(() => {
     const val = this.value();
     if (!val) return this.placeholder();
-    const item = this.#itemRefs().find((i) => i.itemValue() === val);
+    const item = this.itemRefs().find((i) => i.itemValue() === val);
     return item?.label() ?? val;
   });
 
@@ -136,8 +136,8 @@ export class UiSelect {
   }
 
   #animateIn(): void {
-    const backdrop = this.#backdropRef()?.nativeElement;
-    const panel = this.#panelRef()?.nativeElement;
+    const backdrop = this.backdropRef()?.nativeElement;
+    const panel = this.panelRef()?.nativeElement;
     if (!backdrop || !panel) return;
 
     this.#backdropAnim?.cancel();
@@ -160,8 +160,8 @@ export class UiSelect {
   }
 
   #animateOut(): void {
-    const backdrop = this.#backdropRef()?.nativeElement;
-    const panel = this.#panelRef()?.nativeElement;
+    const backdrop = this.backdropRef()?.nativeElement;
+    const panel = this.panelRef()?.nativeElement;
     if (!backdrop || !panel) return;
 
     this.#backdropAnim?.cancel();

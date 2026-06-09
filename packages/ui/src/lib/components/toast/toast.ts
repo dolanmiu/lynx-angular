@@ -54,7 +54,7 @@ export class UiToaster {
   protected readonly displayedToast = signal<ToastData | null>(null);
   protected readonly overlayVisible = signal(false);
 
-  readonly #toastElRef = viewChild<ElementRef>('toastEl');
+  private readonly toastElRef = viewChild<ElementRef>('toastEl');
   #toastAnim?: { cancel(): void };
   #dismissTimer: ReturnType<typeof setTimeout> | null = null;
   #isProcessing = false;
@@ -159,7 +159,7 @@ export class UiToaster {
   }
 
   #animateIn(): void {
-    const el = this.#toastElRef()?.nativeElement;
+    const el = this.toastElRef()?.nativeElement;
     if (!el) return;
 
     this.#toastAnim?.cancel();
@@ -177,7 +177,7 @@ export class UiToaster {
   }
 
   #animateOut(): void {
-    const el = this.#toastElRef()?.nativeElement;
+    const el = this.toastElRef()?.nativeElement;
     if (!el) return;
 
     this.#toastAnim?.cancel();

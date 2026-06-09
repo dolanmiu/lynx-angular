@@ -135,11 +135,11 @@ export class UiAccordionContent {
   protected readonly item = inject(UiAccordionItem);
   readonly userClass = input<string>('', { alias: 'class' });
 
-  readonly #contentRef = viewChild<ElementRef>('content');
+  private readonly contentRef = viewChild<ElementRef>('content');
 
   constructor() {
     effect(() => {
-      const el = this.#contentRef()?.nativeElement;
+      const el = this.contentRef()?.nativeElement;
       if (el && this.item.isExpanded()) {
         el.animate([{ opacity: 0 }, { opacity: 1 }], {
           duration: 200,

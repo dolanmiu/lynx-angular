@@ -1,3 +1,3 @@
 export type Schema = {
-  project?: string;
+    project?: string;
 };

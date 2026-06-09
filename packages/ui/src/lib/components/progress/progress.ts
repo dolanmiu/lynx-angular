@@ -27,14 +27,14 @@ export class UiProgress {
   readonly max = input(100);
   readonly userClass = input<string>('', { alias: 'class' });
 
-  readonly #fillRef = viewChild<ElementRef>('fill');
+  private readonly fillRef = viewChild<ElementRef>('fill');
   #fillAnim?: { cancel(): void };
   #previousPercent: number | null = null;
 
   constructor() {
     effect(() => {
       const percent = this.percent();
-      const el = this.#fillRef()?.nativeElement;
+      const el = this.fillRef()?.nativeElement;
       if (!el || this.#previousPercent === null) {
         this.#previousPercent = percent;
         return;

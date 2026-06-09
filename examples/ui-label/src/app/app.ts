@@ -1,0 +1,47 @@
+import { Component } from '@angular/core';
+import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
+import { UiLabel } from '@blotch/ui';
+
+@Component({
+  selector: 'app-root',
+  imports: [LYNX_ELEMENTS, UiLabel],
+  template: `
+    <view class="flex flex-col gap-6 p-6">
+      <text class="text-2xl font-bold text-foreground">Label</text>
+      <text class="text-sm text-muted-foreground">
+        A text label for form fields with support for disabled state styling.
+      </text>
+
+      <!-- Normal label -->
+      <view class="flex flex-col gap-2">
+        <ui-label>Email Address</ui-label>
+        <view class="h-10 rounded-md border border-input bg-background px-3 py-2">
+          <text class="text-sm text-muted-foreground">you@example.com</text>
+        </view>
+      </view>
+
+      <!-- Label with custom styling -->
+      <view class="flex flex-col gap-2">
+        <ui-label class="text-base">Full Name</ui-label>
+        <view class="h-10 rounded-md border border-input bg-background px-3 py-2">
+          <text class="text-sm text-muted-foreground">John Doe</text>
+        </view>
+      </view>
+
+      <!-- Disabled label -->
+      <view class="flex flex-col gap-2">
+        <ui-label [disabled]="true">Account ID (read-only)</ui-label>
+        <view class="h-10 rounded-md border border-input bg-background px-3 py-2 opacity-50">
+          <text class="text-sm text-muted-foreground">ACC-12345</text>
+        </view>
+      </view>
+
+      <!-- Multiple labels in a row -->
+      <view class="flex flex-row gap-4">
+        <ui-label>First Name</ui-label>
+        <ui-label>Last Name</ui-label>
+      </view>
+    </view>
+  `,
+})
+export class App {}
