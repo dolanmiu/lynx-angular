@@ -4,43 +4,45 @@ import { LYNX_ELEMENTS, LynxSessionStorage } from '@blotch/angular-lynx';
 @Component({
   selector: 'app-root',
   template: `
-    <view style="padding: 24px;">
-      <text style="font-size: 24px; font-weight: bold; margin-bottom: 16px;">
-        Session Storage
-      </text>
-
-      <view style="margin-bottom: 24px;">
-        <text style="font-size: 18px; margin-bottom: 8px;">
-          Counter: {{ counter() ?? 'not set' }}
+    <scroll-view scroll-orientation="vertical" style="height: 100%;">
+      <view style="padding: 24px;">
+        <text style="font-size: 24px; font-weight: bold; margin-bottom: 16px;">
+          Session Storage
         </text>
-        <view style="flex-direction: row; gap: 12px;">
-          <view
-            style="background-color: #6200ee; padding: 12px 24px; border-radius: 8px;"
-            (bindtap)="increment()"
-          >
-            <text style="color: white; font-size: 16px;">Increment</text>
+
+        <view style="margin-bottom: 24px;">
+          <text style="font-size: 18px; margin-bottom: 8px;">
+            Counter: {{ counter() ?? 'not set' }}
+          </text>
+          <view style="flex-direction: row; gap: 12px;">
+            <view
+              style="background-color: #6200ee; padding: 12px 24px; border-radius: 8px;"
+              (bindtap)="increment()"
+            >
+              <text style="color: white; font-size: 16px;">Increment</text>
+            </view>
+            <view
+              style="background-color: #b00020; padding: 12px 24px; border-radius: 8px;"
+              (bindtap)="reset()"
+            >
+              <text style="color: white; font-size: 16px;">Reset</text>
+            </view>
           </view>
+        </view>
+
+        <view>
+          <text style="font-size: 18px; margin-bottom: 8px;">
+            Last read: {{ lastRead() }}
+          </text>
           <view
-            style="background-color: #b00020; padding: 12px 24px; border-radius: 8px;"
-            (bindtap)="reset()"
+            style="background-color: #03dac6; padding: 12px 24px; border-radius: 8px;"
+            (bindtap)="readOnce()"
           >
-            <text style="color: white; font-size: 16px;">Reset</text>
+            <text style="color: black; font-size: 16px;">Read Once</text>
           </view>
         </view>
       </view>
-
-      <view>
-        <text style="font-size: 18px; margin-bottom: 8px;">
-          Last read: {{ lastRead() }}
-        </text>
-        <view
-          style="background-color: #03dac6; padding: 12px 24px; border-radius: 8px;"
-          (bindtap)="readOnce()"
-        >
-          <text style="color: black; font-size: 16px;">Read Once</text>
-        </view>
-      </view>
-    </view>
+    </scroll-view>
   `,
   imports: [LYNX_ELEMENTS],
 })

@@ -48,53 +48,55 @@ const handleTouchEnd = mainThreadFn((event: MainThread.TouchEvent) => {
 @Component({
   selector: 'app-root',
   template: `
-    <view style="padding: 24px;">
-      <text style="font-size: 20px; font-weight: bold; margin-bottom: 16px;">
-        Main Thread Scripts
-      </text>
-
-      <text style="font-size: 14px; font-weight: bold; margin-bottom: 8px;">
-        Instant Color Change (mainThreadFn + MainThreadRef)
-      </text>
-      <view
-        [mainThreadBindtap]="handleTap"
-        style="height: 100px; background-color: #6200ee; border-radius: 12px;
-               justify-content: center; align-items: center;"
-      >
-        <text style="color: white; font-size: 16px;">Tap to change color</text>
-      </view>
-
-      <text
-        style="font-size: 14px; font-weight: bold; margin-top: 16px; margin-bottom: 8px;"
-      >
-        Touch Tracking (mainThreadFn)
-      </text>
-      <view
-        [mainThreadBindtouchmove]="handleTouchMove"
-        [mainThreadBindtouchend]="handleTouchEnd"
-        style="height: 100px; background-color: #1976d2; border-radius: 12px;
-               justify-content: center; align-items: center;"
-      >
-        <text style="color: white; font-size: 16px;">
-          Drag to change opacity
+    <scroll-view scroll-orientation="vertical" style="height: 100%;">
+      <view style="padding: 24px;">
+        <text style="font-size: 20px; font-weight: bold; margin-bottom: 16px;">
+          Main Thread Scripts
         </text>
-      </view>
 
-      <text
-        style="font-size: 14px; font-weight: bold; margin-top: 16px; margin-bottom: 8px;"
-      >
-        Background Thread Comparison
-      </text>
-      <view
-        (bindtap)="onBgTap()"
-        style="height: 80px; background-color: #757575; border-radius: 12px;
-               justify-content: center; align-items: center;"
-      >
-        <text style="color: white; font-size: 16px;">
-          Background taps: {{ bgTapCount() }}
+        <text style="font-size: 14px; font-weight: bold; margin-bottom: 8px;">
+          Instant Color Change (mainThreadFn + MainThreadRef)
         </text>
+        <view
+          [mainThreadBindtap]="handleTap"
+          style="height: 100px; background-color: #6200ee; border-radius: 12px;
+                 justify-content: center; align-items: center;"
+        >
+          <text style="color: white; font-size: 16px;">Tap to change color</text>
+        </view>
+
+        <text
+          style="font-size: 14px; font-weight: bold; margin-top: 16px; margin-bottom: 8px;"
+        >
+          Touch Tracking (mainThreadFn)
+        </text>
+        <view
+          [mainThreadBindtouchmove]="handleTouchMove"
+          [mainThreadBindtouchend]="handleTouchEnd"
+          style="height: 100px; background-color: #1976d2; border-radius: 12px;
+                 justify-content: center; align-items: center;"
+        >
+          <text style="color: white; font-size: 16px;">
+            Drag to change opacity
+          </text>
+        </view>
+
+        <text
+          style="font-size: 14px; font-weight: bold; margin-top: 16px; margin-bottom: 8px;"
+        >
+          Background Thread Comparison
+        </text>
+        <view
+          (bindtap)="onBgTap()"
+          style="height: 80px; background-color: #757575; border-radius: 12px;
+                 justify-content: center; align-items: center;"
+        >
+          <text style="color: white; font-size: 16px;">
+            Background taps: {{ bgTapCount() }}
+          </text>
+        </view>
       </view>
-    </view>
+    </scroll-view>
   `,
   imports: [LYNX_ELEMENTS, LynxMainThreadEvent],
 })

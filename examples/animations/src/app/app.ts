@@ -4,44 +4,46 @@ import { LYNX_ELEMENTS, type LynxAnimation } from '@blotch/angular-lynx';
 @Component({
   selector: 'app-root',
   template: `
-    <view style="padding: 24px;">
-      <text style="font-size: 20px; font-weight: bold; margin-bottom: 16px;">
-        Animations
-      </text>
+    <scroll-view scroll-orientation="vertical" style="height: 100%;">
+      <view style="padding: 24px;">
+        <text style="font-size: 20px; font-weight: bold; margin-bottom: 16px;">
+          Animations
+        </text>
 
-      <text style="font-size: 14px; font-weight: bold; margin-bottom: 8px;">
-        CSS Transition
-      </text>
-      <view
-        class="transition-box"
-        [class.transition-active]="transitionOn()"
-        (bindtap)="toggleTransition()"
-      >
-        <text style="color: white; font-size: 14px;">Tap to toggle</text>
-      </view>
+        <text style="font-size: 14px; font-weight: bold; margin-bottom: 8px;">
+          CSS Transition
+        </text>
+        <view
+          class="transition-box"
+          [class.transition-active]="transitionOn()"
+          (bindtap)="toggleTransition()"
+        >
+          <text style="color: white; font-size: 14px;">Tap to toggle</text>
+        </view>
 
-      <text
-        style="font-size: 14px; font-weight: bold; margin-top: 16px; margin-bottom: 8px;"
-      >
-        CSS Keyframes
-      </text>
-      <view
-        class="keyframe-box"
-        [class.spinning]="spinOn()"
-        (bindtap)="toggleSpin()"
-      >
-        <text style="color: white; font-size: 14px;">Tap to spin</text>
-      </view>
+        <text
+          style="font-size: 14px; font-weight: bold; margin-top: 16px; margin-bottom: 8px;"
+        >
+          CSS Keyframes
+        </text>
+        <view
+          class="keyframe-box"
+          [class.spinning]="spinOn()"
+          (bindtap)="toggleSpin()"
+        >
+          <text style="color: white; font-size: 14px;">Tap to spin</text>
+        </view>
 
-      <text
-        style="font-size: 14px; font-weight: bold; margin-top: 16px; margin-bottom: 8px;"
-      >
-        JS animate() API
-      </text>
-      <view #animBox class="animate-box" (bindtap)="runAnimation()">
-        <text style="color: white; font-size: 14px;">Tap to pulse</text>
+        <text
+          style="font-size: 14px; font-weight: bold; margin-top: 16px; margin-bottom: 8px;"
+        >
+          JS animate() API
+        </text>
+        <view #animBox class="animate-box" (bindtap)="runAnimation()">
+          <text style="color: white; font-size: 14px;">Tap to pulse</text>
+        </view>
       </view>
-    </view>
+    </scroll-view>
   `,
   styles: [
     `

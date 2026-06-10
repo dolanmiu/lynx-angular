@@ -21,29 +21,31 @@ import {
     UiButton,
   ],
   template: `
-    <view class="flex flex-col gap-4 p-6">
-      <text class="text-2xl font-bold text-foreground">Alert Dialog</text>
+    <scroll-view scroll-orientation="vertical" class="h-full">
+      <view class="flex flex-col gap-4 p-6">
+        <text class="text-2xl font-bold text-foreground">Alert Dialog</text>
 
-      <ui-button (pressed)="showDialog.set(true)">Delete Account</ui-button>
+        <ui-button (pressed)="showDialog.set(true)">Delete Account</ui-button>
 
-      <ui-alert-dialog [(open)]="showDialog">
-        <ui-alert-dialog-header>
-          <ui-alert-dialog-title>Are you absolutely sure?</ui-alert-dialog-title>
-          <ui-alert-dialog-description>
-            This action cannot be undone. This will permanently delete your
-            account and remove your data from our servers.
-          </ui-alert-dialog-description>
-        </ui-alert-dialog-header>
-        <ui-alert-dialog-footer>
-          <ui-button variant="outline" (pressed)="showDialog.set(false)">
-            Cancel
-          </ui-button>
-          <ui-button variant="destructive" (pressed)="onConfirm()">
-            Continue
-          </ui-button>
-        </ui-alert-dialog-footer>
-      </ui-alert-dialog>
-    </view>
+        <ui-alert-dialog [(open)]="showDialog">
+          <ui-alert-dialog-header>
+            <ui-alert-dialog-title>Are you absolutely sure?</ui-alert-dialog-title>
+            <ui-alert-dialog-description>
+              This action cannot be undone. This will permanently delete your
+              account and remove your data from our servers.
+            </ui-alert-dialog-description>
+          </ui-alert-dialog-header>
+          <ui-alert-dialog-footer>
+            <ui-button variant="outline" (pressed)="showDialog.set(false)">
+              Cancel
+            </ui-button>
+            <ui-button variant="destructive" (pressed)="onConfirm()">
+              Continue
+            </ui-button>
+          </ui-alert-dialog-footer>
+        </ui-alert-dialog>
+      </view>
+    </scroll-view>
   `,
 })
 export class App {

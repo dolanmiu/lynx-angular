@@ -6,25 +6,27 @@ import { UiToaster, UiButton, toast } from '@blotch/ui';
   selector: 'app-root',
   imports: [LYNX_ELEMENTS, UiToaster, UiButton],
   template: `
-    <view class="flex flex-col gap-4 p-6">
-      <text class="text-2xl font-bold text-foreground">Toast</text>
+    <scroll-view scroll-orientation="vertical" class="h-full">
+      <view class="flex flex-col gap-4 p-6">
+        <text class="text-2xl font-bold text-foreground">Toast</text>
 
-      <ui-button (pressed)="showDefault()">Show Toast</ui-button>
+        <ui-button (pressed)="showDefault()">Show Toast</ui-button>
 
-      <ui-button variant="outline" (pressed)="showWithDescription()">
-        With Description
-      </ui-button>
+        <ui-button variant="outline" (pressed)="showWithDescription()">
+          With Description
+        </ui-button>
 
-      <ui-button variant="destructive" (pressed)="showDestructive()">
-        Destructive
-      </ui-button>
+        <ui-button variant="destructive" (pressed)="showDestructive()">
+          Destructive
+        </ui-button>
 
-      <ui-button variant="secondary" (pressed)="showWithAction()">
-        With Action
-      </ui-button>
-    </view>
+        <ui-button variant="secondary" (pressed)="showWithAction()">
+          With Action
+        </ui-button>
+      </view>
 
-    <ui-toaster />
+      <ui-toaster />
+    </scroll-view>
   `,
 })
 export class App {

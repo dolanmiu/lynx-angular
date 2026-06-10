@@ -4,29 +4,31 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 @Component({
   selector: 'app-root',
   template: `
-    <view style="padding: 24px;">
-      <text style="font-size: 20px; font-weight: bold; margin-bottom: 16px;">
-        Error Handling
-      </text>
-
-      <view
-        style="background-color: #6200ee; padding: 12px 24px; border-radius: 8px; margin-bottom: 16px;"
-        (bindtap)="throwError()"
-      >
-        <text style="color: white; font-size: 16px;">Throw an Error</text>
-      </view>
-
-      <view
-        style="background-color: #f5f5f5; padding: 16px; border-radius: 8px;"
-      >
-        <text style="font-size: 14px; font-weight: bold; margin-bottom: 8px;">
-          __lynxLastError:
+    <scroll-view scroll-orientation="vertical" style="height: 100%;">
+      <view style="padding: 24px;">
+        <text style="font-size: 20px; font-weight: bold; margin-bottom: 16px;">
+          Error Handling
         </text>
-        <text style="font-size: 12px; color: #c62828; word-break: break-all;">
-          {{ lastError() || '(none)' }}
-        </text>
+
+        <view
+          style="background-color: #6200ee; padding: 12px 24px; border-radius: 8px; margin-bottom: 16px;"
+          (bindtap)="throwError()"
+        >
+          <text style="color: white; font-size: 16px;">Throw an Error</text>
+        </view>
+
+        <view
+          style="background-color: #f5f5f5; padding: 16px; border-radius: 8px;"
+        >
+          <text style="font-size: 14px; font-weight: bold; margin-bottom: 8px;">
+            __lynxLastError:
+          </text>
+          <text style="font-size: 12px; color: #c62828; word-break: break-all;">
+            {{ lastError() || '(none)' }}
+          </text>
+        </view>
       </view>
-    </view>
+    </scroll-view>
   `,
   imports: [LYNX_ELEMENTS],
 })

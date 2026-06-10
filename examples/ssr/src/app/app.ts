@@ -4,7 +4,7 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 @Component({
   selector: 'app-root',
   template: `
-    <scroll-view style="flex: 1;" scroll-orientation="vertical">
+    <scroll-view scroll-orientation="vertical" style="height: 100%;">
       <view style="padding: 24px; align-items: center;">
         <text style="font-size: 24px; font-weight: bold; margin-bottom: 16px;">
           SSR (Instant First-Frame Rendering)

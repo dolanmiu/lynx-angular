@@ -4,20 +4,22 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 @Component({
   selector: 'app-root',
   template: `
-    <view style="padding: 24px;">
-      <text style="font-size: 24px; font-weight: bold; margin-bottom: 16px;">
-        SVG Element
-      </text>
+    <scroll-view scroll-orientation="vertical" style="height: 100%;">
+      <view style="padding: 24px;">
+        <text style="font-size: 24px; font-weight: bold; margin-bottom: 16px;">
+          SVG Element
+        </text>
 
-      <svg
-        [attr.content]="circleSvg"
-        style="width: 100px; height: 100px; margin-bottom: 16px;"
-      />
+        <svg
+          [attr.content]="circleSvg"
+          style="width: 100px; height: 100px; margin-bottom: 16px;"
+        />
 
-      <text style="font-size: 14px; color: #666;">
-        SVG content is passed via the content attribute as a string.
-      </text>
-    </view>
+        <text style="font-size: 14px; color: #666;">
+          SVG content is passed via the content attribute as a string.
+        </text>
+      </view>
+    </scroll-view>
   `,
   imports: [LYNX_ELEMENTS],
 })

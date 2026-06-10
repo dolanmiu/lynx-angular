@@ -6,7 +6,7 @@ import { UiIcon, UiText, type IconName } from '@blotch/ui';
   selector: 'app-root',
   imports: [LYNX_ELEMENTS, UiIcon, UiText],
   template: `
-    <scroll-view scroll-orientation="vertical" class="flex-1">
+    <scroll-view scroll-orientation="vertical" class="h-full">
       <view class="flex flex-col gap-6 p-6">
         <text class="text-2xl font-bold text-foreground">Icon</text>
         <text class="text-sm text-muted-foreground">
