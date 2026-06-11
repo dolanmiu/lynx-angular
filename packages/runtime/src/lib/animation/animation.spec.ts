@@ -50,6 +50,50 @@ describe('LynxAnimation', () => {
       // The auto-generated id is still assigned even when options.name is used as the animation name
       expect(anim.id).toMatch(/^__lynx-angular-animation-\d+$/);
     });
+
+    it('normalizes iterations to iterationCount for web-core compatibility', () => {
+      const keyframes = [{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }];
+      const options = { duration: 800, iterations: Infinity, easing: 'linear' };
+      const anim = new LynxAnimation(fakeRef, keyframes, options);
+
+      expect(globalThis.__ElementAnimate).toHaveBeenCalledWith(fakeRef, [
+        0,
+        anim.id,
+        keyframes,
+        expect.objectContaining({
+          iterationCount: 'infinite',
+          timingFunction: 'linear',
+          iterations: Infinity,
+          easing: 'linear',
+        }),
+      ]);
+    });
+
+    it('normalizes fill to fillMode for web-core compatibility', () => {
+      const keyframes = [{ opacity: '0' }, { opacity: '1' }];
+      const options = { duration: 300, fill: 'forwards' as const };
+      const anim = new LynxAnimation(fakeRef, keyframes, options);
+
+      expect(globalThis.__ElementAnimate).toHaveBeenCalledWith(fakeRef, [
+        0,
+        anim.id,
+        keyframes,
+        expect.objectContaining({ fillMode: 'forwards', fill: 'forwards' }),
+      ]);
+    });
+
+    it('does not overwrite explicit iterationCount with iterations', () => {
+      const keyframes = [{ opacity: '0' }];
+      const options = { duration: 300, iterations: Infinity, iterationCount: 3 };
+      const anim = new LynxAnimation(fakeRef, keyframes, options);
+
+      expect(globalThis.__ElementAnimate).toHaveBeenCalledWith(fakeRef, [
+        0,
+        anim.id,
+        keyframes,
+        expect.objectContaining({ iterationCount: 3 }),
+      ]);
+    });
   });
 
   describe('play()', () => {

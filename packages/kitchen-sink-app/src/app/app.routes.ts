@@ -121,4 +121,11 @@ export const routes: Routes = [
     path: 'ssr-demo',
     loadComponent: () => import('./ssr-demo/ssr-demo').then((m) => m.SsrDemo),
   },
+  {
+    path: 'css-var-validation',
+    loadComponent: () =>
+      import('./css-var-validation/css-var-validation').then(
+        (m) => m.CssVarValidation,
+      ),
+  },
 ];

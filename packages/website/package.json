@@ -4,10 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build-examples": "turbo run build --filter='@angular-lynx-example/*'",
     "prepare-examples": "node scripts/prepare-examples.mjs",
-    "dev": "npm run prepare-examples && rspress dev",
+    "dev": "npm run build-examples && npm run prepare-examples && rspress dev",
     "dev:fast": "rspress dev",
-    "build": "npm run prepare-examples && rspress build",
+    "build": "npm run build-examples && npm run prepare-examples && rspress build",
     "preview": "rspress preview",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",

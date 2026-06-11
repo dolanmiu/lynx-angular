@@ -19,7 +19,9 @@ const SIZE_MAP = { xs: 16, sm: 20, md: 24, lg: 32 } as const;
   imports: [LYNX_ELEMENTS],
   encapsulation: ViewEncapsulation.None,
   template: `
-    <svg #spinner [attr.content]="svgContent()" [style]="sizeStyle()" />
+    <view #spinner [style]="sizeStyle()">
+      <svg [attr.content]="svgContent()" style="width: 100%; height: 100%;" />
+    </view>
   `,
 })
 export class UiSpinner {

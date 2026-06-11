@@ -44,12 +44,28 @@ export class LynxAnimation implements Pick<
     this.#element = element;
     this.id = `__lynx-angular-animation-${LynxAnimation.#count++}`;
 
+    // Normalize Web Animation API property names to CSS animation property
+    // names that @lynx-js/web-core's __ElementAnimate expects.
+    // Native Lynx accepts both, but web-core only maps the CSS variants
+    // (iterationCount, timingFunction, fillMode).
+    const wireOptions: Record<string, unknown> = { ...options };
+    if (options.iterations != null && !('iterationCount' in options)) {
+      wireOptions['iterationCount'] =
+        options.iterations === Infinity ? 'infinite' : options.iterations;
+    }
+    if (options.easing != null && !('timingFunction' in options)) {
+      wireOptions['timingFunction'] = options.easing;
+    }
+    if (options.fill != null && !('fillMode' in options)) {
+      wireOptions['fillMode'] = options.fill;
+    }
+
     // Immediately start the animation on the native element.
     __ElementAnimate(this.#element, [
       ANIMATION_START,
       options.name ?? this.id,
       keyframes,
-      options,
+      wireOptions,
     ]);
   }
 

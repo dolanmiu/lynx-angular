@@ -174,6 +174,12 @@ import lynxLogo from '../assets/lynx-logo.png';
             <view class="nav-button" (bindtap)="navigateTo('ssr-demo')">
               <text class="nav-button-text">SSR Demo</text>
             </view>
+            <view
+              class="nav-button"
+              (bindtap)="navigateTo('css-var-validation')"
+            >
+              <text class="nav-button-text">CSS Var Validation</text>
+            </view>
           </view>
         </view>
       </view>

@@ -200,6 +200,7 @@ export default defineConfig({
           ],
         },
         { text: '@defer', link: '/guide/defer' },
+        { text: 'CSS Colors', link: '/guide/css-colors' },
         { text: 'CSS Modules', link: '/guide/css-modules' },
         {
           text: 'Custom Fonts',

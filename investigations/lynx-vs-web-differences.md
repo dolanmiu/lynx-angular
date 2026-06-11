@@ -2879,3 +2879,32 @@ Use `$localize` tagged template literals in TypeScript code and bind the result 
 get greeting() { return $localize`Hello`; }
 // Template: <text>{{ greeting }}</text>
 ```
+
+---
+
+## HSL space-separated syntax is not supported
+
+### What you'd expect (web)
+
+Modern CSS Color Module Level 4 syntax: `hsl(240 5.9% 10%)` (space-separated, no commas). Both `hsl()` and `hsla()` accept this form. This is what shadcn/ui uses for CSS variable composition: `--primary: 240 5.9% 10%` paired with `hsl(var(--primary))`.
+
+### What Lynx does
+
+The Lynx CSS parser (`css_string_parser.cc`) only supports **comma-separated** HSL syntax:
+- `hsl(240, 5.9%, 10%)` — works
+- `hsla(240, 5.9%, 10%, 0.5)` — works
+- `hsl(240 5.9% 10%)` — **silently fails**, no background renders
+
+The parser uses hardcoded `Consume(TokenType::COMMA)` calls in the HSL path. RGB, by contrast, has dual-path parsing that handles both legacy commas and modern spaces.
+
+### Impact on the theme system
+
+The shadcn-style `hsl(var(--primary))` composition pattern cannot work on Lynx because:
+1. The CSS variable stores raw HSL channels: `--primary: 240 5.9% 10%`
+2. `hsl(var(--primary))` expands to `hsl(240 5.9% 10%)` — space-separated — which Lynx rejects
+
+### Workaround
+
+Store theme colors as complete hex values in CSS variables (`--primary: #18181b`) and reference them directly (`var(--primary)`). This avoids the `hsl()` wrapper entirely but loses the ability to apply Tailwind opacity modifiers via `hsl(var() / <alpha-value>)`. Opacity must be handled differently (e.g., separate `--primary-50` variables, or `rgba()` with channel vars).
+
+**Status:** needs validation on device (css-var-validation screen in kitchen-sink-app).
