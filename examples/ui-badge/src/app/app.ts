@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
-import { UiBadge } from '@blotch/ui';
+import { UiBadge } from '@blotch/ui/components/badge';
 
 @Component({
   selector: 'app-root',

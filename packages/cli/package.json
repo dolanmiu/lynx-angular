@@ -14,10 +14,12 @@
     "lint:fix": "oxlint --fix .",
     "format": "oxfmt --write .",
     "format:check": "oxfmt --check .",
-    "cspell": "cspell ."
+    "cspell": "cspell .",
+    "link": "npm run build && npm link"
   },
   "dependencies": {
     "@clack/prompts": "^0.10.0",
+    "cfonts": "^3.3.1",
     "commander": "^13.0.0",
     "picocolors": "^1.1.0"
   },

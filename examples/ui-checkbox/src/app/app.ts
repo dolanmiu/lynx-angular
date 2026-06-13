@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
-import { UiCheckbox, UiLabel } from '@blotch/ui';
+import { UiCheckbox } from '@blotch/ui/components/checkbox';
+import { UiLabel } from '@blotch/ui/components/label';
 
 @Component({
   selector: 'app-root',

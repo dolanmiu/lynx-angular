@@ -6,6 +6,8 @@ Add `imports: [LYNX_ELEMENTS]` from `@blotch/angular-lynx` to your component for
 
 A pull-to-refresh container that reveals a customizable header during a downward swipe gesture. It accepts up to two direct children: a `<refresh-header>` and a `<view>` with vertically scrollable content.
 
+<Go example="element-refresh" defaultFile="src/app/app.ts" />
+
 ```angular-html
 <refresh (bindstartrefresh)="onRefresh($event)">
   <refresh-header>

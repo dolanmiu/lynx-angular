@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
-import { UiSwitch, UiLabel } from '@blotch/ui';
+import { UiSwitch } from '@blotch/ui/components/switch';
+import { UiLabel } from '@blotch/ui/components/label';
 
 @Component({
   selector: 'app-root',

@@ -5,7 +5,7 @@ import {
   UiAccordionItem,
   UiAccordionTrigger,
   UiAccordionContent,
-} from '@blotch/ui';
+} from '@blotch/ui/components/accordion';
 
 @Component({
   selector: 'app-root',

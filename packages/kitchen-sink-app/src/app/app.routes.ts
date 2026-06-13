@@ -128,4 +128,16 @@ export const routes: Routes = [
         (m) => m.CssVarValidation,
       ),
   },
+  {
+    path: 'text-projection-validation',
+    loadComponent: () =>
+      import('./text-projection-validation/text-projection-validation').then(
+        (m) => m.TextProjectionValidation,
+      ),
+  },
+  {
+    path: 'refresh-demo',
+    loadComponent: () =>
+      import('./refresh-demo/refresh-demo').then((m) => m.RefreshDemo),
+  },
 ];

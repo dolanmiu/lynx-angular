@@ -28,6 +28,7 @@ import {
   createScrollViewElement,
   createSvgElement,
   createTextElement,
+  createTitleBarViewElement,
   createViewElement,
   createViewPagerElement,
   createViewPagerItemElement,
@@ -126,6 +127,10 @@ export class LynxDocument implements LynxDocumentBase {
       }
       case 'refresh-header': {
         element = createRefreshHeaderElement(this.#pageId);
+        break;
+      }
+      case 'title-bar-view': {
+        element = createTitleBarViewElement(this.#pageId);
         break;
       }
       case 'scroll-coordinator': {

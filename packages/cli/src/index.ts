@@ -2,6 +2,7 @@
 import { Command } from 'commander';
 import { initCommand } from './commands/init.js';
 import { addCommand } from './commands/add.js';
+import { doctorCommand } from './commands/doctor.js';
 
 const program = new Command();
 
@@ -20,5 +21,10 @@ program
   .description('Add components to your project')
   .argument('[components...]', 'components to add')
   .action(addCommand);
+
+program
+  .command('doctor')
+  .description('Check your project setup for issues')
+  .action(doctorCommand);
 
 program.parse();

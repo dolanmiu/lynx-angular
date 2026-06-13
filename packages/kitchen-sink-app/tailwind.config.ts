@@ -1,6 +1,6 @@
 import type { Config } from 'tailwindcss';
 import preset from '@lynx-js/tailwind-preset';
-import { blotchPlugin } from '@blotch/ui/plugin';
+import { blotchPlugin } from '@blotch/ui/theme/tailwind-plugin';
 
 const config: Config = {
   // Angular templates are TypeScript inline string literals — there are no .html files.

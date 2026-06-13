@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
-import { UiSeparator } from '@blotch/ui';
+import { UiSeparator } from '@blotch/ui/components/separator';
 
 @Component({
   selector: 'app-root',

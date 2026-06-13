@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
-import { UiProgress, UiButton } from '@blotch/ui';
+import { UiProgress } from '@blotch/ui/components/progress';
+import { UiButton } from '@blotch/ui/components/button';
 
 @Component({
   selector: 'app-root',

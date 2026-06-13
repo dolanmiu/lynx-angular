@@ -1,12 +1,13 @@
 {
   "name": "@blotch/ui",
+  "private": true,
   "version": "0.0.1",
-  "description": "shadcn-style UI components for Angular Lynx",
+  "description": "Source components for @blotch/cli — not published to npm",
   "license": "MIT",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts",
-    "./plugin": "./src/lib/theme/tailwind-plugin.ts",
+    "./components/*": "./src/lib/components/*/index.ts",
+    "./theme/tailwind-plugin": "./src/lib/theme/tailwind-plugin.ts",
     "./theme/*": "./src/lib/theme/*"
   },
   "scripts": {
@@ -21,21 +22,5 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "tailwind-merge": "^3.3.0"
-  },
-  "peerDependencies": {
-    "@angular/core": ">=19.0.0",
-    "@blotch/angular-lynx": "*",
-    "tailwindcss": ">=3.4.0"
-  },
-  "peerDependenciesMeta": {
-    "@angular/core": {
-      "optional": true
-    },
-    "@blotch/angular-lynx": {
-      "optional": true
-    },
-    "tailwindcss": {
-      "optional": true
-    }
   }
 }

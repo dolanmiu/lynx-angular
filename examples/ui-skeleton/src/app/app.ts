@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
-import { UiSkeleton } from '@blotch/ui';
+import { UiSkeleton } from '@blotch/ui/components/skeleton';
 
 @Component({
   selector: 'app-root',

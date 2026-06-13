@@ -20,7 +20,7 @@
     "@angular/compiler-cli": "^21.0.0",
     "@blotch/rsbuild-plugin-angular-lynx": "*",
     "@lynx-js/rspeedy": "^0.14.3",
-    "@lynx-js/types": "^3.7.0",
+    "@lynx-js/types": "^3.8.0",
     "typescript": "~5.9.0"
   }
 }

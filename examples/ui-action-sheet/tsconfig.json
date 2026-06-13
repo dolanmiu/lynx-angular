@@ -3,8 +3,7 @@
   "compilerOptions": {
     "outDir": "./dist/out-tsc",
     "paths": {
-      "@blotch/angular-lynx": ["../../packages/runtime/dist"],
-      "@blotch/ui": ["../../packages/ui/src"]
+      "@blotch/angular-lynx": ["../../packages/runtime/dist"]
     }
   }
 }

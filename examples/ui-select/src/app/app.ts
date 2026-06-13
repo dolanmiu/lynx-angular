@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
-import { UiSelect, UiSelectItem, UiLabel } from '@blotch/ui';
+import { UiSelect, UiSelectItem } from '@blotch/ui/components/select';
+import { UiLabel } from '@blotch/ui/components/label';
 
 @Component({
   selector: 'app-root',

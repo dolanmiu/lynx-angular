@@ -15,7 +15,7 @@ export const VERSIONS = {
   /** @lynx-js/qrcode-rsbuild-plugin — generates a QR code in dev mode for on-device testing */
   qrcodePlugin: '^0.4.6',
   /** @lynx-js/types — TypeScript type definitions for the Lynx runtime APIs */
-  lynxTypes: '^3.7.0',
+  lynxTypes: '^3.8.0',
   /** tailwindcss — utility-first CSS framework (optional, controlled by the `tailwind` schema option) */
   tailwindcss: '^3.4.19',
   /** @lynx-js/tailwind-preset — Lynx-specific Tailwind preset with native design tokens */

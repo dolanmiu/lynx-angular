@@ -7,7 +7,7 @@ import {
   UiCardDescription,
   UiCardContent,
   UiCardFooter,
-} from '@blotch/ui';
+} from '@blotch/ui/components/card';
 
 @Component({
   selector: 'app-root',

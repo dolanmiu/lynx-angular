@@ -180,6 +180,15 @@ import lynxLogo from '../assets/lynx-logo.png';
             >
               <text class="nav-button-text">CSS Var Validation</text>
             </view>
+            <view
+              class="nav-button"
+              (bindtap)="navigateTo('text-projection-validation')"
+            >
+              <text class="nav-button-text">Text Projection</text>
+            </view>
+            <view class="nav-button" (bindtap)="navigateTo('refresh-demo')">
+              <text class="nav-button-text">Refresh Demo</text>
+            </view>
           </view>
         </view>
       </view>

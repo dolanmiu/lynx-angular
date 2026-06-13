@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
-import { UiIcon, UiText, type IconName } from '@blotch/ui';
+import { UiIcon, type IconName } from '@blotch/ui/components/icon';
+import { UiText } from '@blotch/ui/components/typography';
 
 @Component({
   selector: 'app-root',

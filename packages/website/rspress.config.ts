@@ -137,6 +137,7 @@ export default defineConfig({
         },
         { text: 'Session Storage', link: '/guide/session-storage' },
         { text: 'Error Handling', link: '/guide/error-handling' },
+        { text: 'Content Projection', link: '/guide/content-projection' },
         { text: 'Portal (Programmatic Overlays)', link: '/guide/portal' },
         { text: 'Accessibility', link: '/guide/accessibility' },
         {
@@ -161,6 +162,10 @@ export default defineConfig({
             { text: '<frame>', link: '/guide/elements/frame' },
             { text: '<block>', link: '/guide/elements/block' },
             { text: '<svg>', link: '/guide/elements/svg' },
+            {
+              text: '<title-bar-view>',
+              link: '/guide/elements/title-bar-view',
+            },
             { text: 'Event Handling', link: '/guide/elements/event-handling' },
           ],
         },

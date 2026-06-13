@@ -243,6 +243,14 @@ describe('LynxDocument', () => {
         expect.any(Number),
       );
     });
+
+    it('creates a title-bar-view element via __CreateElement', () => {
+      doc.createElement('title-bar-view');
+      expect(asMock(globalThis.__CreateElement)).toHaveBeenCalledWith(
+        'title-bar-view',
+        expect.any(Number),
+      );
+    });
   });
 
   // ─── createText ───────────────────────────────────────────────────────────

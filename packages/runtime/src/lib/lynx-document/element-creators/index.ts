@@ -23,6 +23,7 @@ export {
 export { createScrollViewElement } from './create-scroll-view-element';
 export { createSvgElement } from './create-svg-element';
 export { createTextElement } from './create-text-element';
+export { createTitleBarViewElement } from './create-title-bar-view-element';
 export { createViewElement } from './create-view-element';
 export {
   createViewPagerElement,
