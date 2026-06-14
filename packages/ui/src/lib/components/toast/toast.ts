@@ -54,7 +54,7 @@ export class UiToaster {
   protected readonly displayedToast = signal<ToastData | null>(null);
   protected readonly overlayVisible = signal(false);
 
-  private readonly toastElRef = viewChild<ElementRef>('toastEl');
+  readonly toastElRef = viewChild<ElementRef>('toastEl');
   #toastAnim?: { cancel(): void };
   #dismissTimer: ReturnType<typeof setTimeout> | null = null;
   #isProcessing = false;

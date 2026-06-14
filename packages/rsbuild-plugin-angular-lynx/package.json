@@ -1,6 +1,7 @@
 {
   "name": "@blotch/rsbuild-plugin-angular-lynx",
   "version": "21.0.0",
+  "description": "Rsbuild plugin for building AngularLynx applications",
   "files": [
     "dist",
     "patch"

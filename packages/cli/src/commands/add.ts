@@ -13,6 +13,11 @@ import {
   getComponentSourceDir,
   rewriteImports,
 } from '../utils/resolve-paths.js';
+import {
+  getOrCreateLockfile,
+  hashContent,
+  writeLockfile,
+} from '../lockfile.js';
 
 export const addCommand = async (components: string[]) => {
   const cwd = process.cwd();
@@ -93,19 +98,27 @@ export const addCommand = async (components: string[]) => {
 
   const componentsDir = resolve(cwd, config.aliases.components);
   const utilsDir = resolve(cwd, config.aliases.utils);
+  const lockfile = getOrCreateLockfile(cwd);
 
   for (const name of resolved) {
     const srcDir = getComponentSourceDir(name);
     const destDir = resolve(componentsDir, name);
     mkdirSync(destDir, { recursive: true });
 
+    if (!lockfile.components[name]) {
+      lockfile.components[name] = {};
+    }
+
     const files = getComponentFiles(name);
     for (const file of files) {
       const content = readFileSync(join(srcDir, file), 'utf-8');
       const rewritten = rewriteImports(content, destDir, utilsDir);
       writeFileSync(join(destDir, file), rewritten);
+      lockfile.components[name][file] = { hash: hashContent(rewritten) };
     }
   }
+
+  writeLockfile(cwd, lockfile);
 
   s.stop('Done!');
 

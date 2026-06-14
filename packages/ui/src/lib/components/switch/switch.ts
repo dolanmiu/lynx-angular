@@ -33,7 +33,7 @@ export class UiSwitch {
 
   readonly changed = output<boolean>();
 
-  private readonly thumbRef = viewChild<ElementRef>('thumb');
+  readonly thumbRef = viewChild<ElementRef>('thumb');
   #activeAnimation?: { cancel(): void };
 
   protected readonly trackClass = computed(() =>

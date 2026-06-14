@@ -1,4 +1,10 @@
-import { Component, ViewEncapsulation, computed, input, output } from '@angular/core';
+import {
+  Component,
+  ViewEncapsulation,
+  computed,
+  input,
+  output,
+} from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
 import { cn } from '../../utils/cn';
@@ -52,9 +58,7 @@ export class UiList {
   readonly scrolledToStart = output<void>();
   readonly scrolledToEnd = output<void>();
 
-  protected readonly listClass = computed(() =>
-    cn('w-full', this.userClass()),
-  );
+  protected readonly listClass = computed(() => cn('w-full', this.userClass()));
 
   // Explicit height is required for list to scroll in Lynx
   protected readonly listStyle = computed(() => {

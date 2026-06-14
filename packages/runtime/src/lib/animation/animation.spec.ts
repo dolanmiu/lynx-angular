@@ -52,7 +52,10 @@ describe('LynxAnimation', () => {
     });
 
     it('normalizes iterations to iterationCount for web-core compatibility', () => {
-      const keyframes = [{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }];
+      const keyframes = [
+        { transform: 'rotate(0deg)' },
+        { transform: 'rotate(360deg)' },
+      ];
       const options = { duration: 800, iterations: Infinity, easing: 'linear' };
       const anim = new LynxAnimation(fakeRef, keyframes, options);
 
@@ -84,7 +87,11 @@ describe('LynxAnimation', () => {
 
     it('does not overwrite explicit iterationCount with iterations', () => {
       const keyframes = [{ opacity: '0' }];
-      const options = { duration: 300, iterations: Infinity, iterationCount: 3 };
+      const options = {
+        duration: 300,
+        iterations: Infinity,
+        iterationCount: 3,
+      };
       const anim = new LynxAnimation(fakeRef, keyframes, options);
 
       expect(globalThis.__ElementAnimate).toHaveBeenCalledWith(fakeRef, [

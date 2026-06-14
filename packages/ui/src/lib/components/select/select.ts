@@ -67,9 +67,9 @@ export class UiSelect {
   protected readonly overlayVisible = signal(false);
   protected readonly chevronSvg = CHEVRON_SVG;
 
-  private readonly itemRefs = contentChildren(forwardRef(() => UiSelectItem));
-  private readonly backdropRef = viewChild<ElementRef>('backdrop');
-  private readonly panelRef = viewChild<ElementRef>('panel');
+  readonly itemRefs = contentChildren(forwardRef(() => UiSelectItem));
+  readonly backdropRef = viewChild<ElementRef>('backdrop');
+  readonly panelRef = viewChild<ElementRef>('panel');
   #backdropAnim?: { cancel(): void };
   #panelAnim?: { cancel(): void };
   #isOpen = false;

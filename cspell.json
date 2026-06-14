@@ -24,6 +24,7 @@
     "tsconfig.spec.tsbuildinfo"
   ],
   "words": [
+    "angularlynx",
     "animationcancel",
     "animationend",
     "animationiteration",
@@ -35,6 +36,7 @@
     "Bindanimationstart",
     "bindbgerror",
     "bindbgload",
+    "binderror",
     "bindblur",
     "bindchange",
     "bindconfirm",
@@ -86,6 +88,7 @@
     "catchtouchend",
     "catchtouchmove",
     "catchtouchstart",
+    "cfonts",
     "Combinators",
     "contentsizechanged",
     "cspell",
@@ -99,6 +102,7 @@
     "fesm",
     "flexbox",
     "formatjs",
+    "frameless",
     "inlines",
     "jsdom",
     "keyup",

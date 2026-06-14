@@ -28,7 +28,7 @@ export class UiSpinner {
   readonly size = input<'xs' | 'sm' | 'md' | 'lg'>('md');
   readonly color = input<string | undefined>(undefined);
 
-  private readonly spinnerRef = viewChild<ElementRef>('spinner');
+  readonly spinnerRef = viewChild<ElementRef>('spinner');
 
   constructor() {
     effect(() => {

@@ -97,7 +97,7 @@ export class RefreshDemo {
 
   #generateItems(): { id: number; name: string; time: string }[] {
     const now = new Date().toLocaleTimeString();
-    return Array.from({ length: 8 }, (_, i) => ({
+    return Array.from({ length: 8 }, () => ({
       id: ++this.#counter,
       name: `Item ${this.#counter}`,
       time: now,

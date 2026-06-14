@@ -135,7 +135,7 @@ export class UiAccordionContent {
   protected readonly item = inject(UiAccordionItem);
   readonly userClass = input<string>('', { alias: 'class' });
 
-  private readonly contentRef = viewChild<ElementRef>('content');
+  readonly contentRef = viewChild<ElementRef>('content');
 
   constructor() {
     effect(() => {

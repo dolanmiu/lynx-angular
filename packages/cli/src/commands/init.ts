@@ -4,10 +4,12 @@ import { resolve, join } from 'node:path';
 import pc from 'picocolors';
 import { configExists, writeConfig } from '../config.js';
 import { getUiSourceDir } from '../utils/resolve-paths.js';
+import { printBanner } from '../utils/banner.js';
 
 export const initCommand = async () => {
   const cwd = process.cwd();
 
+  printBanner();
   p.intro(pc.bold('blotch init'));
 
   if (configExists(cwd)) {

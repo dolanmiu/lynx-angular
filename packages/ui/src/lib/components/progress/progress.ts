@@ -27,7 +27,7 @@ export class UiProgress {
   readonly max = input(100);
   readonly userClass = input<string>('', { alias: 'class' });
 
-  private readonly fillRef = viewChild<ElementRef>('fill');
+  readonly fillRef = viewChild<ElementRef>('fill');
   #fillAnim?: { cancel(): void };
   #previousPercent: number | null = null;
 

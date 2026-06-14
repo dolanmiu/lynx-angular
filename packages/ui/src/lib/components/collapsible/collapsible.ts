@@ -85,7 +85,7 @@ export class UiCollapsibleContent {
   protected readonly collapsible = inject(UiCollapsible);
   readonly userClass = input<string>('', { alias: 'class' });
 
-  private readonly contentRef = viewChild<ElementRef>('content');
+  readonly contentRef = viewChild<ElementRef>('content');
 
   constructor() {
     effect(() => {

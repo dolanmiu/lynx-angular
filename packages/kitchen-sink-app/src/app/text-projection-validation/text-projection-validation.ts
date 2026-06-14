@@ -4,7 +4,9 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 @Component({
   selector: 'app-text-wrapper',
   template: `
-    <view style="background-color: #c8e6c9; padding: 8px 12px; border-radius: 4px; margin-bottom: 8px;">
+    <view
+      style="background-color: #c8e6c9; padding: 8px 12px; border-radius: 4px; margin-bottom: 8px;"
+    >
       <text style="font-size: 14px; color: #1a1a1a;"><ng-content /></text>
     </view>
   `,
@@ -15,7 +17,9 @@ export class TextWrapper {}
 @Component({
   selector: 'app-multi-slot-text',
   template: `
-    <text style="font-size: 14px; padding: 8px 12px; background-color: #fff3e0; border-radius: 4px; margin-bottom: 8px;">
+    <text
+      style="font-size: 14px; padding: 8px 12px; background-color: #fff3e0; border-radius: 4px; margin-bottom: 8px;"
+    >
       <ng-content select="[prefix]" />
       <ng-content />
     </text>
@@ -28,7 +32,9 @@ export class MultiSlotText {}
   selector: 'app-conditional-text',
   template: `
     <view (bindtap)="toggle()">
-      <text style="font-size: 14px; padding: 8px 12px; background-color: #fce4ec; border-radius: 4px; margin-bottom: 8px;">
+      <text
+        style="font-size: 14px; padding: 8px 12px; background-color: #fce4ec; border-radius: 4px; margin-bottom: 8px;"
+      >
         @if (show()) {
           <ng-content />
         } @else {
@@ -49,26 +55,40 @@ export class ConditionalText {
 
 @Component({
   selector: 'app-card-title-mock',
-  template: `<text style="font-size: 16px; font-weight: bold; color: #1a1a1a; line-height: 1;"><ng-content /></text>`,
+  template: `<text
+    style="font-size: 16px; font-weight: bold; color: #1a1a1a; line-height: 1;"
+    ><ng-content
+  /></text>`,
   imports: [LYNX_ELEMENTS],
 })
 export class CardTitleMock {}
 
 @Component({
   selector: 'app-text-projection-validation',
-  imports: [LYNX_ELEMENTS, TextWrapper, MultiSlotText, ConditionalText, CardTitleMock],
+  imports: [
+    LYNX_ELEMENTS,
+    TextWrapper,
+    MultiSlotText,
+    ConditionalText,
+    CardTitleMock,
+  ],
   template: `
     <scroll-view class="w-full" scroll-orientation="vertical">
       <view class="p-4 flex flex-col">
-        <text style="font-size: 20px; font-weight: bold; color: #1a1a1a; margin-bottom: 4px;">
+        <text
+          style="font-size: 20px; font-weight: bold; color: #1a1a1a; margin-bottom: 4px;"
+        >
           ng-content in text Validation
         </text>
         <text style="font-size: 12px; color: #888; margin-bottom: 16px;">
-          Tests whether Angular content projection works inside Lynx text elements
+          Tests whether Angular content projection works inside Lynx text
+          elements
         </text>
 
         <!-- Test A: Raw text projected into <text> -->
-        <text style="font-size: 15px; font-weight: bold; color: #333; margin-bottom: 10px;">
+        <text
+          style="font-size: 15px; font-weight: bold; color: #333; margin-bottom: 10px;"
+        >
           A. Raw text projected into text element
         </text>
         <text style="font-size: 11px; color: #666; margin-bottom: 4px;">
@@ -77,7 +97,9 @@ export class CardTitleMock {}
         <app-text-wrapper>Hello World</app-text-wrapper>
 
         <!-- Test B: <text> projected into <text> (text-in-text) -->
-        <text style="font-size: 15px; font-weight: bold; color: #333; margin-top: 8px; margin-bottom: 10px;">
+        <text
+          style="font-size: 15px; font-weight: bold; color: #333; margin-top: 8px; margin-bottom: 10px;"
+        >
           B. text-in-text via projection
         </text>
         <text style="font-size: 11px; color: #666; margin-bottom: 4px;">
@@ -88,7 +110,9 @@ export class CardTitleMock {}
         </app-text-wrapper>
 
         <!-- Test C: Multiple projected text nodes -->
-        <text style="font-size: 15px; font-weight: bold; color: #333; margin-top: 8px; margin-bottom: 10px;">
+        <text
+          style="font-size: 15px; font-weight: bold; color: #333; margin-top: 8px; margin-bottom: 10px;"
+        >
           C. Multiple projected children
         </text>
         <text style="font-size: 11px; color: #666; margin-bottom: 4px;">
@@ -100,7 +124,9 @@ export class CardTitleMock {}
         </app-text-wrapper>
 
         <!-- Test D: Named slot projection into <text> -->
-        <text style="font-size: 15px; font-weight: bold; color: #333; margin-top: 8px; margin-bottom: 10px;">
+        <text
+          style="font-size: 15px; font-weight: bold; color: #333; margin-top: 8px; margin-bottom: 10px;"
+        >
           D. Named slot in text
         </text>
         <text style="font-size: 11px; color: #666; margin-bottom: 4px;">
@@ -112,7 +138,9 @@ export class CardTitleMock {}
         </app-multi-slot-text>
 
         <!-- Test E: Conditional projection inside <text> -->
-        <text style="font-size: 15px; font-weight: bold; color: #333; margin-top: 8px; margin-bottom: 10px;">
+        <text
+          style="font-size: 15px; font-weight: bold; color: #333; margin-top: 8px; margin-bottom: 10px;"
+        >
           E. Conditional projection in text (tap to toggle)
         </text>
         <text style="font-size: 11px; color: #666; margin-bottom: 4px;">
@@ -123,7 +151,9 @@ export class CardTitleMock {}
         </app-conditional-text>
 
         <!-- Test F: Real-world pattern (UiCardTitle mock) -->
-        <text style="font-size: 15px; font-weight: bold; color: #333; margin-top: 8px; margin-bottom: 10px;">
+        <text
+          style="font-size: 15px; font-weight: bold; color: #333; margin-top: 8px; margin-bottom: 10px;"
+        >
           F. Real-world: UiCardTitle pattern
         </text>
         <text style="font-size: 11px; color: #666; margin-bottom: 4px;">
@@ -132,7 +162,9 @@ export class CardTitleMock {}
         <app-card-title-mock>My Card Title</app-card-title-mock>
 
         <!-- Test G: Styled text-in-text -->
-        <text style="font-size: 15px; font-weight: bold; color: #333; margin-top: 8px; margin-bottom: 10px;">
+        <text
+          style="font-size: 15px; font-weight: bold; color: #333; margin-top: 8px; margin-bottom: 10px;"
+        >
           G. Inline styled wrapper (no helper component)
         </text>
         <text style="font-size: 11px; color: #666; margin-bottom: 4px;">
@@ -143,13 +175,18 @@ export class CardTitleMock {}
         </app-text-wrapper>
 
         <!-- Summary -->
-        <view style="margin-top: 24px; padding: 12px; background-color: #f5f5f5; border-radius: 8px;">
-          <text style="font-size: 13px; font-weight: bold; color: #333; margin-bottom: 4px;">
+        <view
+          style="margin-top: 24px; padding: 12px; background-color: #f5f5f5; border-radius: 8px;"
+        >
+          <text
+            style="font-size: 13px; font-weight: bold; color: #333; margin-bottom: 4px;"
+          >
             Summary
           </text>
           <text style="font-size: 11px; color: #666;">
-            If ALL tests above render expected text, ng-content works inside text elements
-            and the blotch/ui component pattern is valid. If any fail, components need input() for labels.
+            If ALL tests above render expected text, ng-content works inside
+            text elements and the blotch/ui component pattern is valid. If any
+            fail, components need input() for labels.
           </text>
         </view>
       </view>

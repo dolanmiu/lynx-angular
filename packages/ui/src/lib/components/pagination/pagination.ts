@@ -1,4 +1,10 @@
-import { Component, ViewEncapsulation, computed, input, model } from '@angular/core';
+import {
+  Component,
+  ViewEncapsulation,
+  computed,
+  input,
+  model,
+} from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
 import { cn } from '../../utils/cn';
@@ -14,7 +20,10 @@ const CHEVRON_RIGHT = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 2
   template: `
     <view [class]="containerClass()">
       <view [class]="navButtonClass(page() <= 1)" (bindtap)="prev()">
-        <svg [attr.content]="chevronLeftSvg" style="width: 16px; height: 16px;" />
+        <svg
+          [attr.content]="chevronLeftSvg"
+          style="width: 16px; height: 16px;"
+        />
       </view>
 
       @for (item of visiblePages(); track item.key) {
@@ -23,7 +32,9 @@ const CHEVRON_RIGHT = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 2
             [class]="pageButtonClass(item.value === page())"
             (bindtap)="goTo(item.value)"
           >
-            <text [class]="pageTextClass(item.value === page())">{{ item.value }}</text>
+            <text [class]="pageTextClass(item.value === page())">{{
+              item.value
+            }}</text>
           </view>
         } @else {
           <view class="flex items-center justify-center w-8 h-8">
@@ -33,7 +44,10 @@ const CHEVRON_RIGHT = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 2
       }
 
       <view [class]="navButtonClass(page() >= totalPages())" (bindtap)="next()">
-        <svg [attr.content]="chevronRightSvg" style="width: 16px; height: 16px;" />
+        <svg
+          [attr.content]="chevronRightSvg"
+          style="width: 16px; height: 16px;"
+        />
       </view>
     </view>
   `,
@@ -91,9 +105,7 @@ export class UiPagination {
   protected navButtonClass(disabled: boolean): string {
     return cn(
       'flex items-center justify-center w-8 h-8 rounded-md',
-      disabled
-        ? 'opacity-50'
-        : 'active:opacity-80',
+      disabled ? 'opacity-50' : 'active:opacity-80',
     );
   }
 

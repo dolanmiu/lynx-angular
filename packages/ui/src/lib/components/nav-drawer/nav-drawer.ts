@@ -51,8 +51,8 @@ export class UiNavDrawer {
 
   protected readonly overlayVisible = signal(false);
 
-  private readonly backdropRef = viewChild<ElementRef>('backdrop');
-  private readonly panelRef = viewChild<ElementRef>('panel');
+  readonly backdropRef = viewChild<ElementRef>('backdrop');
+  readonly panelRef = viewChild<ElementRef>('panel');
   #backdropAnim?: { cancel(): void };
   #panelAnim?: { cancel(): void };
   #hasBeenOpen = false;
@@ -72,7 +72,9 @@ export class UiNavDrawer {
   protected readonly panelClass = computed(() =>
     cn(
       'flex flex-col bg-background h-full',
-      this.side() === 'left' ? 'border-r border-border' : 'border-l border-border',
+      this.side() === 'left'
+        ? 'border-r border-border'
+        : 'border-l border-border',
       this.userClass(),
     ),
   );

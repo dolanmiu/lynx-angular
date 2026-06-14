@@ -119,26 +119,9 @@ export default defineConfig({
           sectionHeaderText: 'Learn AngularLynx',
         },
         { text: 'What is AngularLynx?', link: '/guide/introduction' },
-        { text: 'Renderer Architecture', link: '/guide/renderer-architecture' },
         { text: 'Change Detection', link: '/guide/change-detection' },
         { text: 'Signals', link: '/guide/signals' },
-        {
-          text: 'Host Data',
-          collapsed: true,
-          items: [
-            { text: 'Overview', link: '/guide/host-data/' },
-            { text: 'InitData', link: '/guide/host-data/init-data' },
-            { text: 'GlobalData', link: '/guide/host-data/global-data' },
-            {
-              text: 'Data Processors',
-              link: '/guide/host-data/data-processors',
-            },
-          ],
-        },
-        { text: 'Session Storage', link: '/guide/session-storage' },
-        { text: 'Error Handling', link: '/guide/error-handling' },
         { text: 'Content Projection', link: '/guide/content-projection' },
-        { text: 'Portal (Programmatic Overlays)', link: '/guide/portal' },
         { text: 'Accessibility', link: '/guide/accessibility' },
         {
           text: 'Lynx Elements',
@@ -169,7 +152,6 @@ export default defineConfig({
             { text: 'Event Handling', link: '/guide/elements/event-handling' },
           ],
         },
-        { text: 'Exposure Detection', link: '/guide/exposure' },
         {
           text: 'Gestures',
           collapsed: true,
@@ -206,7 +188,6 @@ export default defineConfig({
         },
         { text: '@defer', link: '/guide/defer' },
         { text: 'CSS Colors', link: '/guide/css-colors' },
-        { text: 'CSS Modules', link: '/guide/css-modules' },
         {
           text: 'Custom Fonts',
           collapsed: true,
@@ -218,12 +199,12 @@ export default defineConfig({
             },
           ],
         },
-        { text: 'Text Measurement', link: '/guide/text-measurement' },
         { text: 'Safe Area', link: '/guide/safe-area' },
         { text: 'Dark Mode', link: '/guide/dark-mode' },
         { text: 'Internationalization', link: '/guide/i18n' },
         { text: 'Routing', link: '/guide/routing' },
         { text: 'Forms', link: '/guide/forms' },
+        { text: 'Error Handling', link: '/guide/error-handling' },
         { text: 'Remote Logging', link: '/guide/remote-logging' },
         { text: 'DevTools', link: '/guide/devtools' },
         {
@@ -236,6 +217,26 @@ export default defineConfig({
         {
           sectionHeaderText: 'Advanced',
         },
+        { text: 'Renderer Architecture', link: '/guide/renderer-architecture' },
+        {
+          text: 'Host Data',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/guide/host-data/' },
+            { text: 'InitData', link: '/guide/host-data/init-data' },
+            { text: 'GlobalData', link: '/guide/host-data/global-data' },
+            {
+              text: 'Data Processors',
+              link: '/guide/host-data/data-processors',
+            },
+          ],
+        },
+        { text: 'Session Storage', link: '/guide/session-storage' },
+        { text: 'Portal (Programmatic Overlays)', link: '/guide/portal' },
+        { text: 'Exposure Detection', link: '/guide/exposure' },
+        { text: 'Text Measurement', link: '/guide/text-measurement' },
+        { text: 'Multi-Page Apps', link: '/guide/multi-page' },
+        { text: 'CSS Modules', link: '/guide/css-modules' },
         { text: 'SelectorQuery', link: '/guide/selector-query' },
         {
           text: 'Main Thread Scripts',

@@ -1,53 +1,42 @@
-# Angular Runtime for Lynx
+# @blotch/angular-lynx
 
-> 🚧 **Work in Progress**  
-> This is an early proof of concept. Only a minimal subset of Angular features is currently supported.
+Angular renderer for [Lynx](https://lynxjs.org/). Write Angular components, render to native iOS, Android, and Web via the Lynx engine.
 
-## Progress
+## Quick Start
 
-### Built-in Elements
+```bash
+npm create angular-lynx my-app
+```
 
-- [x] [view](https://lynxjs.org/api/elements/built-in/view.html)
-- [x] [text](https://lynxjs.org/api/elements/built-in/text.html) _(basic rendering only)_
-- [x] [image](https://lynxjs.org/api/elements/built-in/image.html) _(basic rendering only)_
-- [x] [scroll-view](https://lynxjs.org/api/elements/built-in/scroll-view.html) _(basic rendering only)_
-- [x] [list](https://lynxjs.org/api/elements/built-in/list.html) _(basic implementation, needs further development)_
-- [x] [block](https://lynxjs.org/api/elements/built-in/block.html) _(basic support)_
-- [x] [if](https://lynxjs.org/api/elements/built-in/if.html) _(basic support)_
-- [x] [for](https://lynxjs.org/api/elements/built-in/for.html) _(basic support)_
+Or add to an existing Angular project:
 
-### Styling Support
+```bash
+ng add @blotch/angular-lynx
+```
 
-- [x] No encapsulation (global styles)
-- [ ] Emulated encapsulation (Angular’s default)
-- [ ] Inline styles via `style` property in `@Component` decorator
+## Features
 
-### Developer Experience (DX)
+- Standalone components with signals, `@if`/`@for`/`@switch`, DI, and pipes
+- Zoneless change detection — signals as the primary reactivity model
+- Full Angular Router with in-memory navigation for Lynx
+- Gestures — tap, pan, long-press, fling, pinch, rotation with composition
+- Animations — CSS transitions, keyframes, and programmatic `animate()` API
+- Content projection, portals, `@defer`, and lazy-loaded routes
+- Tailwind CSS via `@lynx-js/tailwind-preset`
 
-- [ ] Hot Module Replacement (HMR)
-- [ ] Live reload during development
-- [ ] Compiler warnings & error messages
+## Documentation
 
-### Motion & Animation
-
-- [x] CSS transitions (`transition` property in stylesheets or inline styles)
-- [x] CSS keyframe animations (`@keyframes` + `animation` property)
-- [x] JavaScript animate API (`element.animate()`)
-
-### Threading Model
-
-- [ ] Support for directives running in the background thread only
-- [ ] Communication between background and main thread via worklets
+Full docs and guides at [angularlynx.dev](https://angularlynx.dev).
 
 ---
 
-## Motion & Animation
+## Animation API
 
-Lynx provides three motion capabilities, all supported by this runtime.
+Three animation approaches are available, all running natively on the Lynx engine.
 
 ### CSS Transitions
 
-Set `transition` in your component stylesheet or inline styles. The native Lynx layer automatically interpolates property changes over time.
+Apply `transition` in your stylesheet. Lynx interpolates property changes automatically.
 
 ```css
 .box {
@@ -68,7 +57,7 @@ Set `transition` in your component stylesheet or inline styles. The native Lynx 
 
 ### CSS Keyframe Animations
 
-Define `@keyframes` in your stylesheet and apply via the `animation` property or class toggle.
+Define `@keyframes` in your stylesheet and apply via class toggle.
 
 ```css
 @keyframes rotate {
@@ -93,7 +82,7 @@ Define `@keyframes` in your stylesheet and apply via the `animation` property or
 
 ### JavaScript Animate API
 
-For programmatic, dynamic animations, use `element.animate()` on a native element reference. This calls the Lynx `__ElementAnimate` PAPI under the hood.
+Use `element.animate()` on a native element reference for programmatic control. Calls the Lynx `__ElementAnimate` PAPI under the hood.
 
 ```typescript
 import { Component, viewChild, type ElementRef } from '@angular/core';
@@ -190,4 +179,4 @@ Available events: `animationstart`, `animationend`, `animationcancel`, `animatio
 #### Important Notes
 
 - The `animate()` API is **main-thread only**. Calling it on the background thread throws an error.
-- Wrap `animate()` calls inside `setTimeout(() => { ... }, 0)` when triggered from Lynx event callbacks (same pattern as navigation) to avoid mutating the element tree inside a worklet.
+- Wrap `animate()` calls inside `setTimeout(() => { ... }, 0)` when triggered from Lynx event callbacks to avoid mutating the element tree inside a worklet.
