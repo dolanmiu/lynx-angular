@@ -1,13 +1,53 @@
 # Animation
 
-| Export                 | Kind  | Description                                                                                                                                                                                 |
-| ---------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `LynxAnimation`        | Class | Represents a running animation on a Lynx element. Created via `element.animate()`. Provides `play()`, `pause()`, and `cancel()` methods.                                                    |
-| `LynxAnimationOptions` | Type  | Options for animation timing and behavior. Accepts both Web Animations API naming (`iterations`, `easing`, `fill`) and Lynx-native naming (`iterationCount`, `timingFunction`, `fillMode`). |
+## Programmatic API
+
+| Export                 | Kind  | Description                                                          |
+| ---------------------- | ----- | -------------------------------------------------------------------- |
+| `LynxAnimation`        | Class | A running animation. Provides `play()`, `pause()`, and `cancel()`.   |
+| `LynxAnimationOptions` | Type  | Timing options: `duration`, `delay`, `easing`, `iterations`, `fill`. |
+
+```typescript
+import { Component, viewChild, type ElementRef } from '@angular/core';
+import { type LynxAnimation } from '@blotch/angular-lynx';
+
+@Component({
+  template: `
+    <view #box class="box" (bindtap)="animate()">
+      <text>Tap me</text>
+    </view>
+  `,
+})
+export class AnimatedBox {
+  boxRef = viewChild<ElementRef>('box');
+  #animation: LynxAnimation | null = null;
+
+  animate(): void {
+    setTimeout(() => {
+      this.#animation?.cancel();
+      this.#animation = this.boxRef()!.nativeElement.animate(
+        [{ opacity: 1 }, { opacity: 0.3 }, { opacity: 1 }],
+        { duration: 400, easing: 'ease-in-out' },
+      );
+    }, 0);
+  }
+}
+```
 
 ## Enter/Leave Transitions
 
-| Export                | Kind      | Description                                                                                                                                                                                                                                                                                                                                         |
-| --------------------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `LynxTransition`      | Component | Animates content enter/leave using CSS transition classes (same convention as Vue's `<Transition>`). Inputs: `show` (boolean), `name` (class prefix, default `'v'`), `duration` (ms, default `300`). Outputs: `afterEnter`, `afterLeave`. Manages `shouldRender` internally — content is removed only after the leave animation ends.               |
-| `LynxTransitionGroup` | Component | Animates list items entering/leaving using the same CSS class convention. Manages its own views via `ViewContainerRef` so it can delay removal for leave animations. Inputs: `each` (T[]), `trackBy` ((item: T) => unknown), `name`, `duration`. Outputs: `afterEnter(T)`, `afterLeave(T)`. No move/FLIP animations (background-thread limitation). |
+| Export                | Kind      | Description                                                                                              |
+| --------------------- | --------- | -------------------------------------------------------------------------------------------------------- |
+| `LynxTransition`      | Component | Animates content entering/leaving with CSS transition classes (same convention as Vue's `<Transition>`). |
+| `LynxTransitionGroup` | Component | Animates list items entering/leaving. Manages views via `ViewContainerRef`.                              |
+
+```angular-html
+<!-- Show/hide with fade animation -->
+<lynx-transition [show]="visible()" name="fade" [duration]="300">
+  <view class="modal">
+    <text>I fade in and out</text>
+  </view>
+</lynx-transition>
+```
+
+See the [Animations guide](/guide/animations/) for CSS transition classes and full examples.

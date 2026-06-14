@@ -64,10 +64,10 @@ const fling = new FlingGesture()
   });
 ```
 
-| Config                | Type             | Description                                        |
-| --------------------- | ---------------- | -------------------------------------------------- |
-| `direction(dir)`      | `FlingDirection` | Bitmask: `RIGHT(1)`, `LEFT(2)`, `UP(4)`, `DOWN(8)` |
-| `numberOfPointers(n)` | `number`         | Number of fingers required                         |
+| Config                | Type             | Description                                                                          |
+| --------------------- | ---------------- | ------------------------------------------------------------------------------------ |
+| `direction(dir)`      | `FlingDirection` | Combine directions with `\|` (bitwise OR): `RIGHT(1)`, `LEFT(2)`, `UP(4)`, `DOWN(8)` |
+| `numberOfPointers(n)` | `number`         | Number of fingers required                                                           |
 
 **Event type:** `FlingGestureEvent` — `{ velocityX, velocityY, state, absoluteX, absoluteY }`
 

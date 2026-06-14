@@ -1,12 +1,27 @@
 # @blotch/rsbuild-plugin-angular-lynx
 
-API reference for the Rsbuild/Rspeedy build plugin that compiles Angular for the Lynx runtime.
+Rsbuild plugin that compiles Angular for the Lynx runtime.
+
+```typescript title="lynx.config.ts"
+import { pluginAngularLynx } from '@blotch/rsbuild-plugin-angular-lynx';
+import { defineConfig } from '@lynx-js/rspeedy';
+
+export default defineConfig({
+  source: { entry: './src/main.ts' },
+  plugins: [
+    pluginAngularLynx({
+      enableSSR: true, // Enable snapshot SSR
+      enableNewGesture: true, // Enable new gesture system
+    }),
+  ],
+});
+```
 
 ## Plugin
 
-| Export              | Kind     | Description                                                                                                                    |
-| ------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `pluginAngularLynx` | Function | Creates the Rsbuild plugin for building AngularLynx apps. Accepts an optional `PluginAngularLynxOptions` configuration object. |
+| Export              | Kind     | Description                                                                                                      |
+| ------------------- | -------- | ---------------------------------------------------------------------------------------------------------------- |
+| `pluginAngularLynx` | Function | Creates the Rsbuild plugin for building AngularLynx apps. Accepts an optional `PluginAngularLynxOptions` object. |
 
 ## PluginAngularLynxOptions
 

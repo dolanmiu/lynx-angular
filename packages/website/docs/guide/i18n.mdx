@@ -116,17 +116,19 @@ ng extract-i18n --output-path src/locale
 
 This produces `messages.xlf` which translators can work with.
 
-## Important Limitations
+## Limitations
 
-### Intl API Not Available
+### No `Intl` API
 
-Lynx's PrimJS runtime does **not** include the `Intl` API. Angular pipes like `DatePipe`, `DecimalPipe`, and `CurrencyPipe` will throw at runtime without polyfills:
+Lynx's JavaScript engine does not include `Intl`. Angular pipes like `DatePipe`, `DecimalPipe`, and `CurrencyPipe` will crash without polyfills.
+
+Install the polyfills:
 
 ```bash
 npm install @formatjs/intl-numberformat @formatjs/intl-datetimeformat @formatjs/intl-pluralrules
 ```
 
-Add them to your polyfills in angular.json:
+Then add them to `polyfills` in angular.json:
 
 ```json
 {
@@ -139,23 +141,22 @@ Add them to your polyfills in angular.json:
 }
 ```
 
-### Locale Changes Require Re-bootstrap
+### No template `i18n` attribute
 
-`$localize` calls are evaluated at module load / component creation time. If the host app changes `lynx.__globalProps.appLocale` at runtime, you must re-bootstrap the Angular app for translations to update.
+Angular's `<text i18n>Hello</text>` syntax does **not work** on Lynx. It creates internal DOM nodes that bypass the Lynx renderer, causing a blank screen.
 
-### Template `i18n` Attribute Not Supported
-
-Angular's template `i18n` attribute (e.g. `<text i18n>Hello</text>`) is **not supported** on Lynx. The `i18n` attribute triggers Angular's internal `ɵɵi18n` instruction which creates DOM nodes that bypass the Lynx renderer, causing a blank screen.
-
-Use `$localize` in your TypeScript code instead and bind the result via interpolation:
+Use `$localize` in TypeScript instead:
 
 ```typescript
 // Instead of: <text i18n>Hello</text>
-// Use:
 get greeting() { return $localize`Hello`; }
 // Template: <text>{{ greeting }}</text>
 ```
 
-### Build-time Inlining Not Supported
+### Locale changes require re-bootstrap
 
-Angular's build-time translation inlining (producing one bundle per locale) is not yet supported. The runtime `loadTranslations()` approach is the recommended pattern for Lynx apps.
+`$localize` evaluates translations at component creation time. If the host app changes the locale at runtime, you must re-bootstrap the Angular app.
+
+### No build-time inlining
+
+Angular's build-time translation inlining (one bundle per locale) is not yet supported. Use the runtime `loadTranslations()` approach shown above.

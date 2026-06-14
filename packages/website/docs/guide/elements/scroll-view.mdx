@@ -24,6 +24,17 @@ A scrollable area for content. Set `scroll-orientation` to control the scroll di
 
 ## Key Attributes
 
-- `scroll-orientation` — `"vertical"` (default) or `"horizontal"`
-- `bounces` — Enable/disable bounce effect at scroll boundaries
-- `scroll-bar-enable` — Show/hide scrollbar
+| Attribute            | Type      | Description                                       |
+| -------------------- | --------- | ------------------------------------------------- |
+| `scroll-orientation` | `string`  | `"vertical"` (default) or `"horizontal"`          |
+| `bounces`            | `boolean` | Enable/disable bounce effect at scroll boundaries |
+| `scroll-bar-enable`  | `boolean` | Show/hide the scrollbar                           |
+
+## Events
+
+| Event                    | Description                                                                               |
+| ------------------------ | ----------------------------------------------------------------------------------------- |
+| `bindscroll`             | Fires continuously during scrolling. `event.detail` contains `scrollTop` and `scrollLeft` |
+| `bindscrolltoupper`      | Fires when scrolling reaches the top (or left edge for horizontal)                        |
+| `bindscrolltolower`      | Fires when scrolling reaches the bottom (or right edge). Useful for infinite scroll       |
+| `bindcontentsizechanged` | Fires when the scrollable content size changes                                            |

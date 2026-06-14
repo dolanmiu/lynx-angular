@@ -1,6 +1,10 @@
 # DevTools
 
-AngularLynx includes built-in performance profiling that integrates with the Lynx native trace system (Perfetto). All instrumentation is gated behind the `__PROFILE__` compile-time flag — zero overhead in production.
+Profile performance and inspect your app on-device. AngularLynx includes built-in instrumentation that integrates with [Perfetto](https://perfetto.dev/), the native trace system.
+
+:::info `__PROFILE__` flag
+All profiling code is gated behind a **compile-time constant** called `__PROFILE__`. It's `true` in dev builds and `false` in production. When false, all profiling branches are dead-code-eliminated — zero overhead in your production bundle.
+:::
 
 ## Performance Profiling
 
@@ -8,7 +12,7 @@ AngularLynx includes built-in performance profiling that integrates with the Lyn
 
 ```typescript
 import { inject } from '@angular/core';
-import { LynxPerformance } from '@anthropic/angular-lynx';
+import { LynxPerformance } from '@blotch/angular-lynx';
 
 const perf = inject(LynxPerformance);
 
@@ -34,7 +38,7 @@ perf.profileStart('backgroundWork', { flowId });
 
 ### Automatic Instrumentation
 
-When `__PROFILE__` is enabled, AngularLynx automatically tracks:
+When `__PROFILE__` is enabled, AngularLynx automatically tracks these metrics:
 
 | Metric             | Description                                  |
 | ------------------ | -------------------------------------------- |
@@ -44,28 +48,25 @@ When `__PROFILE__` is enabled, AngularLynx automatically tracks:
 | `flushCount`       | Number of `__FlushElementTree()` calls       |
 | `lastCdDurationMs` | Duration of the most recent CD + flush cycle |
 
-These counters are incremented inline in the renderer factory, document, and element classes with zero overhead when `__PROFILE__` is false (the `if (__PROFILE__)` branches are dead-code-eliminated by the build plugin).
-
 ## DevTools Service
 
 `LynxDevTools` exposes the stats counters as Angular signals for on-device debug UIs:
 
 ```typescript
 import { Component, inject } from '@angular/core';
-import { LynxDevTools, LYNX_ELEMENTS } from '@anthropic/angular-lynx';
+import { LynxDevTools, LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
 @Component({
   selector: 'app-debug-overlay',
-  standalone: true,
   imports: [LYNX_ELEMENTS],
   template: `
     <view class="debug-panel">
       <text>CD cycles: {{ devtools.stats().cdCycles }}</text>
-      <text
-        >Elements: +{{ devtools.stats().elementCreated }} / -{{
+      <text>
+        Elements: +{{ devtools.stats().elementCreated }} / -{{
           devtools.stats().elementRemoved
-        }}</text
-      >
+        }}
+      </text>
       <text>Flushes: {{ devtools.stats().flushCount }}</text>
       <view (bindtap)="devtools.reset()">
         <text>Reset</text>
@@ -83,20 +84,18 @@ export class DebugOverlay {
 
 ### API
 
-| Method       | Description                                                                           |
-| ------------ | ------------------------------------------------------------------------------------- |
-| `stats()`    | Signal returning a `DevToolsStats` snapshot (re-evaluates on `refresh()` / `reset()`) |
-| `snapshot()` | Non-reactive one-shot read of current counters                                        |
-| `refresh()`  | Bump the signal so `stats()` picks up latest counter values                           |
-| `reset()`    | Zero all counters and update the signal                                               |
+| Method       | Description                                                                      |
+| ------------ | -------------------------------------------------------------------------------- |
+| `stats()`    | Signal returning a `DevToolsStats` snapshot (updates on `refresh()` / `reset()`) |
+| `snapshot()` | Non-reactive one-shot read of current counters                                   |
+| `refresh()`  | Update the signal with latest counter values                                     |
+| `reset()`    | Zero all counters and update the signal                                          |
 
-## Enabling Profiling
+## When `__PROFILE__` Is Disabled
 
-Profiling is controlled by the `__PROFILE__` build-time constant. It is automatically set to `true` in development builds and `false` in production. To explicitly enable or disable it, set it in your build configuration.
+In production builds (`__PROFILE__` = false):
 
-When `__PROFILE__` is `false`:
-
-- All `if (__PROFILE__)` branches are dead-code-eliminated
-- `devStats` counters are never incremented
-- `LynxPerformance` methods are still callable but have negligible cost (they check `lynx.performance` availability and return)
+- All `if (__PROFILE__)` branches are removed by the build plugin
+- Counters are never incremented
+- `LynxPerformance` methods are still callable but return immediately
 - `LynxDevTools.stats()` returns all zeros

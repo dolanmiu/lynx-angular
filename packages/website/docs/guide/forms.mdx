@@ -2,8 +2,12 @@
 
 AngularLynx supports all three of Angular's form APIs — **reactive forms**, **template-driven forms**, and the experimental **Signal Forms** — using `<input>` and `<textarea>` elements backed by Lynx native events.
 
-:::info Why this needs explanation
-Lynx input elements fire `bindinput` instead of the standard DOM `input` event, and carry the value in `event.detail.value` instead of `event.target.value`. Angular's built-in form value accessors expect DOM semantics, so `LYNX_ELEMENTS` ships its own `ControlValueAccessor` implementations that bridge to Lynx events automatically.
+:::warning Lynx only has `<input>` and `<textarea>`
+Lynx has no native checkbox, radio, or select elements. For those controls, build custom components with `<view>` and tap gestures. See the [Components](/components/) library for ready-made alternatives.
+:::
+
+:::info
+Lynx fires `bindinput` instead of the DOM `input` event, with values in `event.detail.value`. `LYNX_ELEMENTS` includes `ControlValueAccessor` implementations that bridge this automatically — no extra work needed.
 :::
 
 <Go example="forms" defaultFile="src/app/app.ts" />
@@ -193,4 +197,4 @@ Or model the control as `FormControl<string>` and convert at submit time.
 
 ### No native checkbox, radio, or select
 
-Lynx has no native `<input type="checkbox">`, `<input type="radio">`, or `<select>`. Build these patterns with `<view>` and tap gestures using your own state signals.
+Lynx has no native checkbox, radio, or select elements. See the warning at the top of this page.

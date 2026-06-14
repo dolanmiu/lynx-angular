@@ -30,7 +30,23 @@ Near-1:1 Angular parity — partial support isn't acceptable. Every Angular API 
 ## Code Style
 
 - Always write comments explaining **why** something is done, not just what. Future developers need to understand the reasoning and intent behind decisions.
-- Use ES private fields (`#myVar`) instead of the TypeScript `private` keyword. Test private state through the public API.
+- Use ES private fields (`#myVar`) instead of the TypeScript `private` keyword. Test private state through the public API. **Exception:** Angular signal props must be public `readonly` (see below).
+
+## Angular
+
+- Standalone components only; do NOT set `standalone: true` (it's the default)
+- Signals for state; `computed()` for derived state; no `mutate` (use `update`/`set`)
+- `input()`/`output()` functions, not decorators
+- Angular signal props (`input`, `output`, `viewChild`, `viewChildren`, `contentChild`, `contentChildren`, `model`) must be public `readonly` — no ES private (`#`) or TypeScript `private`/`protected`
+- `changeDetection: ChangeDetectionStrategy.OnPush`
+- `inject()` instead of constructor injection
+- `providedIn: 'root'` for singleton services
+- Host bindings in `host` object, not `@HostBinding`/`@HostListener`
+- Native control flow (`@if`, `@for`, `@switch`), not `*ngIf`/`*ngFor`/`*ngSwitch`
+- `NgOptimizedImage` for static images (not for inline base64)
+- Reactive forms over template-driven; `class`/`style` bindings over `ngClass`/`ngStyle`
+- Lazy loading for feature routes
+- `Resource` values accessed via `.value()`
 
 ## Schematics (`ng add` / `ng generate`)
 

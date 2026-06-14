@@ -1,0 +1,54 @@
+import { Component, computed, signal } from '@angular/core';
+import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
+
+@Component({
+  selector: 'app-root',
+  imports: [LYNX_ELEMENTS],
+  template: `
+    <view class="container">
+      <text class="title">Counter</text>
+      <text class="count">{{ count() }}</text>
+      <text class="label">{{ label() }}</text>
+
+      <view class="row">
+        <view class="button" (bindtap)="decrement()">
+          <text class="button-text">−</text>
+        </view>
+        <view class="button" (bindtap)="reset()">
+          <text class="button-text">Reset</text>
+        </view>
+        <view class="button" (bindtap)="increment()">
+          <text class="button-text">+</text>
+        </view>
+      </view>
+    </view>
+  `,
+  styles: `
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-color: #f0f4f8;
+    }
+    .title { font-size: 28px; font-weight: bold; color: #1a202c; margin-bottom: 24px; }
+    .count { font-size: 72px; font-weight: bold; color: #2b6cb0; margin-bottom: 8px; }
+    .label { font-size: 16px; color: #718096; margin-bottom: 32px; }
+    .row { display: flex; flex-direction: row; gap: 12px; }
+    .button { background-color: #2b6cb0; border-radius: 12px; padding: 16px 28px; }
+    .button-text { color: white; font-size: 24px; font-weight: bold; }
+  `,
+})
+export class App {
+  readonly count = signal(0);
+  readonly label = computed(() => {
+    const n = this.count();
+    if (n === 0) return 'Tap + or − to start';
+    return n > 0 ? `${n} above zero` : `${Math.abs(n)} below zero`;
+  });
+
+  increment(): void { this.count.update((n) => n + 1); }
+  decrement(): void { this.count.update((n) => n - 1); }
+  reset(): void { this.count.set(0); }
+}

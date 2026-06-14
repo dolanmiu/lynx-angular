@@ -17,7 +17,10 @@ Customizes the draggable area of a frameless window, similar to the CSS `app-reg
   <title-bar-view moveable="true" style="flex: 1; height: 100%;">
     <text style="font-size: 14px;">My App</text>
   </title-bar-view>
-  <view (bindtap)="close()" style="width: 48px; height: 100%; align-items: center; justify-content: center;">
+  <view
+    (bindtap)="close()"
+    style="width: 48px; height: 100%; align-items: center; justify-content: center;"
+  >
     <text>X</text>
   </view>
 </view>
@@ -31,11 +34,11 @@ In this example, the `<title-bar-view>` region is draggable (moves the window), 
 
 ## Platform Support
 
-| Platform      | Supported |
-| ------------- | --------- |
-| Clay Windows  | 3.8+      |
-| Clay macOS    | 3.8+      |
-| Android       | No        |
-| iOS           | No        |
-| Harmony       | No        |
-| Web Lynx      | No        |
+| Platform     | Supported |
+| ------------ | --------- |
+| Clay Windows | 3.8+      |
+| Clay macOS   | 3.8+      |
+| Android      | No        |
+| iOS          | No        |
+| Harmony      | No        |
+| Web Lynx     | No        |

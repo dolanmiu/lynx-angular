@@ -1,4 +1,4 @@
-# Building for Production
+# Publishing your App
 
 This guide covers how to build your AngularLynx app into a production bundle and deploy it to a native mobile app.
 
@@ -40,9 +40,9 @@ dist/
 Lazy-loaded routes (`loadComponent(() => import('./path'))`) are automatically split into separate async bundles. See [Routing](/guide/routing) for more on lazy loading.
 :::
 
-## How Deployment Works
+## Deployment
 
-Lynx apps don't run standalone — they run inside a **native host app** that embeds the Lynx engine. The host app creates a `LynxView` and loads your bundle into it. Your Angular code runs in the Lynx runtime and renders native UI elements.
+Lynx apps run inside a **native host app** that embeds the Lynx engine. You provide the `.lynx.bundle` files; the host app loads them into a `LynxView`.
 
 ```mermaid
 flowchart LR
@@ -54,42 +54,27 @@ flowchart LR
     E --> F
 ```
 
-There are two deployment strategies:
+### Embedded vs Remote Bundles
 
-### Embedded Bundles
-
-Ship bundle files as assets inside the native app binary. The host app loads them from the local filesystem.
-
-**Pros:** No network dependency, instant load, works offline.
-**Cons:** Requires an app store update to change content.
-
-### Remote Bundles
-
-Host bundle files on a CDN or web server. The host app fetches them over HTTP at runtime.
-
-**Pros:** Update content without an app store release, A/B test different versions, reduce app binary size.
-**Cons:** Requires network connectivity for first load, needs a caching strategy.
-
-:::note
-Setting up the native host app (adding the Lynx SDK, creating a `LynxView`, configuring bundle loading) is handled by the native team. See the official Lynx documentation:
-
-- [Integrate with Existing Apps](https://lynxjs.org/guide/start/integrate-with-existing-apps.html) — Platform-specific setup for iOS, Android, and more
-- [Embedding LynxView](https://lynxjs.org/guide/embed-lynx-to-native.html) — Configuring LynxView size and layout within native views
-  :::
-
-## Over-the-Air Updates
-
-Remote bundles enable updating your app without going through app store review. Deploy a new `.lynx.bundle` to your server, and users get the update next time the host app loads the bundle.
-
-A typical setup:
-
-1. Build your bundle with `npx rspeedy build`
-2. Upload `dist/` contents to your CDN or static file server
-3. The native host app fetches the latest bundle URL on launch
-4. New content renders immediately — no app update required
+| Strategy                                          | Pros                                       | Cons                                        |
+| ------------------------------------------------- | ------------------------------------------ | ------------------------------------------- |
+| **Embedded** — ship bundles inside the app binary | Instant load, works offline                | Requires app store update to change content |
+| **Remote** — host bundles on a CDN                | Update without app store release, A/B test | Needs network for first load                |
 
 :::tip
-Combine embedded and remote strategies: ship a baseline bundle with the app for instant first launch, then check for updates from the server in the background.
+Combine both: ship a baseline bundle with the app for instant first launch, then check for remote updates in the background.
+:::
+
+### Over-the-Air Updates
+
+With remote bundles, deploy a new `.lynx.bundle` to your server and users get the update on next launch — no app store review needed.
+
+:::note
+Setting up the native host app (Lynx SDK, `LynxView`, bundle loading) is handled by the native team. See:
+
+- [Integrate with Existing Apps](https://lynxjs.org/guide/start/integrate-with-existing-apps.html)
+- [Embedding LynxView](https://lynxjs.org/guide/embed-lynx-to-native.html)
+
 :::
 
 ## Production Checklist

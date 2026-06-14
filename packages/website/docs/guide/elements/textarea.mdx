@@ -14,3 +14,23 @@ Multi-line text input field.
   (bindinput)="onInput($event)"
 ></textarea>
 ```
+
+## Key Attributes
+
+| Attribute     | Type      | Description                                  |
+| ------------- | --------- | -------------------------------------------- |
+| `placeholder` | `string`  | Placeholder text shown when empty            |
+| `maxlength`   | `number`  | Maximum character length                     |
+| `auto-focus`  | `boolean` | Automatically focus when the element appears |
+| `auto-height` | `boolean` | Automatically grow height to fit content     |
+| `value`       | `string`  | Current input value                          |
+
+## Events
+
+| Event       | Description                                                              |
+| ----------- | ------------------------------------------------------------------------ |
+| `bindinput` | Fires on every keystroke. `event.detail.value` contains the current text |
+| `bindfocus` | Fires when the textarea gains focus                                      |
+| `bindblur`  | Fires when the textarea loses focus                                      |
+
+For form patterns with validation, see the [Forms](/guide/forms) guide.

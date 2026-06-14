@@ -50,19 +50,19 @@ import { UiInput } from '@/components/ui/input';
 
 ## API
 
-| Input | Type | Default | Description |
-|-------|------|---------|-------------|
-| `value` | `model<string>` | `''` | The current input value (two-way bindable) |
-| `label` | `string` | `''` | Label text displayed above the input |
-| `placeholder` | `string` | `''` | Placeholder text shown when empty |
-| `type` | `string` | `'text'` | Input type (text, password, email, etc.) |
-| `helperText` | `string` | `''` | Helper text displayed below the input |
-| `error` | `string` | `''` | Error message (replaces helper text when set) |
-| `disabled` | `boolean` | `false` | Whether the input is disabled |
-| `class` | `string` | `''` | Additional CSS classes for the container |
+| Input         | Type            | Default  | Description                                   |
+| ------------- | --------------- | -------- | --------------------------------------------- |
+| `value`       | `model<string>` | `''`     | The current input value (two-way bindable)    |
+| `label`       | `string`        | `''`     | Label text displayed above the input          |
+| `placeholder` | `string`        | `''`     | Placeholder text shown when empty             |
+| `type`        | `string`        | `'text'` | Input type (text, password, email, etc.)      |
+| `helperText`  | `string`        | `''`     | Helper text displayed below the input         |
+| `error`       | `string`        | `''`     | Error message (replaces helper text when set) |
+| `disabled`    | `boolean`       | `false`  | Whether the input is disabled                 |
+| `class`       | `string`        | `''`     | Additional CSS classes for the container      |
 
-| Output | Type | Description |
-|--------|------|-------------|
+| Output    | Type     | Description                                 |
+| --------- | -------- | ------------------------------------------- |
 | `changed` | `string` | Emits the new value when input text changes |
-| `focused` | `void` | Emits when the input receives focus |
-| `blurred` | `void` | Emits when the input loses focus |
+| `focused` | `void`   | Emits when the input receives focus         |
+| `blurred` | `void`   | Emits when the input loses focus            |

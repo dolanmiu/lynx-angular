@@ -29,10 +29,14 @@ import { UiIcon } from '@/components/ui/icon';
 Use the `size` input to control the icon dimensions.
 
 ```angular-html
-<ui-icon name="heart" size="xs" />  <!-- 16px -->
-<ui-icon name="heart" size="sm" />  <!-- 20px -->
-<ui-icon name="heart" size="md" />  <!-- 24px (default) -->
-<ui-icon name="heart" size="lg" />  <!-- 32px -->
+<ui-icon name="heart" size="xs" />
+<!-- 16px -->
+<ui-icon name="heart" size="sm" />
+<!-- 20px -->
+<ui-icon name="heart" size="md" />
+<!-- 24px (default) -->
+<ui-icon name="heart" size="lg" />
+<!-- 32px -->
 ```
 
 ## Custom colors
@@ -67,8 +71,8 @@ readonly currentIcon = signal<IconName>('check');
 
 ## API
 
-| Input | Type | Default | Description |
-|-------|------|---------|-------------|
-| `name` | `IconName` | _(required)_ | Name of the icon to render |
-| `size` | `'xs' \| 'sm' \| 'md' \| 'lg'` | `'md'` | Size of the icon (16/20/24/32 px) |
-| `color` | `string \| undefined` | `undefined` | Overrides the stroke color (defaults to `currentColor`) |
+| Input   | Type                           | Default      | Description                                             |
+| ------- | ------------------------------ | ------------ | ------------------------------------------------------- |
+| `name`  | `IconName`                     | _(required)_ | Name of the icon to render                              |
+| `size`  | `'xs' \| 'sm' \| 'md' \| 'lg'` | `'md'`       | Size of the icon (16/20/24/32 px)                       |
+| `color` | `string \| undefined`          | `undefined`  | Overrides the stroke color (defaults to `currentColor`) |

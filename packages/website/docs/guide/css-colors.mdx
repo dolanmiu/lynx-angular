@@ -4,16 +4,16 @@ Lynx supports a subset of CSS color formats. Some modern CSS syntax that works i
 
 ## Supported Formats
 
-| Format | Syntax | Example | Status |
-| --- | --- | --- | --- |
-| Hex | `#RGB`, `#RRGGBB`, `#RRGGBBAA` | `#18181b`, `#ff000080` | Supported |
-| Named colors | keyword | `red`, `transparent` | Supported |
-| RGB (comma) | `rgb(R, G, B)` | `rgb(24, 24, 27)` | Supported |
-| RGBA (comma) | `rgba(R, G, B, A)` | `rgba(24, 24, 27, 0.5)` | Supported |
-| RGB (space) | `rgb(R G B)` | `rgb(24 24 27)` | Supported |
-| RGB (space + alpha) | `rgb(R G B / A)` | `rgb(24 24 27 / 0.5)` | Supported |
-| HSL (comma) | `hsl(H, S%, L%)` | `hsl(240, 5.9%, 10%)` | Supported |
-| HSLA (comma) | `hsla(H, S%, L%, A)` | `hsla(240, 5.9%, 10%, 0.5)` | Supported |
+| Format              | Syntax                         | Example                     | Status    |
+| ------------------- | ------------------------------ | --------------------------- | --------- |
+| Hex                 | `#RGB`, `#RRGGBB`, `#RRGGBBAA` | `#18181b`, `#ff000080`      | Supported |
+| Named colors        | keyword                        | `red`, `transparent`        | Supported |
+| RGB (comma)         | `rgb(R, G, B)`                 | `rgb(24, 24, 27)`           | Supported |
+| RGBA (comma)        | `rgba(R, G, B, A)`             | `rgba(24, 24, 27, 0.5)`     | Supported |
+| RGB (space)         | `rgb(R G B)`                   | `rgb(24 24 27)`             | Supported |
+| RGB (space + alpha) | `rgb(R G B / A)`               | `rgb(24 24 27 / 0.5)`       | Supported |
+| HSL (comma)         | `hsl(H, S%, L%)`               | `hsl(240, 5.9%, 10%)`       | Supported |
+| HSLA (comma)        | `hsla(H, S%, L%, A)`           | `hsla(240, 5.9%, 10%, 0.5)` | Supported |
 
 ## Unsupported Formats
 
@@ -33,6 +33,7 @@ Use the comma-separated form instead:
 background-color: hsl(240, 5.9%, 10%);
 background-color: hsla(240, 5.9%, 10%, 0.5);
 ```
+
 :::
 
 The Lynx CSS parser handles RGB with both comma and space syntax, but HSL only supports the legacy comma-separated form. This is a parser-level limitation in the Lynx runtime.

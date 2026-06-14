@@ -11,7 +11,11 @@ npx blotch add toggle
 ```
 
 ```typescript
-import { UiToggle, UiToggleGroup, UiToggleGroupItem } from '@/components/ui/toggle';
+import {
+  UiToggle,
+  UiToggleGroup,
+  UiToggleGroupItem,
+} from '@/components/ui/toggle';
 ```
 
 ## Usage
@@ -73,28 +77,28 @@ import { UiToggle, UiToggleGroup, UiToggleGroupItem } from '@/components/ui/togg
 
 ### UiToggle
 
-| Input | Type | Default | Description |
-|-------|------|---------|-------------|
-| `pressed` | `model<boolean>` | `false` | Whether the toggle is pressed (two-way bindable) |
-| `variant` | `'default' \| 'outline'` | `'default'` | Visual style variant |
-| `size` | `'default' \| 'sm' \| 'lg'` | `'default'` | Toggle size |
-| `disabled` | `boolean` | `false` | Whether the toggle is disabled |
-| `class` | `string` | `''` | Additional CSS classes |
+| Input      | Type                        | Default     | Description                                      |
+| ---------- | --------------------------- | ----------- | ------------------------------------------------ |
+| `pressed`  | `model<boolean>`            | `false`     | Whether the toggle is pressed (two-way bindable) |
+| `variant`  | `'default' \| 'outline'`    | `'default'` | Visual style variant                             |
+| `size`     | `'default' \| 'sm' \| 'lg'` | `'default'` | Toggle size                                      |
+| `disabled` | `boolean`                   | `false`     | Whether the toggle is disabled                   |
+| `class`    | `string`                    | `''`        | Additional CSS classes                           |
 
 ### UiToggleGroup
 
-| Input | Type | Default | Description |
-|-------|------|---------|-------------|
-| `value` | `model<string[]>` | `[]` | The selected values (two-way bindable) |
-| `type` | `'single' \| 'multiple'` | `'single'` | Selection mode |
-| `variant` | `'default' \| 'outline'` | `'default'` | Visual style for all items |
-| `size` | `'default' \| 'sm' \| 'lg'` | `'default'` | Size for all items |
-| `disabled` | `boolean` | `false` | Disables all items in the group |
-| `class` | `string` | `''` | Additional CSS classes for the group container |
+| Input      | Type                        | Default     | Description                                    |
+| ---------- | --------------------------- | ----------- | ---------------------------------------------- |
+| `value`    | `model<string[]>`           | `[]`        | The selected values (two-way bindable)         |
+| `type`     | `'single' \| 'multiple'`    | `'single'`  | Selection mode                                 |
+| `variant`  | `'default' \| 'outline'`    | `'default'` | Visual style for all items                     |
+| `size`     | `'default' \| 'sm' \| 'lg'` | `'default'` | Size for all items                             |
+| `disabled` | `boolean`                   | `false`     | Disables all items in the group                |
+| `class`    | `string`                    | `''`        | Additional CSS classes for the group container |
 
 ### UiToggleGroupItem
 
-| Input | Type | Default | Description |
-|-------|------|---------|-------------|
-| `value` | `string` | *required* | The value this item represents |
-| `class` | `string` | `''` | Additional CSS classes for the item |
+| Input   | Type     | Default    | Description                         |
+| ------- | -------- | ---------- | ----------------------------------- |
+| `value` | `string` | _required_ | The value this item represents      |
+| `class` | `string` | `''`       | Additional CSS classes for the item |

@@ -100,7 +100,7 @@ The same sequence in reverse. Content is removed from the tree **after** the ani
 
 ## Why `duration` Is Required
 
-Lynx runs Angular on a background thread that cannot call `getComputedStyle()`. The component cannot auto-detect your CSS transition length, so you must pass it explicitly. This is the same constraint Vue Lynx has.
+Lynx runs Angular on a [background thread](/guide/introduction#the-dual-thread-model) (separate from the native UI) that cannot call `getComputedStyle()`. The component cannot auto-detect your CSS transition length, so you must pass it explicitly. This is the same constraint Vue Lynx has.
 
 :::warning
 Make sure your `duration` input matches the `transition-duration` in your CSS. If they differ, the classes will be removed before (or after) the visual transition finishes.

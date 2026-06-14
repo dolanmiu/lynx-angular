@@ -23,3 +23,24 @@ onInput(event: { detail: { value: string } }): void {
   this.name.set(event.detail.value);
 }
 ```
+
+## Key Attributes
+
+| Attribute     | Type      | Description                                              |
+| ------------- | --------- | -------------------------------------------------------- |
+| `type`        | `string`  | Input type: `"text"` (default), `"number"`, `"password"` |
+| `placeholder` | `string`  | Placeholder text shown when empty                        |
+| `maxlength`   | `number`  | Maximum character length                                 |
+| `auto-focus`  | `boolean` | Automatically focus when the element appears             |
+| `value`       | `string`  | Current input value                                      |
+
+## Events
+
+| Event         | Description                                                              |
+| ------------- | ------------------------------------------------------------------------ |
+| `bindinput`   | Fires on every keystroke. `event.detail.value` contains the current text |
+| `bindfocus`   | Fires when the input gains focus                                         |
+| `bindblur`    | Fires when the input loses focus                                         |
+| `bindconfirm` | Fires when the user presses the confirm/return key                       |
+
+For form patterns with validation, see the [Forms](/guide/forms) guide.

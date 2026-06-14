@@ -1,13 +1,43 @@
-# Angular + Lynx Integration
+<p align="center">
+  <img src="assets/logo.png" alt="AngularLynx" width="200" />
+</p>
 
-This project provides both a runtime layer and a custom `rspeedy` plugin to enable Angular applications to run on the [Lynx](https://lynxjs.org/) runtime — a cross-platform native UI framework by ByteDance. Write Angular components with Lynx elements, and render to native mobile UI.
+<p align="center">
+  <a href="https://www.npmjs.com/package/@blotch/angular-lynx"><img src="https://img.shields.io/npm/v/@blotch/angular-lynx.svg" alt="npm version" /></a>
+  <a href="https://www.npmjs.com/package/@blotch/angular-lynx"><img src="https://img.shields.io/npm/dm/@blotch/angular-lynx.svg" alt="npm downloads" /></a>
+  <a href="https://github.com/Blotch-Smart-Frames/angular-lynx/blob/master/LICENSE"><img src="https://img.shields.io/github/license/Blotch-Smart-Frames/angular-lynx.svg" alt="license" /></a>
+  <a href="https://github.com/Blotch-Smart-Frames/angular-lynx/actions"><img src="https://img.shields.io/github/actions/workflow/status/Blotch-Smart-Frames/angular-lynx/ci.yml?branch=master" alt="build status" /></a>
+</p>
 
-> 🚧 **Work in Progress**
-> This is an early proof of concept. Only a minimal subset of Angular features is currently supported.
+# AngularLynx
+
+Build native mobile apps with Angular. AngularLynx renders Angular components to native iOS, Android, and Web UI via the [Lynx](https://lynxjs.org/) runtime by ByteDance.
+
+## Quick Start
+
+```bash
+npm create angular-lynx my-app
+```
+
+Or add to an existing Angular project:
+
+```bash
+ng add @blotch/angular-lynx
+```
+
+Full documentation at [angularlynx.dev](https://angularlynx.dev).
+
+## Packages
+
+| Package | Description |
+| --- | --- |
+| [`@blotch/angular-lynx`](./packages/runtime) | Angular `Renderer2` bridging to Lynx's native element APIs |
+| [`@blotch/rsbuild-plugin-angular-lynx`](./packages/rsbuild-plugin-angular-lynx) | Rsbuild plugin — Angular AOT compiler + Lynx dual-thread bundling |
+| [`packages/kitchen-sink-app`](./packages/kitchen-sink-app) | Demo app with routing, signals, and Lynx native elements |
 
 ## Architecture
 
-The project is a monorepo with three packages that map to the build-time and runtime stages of a Lynx app:
+Monorepo split into build-time and runtime stages:
 
 ```mermaid
 graph TB
@@ -56,37 +86,16 @@ graph TB
     explorer -- "embeds" --> engine
 ```
 
-### Package Overview
-
-| Package                                                                            | Role                                                                                                                       | Key Files                                            |
-| ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| **`packages/rsbuild-plugin-angular-lynx`** (`@blotch/rsbuild-plugin-angular-lynx`) | RSpeedy build plugin — configures webpack with Angular compiler, splits code into main-thread and background-thread layers | `pluginAngularLynx.ts`, `entry.ts`, `layers.ts`      |
-| **`packages/runtime`**                                                             | Angular `Renderer2` implementation that bridges to Lynx's global `__*` element APIs                                        | `renderer.ts`, `lynx-element.ts`, `lynx-document.ts` |
-| **`packages/kitchen-sink-app`**                                                    | Kitchen sink app with routing, signals, and Lynx native elements                                                           | `lynx.config.ts`, `app.component.ts`                 |
-
-## Getting Started
-
-### 1. Install Dependencies
+## Development
 
 ```bash
-npm install
+npm install && npm run build   # Build all packages
+npm run demo                   # Start dev server (rspeedy)
 ```
 
-### 2. Build the Project
+Scan the QR code with [Lynx Explorer](https://lynxjs.org/guide/start/quick-start.html) to run on your phone.
 
-```bash
-npm run build
-```
-
-### 3. Run the Demo
-
-```bash
-npm run demo
-```
-
-You will need the [Lynx Explorer](https://lynxjs.org/guide/start/quick-start.html) app to scan the QR code and run the demo on your phone.
-
-## Special Thanks Goes To
+## Credits
 
 - [Angular](https://github.com/angular/angular)
 - [Angular Rspack](https://github.com/nrwl/angular-rspack.git)

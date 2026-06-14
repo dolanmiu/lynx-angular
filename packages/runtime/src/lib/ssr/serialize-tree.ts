@@ -43,7 +43,10 @@ const serializeNode = (element: ElementRef, recorder: OpcodeRecorder): void => {
     recorder.attr('class', classes.join(' '));
   }
 
-  const inlineStyles = __GetInlineStyles(element);
+  const inlineStyles =
+    typeof __GetInlineStyles === 'function'
+      ? __GetInlineStyles(element)
+      : (element as any).style?.cssText;
   if (inlineStyles) {
     recorder.attr('style', inlineStyles);
   }

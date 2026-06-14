@@ -1,6 +1,6 @@
 # Routing
 
-AngularLynx uses the standard `@angular/router` with custom location strategies adapted for the Lynx runtime. Since Lynx is a native mobile environment with no browser URL bar, History API, or `window.location`, routing is handled entirely in memory.
+Navigate between views using Angular's standard `@angular/router`. AngularLynx handles it in-memory — no URL bar, no History API — so everything works the same, you just import `provideRouter` from `@blotch/angular-lynx` instead.
 
 ## Setup
 
@@ -94,7 +94,7 @@ This strategy is critical for Lynx stability. It detaches component views on nav
 
 **Why this matters:**
 
-- Lynx allocates elements in a fixed-size native pool (~256 slots)
+- Lynx allocates elements in a fixed-size native [element pool](/guide/renderer-architecture) (~256 slots)
 - `__RemoveElement` detaches elements from the tree but does **not** free their pool slots
 - Angular's default strategy destroys components on navigation, creating fresh elements each time
 - After ~9 navigations, the pool is exhausted and the app crashes

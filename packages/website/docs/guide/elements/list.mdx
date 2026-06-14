@@ -35,3 +35,11 @@ On `<list>`:
 On `<list-item>`:
 
 - `item-key` — Unique identifier for the item (required for recycling)
+
+## Events
+
+| Event               | Description                                                                                   |
+| ------------------- | --------------------------------------------------------------------------------------------- |
+| `bindscrolltoupper` | Fires when the list scrolls to the top (or left for horizontal). Useful for "load newer"      |
+| `bindscrolltolower` | Fires when the list scrolls to the bottom (or right). Useful for infinite scroll / pagination |
+| `bindscroll`        | Fires continuously during scrolling with scroll position details                              |

@@ -67,8 +67,8 @@ const featuresConfig = [
     title: 'Powered by Angular',
     desc: 'Full support for signals, standalone components, and modern control flow — the same Angular APIs you already know and love.',
     actions: [
-      { text: 'Signals', link: '/guide/signals' },
-      { text: 'Standalone', link: 'https://angular.dev/guide/components' },
+      { text: 'angular.dev', link: 'https://angular.dev/' },
+      { text: 'npm', link: 'https://www.npmjs.com/package/@angular/cli' },
     ],
     isRowSet: 508,
   },
@@ -84,7 +84,7 @@ const featuresConfig = [
     desc: 'Bring your favorite Angular libraries and enjoy the rich Angular ecosystem on Lynx.',
     actions: [
       { text: 'Angular Router', link: '/guide/routing' },
-      { text: 'Signals', link: '/guide/signals' },
+      { text: 'Signals', link: '/guide/change-detection/signals' },
       { text: 'Tailwind CSS', link: '/guide/tailwindcss' },
     ],
   },

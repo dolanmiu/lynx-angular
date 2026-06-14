@@ -66,7 +66,7 @@ export class Card {
 At build time, class names are hashed (e.g., `card` becomes `card-abc123`), preventing collisions across components.
 
 :::info
-Use bracket notation (`styles['card']`) instead of dot access (`styles.card`). TypeScript's `noPropertyAccessFromIndexSignature` option (enabled in most strict configs) requires bracket access for `Record<string, string>` types.
+Use bracket notation (`styles['card']`) instead of dot access (`styles.card`). TypeScript's strict mode enforces bracket access on index-signature types like `Record<string, string>`.
 :::
 
 ## When to Use CSS Modules

@@ -73,14 +73,14 @@ Use the `class` input to apply additional Tailwind utility classes.
 
 ## API
 
-| Input | Type | Default | Description |
-|-------|------|---------|-------------|
-| `variant` | `'default' \| 'destructive' \| 'outline' \| 'secondary' \| 'ghost'` | `'default'` | Visual style of the button |
-| `size` | `'default' \| 'sm' \| 'lg' \| 'icon'` | `'default'` | Size of the button |
-| `disabled` | `boolean` | `false` | Whether the button is disabled |
-| `loading` | `boolean` | `false` | Shows a spinner and disables interaction |
-| `class` | `string` | `''` | Additional Tailwind CSS classes |
+| Input      | Type                                                                | Default     | Description                              |
+| ---------- | ------------------------------------------------------------------- | ----------- | ---------------------------------------- |
+| `variant`  | `'default' \| 'destructive' \| 'outline' \| 'secondary' \| 'ghost'` | `'default'` | Visual style of the button               |
+| `size`     | `'default' \| 'sm' \| 'lg' \| 'icon'`                               | `'default'` | Size of the button                       |
+| `disabled` | `boolean`                                                           | `false`     | Whether the button is disabled           |
+| `loading`  | `boolean`                                                           | `false`     | Shows a spinner and disables interaction |
+| `class`    | `string`                                                            | `''`        | Additional Tailwind CSS classes          |
 
-| Output | Type | Description |
-|--------|------|-------------|
+| Output    | Type   | Description                                                              |
+| --------- | ------ | ------------------------------------------------------------------------ |
 | `pressed` | `void` | Emitted when the button is tapped (not emitted when disabled or loading) |

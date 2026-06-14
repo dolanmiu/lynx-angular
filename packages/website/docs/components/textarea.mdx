@@ -17,7 +17,11 @@ import { UiTextarea } from '@/components/ui/textarea';
 ## Usage
 
 ```angular-html
-<ui-textarea label="Bio" placeholder="Tell us about yourself..." [(value)]="bio" />
+<ui-textarea
+  label="Bio"
+  placeholder="Tell us about yourself..."
+  [(value)]="bio"
+/>
 ```
 
 ### With helper text
@@ -44,23 +48,27 @@ import { UiTextarea } from '@/components/ui/textarea';
 ### Disabled
 
 ```angular-html
-<ui-textarea label="System Notes" [disabled]="true" value="Read-only content." />
+<ui-textarea
+  label="System Notes"
+  [disabled]="true"
+  value="Read-only content."
+/>
 ```
 
 ## API
 
-| Input | Type | Default | Description |
-|-------|------|---------|-------------|
-| `value` | `model<string>` | `''` | The current textarea value (two-way bindable) |
-| `label` | `string` | `''` | Label text displayed above the textarea |
-| `placeholder` | `string` | `''` | Placeholder text shown when empty |
-| `helperText` | `string` | `''` | Helper text displayed below the textarea |
-| `error` | `string` | `''` | Error message (replaces helper text when set) |
-| `disabled` | `boolean` | `false` | Whether the textarea is disabled |
-| `class` | `string` | `''` | Additional CSS classes for the container |
+| Input         | Type            | Default | Description                                   |
+| ------------- | --------------- | ------- | --------------------------------------------- |
+| `value`       | `model<string>` | `''`    | The current textarea value (two-way bindable) |
+| `label`       | `string`        | `''`    | Label text displayed above the textarea       |
+| `placeholder` | `string`        | `''`    | Placeholder text shown when empty             |
+| `helperText`  | `string`        | `''`    | Helper text displayed below the textarea      |
+| `error`       | `string`        | `''`    | Error message (replaces helper text when set) |
+| `disabled`    | `boolean`       | `false` | Whether the textarea is disabled              |
+| `class`       | `string`        | `''`    | Additional CSS classes for the container      |
 
-| Output | Type | Description |
-|--------|------|-------------|
+| Output    | Type     | Description                                    |
+| --------- | -------- | ---------------------------------------------- |
 | `changed` | `string` | Emits the new value when textarea text changes |
-| `focused` | `void` | Emits when the textarea receives focus |
-| `blurred` | `void` | Emits when the textarea loses focus |
+| `focused` | `void`   | Emits when the textarea receives focus         |
+| `blurred` | `void`   | Emits when the textarea loses focus            |
