@@ -349,7 +349,10 @@ export default defineConfig({
         { text: 'SSR', link: '/examples/ssr' },
         { text: 'Tab Navigation', link: '/examples/tab-navigation' },
         { text: 'Multi-Page', link: '/examples/multi-page' },
-        { text: 'Multi-Page Workspace', link: '/examples/multi-page-workspace' },
+        {
+          text: 'Multi-Page Workspace',
+          link: '/examples/multi-page-workspace',
+        },
       ],
     },
   },

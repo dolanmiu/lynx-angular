@@ -1,11 +1,11 @@
 ---
 name: ui-component
-description: Create a new UI component in packages/ui and register it in packages/cli so it can be scaffolded via `blotch add`. Use when creating, adding, or scaffolding a new Blotch UI component.
+description: Create a new UI component in packages/ui and register it in packages/dolan so it can be scaffolded via `dolan add`. Use when creating, adding, or scaffolding a new Dolan UI component.
 ---
 
 # Create a UI Component
 
-When creating a new component in `packages/ui/`, you **must** also update `packages/cli/` so it can be scaffolded via `blotch add <name>`.
+When creating a new component in `packages/ui/`, you **must** also update `packages/dolan/` so it can be scaffolded via `dolan add <name>`.
 
 ## Steps
 
@@ -34,7 +34,7 @@ Add a barrel export:
 export * from './lib/components/<name>';
 ```
 
-### 3. Register in `packages/cli/src/registry.ts`
+### 3. Register in `packages/dolan/src/registry.ts`
 
 Add an entry to the `registry` array:
 
@@ -55,12 +55,12 @@ If the component imports other UI components (e.g. `UiSpinner`), list those as d
 - Run tests to confirm the registry is correct:
 
 ```sh
-npx turbo run test --filter=@blotch/cli
+npx turbo run test --filter=@blotch/dolan
 ```
 
 ## Checklist
 
 - [ ] Component directory with `<name>.ts` and `index.ts`
 - [ ] Exported from `packages/ui/src/index.ts`
-- [ ] Entry added to `packages/cli/src/registry.ts` with correct dependencies
+- [ ] Entry added to `packages/dolan/src/registry.ts` with correct dependencies
 - [ ] CLI tests pass

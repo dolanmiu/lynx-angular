@@ -8,11 +8,11 @@ import { getUiSourceDir } from '../utils/resolve-paths.js';
 export const themeCommand = async (name?: string) => {
   const cwd = process.cwd();
 
-  p.intro(pc.bold('blotch theme'));
+  p.intro(pc.bold('dolan theme'));
 
   if (!configExists(cwd)) {
     p.log.error(
-      `No ${pc.cyan('blotch.config.json')} found. Run ${pc.bold('blotch init')} first.`,
+      `No ${pc.cyan('dolan.config.json')} found. Run ${pc.bold('dolan init')} first.`,
     );
     process.exit(1);
   }
@@ -49,7 +49,7 @@ const listThemes = (themeDir: string) => {
     p.log.message(`  ${pc.green('●')} ${name}`);
   }
 
-  p.outro(`Create a custom theme: ${pc.bold('blotch theme <name>')}`);
+  p.outro(`Create a custom theme: ${pc.bold('dolan theme <name>')}`);
 };
 
 const createTheme = (name: string, themeDir: string) => {

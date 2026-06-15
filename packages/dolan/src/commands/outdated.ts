@@ -23,14 +23,14 @@ const STATUS_SHORT_LABELS: Record<FileStatus, string> = {
   'auto-upgrade': pc.blue('outdated'),
   'user-modified': pc.yellow('modified'),
   conflict: pc.red('conflict'),
-  'new-upstream': pc.blue('outdated'),
+  'new-upstream': pc.blue('new upstream'),
 };
 
-export const listCommand = async (options: { json?: boolean }) => {
+export const outdatedCommand = async (options: { json?: boolean }) => {
   const cwd = process.cwd();
 
   if (!options.json) {
-    p.intro(pc.bold('blotch list'));
+    p.intro(pc.bold('dolan outdated'));
   }
 
   if (!configExists(cwd)) {
@@ -39,7 +39,7 @@ export const listCommand = async (options: { json?: boolean }) => {
       process.exit(1);
     }
     p.log.error(
-      `No ${pc.cyan('blotch.config.json')} found. Run ${pc.bold('blotch init')} first.`,
+      `No ${pc.cyan('dolan.config.json')} found. Run ${pc.bold('dolan init')} first.`,
     );
     process.exit(1);
   }
@@ -52,8 +52,8 @@ export const listCommand = async (options: { json?: boolean }) => {
       console.log(JSON.stringify({ components: [] }));
       return;
     }
-    p.log.warn('No components installed.');
-    p.outro('Done.');
+    p.log.success('No components installed.');
+    p.outro('');
     return;
   }
 
@@ -68,15 +68,16 @@ export const listCommand = async (options: { json?: boolean }) => {
       console.log(JSON.stringify({ components: [] }));
       return;
     }
-    p.log.warn('No components installed.');
-    p.outro('Done.');
+    p.log.success('No components installed.');
+    p.outro('');
     return;
   }
 
   const lockfile = getOrCreateLockfile(cwd);
   const utilsDir = resolve(cwd, config.aliases.utils);
 
-  const results: { name: string; status: FileStatus; fileCount: number }[] = [];
+  const outdated: { name: string; status: FileStatus; fileCount: number }[] =
+    [];
 
   for (const name of installed) {
     const srcDir = getComponentSourceDir(name);
@@ -112,17 +113,25 @@ export const listCommand = async (options: { json?: boolean }) => {
     }
 
     const overall = summarizeComponent({ name, files: fileAnalyses });
-    results.push({ name, status: overall, fileCount: files.length });
+    if (overall !== 'up-to-date') {
+      outdated.push({ name, status: overall, fileCount: files.length });
+    }
   }
 
   if (options.json) {
-    console.log(JSON.stringify({ components: results }, null, 2));
+    console.log(JSON.stringify({ components: outdated }, null, 2));
+    process.exit(outdated.length > 0 ? 1 : 0);
+  }
+
+  if (outdated.length === 0) {
+    p.log.success('All components are up to date.');
+    p.outro('');
     return;
   }
 
-  const maxNameLen = Math.max(...results.map((r) => r.name.length));
+  const maxNameLen = Math.max(...outdated.map((r) => r.name.length));
 
-  for (const { name, status, fileCount } of results) {
+  for (const { name, status, fileCount } of outdated) {
     const paddedName = name.padEnd(maxNameLen);
     const filesLabel = fileCount === 1 ? '1 file' : `${fileCount} files`;
     p.log.message(
@@ -130,20 +139,8 @@ export const listCommand = async (options: { json?: boolean }) => {
     );
   }
 
-  const upToDate = results.filter((r) => r.status === 'up-to-date').length;
-  const outdated = results.filter(
-    (r) => r.status === 'auto-upgrade' || r.status === 'new-upstream',
-  ).length;
-  const modified = results.filter((r) => r.status === 'user-modified').length;
-  const conflicts = results.filter((r) => r.status === 'conflict').length;
-
-  const parts = [
-    `${results.length} installed`,
-    upToDate > 0 ? `${pc.green(String(upToDate))} up to date` : '',
-    outdated > 0 ? `${pc.blue(String(outdated))} outdated` : '',
-    modified > 0 ? `${pc.yellow(String(modified))} modified` : '',
-    conflicts > 0 ? `${pc.red(String(conflicts))} conflict(s)` : '',
-  ].filter(Boolean);
-
-  p.outro(parts.join(', '));
+  p.outro(
+    `${outdated.length} component(s) need attention. Run ${pc.bold('dolan upgrade')} to apply.`,
+  );
+  process.exit(1);
 };

@@ -13,7 +13,7 @@ export type Lockfile = {
   theme: Record<string, FileEntry>;
 };
 
-const LOCKFILE_NAME = 'blotch.lock.json';
+const LOCKFILE_NAME = 'dolan.lock.json';
 
 export const hashContent = (content: string): string => {
   return createHash('sha256').update(content).digest('hex').slice(0, 16);

@@ -12,11 +12,11 @@ export const ejectCommand = async (
 ) => {
   const cwd = process.cwd();
 
-  p.intro(pc.bold('blotch eject'));
+  p.intro(pc.bold('dolan eject'));
 
   if (!configExists(cwd)) {
     p.log.error(
-      `No ${pc.cyan('blotch.config.json')} found. Run ${pc.bold('blotch init')} first.`,
+      `No ${pc.cyan('dolan.config.json')} found. Run ${pc.bold('dolan init')} first.`,
     );
     process.exit(1);
   }
@@ -63,5 +63,5 @@ export const ejectCommand = async (
   p.log.success(
     `${pc.bold(component)} ejected. Files kept at ${pc.dim(config.aliases.components + '/' + component)}`,
   );
-  p.outro('Component is no longer tracked by blotch.');
+  p.outro('Component is no longer tracked by dolan.');
 };

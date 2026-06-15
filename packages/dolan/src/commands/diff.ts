@@ -30,11 +30,11 @@ const STATUS_SHORT_LABELS: Record<FileStatus, string> = {
 export const diffCommand = async (component?: string) => {
   const cwd = process.cwd();
 
-  p.intro(pc.bold('blotch diff'));
+  p.intro(pc.bold('dolan diff'));
 
   if (!configExists(cwd)) {
     p.log.error(
-      `No ${pc.cyan('blotch.config.json')} found. Run ${pc.bold('blotch init')} first.`,
+      `No ${pc.cyan('dolan.config.json')} found. Run ${pc.bold('dolan init')} first.`,
     );
     process.exit(1);
   }

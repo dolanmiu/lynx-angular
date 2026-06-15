@@ -22,11 +22,11 @@ import {
 export const addCommand = async (components: string[]) => {
   const cwd = process.cwd();
 
-  p.intro(pc.bold('blotch add'));
+  p.intro(pc.bold('dolan add'));
 
   if (!configExists(cwd)) {
     p.log.error(
-      `No ${pc.cyan('blotch.config.json')} found. Run ${pc.bold('blotch init')} first.`,
+      `No ${pc.cyan('dolan.config.json')} found. Run ${pc.bold('dolan init')} first.`,
     );
     process.exit(1);
   }

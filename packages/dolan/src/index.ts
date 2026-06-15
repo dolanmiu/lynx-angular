@@ -16,7 +16,7 @@ import { printBanner } from './utils/banner.js';
 const program = new Command();
 
 program
-  .name('blotch')
+  .name('dolan')
   .description('Add @blotch/ui components to your AngularLynx project')
   .version('0.0.1')
   .action(() => {
@@ -26,7 +26,7 @@ program
 
 program
   .command('init')
-  .description('Initialize blotch in your project')
+  .description('Initialize dolan in your project')
   .action(initCommand);
 
 program

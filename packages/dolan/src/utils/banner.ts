@@ -2,7 +2,7 @@ import cfonts from 'cfonts';
 import pc from 'picocolors';
 
 export const printBanner = (): void => {
-  const rendered = cfonts.render('blotch ui', {
+  const rendered = cfonts.render('dolan', {
     font: 'block',
     colors: ['cyan', 'blue'],
     space: false,

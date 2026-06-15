@@ -59,7 +59,7 @@ describe('removeCommand', () => {
     expect(existsSync(componentDir)).toBe(false);
 
     const lockfile = JSON.parse(
-      readFileSync(join(fixture.dir, 'blotch.lock.json'), 'utf-8'),
+      readFileSync(join(fixture.dir, 'dolan.lock.json'), 'utf-8'),
     );
     expect(lockfile.components.card).toBeUndefined();
   });
@@ -95,7 +95,7 @@ describe('removeCommand', () => {
     expect(existsSync(join(componentsDir, 'spinner'))).toBe(false);
 
     const lockfile = JSON.parse(
-      readFileSync(join(fixture.dir, 'blotch.lock.json'), 'utf-8'),
+      readFileSync(join(fixture.dir, 'dolan.lock.json'), 'utf-8'),
     );
     expect(lockfile.components.button).toBeUndefined();
     expect(lockfile.components.spinner).toBeUndefined();

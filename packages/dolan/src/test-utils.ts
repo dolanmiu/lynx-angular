@@ -2,11 +2,11 @@ import { mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { randomUUID } from 'node:crypto';
-import type { BlotchConfig } from './config';
+import type { DolanConfig } from './config';
 import type { Lockfile } from './lockfile';
 
 export type FixtureOptions = {
-  config?: BlotchConfig;
+  config?: DolanConfig;
   lockfile?: Lockfile;
   components?: Record<string, Record<string, string>>;
   uiSource?: Record<string, Record<string, string>>;
@@ -20,7 +20,7 @@ export type Fixture = {
 };
 
 export const createFixture = (options: FixtureOptions = {}): Fixture => {
-  const dir = join(tmpdir(), `blotch-test-${randomUUID().slice(0, 8)}`);
+  const dir = join(tmpdir(), `dolan-test-${randomUUID().slice(0, 8)}`);
   const uiDir = join(dir, '__ui_source');
 
   mkdirSync(dir, { recursive: true });
@@ -28,7 +28,7 @@ export const createFixture = (options: FixtureOptions = {}): Fixture => {
 
   if (options.config) {
     writeFileSync(
-      join(dir, 'blotch.config.json'),
+      join(dir, 'dolan.config.json'),
       JSON.stringify(options.config, null, 2),
     );
 
@@ -42,7 +42,7 @@ export const createFixture = (options: FixtureOptions = {}): Fixture => {
 
   if (options.lockfile) {
     writeFileSync(
-      join(dir, 'blotch.lock.json'),
+      join(dir, 'dolan.lock.json'),
       JSON.stringify(options.lockfile, null, 2),
     );
   }
@@ -85,7 +85,7 @@ export const createFixture = (options: FixtureOptions = {}): Fixture => {
   };
 };
 
-export const DEFAULT_CONFIG: BlotchConfig = {
+export const DEFAULT_CONFIG: DolanConfig = {
   aliases: {
     components: 'src/components/ui',
     utils: 'src/lib/utils',

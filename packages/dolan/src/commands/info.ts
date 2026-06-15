@@ -7,7 +7,7 @@ import { getEntry, getComponentNames, registry } from '../registry.js';
 import { getComponentFiles } from '../utils/resolve-paths.js';
 
 export const infoCommand = async (component: string) => {
-  p.intro(pc.bold('blotch info'));
+  p.intro(pc.bold('dolan info'));
 
   const entry = getEntry(component);
 

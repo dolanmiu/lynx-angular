@@ -1,5 +1,5 @@
 {
-  "name": "@blotch/cli",
+  "name": "@blotch/dolan",
   "version": "0.0.1",
   "description": "CLI for adding @blotch/ui components to your project",
   "license": "MIT",

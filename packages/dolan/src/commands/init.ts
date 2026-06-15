@@ -10,11 +10,11 @@ export const initCommand = async () => {
   const cwd = process.cwd();
 
   printBanner();
-  p.intro(pc.bold('blotch init'));
+  p.intro(pc.bold('dolan init'));
 
   if (configExists(cwd)) {
     const overwrite = await p.confirm({
-      message: 'blotch.config.json already exists. Overwrite?',
+      message: 'dolan.config.json already exists. Overwrite?',
       initialValue: false,
     });
 
@@ -54,7 +54,7 @@ export const initCommand = async () => {
   );
 
   const s = p.spinner();
-  s.start('Setting up blotch...');
+  s.start('Setting up dolan...');
 
   writeConfig(cwd, {
     aliases: {
@@ -104,7 +104,7 @@ export const initCommand = async () => {
       '',
       `${pc.bold('3.')} Add components:`,
       '',
-      `   ${pc.dim('npx blotch add button card')}`,
+      `   ${pc.dim('npx dolan add button card')}`,
     ].join('\n'),
     'Next steps',
   );

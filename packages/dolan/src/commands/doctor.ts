@@ -2,7 +2,7 @@ import * as p from '@clack/prompts';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import pc from 'picocolors';
-import { configExists, readConfig, type BlotchConfig } from '../config.js';
+import { configExists, readConfig, type DolanConfig } from '../config.js';
 import { getEntry } from '../registry.js';
 import { getComponentFiles } from '../utils/resolve-paths.js';
 
@@ -25,7 +25,7 @@ export const doctorCommand = async () => {
     p.log.error(msg);
   };
 
-  p.intro(pc.bold('blotch doctor'));
+  p.intro(pc.bold('dolan doctor'));
 
   // --- 1. Config ---
 
@@ -74,10 +74,10 @@ const checkConfig = (
   cwd: string,
   pass: (msg: string) => void,
   fail: (msg: string) => void,
-): BlotchConfig | undefined => {
+): DolanConfig | undefined => {
   if (!configExists(cwd)) {
     fail(
-      `${pc.cyan('blotch.config.json')} not found. Run ${pc.bold('blotch init')} first.`,
+      `${pc.cyan('dolan.config.json')} not found. Run ${pc.bold('dolan init')} first.`,
     );
     return undefined;
   }
@@ -100,14 +100,14 @@ const checkConfig = (
     pass('Config is valid');
     return config;
   } catch {
-    fail(`${pc.cyan('blotch.config.json')} is not valid JSON`);
+    fail(`${pc.cyan('dolan.config.json')} is not valid JSON`);
     return undefined;
   }
 };
 
 const checkDirectories = (
   cwd: string,
-  config: BlotchConfig,
+  config: DolanConfig,
   pass: (msg: string) => void,
   fail: (msg: string) => void,
 ) => {
@@ -129,7 +129,7 @@ const checkDirectories = (
 
 const checkRequiredFiles = (
   cwd: string,
-  config: BlotchConfig,
+  config: DolanConfig,
   pass: (msg: string) => void,
   warn: (msg: string) => void,
 ) => {
@@ -236,14 +236,14 @@ const checkPackageDeps = (
     pass(`${pc.cyan('tailwindcss')} found`);
   } else {
     warn(
-      `${pc.cyan('tailwindcss')} not found — required if using blotch UI components`,
+      `${pc.cyan('tailwindcss')} not found — required if using dolan UI components`,
     );
   }
 };
 
 const checkComponentHealth = (
   cwd: string,
-  config: BlotchConfig,
+  config: DolanConfig,
   pass: (msg: string) => void,
   warn: (msg: string) => void,
 ) => {
@@ -266,7 +266,7 @@ const checkComponentHealth = (
   for (const name of installed) {
     const entry = getEntry(name);
     if (!entry) {
-      warn(`${pc.cyan(name)} is not a known blotch component`);
+      warn(`${pc.cyan(name)} is not a known dolan component`);
       allHealthy = false;
       continue;
     }
@@ -294,7 +294,7 @@ const checkComponentHealth = (
     for (const dep of entry.dependencies) {
       if (!installed.includes(dep)) {
         warn(
-          `${pc.cyan(name)} requires ${pc.cyan(dep)} — run ${pc.bold(`blotch add ${dep}`)}`,
+          `${pc.cyan(name)} requires ${pc.cyan(dep)} — run ${pc.bold(`dolan add ${dep}`)}`,
         );
         allHealthy = false;
       }
