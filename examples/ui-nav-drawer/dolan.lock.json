@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "components": {
+    "nav-drawer": {
+      "index.ts": {
+        "hash": "51e43e6d441b7cabc78e27ca31500e45e9fae500fda2268230d862d487f21f33"
+      },
+      "nav-drawer.ts": {
+        "hash": "271b7dfb441d12ac48b6ff87bd1907d4b536a714d2a718bf272a45382f66a1b6"
+      }
+    },
+    "icon": {
+      "icon.ts": {
+        "hash": "e150ab32349c40b29329bb6391534238cbaceb124340abf0deb94147bb632c3f"
+      },
+      "icons.ts": {
+        "hash": "68cb2edf0bfcb40bc9614dc79355bc41a9d55f1b07f9c7449d6dac07de5f6c60"
+      },
+      "index.ts": {
+        "hash": "d175df85291c8009ba7ebfafdd3b9a7cbff30216478ff70160d2525db72ca75d"
+      }
+    },
+    "separator": {
+      "index.ts": {
+        "hash": "38be18254bf078300e603f8609f81d9a3c07183c835fedb0914be6dd493fe9eb"
+      },
+      "separator.ts": {
+        "hash": "47ae5bb34c171c0b0ed38f9faa8427d788e79edf00044ea147520160651db875"
+      }
+    }
+  },
+  "theme": {
+    "default.css": {
+      "hash": "1de0af3e74d0ec13de113e6a50347b3ba66d583c84d86ac46b3ccb1d2b3fb998"
+    },
+    "tailwind-plugin.ts": {
+      "hash": "1884f9902ca4245b933854847ebaaf88b522ae955bf5176b98e11e042bed0434"
+    }
+  }
+}

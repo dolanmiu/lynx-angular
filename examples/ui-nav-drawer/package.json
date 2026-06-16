@@ -12,7 +12,8 @@
     "@angular/compiler": "^21.0.0",
     "@angular/core": "^21.0.0",
     "@angular/platform-browser": "^21.0.0",
-    "@blotch/angular-lynx": "*"
+    "@blotch/angular-lynx": "*",
+    "@blotch/dolan": "*"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^21.0.0",

@@ -61,7 +61,6 @@ export const diffCommand = async (component?: string) => {
   }
 
   const lockfile = getOrCreateLockfile(cwd);
-  const utilsDir = resolve(cwd, config.aliases.utils);
 
   if (component) {
     // Show diff for a specific component
@@ -77,7 +76,7 @@ export const diffCommand = async (component?: string) => {
       process.exit(1);
     }
 
-    showComponentDiff(component, componentsDir, utilsDir, lockfile);
+    showComponentDiff(component, componentsDir, lockfile);
     p.outro('');
     return;
   }
@@ -86,7 +85,7 @@ export const diffCommand = async (component?: string) => {
   const changed: { name: string; status: FileStatus }[] = [];
 
   for (const name of installed) {
-    const analyses = analyzeComponent(name, componentsDir, utilsDir, lockfile);
+    const analyses = analyzeComponent(name, componentsDir, lockfile);
     const overall = summarizeComponent({ name, files: analyses });
     if (overall !== 'up-to-date') {
       changed.push({ name, status: overall });
@@ -127,7 +126,7 @@ export const diffCommand = async (component?: string) => {
     choice === '__all__' ? changed.map((c) => c.name) : [choice as string];
 
   for (const name of toShow) {
-    showComponentDiff(name, componentsDir, utilsDir, lockfile);
+    showComponentDiff(name, componentsDir, lockfile);
   }
 
   p.outro('');
@@ -136,19 +135,18 @@ export const diffCommand = async (component?: string) => {
 const analyzeComponent = (
   name: string,
   componentsDir: string,
-  utilsDir: string,
   lockfile: { components: Record<string, Record<string, { hash: string }>> },
 ): FileAnalysis[] => {
   const srcDir = getComponentSourceDir(name);
-  const destDir = resolve(componentsDir, name);
   const files = getComponentFiles(name);
   const lockedComponent = lockfile.components[name] ?? {};
+  const destDir = resolve(componentsDir, name);
 
   const analyses: FileAnalysis[] = [];
 
   for (const file of files) {
     const srcContent = readFileSync(join(srcDir, file), 'utf-8');
-    const newContent = rewriteImports(srcContent, destDir, utilsDir);
+    const newContent = rewriteImports(srcContent);
     const destPath = join(destDir, file);
 
     const currentContent = existsSync(destPath)
@@ -177,10 +175,9 @@ const analyzeComponent = (
 const showComponentDiff = (
   name: string,
   componentsDir: string,
-  utilsDir: string,
   lockfile: { components: Record<string, Record<string, { hash: string }>> },
 ) => {
-  const analyses = analyzeComponent(name, componentsDir, utilsDir, lockfile);
+  const analyses = analyzeComponent(name, componentsDir, lockfile);
 
   p.log.message(`\n${pc.bold(name)}`);
 

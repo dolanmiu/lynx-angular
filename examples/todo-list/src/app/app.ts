@@ -11,56 +11,70 @@ interface Todo {
   selector: 'app-root',
   imports: [LYNX_ELEMENTS],
   template: `
-    <scroll-view class="container" scroll-orientation="vertical">
-      <text class="title">Todos</text>
-      <text class="subtitle">{{ remaining() }} remaining</text>
+    <scroll-view class="page" scroll-orientation="vertical">
+      <view class="container">
+        <text class="title">Todos</text>
+        <text class="subtitle">{{ remaining() }} remaining</text>
 
-      <view class="input-row">
-        <input
-          class="input"
-          placeholder="What needs to be done?"
-          [value]="draft()"
-          (bindinput)="onInput($event)"
-        />
-        <view class="add-button" (bindtap)="addTodo()">
-          <text class="add-text">Add</text>
-        </view>
-      </view>
-
-      @for (todo of todos(); track todo.id) {
-        <view class="todo-row" (bindtap)="toggle(todo.id)">
-          <text class="checkbox">{{ todo.done ? '✓' : '○' }}</text>
-          <text
-            class="todo-text"
-            [style.color]="todo.done ? '#a0aec0' : '#1a202c'"
-            [style.text-decoration]="todo.done ? 'line-through' : 'none'"
-          >{{ todo.text }}</text>
-          <view class="delete-button" (catchtap)="remove(todo.id)">
-            <text class="delete-text">✕</text>
+        <view class="input-row">
+          <input
+            class="input"
+            placeholder="What needs to be done?"
+            [value]="draft()"
+            (bindinput)="onInput($event)"
+          />
+          <view class="add-btn" (bindtap)="addTodo()">
+            <text class="add-btn-text">Add</text>
           </view>
         </view>
-      } @empty {
-        <view class="empty-state">
-          <text class="empty-text">All done!</text>
-        </view>
-      }
+
+        @for (todo of todos(); track todo.id) {
+          <view class="todo-card" (bindtap)="toggle(todo.id)">
+            <view
+              class="checkbox"
+              [class.checkbox-done]="todo.done"
+            >
+              @if (todo.done) {
+                <text class="check-icon">✓</text>
+              }
+            </view>
+            <text
+              class="todo-text"
+              [class.todo-done]="todo.done"
+            >{{ todo.text }}</text>
+            <view class="delete-btn" (catchtap)="remove(todo.id)">
+              <text class="delete-text">✕</text>
+            </view>
+          </view>
+        } @empty {
+          <view class="empty-card">
+            <text class="empty-icon">🎉</text>
+            <text class="empty-text">All done!</text>
+          </view>
+        }
+      </view>
     </scroll-view>
   `,
   styles: `
-    .container { height: 100vh; padding: 24px 16px; background-color: #f7fafc; }
-    .title { font-size: 32px; font-weight: bold; color: #1a202c; }
-    .subtitle { font-size: 14px; color: #718096; margin-bottom: 16px; }
+    .page { height: 100vh; background-color: #fafafa; }
+    .container { padding: 24px; }
+    .title { font-size: 28px; font-weight: bold; color: #18181b; margin-bottom: 4px; }
+    .subtitle { font-size: 13px; color: #71717a; margin-bottom: 20px; }
     .input-row { display: flex; flex-direction: row; gap: 8px; margin-bottom: 16px; }
-    .input { flex: 1; padding: 12px; font-size: 16px; background-color: white; border-radius: 8px; }
-    .add-button { background-color: #38a169; border-radius: 8px; padding: 12px 20px; justify-content: center; }
-    .add-text { color: white; font-size: 16px; font-weight: bold; }
-    .todo-row { display: flex; flex-direction: row; align-items: center; padding: 14px 12px; background-color: white; border-radius: 8px; margin-bottom: 8px; }
-    .checkbox { font-size: 20px; color: #38a169; margin-right: 12px; width: 24px; }
-    .todo-text { flex: 1; font-size: 16px; }
-    .delete-button { padding: 4px 8px; }
-    .delete-text { font-size: 18px; color: #e53e3e; }
-    .empty-state { padding: 40px; align-items: center; }
-    .empty-text { font-size: 18px; color: #a0aec0; }
+    .input { flex: 1; padding: 12px 14px; font-size: 15px; background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 10px; }
+    .add-btn { background-color: #6366f1; border-radius: 10px; padding: 12px 20px; justify-content: center; align-items: center; }
+    .add-btn-text { color: white; font-size: 15px; font-weight: 600; }
+    .todo-card { display: flex; flex-direction: row; align-items: center; padding: 14px 16px; background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; margin-bottom: 8px; }
+    .checkbox { width: 22px; height: 22px; border-radius: 6px; border: 2px solid #e4e4e7; margin-right: 12px; align-items: center; justify-content: center; }
+    .checkbox-done { background-color: #6366f1; border-color: #6366f1; }
+    .check-icon { font-size: 13px; color: white; font-weight: bold; }
+    .todo-text { flex: 1; font-size: 15px; color: #18181b; }
+    .todo-done { color: #a1a1aa; text-decoration: line-through; }
+    .delete-btn { padding: 4px 8px; }
+    .delete-text { font-size: 16px; color: #ef4444; }
+    .empty-card { background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; padding: 40px; align-items: center; }
+    .empty-icon { font-size: 32px; margin-bottom: 8px; }
+    .empty-text { font-size: 16px; color: #a1a1aa; }
   `,
 })
 export class App {

@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "components": {
+    "tabs": {
+      "index.ts": {
+        "hash": "5805ccb71c5a0b3f024b397cfa625a1c78b7e93a9f3fe5db7e758a0ca34c030b"
+      },
+      "tabs.ts": {
+        "hash": "00dd5436f1dde58d466d21506637c35b0e999041607432a727714a0b2f36ca1f"
+      }
+    },
+    "card": {
+      "card.ts": {
+        "hash": "1ada8d0cc864b12f0e6fdf4a82bfa1e4cf1bf36f8bde2ddbf54d8562176150ad"
+      },
+      "index.ts": {
+        "hash": "2df977d39d77f52492ad42172358733a94ff41f378b83acec5886733f83aa858"
+      }
+    }
+  },
+  "theme": {
+    "default.css": {
+      "hash": "1de0af3e74d0ec13de113e6a50347b3ba66d583c84d86ac46b3ccb1d2b3fb998"
+    },
+    "tailwind-plugin.ts": {
+      "hash": "1884f9902ca4245b933854847ebaaf88b522ae955bf5176b98e11e042bed0434"
+    }
+  }
+}

@@ -9,6 +9,7 @@ import {
   getComponentSourceDir,
   rewriteImports,
 } from '../utils/resolve-paths.js';
+
 import { getOrCreateLockfile, hashContent } from '../lockfile.js';
 import {
   analyzeFile,
@@ -74,13 +75,11 @@ export const outdatedCommand = async (options: { json?: boolean }) => {
   }
 
   const lockfile = getOrCreateLockfile(cwd);
-  const utilsDir = resolve(cwd, config.aliases.utils);
 
   const outdated: { name: string; status: FileStatus; fileCount: number }[] =
     [];
 
   for (const name of installed) {
-    const srcDir = getComponentSourceDir(name);
     const destDir = resolve(componentsDir, name);
     const files = getComponentFiles(name);
     const lockedComponent = lockfile.components[name] ?? {};
@@ -88,8 +87,11 @@ export const outdatedCommand = async (options: { json?: boolean }) => {
     const fileAnalyses: FileAnalysis[] = [];
 
     for (const file of files) {
-      const srcContent = readFileSync(join(srcDir, file), 'utf-8');
-      const newContent = rewriteImports(srcContent, destDir, utilsDir);
+      const srcContent = readFileSync(
+        join(getComponentSourceDir(name), file),
+        'utf-8',
+      );
+      const newContent = rewriteImports(srcContent);
       const destPath = join(destDir, file);
 
       const currentContent = existsSync(destPath)

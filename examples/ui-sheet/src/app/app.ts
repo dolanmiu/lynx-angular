@@ -6,8 +6,8 @@ import {
   UiSheetTitle,
   UiSheetDescription,
   UiSheetFooter,
-} from '@blotch/ui/components/sheet';
-import { UiButton } from '@blotch/ui/components/button';
+} from '../components/ui/sheet';
+import { UiButton } from '../components/ui/button';
 
 @Component({
   selector: 'app-root',

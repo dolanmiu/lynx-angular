@@ -113,7 +113,6 @@ const checkDirectories = (
 ) => {
   const dirs = [
     { key: 'components', path: config.aliases.components },
-    { key: 'utils', path: config.aliases.utils },
     { key: 'theme', path: config.aliases.theme },
   ] as const;
 
@@ -133,14 +132,7 @@ const checkRequiredFiles = (
   pass: (msg: string) => void,
   warn: (msg: string) => void,
 ) => {
-  const utilsDir = resolve(cwd, config.aliases.utils);
   const themeDir = resolve(cwd, config.aliases.theme);
-
-  if (existsSync(join(utilsDir, 'cn.ts'))) {
-    pass(`${pc.cyan('cn.ts')} found in utils`);
-  } else {
-    warn(`${pc.cyan('cn.ts')} missing from ${pc.dim(config.aliases.utils)}`);
-  }
 
   if (existsSync(join(themeDir, 'tailwind-plugin.ts'))) {
     pass(`${pc.cyan('tailwind-plugin.ts')} found in theme`);

@@ -104,14 +104,14 @@ export class UiPagination {
 
   protected navButtonClass(disabled: boolean): string {
     return cn(
-      'flex items-center justify-center w-8 h-8 rounded-md',
-      disabled ? 'opacity-50' : 'active:opacity-80',
+      'flex items-center justify-center w-10 h-10 rounded-md',
+      disabled && 'opacity-50',
     );
   }
 
   protected pageButtonClass(active: boolean): string {
     return cn(
-      'flex items-center justify-center w-8 h-8 rounded-md active:opacity-80',
+      'flex items-center justify-center w-10 h-10 rounded-md',
       active ? 'bg-primary' : 'bg-transparent',
     );
   }

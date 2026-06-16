@@ -7,6 +7,10 @@
     "blotch": "./dist/index.js"
   },
   "type": "module",
+  "exports": {
+    "./utils/cn": "./src/utils/cn.ts",
+    "./utils/animate": "./src/utils/animate.ts"
+  },
   "scripts": {
     "build": "tsc",
     "test": "vitest run",
@@ -20,9 +24,11 @@
   "dependencies": {
     "@clack/prompts": "^0.10.0",
     "cfonts": "^3.3.1",
+    "clsx": "^2.1.0",
     "commander": "^13.0.0",
     "diff": "^7.0.0",
-    "picocolors": "^1.1.0"
+    "picocolors": "^1.1.0",
+    "tailwind-merge": "^3.0.0"
   },
   "devDependencies": {
     "@types/diff": "^7.0.2",

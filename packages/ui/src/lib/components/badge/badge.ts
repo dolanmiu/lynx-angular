@@ -1,7 +1,16 @@
-import { Component, ViewEncapsulation, computed, input } from '@angular/core';
+import type { ElementRef } from '@angular/core';
+import {
+  Component,
+  ViewEncapsulation,
+  computed,
+  effect,
+  input,
+  viewChild,
+} from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 import { cva, type VariantProps } from 'class-variance-authority';
 
+import { popIn } from '../../utils/animate';
 import { cn } from '../../utils/cn';
 
 export const badgeVariants = cva(
@@ -45,14 +54,27 @@ export type BadgeVariant = NonNullable<
   imports: [LYNX_ELEMENTS],
   encapsulation: ViewEncapsulation.None,
   template: `
-    <view [class]="containerClass()">
+    <view #container [class]="containerClass()">
       <text [class]="labelClass()"><ng-content /></text>
     </view>
   `,
 })
 export class UiBadge {
   readonly variant = input<BadgeVariant>('default');
+  /** When true, badge pops in with a spring animation on first render */
+  readonly animated = input(true);
   readonly userClass = input<string>('', { alias: 'class' });
+
+  readonly containerRef = viewChild<ElementRef>('container');
+
+  constructor() {
+    effect(() => {
+      const el = this.containerRef()?.nativeElement;
+      if (el && this.animated()) {
+        popIn(el, { duration: 200 });
+      }
+    });
+  }
 
   protected readonly containerClass = computed(() =>
     cn(badgeVariants({ variant: this.variant() }), this.userClass()),

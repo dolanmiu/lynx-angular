@@ -1,18 +1,25 @@
+import type { ElementRef } from '@angular/core';
 import {
   Component,
   ViewEncapsulation,
   computed,
   input,
   output,
+  viewChild,
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 import { cva, type VariantProps } from 'class-variance-authority';
 
+import {
+  type AnimationHandle,
+  pressDown,
+  pressRelease,
+} from '../../utils/animate';
 import { cn } from '../../utils/cn';
 import { UiSpinner } from '../spinner/spinner';
 
 export const buttonVariants = cva(
-  'flex items-center justify-center rounded-md active:opacity-80',
+  'flex items-center justify-center rounded-md',
   {
     variants: {
       variant: {
@@ -71,7 +78,14 @@ export type ButtonSize = NonNullable<
   imports: [LYNX_ELEMENTS, UiSpinner],
   encapsulation: ViewEncapsulation.None,
   template: `
-    <view [class]="containerClass()" (bindtap)="onTap()">
+    <view
+      #container
+      [class]="containerClass()"
+      (bindtouchstart)="onPressStart()"
+      (bindtouchend)="onPressEnd()"
+      (bindtouchcancel)="onPressCancel()"
+      (bindtap)="onTap()"
+    >
       @if (loading()) {
         <ui-spinner [size]="spinnerSize()" />
       } @else {
@@ -89,10 +103,13 @@ export class UiButton {
 
   readonly pressed = output<void>();
 
+  readonly containerRef = viewChild<ElementRef>('container');
+  #pressAnim?: AnimationHandle;
+
   protected readonly containerClass = computed(() =>
     cn(
       buttonVariants({ variant: this.variant(), size: this.size() }),
-      (this.disabled() || this.loading()) && 'opacity-50 active:opacity-50',
+      (this.disabled() || this.loading()) && 'opacity-50',
       this.userClass(),
     ),
   );
@@ -105,6 +122,23 @@ export class UiButton {
     const s = this.size();
     return s === 'sm' ? ('xs' as const) : ('sm' as const);
   });
+
+  protected onPressStart(): void {
+    if (this.disabled() || this.loading()) return;
+    this.#pressAnim?.cancel();
+    this.#pressAnim = pressDown(this.containerRef()?.nativeElement);
+  }
+
+  protected onPressEnd(): void {
+    if (this.disabled() || this.loading()) return;
+    this.#pressAnim?.cancel();
+    this.#pressAnim = pressRelease(this.containerRef()?.nativeElement);
+  }
+
+  protected onPressCancel(): void {
+    this.#pressAnim?.cancel();
+    this.#pressAnim = pressRelease(this.containerRef()?.nativeElement);
+  }
 
   protected onTap(): void {
     if (!this.disabled() && !this.loading()) {

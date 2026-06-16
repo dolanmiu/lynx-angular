@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
-import { UiAlert } from '@blotch/ui/components/alert';
+import { UiAlert } from '../components/ui/alert';
 
 @Component({
   selector: 'app-root',

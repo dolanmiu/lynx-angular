@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
-import { UiInput } from '@blotch/ui/components/input';
+import { UiInput } from '../components/ui/input';
 
 @Component({
   selector: 'app-root',

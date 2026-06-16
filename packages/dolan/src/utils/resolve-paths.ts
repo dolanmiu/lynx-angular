@@ -1,4 +1,4 @@
-import { relative, resolve, join } from 'node:path';
+import { resolve, join } from 'node:path';
 import { readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
@@ -16,20 +16,11 @@ export const getComponentFiles = (componentName: string): string[] => {
   return readdirSync(dir).filter((f) => f.endsWith('.ts'));
 };
 
-export const rewriteImports = (
-  fileContent: string,
-  componentDestDir: string,
-  utilsDir: string,
-): string => {
+export const rewriteImports = (fileContent: string): string => {
   return fileContent.replace(
-    /from\s+['"](\.\.\/.*)['"];?/g,
-    (match, importPath: string) => {
-      if (importPath.includes('utils/cn')) {
-        const rel = relative(componentDestDir, utilsDir);
-        const cnPath = join(rel, 'cn').replace(/\\/g, '/');
-        return `from '${cnPath}';`;
-      }
-      return match;
+    /from\s+['"]\.\.\/\.\.\/utils\/([^'"]+)['"];?/g,
+    (_match, utilName: string) => {
+      return `from '@blotch/dolan/utils/${utilName}';`;
     },
   );
 };

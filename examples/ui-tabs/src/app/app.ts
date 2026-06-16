@@ -5,14 +5,14 @@ import {
   UiTabsList,
   UiTabsTrigger,
   UiTabsContent,
-} from '@blotch/ui/components/tabs';
+} from '../components/ui/tabs';
 import {
   UiCard,
   UiCardHeader,
   UiCardTitle,
   UiCardDescription,
   UiCardContent,
-} from '@blotch/ui/components/card';
+} from '../components/ui/card';
 
 @Component({
   selector: 'app-root',

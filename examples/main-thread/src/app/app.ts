@@ -26,7 +26,7 @@ const handleTap = mainThreadFn((event: MainThread.TouchEvent) => {
   const el = event.currentTarget;
   tapCount.current++;
 
-  const colors = ['#6200ee', '#03dac6', '#ff5722', '#4caf50', '#ff9800'];
+  const colors = ['#6366f1', '#22c55e', '#f97316', '#3b82f6', '#ef4444'];
   const color = colors[tapCount.current % colors.length]!;
   el.setStyleProperty('background-color', color);
 
@@ -48,55 +48,57 @@ const handleTouchEnd = mainThreadFn((event: MainThread.TouchEvent) => {
 @Component({
   selector: 'app-root',
   template: `
-    <scroll-view scroll-orientation="vertical" style="height: 100%;">
-      <view style="padding: 24px;">
-        <text style="font-size: 20px; font-weight: bold; margin-bottom: 16px;">
-          Main Thread Scripts
-        </text>
+    <scroll-view class="page" scroll-orientation="vertical">
+      <view class="container">
+        <text class="title">Main Thread Scripts</text>
+        <text class="subtitle">Zero-latency UI updates via main-thread execution.</text>
 
-        <text style="font-size: 14px; font-weight: bold; margin-bottom: 8px;">
-          Instant Color Change (mainThreadFn + MainThreadRef)
-        </text>
-        <view
-          [mainThreadBindtap]="handleTap"
-          style="height: 100px; background-color: #6200ee; border-radius: 12px;
-                 justify-content: center; align-items: center;"
-        >
-          <text style="color: white; font-size: 16px;">Tap to change color</text>
+        <view class="card">
+          <text class="section-label">Instant Color Change</text>
+          <text class="hint">mainThreadFn + MainThreadRef</text>
+          <view
+            [mainThreadBindtap]="handleTap"
+            class="demo-box color-box"
+          >
+            <text class="demo-text">Tap to change color</text>
+          </view>
         </view>
 
-        <text
-          style="font-size: 14px; font-weight: bold; margin-top: 16px; margin-bottom: 8px;"
-        >
-          Touch Tracking (mainThreadFn)
-        </text>
-        <view
-          [mainThreadBindtouchmove]="handleTouchMove"
-          [mainThreadBindtouchend]="handleTouchEnd"
-          style="height: 100px; background-color: #1976d2; border-radius: 12px;
-                 justify-content: center; align-items: center;"
-        >
-          <text style="color: white; font-size: 16px;">
-            Drag to change opacity
-          </text>
+        <view class="card">
+          <text class="section-label">Touch Tracking</text>
+          <text class="hint">mainThreadFn</text>
+          <view
+            [mainThreadBindtouchmove]="handleTouchMove"
+            [mainThreadBindtouchend]="handleTouchEnd"
+            class="demo-box touch-box"
+          >
+            <text class="demo-text">Drag to change opacity</text>
+          </view>
         </view>
 
-        <text
-          style="font-size: 14px; font-weight: bold; margin-top: 16px; margin-bottom: 8px;"
-        >
-          Background Thread Comparison
-        </text>
-        <view
-          (bindtap)="onBgTap()"
-          style="height: 80px; background-color: #757575; border-radius: 12px;
-                 justify-content: center; align-items: center;"
-        >
-          <text style="color: white; font-size: 16px;">
-            Background taps: {{ bgTapCount() }}
-          </text>
+        <view class="card">
+          <text class="section-label">Background Thread</text>
+          <text class="hint">For comparison — round-trip latency</text>
+          <view (bindtap)="onBgTap()" class="demo-box bg-box">
+            <text class="demo-text">Background taps: {{ bgTapCount() }}</text>
+          </view>
         </view>
       </view>
     </scroll-view>
+  `,
+  styles: `
+    .page { height: 100%; background-color: #fafafa; }
+    .container { padding: 24px; }
+    .title { font-size: 28px; font-weight: bold; color: #18181b; margin-bottom: 4px; }
+    .subtitle { font-size: 13px; color: #71717a; margin-bottom: 20px; }
+    .card { background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+    .section-label { font-size: 11px; font-weight: 700; color: #a1a1aa; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .hint { font-size: 12px; color: #a1a1aa; margin-bottom: 12px; }
+    .demo-box { height: 80px; border-radius: 10px; justify-content: center; align-items: center; }
+    .demo-text { color: white; font-size: 15px; font-weight: 500; }
+    .color-box { background-color: #6366f1; }
+    .touch-box { background-color: #3b82f6; }
+    .bg-box { background-color: #71717a; }
   `,
   imports: [LYNX_ELEMENTS, LynxMainThreadEvent],
 })

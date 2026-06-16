@@ -1,13 +1,17 @@
+import type { ElementRef } from '@angular/core';
 import {
   Component,
   ViewEncapsulation,
   computed,
+  effect,
   input,
   model,
   output,
+  viewChild,
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
+import { type AnimationHandle, popIn, popOut } from '../../utils/animate';
 import { cn } from '../../utils/cn';
 
 @Component({
@@ -16,10 +20,18 @@ import { cn } from '../../utils/cn';
   imports: [LYNX_ELEMENTS],
   encapsulation: ViewEncapsulation.None,
   template: `
-    <view [class]="boxClass()" (bindtap)="toggle()">
-      @if (checked()) {
-        <text [class]="checkClass()">✓</text>
-      }
+    <view
+      class="flex items-center justify-center h-11 w-11"
+      (bindtap)="toggle()"
+    >
+      <view [class]="boxClass()">
+        <text
+          #checkmark
+          [class]="checkClass()"
+          [style]="checked() ? 'opacity: 1;' : 'opacity: 0;'"
+          >✓</text
+        >
+      </view>
     </view>
   `,
 })
@@ -30,13 +42,34 @@ export class UiCheckbox {
 
   readonly changed = output<boolean>();
 
+  readonly checkmarkRef = viewChild<ElementRef>('checkmark');
+  #checkAnim?: AnimationHandle;
+  #previousChecked?: boolean;
+
+  constructor() {
+    // Animate the checkmark on state transitions (skip initial render)
+    effect(() => {
+      const isChecked = this.checked();
+      const el = this.checkmarkRef()?.nativeElement;
+      if (!el || this.#previousChecked === undefined) {
+        this.#previousChecked = isChecked;
+        return;
+      }
+      if (isChecked === this.#previousChecked) return;
+      this.#previousChecked = isChecked;
+
+      this.#checkAnim?.cancel();
+      this.#checkAnim = isChecked ? popIn(el) : popOut(el);
+    });
+  }
+
   protected readonly boxClass = computed(() =>
     cn(
-      'flex items-center justify-center h-4 w-4 rounded-sm border active:opacity-80',
+      'flex items-center justify-center h-5 w-5 rounded-sm border',
       this.checked()
         ? 'bg-primary border-primary'
         : 'border-primary bg-transparent',
-      this.disabled() && 'opacity-50 active:opacity-50',
+      this.disabled() && 'opacity-50',
       this.userClass(),
     ),
   );

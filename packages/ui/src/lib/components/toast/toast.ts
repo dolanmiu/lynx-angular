@@ -9,11 +9,9 @@ import {
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
+import { type AnimationHandle, DURATION, EASING } from '../../utils/animate';
 import { cn } from '../../utils/cn';
 import { type ToastData, toasts } from './toast-state';
-
-const ANIM_DURATION_IN = 300;
-const ANIM_DURATION_OUT = 200;
 
 @Component({
   selector: 'ui-toaster',
@@ -21,10 +19,7 @@ const ANIM_DURATION_OUT = 200;
   imports: [LYNX_ELEMENTS],
   encapsulation: ViewEncapsulation.None,
   template: `
-    <overlay
-      [attr.visible]="overlayVisible()"
-      style="position: fixed; overflow: visible;"
-    >
+    <overlay [attr.visible]="overlayVisible()" [style]="overlayStyle()">
       <view
         style="position: absolute; bottom: 0; left: 0; right: 0;"
         class="flex flex-col items-center p-4"
@@ -53,9 +48,14 @@ const ANIM_DURATION_OUT = 200;
 export class UiToaster {
   protected readonly displayedToast = signal<ToastData | null>(null);
   protected readonly overlayVisible = signal(false);
+  protected readonly overlayStyle = computed(() =>
+    this.overlayVisible()
+      ? 'position: fixed; overflow: visible;'
+      : 'position: fixed; overflow: visible; display: none;',
+  );
 
   readonly toastElRef = viewChild<ElementRef>('toastEl');
-  #toastAnim?: { cancel(): void };
+  #toastAnim?: AnimationHandle;
   #dismissTimer: ReturnType<typeof setTimeout> | null = null;
   #isProcessing = false;
 
@@ -126,7 +126,7 @@ export class UiToaster {
       this.displayedToast.set(null);
       this.#isProcessing = false;
       this.#processQueue();
-    }, ANIM_DURATION_OUT + 20);
+    }, DURATION.fast + 20);
   }
 
   protected onAction(): void {
@@ -163,14 +163,15 @@ export class UiToaster {
     if (!el) return;
 
     this.#toastAnim?.cancel();
+    // Spring entrance — slide up with scale for a polished feel
     this.#toastAnim = el.animate(
       [
-        { transform: 'translateY(100%)', opacity: 0 },
-        { transform: 'translateY(0%)', opacity: 1 },
+        { transform: 'translateY(100%) scale(0.95)', opacity: 0 },
+        { transform: 'translateY(0%) scale(1)', opacity: 1 },
       ],
       {
-        duration: ANIM_DURATION_IN,
-        easing: 'cubic-bezier(0.32, 0.72, 0, 1)',
+        duration: DURATION.slow,
+        easing: EASING.spring,
         fill: 'forwards',
       },
     );
@@ -181,12 +182,13 @@ export class UiToaster {
     if (!el) return;
 
     this.#toastAnim?.cancel();
+    // Fast exit — slide down with opacity
     this.#toastAnim = el.animate(
       [
-        { transform: 'translateY(0%)', opacity: 1 },
-        { transform: 'translateY(100%)', opacity: 0 },
+        { transform: 'translateY(0%) scale(1)', opacity: 1 },
+        { transform: 'translateY(50%) scale(0.95)', opacity: 0 },
       ],
-      { duration: ANIM_DURATION_OUT, easing: 'ease-in', fill: 'forwards' },
+      { duration: DURATION.fast, easing: EASING.accelerate, fill: 'forwards' },
     );
   }
 }

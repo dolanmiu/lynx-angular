@@ -1,19 +1,19 @@
 import { Component, computed, signal } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
-import { UiAvatar } from '@blotch/ui/components/avatar';
-import { UiInput } from '@blotch/ui/components/input';
-import { UiSeparator } from '@blotch/ui/components/separator';
-import { UiDialog, UiDialogHeader, UiDialogTitle, UiDialogFooter } from '@blotch/ui/components/dialog';
+import { UiAvatar } from '../components/ui/avatar';
+import { UiInput } from '../components/ui/input';
+import { UiSeparator } from '../components/ui/separator';
+import { UiDialog, UiDialogHeader, UiDialogTitle, UiDialogFooter } from '../components/ui/dialog';
 import {
   UiAlertDialog,
   UiAlertDialogHeader,
   UiAlertDialogTitle,
   UiAlertDialogDescription,
   UiAlertDialogFooter,
-} from '@blotch/ui/components/alert-dialog';
-import { UiButton } from '@blotch/ui/components/button';
-import { UiEmptyState } from '@blotch/ui/components/empty-state';
-import { UiLabel } from '@blotch/ui/components/label';
+} from '../components/ui/alert-dialog';
+import { UiButton } from '../components/ui/button';
+import { UiEmptyState } from '../components/ui/empty-state';
+import { UiLabel } from '../components/ui/label';
 
 interface Contact {
   id: number;
@@ -33,33 +33,33 @@ interface Contact {
     UiButton, UiEmptyState, UiLabel,
   ],
   template: `
-    <view class="flex flex-col h-full">
-      <view class="flex flex-row items-center justify-between p-4 border-b border-border">
-        <text class="text-xl font-bold text-foreground">Contacts</text>
-        <ui-button size="sm" (tap)="openAdd()">+ Add</ui-button>
+    <view class="page">
+      <view class="header">
+        <text class="title">Contacts</text>
+        <ui-button size="sm" (pressed)="openAdd()">+ Add</ui-button>
       </view>
 
-      <view class="px-4 pt-3 pb-2">
+      <view class="search-bar">
         <ui-input [value]="query()" (valueChange)="query.set($event)" placeholder="Search contacts..." />
       </view>
 
-      <scroll-view scroll-orientation="vertical" class="flex-1">
+      <scroll-view scroll-orientation="vertical" class="list">
         @if (grouped().length === 0) {
-          <view class="p-6">
+          <view class="empty-container">
             <ui-empty-state title="No contacts" description="Add your first contact above." />
           </view>
         }
         @for (group of grouped(); track group.letter) {
-          <view class="flex flex-col">
-            <view class="px-4 py-1 bg-muted">
-              <text class="text-xs font-bold text-muted-foreground">{{ group.letter }}</text>
+          <view class="group">
+            <view class="section-header">
+              <text class="section-letter">{{ group.letter }}</text>
             </view>
             @for (contact of group.contacts; track contact.id; let last = $last) {
-              <view class="flex flex-row items-center gap-3 px-4 py-3" (bindtap)="viewContact(contact)">
+              <view class="contact-row" (bindtap)="viewContact(contact)">
                 <ui-avatar size="sm" src="" [fallback]="initials(contact.name)" />
-                <view class="flex flex-col gap-0.5 flex-1">
-                  <text class="text-sm font-medium text-foreground">{{ contact.name }}</text>
-                  <text class="text-xs text-muted-foreground">{{ contact.phone }}</text>
+                <view class="contact-info">
+                  <text class="contact-name">{{ contact.name }}</text>
+                  <text class="contact-phone">{{ contact.phone }}</text>
                 </view>
               </view>
               @if (!last) {
@@ -74,47 +74,47 @@ interface Contact {
     @if (selected()) {
       <ui-dialog [(open)]="viewOpen">
         <ui-dialog-header>
-          <view class="flex flex-col items-center gap-2 pb-2">
+          <view class="dialog-profile">
             <ui-avatar size="lg" src="" [fallback]="initials(selected()!.name)" />
             <ui-dialog-title>{{ selected()!.name }}</ui-dialog-title>
           </view>
         </ui-dialog-header>
-        <view class="flex flex-col gap-3 p-4">
-          <view class="flex flex-col gap-0.5">
-            <text class="text-xs text-muted-foreground">Phone</text>
-            <text class="text-sm text-foreground">{{ selected()!.phone }}</text>
+        <view class="dialog-details">
+          <view class="detail-field">
+            <text class="detail-label">Phone</text>
+            <text class="detail-value">{{ selected()!.phone }}</text>
           </view>
-          <view class="flex flex-col gap-0.5">
-            <text class="text-xs text-muted-foreground">Email</text>
-            <text class="text-sm text-foreground">{{ selected()!.email }}</text>
+          <view class="detail-field">
+            <text class="detail-label">Email</text>
+            <text class="detail-value">{{ selected()!.email }}</text>
           </view>
         </view>
         <ui-dialog-footer>
-          <ui-button variant="destructive" (tap)="confirmDelete()">Delete</ui-button>
-          <ui-button (tap)="viewOpen.set(false)">Close</ui-button>
+          <ui-button variant="destructive" (pressed)="confirmDelete()">Delete</ui-button>
+          <ui-button (pressed)="viewOpen.set(false)">Close</ui-button>
         </ui-dialog-footer>
       </ui-dialog>
     }
 
     <ui-dialog [(open)]="addOpen">
       <ui-dialog-header><ui-dialog-title>New Contact</ui-dialog-title></ui-dialog-header>
-      <view class="flex flex-col gap-3 p-4">
-        <view class="flex flex-col gap-1.5">
+      <view class="dialog-form">
+        <view class="field">
           <ui-label>Name</ui-label>
           <ui-input [(value)]="newName" placeholder="Full name" />
         </view>
-        <view class="flex flex-col gap-1.5">
+        <view class="field">
           <ui-label>Phone</ui-label>
           <ui-input [(value)]="newPhone" placeholder="+1 555 0100" />
         </view>
-        <view class="flex flex-col gap-1.5">
+        <view class="field">
           <ui-label>Email</ui-label>
           <ui-input [(value)]="newEmail" placeholder="name@example.com" />
         </view>
       </view>
       <ui-dialog-footer>
-        <ui-button variant="outline" (tap)="addOpen.set(false)">Cancel</ui-button>
-        <ui-button (tap)="addContact()">Save</ui-button>
+        <ui-button variant="outline" (pressed)="addOpen.set(false)">Cancel</ui-button>
+        <ui-button (pressed)="addContact()">Save</ui-button>
       </ui-dialog-footer>
     </ui-dialog>
 
@@ -126,10 +126,32 @@ interface Contact {
         </ui-alert-dialog-description>
       </ui-alert-dialog-header>
       <ui-alert-dialog-footer>
-        <ui-button variant="outline" (tap)="deleteOpen.set(false)">Cancel</ui-button>
-        <ui-button variant="destructive" (tap)="deleteContact()">Delete</ui-button>
+        <ui-button variant="outline" (pressed)="deleteOpen.set(false)">Cancel</ui-button>
+        <ui-button variant="destructive" (pressed)="deleteContact()">Delete</ui-button>
       </ui-alert-dialog-footer>
     </ui-alert-dialog>
+  `,
+  styles: `
+    .page { display: flex; flex-direction: column; height: 100vh; background-color: #fafafa; }
+    .header { display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 16px 20px; background-color: #ffffff; border-bottom: 1px solid #e4e4e7; }
+    .title { font-size: 22px; font-weight: bold; color: #18181b; }
+    .search-bar { padding: 12px 16px 8px 16px; }
+    .list { flex: 1; }
+    .empty-container { padding: 24px; }
+    .group { display: flex; flex-direction: column; }
+    .section-header { padding: 6px 16px; background-color: #f4f4f5; }
+    .section-letter { font-size: 12px; font-weight: bold; color: #a1a1aa; }
+    .contact-row { display: flex; flex-direction: row; align-items: center; gap: 12px; padding: 12px 16px; }
+    .contact-info { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+    .contact-name { font-size: 15px; font-weight: 500; color: #18181b; }
+    .contact-phone { font-size: 12px; color: #a1a1aa; }
+    .dialog-profile { display: flex; flex-direction: column; align-items: center; gap: 10px; padding-bottom: 8px; }
+    .dialog-details { display: flex; flex-direction: column; gap: 14px; padding: 16px; }
+    .detail-field { display: flex; flex-direction: column; gap: 2px; }
+    .detail-label { font-size: 12px; color: #a1a1aa; }
+    .detail-value { font-size: 14px; color: #18181b; }
+    .dialog-form { display: flex; flex-direction: column; gap: 14px; padding: 16px; }
+    .field { display: flex; flex-direction: column; gap: 6px; }
   `,
 })
 export class App {

@@ -6,8 +6,8 @@ import {
   UiDialogTitle,
   UiDialogDescription,
   UiDialogFooter,
-} from '@blotch/ui/components/dialog';
-import { UiButton } from '@blotch/ui/components/button';
+} from '../components/ui/dialog';
+import { UiButton } from '../components/ui/button';
 
 @Component({
   selector: 'app-root',

@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
+import { type AnimationHandle, revealIn } from '../../utils/animate';
 import { cn } from '../../utils/cn';
 
 @Component({
@@ -57,7 +58,7 @@ export class UiCollapsibleTrigger {
 
   protected readonly triggerClass = computed(() =>
     cn(
-      'flex flex-row items-center active:opacity-80',
+      'flex flex-row items-center',
       this.#collapsible.disabled() && 'opacity-50',
       this.userClass(),
     ),
@@ -86,16 +87,14 @@ export class UiCollapsibleContent {
   readonly userClass = input<string>('', { alias: 'class' });
 
   readonly contentRef = viewChild<ElementRef>('content');
+  #anim?: AnimationHandle;
 
   constructor() {
     effect(() => {
       const el = this.contentRef()?.nativeElement;
       if (el && this.collapsible.open()) {
-        el.animate([{ opacity: 0 }, { opacity: 1 }], {
-          duration: 200,
-          easing: 'ease-out',
-          fill: 'forwards',
-        });
+        this.#anim?.cancel();
+        this.#anim = revealIn(el, { fromY: -8 });
       }
     });
   }

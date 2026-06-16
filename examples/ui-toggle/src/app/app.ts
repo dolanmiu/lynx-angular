@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
-import { UiToggle, UiToggleGroup, UiToggleGroupItem } from '@blotch/ui/components/toggle';
-import { UiLabel } from '@blotch/ui/components/label';
+import { UiToggle, UiToggleGroup, UiToggleGroupItem } from '../components/ui/toggle';
+import { UiLabel } from '../components/ui/label';
 
 @Component({
   selector: 'app-root',

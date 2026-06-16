@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
-import { UiCollapsible, UiCollapsibleTrigger, UiCollapsibleContent } from '@blotch/ui/components/collapsible';
+import { UiCollapsible, UiCollapsibleTrigger, UiCollapsibleContent } from '../components/ui/collapsible';
 
 @Component({
   selector: 'app-root',

@@ -4,8 +4,8 @@ import { resolve } from 'node:path';
 export type DolanConfig = {
   aliases: {
     components: string;
-    utils: string;
     theme: string;
+    utils?: string;
   };
 };
 

@@ -36,7 +36,9 @@ export const createFixture = (options: FixtureOptions = {}): Fixture => {
     mkdirSync(join(dir, options.config.aliases.components), {
       recursive: true,
     });
-    mkdirSync(join(dir, options.config.aliases.utils), { recursive: true });
+    if (options.config.aliases.utils) {
+      mkdirSync(join(dir, options.config.aliases.utils), { recursive: true });
+    }
     mkdirSync(join(dir, options.config.aliases.theme), { recursive: true });
   }
 

@@ -13,11 +13,20 @@ import {
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
+import {
+  type AnimationHandle,
+  DURATION,
+  EASING,
+  SCALE,
+  fadeIn,
+  fadeOut,
+  pressDown,
+  pressRelease,
+  slideIn,
+  slideOut,
+} from '../../utils/animate';
 import { cn } from '../../utils/cn';
 import { UiIcon } from '../icon';
-
-const ANIM_DURATION_IN = 300;
-const ANIM_DURATION_OUT = 200;
 
 @Component({
   selector: 'ui-nav-drawer',
@@ -25,10 +34,7 @@ const ANIM_DURATION_OUT = 200;
   imports: [LYNX_ELEMENTS],
   encapsulation: ViewEncapsulation.None,
   template: `
-    <overlay
-      [attr.visible]="overlayVisible()"
-      style="position: fixed; overflow: visible;"
-    >
+    <overlay [attr.visible]="overlayVisible()" [style]="overlayStyle()">
       <view #backdrop class="w-full h-full" (bindtap)="onBackdropTap()">
         <view
           #panel
@@ -50,11 +56,16 @@ export class UiNavDrawer {
   readonly closed = output<void>();
 
   protected readonly overlayVisible = signal(false);
+  protected readonly overlayStyle = computed(() =>
+    this.overlayVisible()
+      ? 'position: fixed; overflow: visible;'
+      : 'position: fixed; overflow: visible; display: none;',
+  );
 
   readonly backdropRef = viewChild<ElementRef>('backdrop');
   readonly panelRef = viewChild<ElementRef>('panel');
-  #backdropAnim?: { cancel(): void };
-  #panelAnim?: { cancel(): void };
+  #backdropAnim?: AnimationHandle;
+  #panelAnim?: AnimationHandle;
   #hasBeenOpen = false;
 
   constructor() {
@@ -107,7 +118,7 @@ export class UiNavDrawer {
       setTimeout(() => {
         this.overlayVisible.set(false);
         this.closed.emit();
-      }, ANIM_DURATION_OUT + 20);
+      }, DURATION.normal + 20);
     }, 0);
   }
 
@@ -119,24 +130,12 @@ export class UiNavDrawer {
     this.#backdropAnim?.cancel();
     this.#panelAnim?.cancel();
 
-    this.#backdropAnim = backdrop.animate([{ opacity: 0 }, { opacity: 1 }], {
-      duration: 250,
-      easing: 'ease-out',
-      fill: 'forwards',
+    this.#backdropAnim = fadeIn(backdrop, { duration: DURATION.normal });
+    const direction = this.side() === 'left' ? 'left' : 'right';
+    this.#panelAnim = slideIn(panel, direction, {
+      duration: DURATION.slow,
+      easing: EASING.sheet,
     });
-
-    const offscreen = this.side() === 'left' ? '-100%' : '100%';
-    this.#panelAnim = panel.animate(
-      [
-        { transform: `translateX(${offscreen})` },
-        { transform: 'translateX(0%)' },
-      ],
-      {
-        duration: ANIM_DURATION_IN,
-        easing: 'cubic-bezier(0.32, 0.72, 0, 1)',
-        fill: 'forwards',
-      },
-    );
   }
 
   #animateOut(): void {
@@ -147,20 +146,12 @@ export class UiNavDrawer {
     this.#backdropAnim?.cancel();
     this.#panelAnim?.cancel();
 
-    this.#backdropAnim = backdrop.animate([{ opacity: 1 }, { opacity: 0 }], {
-      duration: ANIM_DURATION_OUT,
-      easing: 'ease-in',
-      fill: 'forwards',
+    this.#backdropAnim = fadeOut(backdrop, { duration: DURATION.normal });
+    const direction = this.side() === 'left' ? 'left' : 'right';
+    this.#panelAnim = slideOut(panel, direction, {
+      duration: DURATION.normal,
+      easing: EASING.accelerate,
     });
-
-    const offscreen = this.side() === 'left' ? '-100%' : '100%';
-    this.#panelAnim = panel.animate(
-      [
-        { transform: 'translateX(0%)' },
-        { transform: `translateX(${offscreen})` },
-      ],
-      { duration: ANIM_DURATION_OUT, easing: 'ease-in', fill: 'forwards' },
-    );
   }
 }
 
@@ -208,7 +199,14 @@ export class UiNavDrawerContent {
   imports: [LYNX_ELEMENTS],
   encapsulation: ViewEncapsulation.None,
   template: `
-    <view [class]="containerClass()" (bindtap)="onTap()">
+    <view
+      #container
+      [class]="containerClass()"
+      (bindtouchstart)="onPressStart()"
+      (bindtouchend)="onPressEnd()"
+      (bindtouchcancel)="onPressCancel()"
+      (bindtap)="onTap()"
+    >
       <ng-content />
     </view>
   `,
@@ -223,13 +221,34 @@ export class UiNavDrawerItem {
 
   readonly pressed = output<void>();
 
+  readonly containerRef = viewChild<ElementRef>('container');
+  #pressAnim?: AnimationHandle;
+
   protected readonly containerClass = computed(() =>
     cn(
-      'flex flex-row items-center gap-3 px-4 py-3 active:opacity-80',
+      'flex flex-row items-center gap-3 px-4 py-3',
       this.active() ? 'bg-accent' : 'bg-transparent',
       this.userClass(),
     ),
   );
+
+  protected onPressStart(): void {
+    this.#pressAnim?.cancel();
+    this.#pressAnim = pressDown(
+      this.containerRef()?.nativeElement,
+      SCALE.pressDownLight,
+    );
+  }
+
+  protected onPressEnd(): void {
+    this.#pressAnim?.cancel();
+    this.#pressAnim = pressRelease(this.containerRef()?.nativeElement);
+  }
+
+  protected onPressCancel(): void {
+    this.#pressAnim?.cancel();
+    this.#pressAnim = pressRelease(this.containerRef()?.nativeElement);
+  }
 
   protected onTap(): void {
     this.pressed.emit();
@@ -264,7 +283,14 @@ export class UiNavDrawerFooter {
   imports: [LYNX_ELEMENTS, UiIcon],
   encapsulation: ViewEncapsulation.None,
   template: `
-    <view [class]="containerClass()" (bindtap)="onTap()">
+    <view
+      #container
+      [class]="containerClass()"
+      (bindtouchstart)="onPressStart()"
+      (bindtouchend)="onPressEnd()"
+      (bindtouchcancel)="onPressCancel()"
+      (bindtap)="onTap()"
+    >
       <ui-icon name="menu" size="md" />
     </view>
   `,
@@ -274,12 +300,30 @@ export class UiNavDrawerTrigger {
 
   readonly pressed = output<void>();
 
+  readonly containerRef = viewChild<ElementRef>('container');
+  #pressAnim?: AnimationHandle;
+
   protected readonly containerClass = computed(() =>
     cn(
-      'flex items-center justify-center w-10 h-10 rounded-md active:opacity-80',
+      'flex items-center justify-center w-10 h-10 rounded-md',
       this.userClass(),
     ),
   );
+
+  protected onPressStart(): void {
+    this.#pressAnim?.cancel();
+    this.#pressAnim = pressDown(this.containerRef()?.nativeElement);
+  }
+
+  protected onPressEnd(): void {
+    this.#pressAnim?.cancel();
+    this.#pressAnim = pressRelease(this.containerRef()?.nativeElement);
+  }
+
+  protected onPressCancel(): void {
+    this.#pressAnim?.cancel();
+    this.#pressAnim = pressRelease(this.containerRef()?.nativeElement);
+  }
 
   protected onTap(): void {
     this.pressed.emit();

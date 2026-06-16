@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
+import { type AnimationHandle, DURATION, EASING } from '../../utils/animate';
 import { cn } from '../../utils/cn';
 
 @Component({
@@ -25,17 +26,42 @@ import { cn } from '../../utils/cn';
 export class UiProgress {
   readonly value = input(0);
   readonly max = input(100);
+  /** When true, shows an indeterminate (looping) animation */
+  readonly indeterminate = input(false);
   readonly userClass = input<string>('', { alias: 'class' });
 
   readonly fillRef = viewChild<ElementRef>('fill');
-  #fillAnim?: { cancel(): void };
+  #fillAnim?: AnimationHandle;
+  #indeterminateAnim?: AnimationHandle;
   #previousPercent: number | null = null;
 
   constructor() {
     effect(() => {
-      const percent = this.percent();
       const el = this.fillRef()?.nativeElement;
-      if (!el || this.#previousPercent === null) {
+      if (!el) return;
+
+      // Handle indeterminate mode with infinite sliding animation
+      if (this.indeterminate()) {
+        this.#fillAnim?.cancel();
+        this.#indeterminateAnim?.cancel();
+        this.#indeterminateAnim = el.animate(
+          [
+            { transform: 'translateX(-100%)', width: '40%' },
+            { transform: 'translateX(250%)', width: '40%' },
+          ],
+          {
+            duration: 1200,
+            easing: EASING.standard,
+            iterations: Infinity,
+          },
+        );
+        return;
+      }
+
+      // Determinate mode — animate width changes smoothly
+      this.#indeterminateAnim?.cancel();
+      const percent = this.percent();
+      if (this.#previousPercent === null) {
         this.#previousPercent = percent;
         return;
       }
@@ -44,7 +70,7 @@ export class UiProgress {
       this.#fillAnim?.cancel();
       this.#fillAnim = el.animate(
         [{ width: `${this.#previousPercent}%` }, { width: `${percent}%` }],
-        { duration: 200, easing: 'ease-out', fill: 'forwards' },
+        { duration: DURATION.slow, easing: EASING.standard, fill: 'forwards' },
       );
       this.#previousPercent = percent;
     });
@@ -67,5 +93,7 @@ export class UiProgress {
     cn('h-full rounded-full bg-primary'),
   );
 
-  protected readonly fillStyle = computed(() => `width: ${this.percent()}%;`);
+  protected readonly fillStyle = computed(() =>
+    this.indeterminate() ? 'width: 40%;' : `width: ${this.percent()}%;`,
+  );
 }

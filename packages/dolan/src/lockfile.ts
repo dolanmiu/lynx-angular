@@ -9,7 +9,7 @@ export type FileEntry = {
 export type Lockfile = {
   version: number;
   components: Record<string, Record<string, FileEntry>>;
-  utils: Record<string, FileEntry>;
+  utils?: Record<string, FileEntry>;
   theme: Record<string, FileEntry>;
 };
 
@@ -36,7 +36,6 @@ export const readLockfile = (cwd: string): Lockfile => {
 export const createEmptyLockfile = (): Lockfile => ({
   version: 1,
   components: {},
-  utils: {},
   theme: {},
 });
 

@@ -12,10 +12,16 @@ import {
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
+import {
+  type AnimationHandle,
+  DURATION,
+  EASING,
+  fadeIn,
+  fadeOut,
+  slideIn,
+  slideOut,
+} from '../../utils/animate';
 import { cn } from '../../utils/cn';
-
-const ANIM_DURATION_IN = 300;
-const ANIM_DURATION_OUT = 200;
 
 @Component({
   selector: 'ui-sheet',
@@ -23,10 +29,7 @@ const ANIM_DURATION_OUT = 200;
   imports: [LYNX_ELEMENTS],
   encapsulation: ViewEncapsulation.None,
   template: `
-    <overlay
-      [attr.visible]="overlayVisible()"
-      style="position: fixed; overflow: visible;"
-    >
+    <overlay [attr.visible]="overlayVisible()" [style]="overlayStyle()">
       <view #backdrop class="w-full h-full" (bindtap)="onBackdropTap()">
         <view
           #panel
@@ -50,11 +53,16 @@ export class UiSheet {
   readonly closed = output<void>();
 
   protected readonly overlayVisible = signal(false);
+  protected readonly overlayStyle = computed(() =>
+    this.overlayVisible()
+      ? 'position: fixed; overflow: visible;'
+      : 'position: fixed; overflow: visible; display: none;',
+  );
 
   readonly backdropRef = viewChild<ElementRef>('backdrop');
   readonly panelRef = viewChild<ElementRef>('panel');
-  #backdropAnim?: { cancel(): void };
-  #panelAnim?: { cancel(): void };
+  #backdropAnim?: AnimationHandle;
+  #panelAnim?: AnimationHandle;
   #hasBeenOpen = false;
 
   constructor() {
@@ -98,7 +106,7 @@ export class UiSheet {
       setTimeout(() => {
         this.overlayVisible.set(false);
         this.closed.emit();
-      }, ANIM_DURATION_OUT + 20);
+      }, DURATION.normal + 20);
     }, 0);
   }
 
@@ -110,20 +118,11 @@ export class UiSheet {
     this.#backdropAnim?.cancel();
     this.#panelAnim?.cancel();
 
-    this.#backdropAnim = backdrop.animate([{ opacity: 0 }, { opacity: 1 }], {
-      duration: 250,
-      easing: 'ease-out',
-      fill: 'forwards',
+    this.#backdropAnim = fadeIn(backdrop, { duration: DURATION.normal });
+    this.#panelAnim = slideIn(panel, 'up', {
+      duration: DURATION.slow,
+      easing: EASING.sheet,
     });
-
-    this.#panelAnim = panel.animate(
-      [{ transform: 'translateY(100%)' }, { transform: 'translateY(0%)' }],
-      {
-        duration: ANIM_DURATION_IN,
-        easing: 'cubic-bezier(0.32, 0.72, 0, 1)',
-        fill: 'forwards',
-      },
-    );
   }
 
   #animateOut(): void {
@@ -134,16 +133,11 @@ export class UiSheet {
     this.#backdropAnim?.cancel();
     this.#panelAnim?.cancel();
 
-    this.#backdropAnim = backdrop.animate([{ opacity: 1 }, { opacity: 0 }], {
-      duration: ANIM_DURATION_OUT,
-      easing: 'ease-in',
-      fill: 'forwards',
+    this.#backdropAnim = fadeOut(backdrop, { duration: DURATION.normal });
+    this.#panelAnim = slideOut(panel, 'down', {
+      duration: DURATION.normal,
+      easing: EASING.accelerate,
     });
-
-    this.#panelAnim = panel.animate(
-      [{ transform: 'translateY(0%)' }, { transform: 'translateY(100%)' }],
-      { duration: ANIM_DURATION_OUT, easing: 'ease-in', fill: 'forwards' },
-    );
   }
 }
 

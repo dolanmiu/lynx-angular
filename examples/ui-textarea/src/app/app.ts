@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
-import { UiTextarea } from '@blotch/ui/components/textarea';
+import { UiTextarea } from '../components/ui/textarea';
 
 @Component({
   selector: 'app-root',

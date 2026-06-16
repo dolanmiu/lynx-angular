@@ -32,12 +32,6 @@ export const initCommand = async () => {
           placeholder: 'src/components/ui',
           defaultValue: 'src/components/ui',
         }),
-      utils: () =>
-        p.text({
-          message: 'Where should utilities (cn, etc.) be installed?',
-          placeholder: 'src/lib/utils',
-          defaultValue: 'src/lib/utils',
-        }),
       theme: () =>
         p.text({
           message: 'Where should theme files be installed?',
@@ -59,16 +53,11 @@ export const initCommand = async () => {
   writeConfig(cwd, {
     aliases: {
       components: config.components,
-      utils: config.utils,
       theme: config.theme,
     },
   });
 
   const uiSrc = getUiSourceDir();
-
-  const utilsDir = resolve(cwd, config.utils);
-  mkdirSync(utilsDir, { recursive: true });
-  copyFileSync(join(uiSrc, 'utils', 'cn.ts'), join(utilsDir, 'cn.ts'));
 
   const themeDir = resolve(cwd, config.theme);
   mkdirSync(themeDir, { recursive: true });
@@ -93,16 +82,18 @@ export const initCommand = async () => {
 
   p.note(
     [
-      `${pc.bold('1.')} Add the Tailwind plugin to your ${pc.cyan('tailwind.config.ts')}:`,
+      `${pc.bold('1.')} Add ${pc.cyan('@blotch/dolan')} as a dependency in your ${pc.cyan('package.json')}`,
+      '',
+      `${pc.bold('2.')} Add the Tailwind plugin to your ${pc.cyan('tailwind.config.ts')}:`,
       '',
       `   ${pc.dim("import { blotchPlugin } from './")}${pc.dim(config.theme)}${pc.dim("/tailwind-plugin';")}`,
       `   ${pc.dim('plugins: [blotchPlugin]')}`,
       '',
-      `${pc.bold('2.')} Import a theme in your global styles:`,
+      `${pc.bold('3.')} Import a theme in your global styles:`,
       '',
       `   ${pc.dim("@import './")}${pc.dim(config.theme)}${pc.dim("/default.css';")}`,
       '',
-      `${pc.bold('3.')} Add components:`,
+      `${pc.bold('4.')} Add components:`,
       '',
       `   ${pc.dim('npx dolan add button card')}`,
     ].join('\n'),

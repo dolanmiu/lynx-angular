@@ -1,14 +1,18 @@
+import type { ElementRef } from '@angular/core';
 import {
   Component,
   ViewEncapsulation,
   computed,
+  effect,
   inject,
   input,
   model,
   output,
+  viewChild,
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
+import { type AnimationHandle, popIn, popOut } from '../../utils/animate';
 import { cn } from '../../utils/cn';
 
 @Component({
@@ -48,9 +52,13 @@ export class UiRadioGroup {
   template: `
     <view [class]="itemClass()" (bindtap)="select()">
       <view [class]="circleClass()">
-        @if (isSelected()) {
-          <view [class]="dotClass()" />
-        }
+        <view
+          #dot
+          [class]="dotClass()"
+          [style]="
+            isSelected() ? 'opacity: 1;' : 'opacity: 0; transform: scale(0.6);'
+          "
+        />
       </view>
       <text [class]="labelClass()"><ng-content /></text>
     </view>
@@ -62,21 +70,42 @@ export class UiRadioGroupItem {
   readonly itemValue = input.required<string>({ alias: 'value' });
   readonly userClass = input<string>('', { alias: 'class' });
 
+  readonly dotRef = viewChild<ElementRef>('dot');
+  #dotAnim?: AnimationHandle;
+  #previousSelected?: boolean;
+
   protected readonly isSelected = computed(
     () => this.#group.value() === this.itemValue(),
   );
 
+  constructor() {
+    // Animate the radio dot on selection changes (skip initial render)
+    effect(() => {
+      const selected = this.isSelected();
+      const el = this.dotRef()?.nativeElement;
+      if (!el || this.#previousSelected === undefined) {
+        this.#previousSelected = selected;
+        return;
+      }
+      if (selected === this.#previousSelected) return;
+      this.#previousSelected = selected;
+
+      this.#dotAnim?.cancel();
+      this.#dotAnim = selected ? popIn(el) : popOut(el);
+    });
+  }
+
   protected readonly itemClass = computed(() =>
     cn(
-      'flex flex-row items-center gap-3 active:opacity-80',
-      this.#group.disabled() && 'opacity-50 active:opacity-50',
+      'flex flex-row items-center gap-3 h-11',
+      this.#group.disabled() && 'opacity-50',
       this.userClass(),
     ),
   );
 
   protected readonly circleClass = computed(() =>
     cn(
-      'flex items-center justify-center h-4 w-4 rounded-full border',
+      'flex items-center justify-center h-5 w-5 rounded-full border',
       this.isSelected() ? 'border-primary' : 'border-primary',
     ),
   );

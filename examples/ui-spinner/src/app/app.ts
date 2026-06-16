@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
-import { UiSpinner } from '@blotch/ui/components/spinner';
+import { UiSpinner } from '../components/ui/spinner';
 
 @Component({
   selector: 'app-root',

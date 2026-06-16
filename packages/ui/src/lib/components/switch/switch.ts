@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
+import { type AnimationHandle, springTranslateX } from '../../utils/animate';
 import { cn } from '../../utils/cn';
 
 const THUMB_OFFSET_OFF = 2;
@@ -34,13 +35,13 @@ export class UiSwitch {
   readonly changed = output<boolean>();
 
   readonly thumbRef = viewChild<ElementRef>('thumb');
-  #activeAnimation?: { cancel(): void };
+  #activeAnimation?: AnimationHandle;
 
   protected readonly trackClass = computed(() =>
     cn(
-      'flex flex-row items-center w-11 h-6 rounded-full active:opacity-80',
+      'flex flex-row items-center w-11 h-6 rounded-full',
       this.checked() ? 'bg-primary' : 'bg-input',
-      this.disabled() && 'opacity-50 active:opacity-50',
+      this.disabled() && 'opacity-50',
       this.userClass(),
     ),
   );
@@ -65,13 +66,8 @@ export class UiSwitch {
       this.#activeAnimation?.cancel();
       const from = wasChecked ? THUMB_OFFSET_ON : THUMB_OFFSET_OFF;
       const to = next ? THUMB_OFFSET_ON : THUMB_OFFSET_OFF;
-      this.#activeAnimation = thumb.animate(
-        [
-          { transform: `translateX(${from}px)` },
-          { transform: `translateX(${to}px)` },
-        ],
-        { duration: 150, easing: 'ease-out', fill: 'forwards' },
-      );
+      // Spring translate with squish effect at midpoint
+      this.#activeAnimation = springTranslateX(thumb, from, to);
     }
 
     this.checked.set(next);

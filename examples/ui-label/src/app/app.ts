@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
-import { UiLabel } from '@blotch/ui/components/label';
+import { UiLabel } from '../components/ui/label';
 
 @Component({
   selector: 'app-root',

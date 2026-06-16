@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
-import { UiToaster, toast } from '@blotch/ui/components/toast';
-import { UiButton } from '@blotch/ui/components/button';
+import { UiToaster, toast } from '../components/ui/toast';
+import { UiButton } from '../components/ui/button';
 
 @Component({
   selector: 'app-root',

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
-import { UiAvatar } from '@blotch/ui/components/avatar';
+import { UiAvatar } from '../components/ui/avatar';
 
 @Component({
   selector: 'app-root',

@@ -1,18 +1,18 @@
 import { Component, signal } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
-import { UiSwitch } from '@blotch/ui/components/switch';
-import { UiLabel } from '@blotch/ui/components/label';
-import { UiSeparator } from '@blotch/ui/components/separator';
-import { UiSelect, UiSelectItem } from '@blotch/ui/components/select';
-import { UiRadioGroup, UiRadioGroupItem } from '@blotch/ui/components/radio-group';
+import { UiSwitch } from '../components/ui/switch';
+import { UiLabel } from '../components/ui/label';
+import { UiSeparator } from '../components/ui/separator';
+import { UiSelect, UiSelectItem } from '../components/ui/select';
+import { UiRadioGroup, UiRadioGroupItem } from '../components/ui/radio-group';
 import {
   UiAlertDialog,
   UiAlertDialogHeader,
   UiAlertDialogTitle,
   UiAlertDialogDescription,
   UiAlertDialogFooter,
-} from '@blotch/ui/components/alert-dialog';
-import { UiButton } from '@blotch/ui/components/button';
+} from '../components/ui/alert-dialog';
+import { UiButton } from '../components/ui/button';
 
 @Component({
   selector: 'app-root',
@@ -26,24 +26,24 @@ import { UiButton } from '@blotch/ui/components/button';
     UiButton,
   ],
   template: `
-    <scroll-view scroll-orientation="vertical" class="h-full">
-      <view class="flex flex-col gap-6 p-6">
-        <text class="text-2xl font-bold text-foreground">Settings</text>
+    <scroll-view scroll-orientation="vertical" class="page">
+      <view class="container">
+        <text class="title">Settings</text>
 
-        <view class="flex flex-col gap-3">
-          <text class="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Notifications</text>
-          <view class="flex flex-row items-center justify-between">
-            <view class="flex flex-col gap-0.5">
+        <view class="section">
+          <text class="section-header">Notifications</text>
+          <view class="setting-row">
+            <view class="setting-info">
               <ui-label>Push Notifications</ui-label>
-              <text class="text-xs text-muted-foreground">Receive alerts on your device</text>
+              <text class="setting-desc">Receive alerts on your device</text>
             </view>
             <ui-switch [(checked)]="pushNotifications" />
           </view>
-          <view class="flex flex-row items-center justify-between">
+          <view class="setting-row">
             <ui-label>Sound</ui-label>
             <ui-switch [(checked)]="sound" />
           </view>
-          <view class="flex flex-row items-center justify-between">
+          <view class="setting-row">
             <ui-label>Email Digest</ui-label>
             <ui-switch [(checked)]="emailDigest" />
           </view>
@@ -51,23 +51,23 @@ import { UiButton } from '@blotch/ui/components/button';
 
         <ui-separator />
 
-        <view class="flex flex-col gap-3">
-          <text class="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Appearance</text>
-          <view class="flex flex-col gap-1">
+        <view class="section">
+          <text class="section-header">Appearance</text>
+          <view class="field">
             <ui-label>Language</ui-label>
             <ui-select [(value)]="language">
-              <ui-select-item value="en">English</ui-select-item>
-              <ui-select-item value="es">Español</ui-select-item>
-              <ui-select-item value="fr">Français</ui-select-item>
-              <ui-select-item value="de">Deutsch</ui-select-item>
+              <ui-select-item value="en" label="English" />
+              <ui-select-item value="es" label="Español" />
+              <ui-select-item value="fr" label="Français" />
+              <ui-select-item value="de" label="Deutsch" />
             </ui-select>
           </view>
-          <view class="flex flex-col gap-2">
+          <view class="field-lg">
             <ui-label>Theme</ui-label>
             <ui-radio-group [(value)]="theme">
-              <view class="flex flex-col gap-2">
+              <view class="radio-list">
                 @for (opt of themeOptions; track opt.value) {
-                  <view class="flex flex-row items-center gap-2">
+                  <view class="radio-row">
                     <ui-radio-group-item [value]="opt.value" [id]="opt.value" />
                     <ui-label [for]="opt.value">{{ opt.label }}</ui-label>
                   </view>
@@ -79,9 +79,9 @@ import { UiButton } from '@blotch/ui/components/button';
 
         <ui-separator />
 
-        <view class="flex flex-col gap-3">
-          <text class="text-xs font-semibold uppercase tracking-widest text-destructive">Danger Zone</text>
-          <ui-button variant="destructive" (tap)="deleteDialogOpen.set(true)">Delete Account</ui-button>
+        <view class="section">
+          <text class="section-header-danger">Danger Zone</text>
+          <ui-button variant="destructive" (pressed)="deleteDialogOpen.set(true)">Delete Account</ui-button>
         </view>
       </view>
     </scroll-view>
@@ -94,10 +94,25 @@ import { UiButton } from '@blotch/ui/components/button';
         </ui-alert-dialog-description>
       </ui-alert-dialog-header>
       <ui-alert-dialog-footer>
-        <ui-button variant="outline" (tap)="deleteDialogOpen.set(false)">Cancel</ui-button>
-        <ui-button variant="destructive" (tap)="deleteDialogOpen.set(false)">Delete</ui-button>
+        <ui-button variant="outline" (pressed)="deleteDialogOpen.set(false)">Cancel</ui-button>
+        <ui-button variant="destructive" (pressed)="deleteDialogOpen.set(false)">Delete</ui-button>
       </ui-alert-dialog-footer>
     </ui-alert-dialog>
+  `,
+  styles: `
+    .page { height: 100vh; background-color: #fafafa; }
+    .container { display: flex; flex-direction: column; gap: 24px; padding: 24px; }
+    .title { font-size: 28px; font-weight: bold; color: #18181b; }
+    .section { display: flex; flex-direction: column; gap: 14px; }
+    .section-header { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #a1a1aa; }
+    .section-header-danger { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #ef4444; }
+    .setting-row { display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 12px 16px; background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; }
+    .setting-info { display: flex; flex-direction: column; gap: 2px; }
+    .setting-desc { font-size: 12px; color: #a1a1aa; }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field-lg { display: flex; flex-direction: column; gap: 10px; }
+    .radio-list { display: flex; flex-direction: column; gap: 10px; }
+    .radio-row { display: flex; flex-direction: row; align-items: center; gap: 10px; padding: 12px 16px; background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; }
   `,
 })
 export class App {

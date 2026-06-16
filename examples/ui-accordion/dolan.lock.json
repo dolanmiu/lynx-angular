@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "components": {
+    "accordion": {
+      "accordion.ts": {
+        "hash": "201f71120a4e92ece2b4dec8cae6a57d5a2aedd2bfd8f86bbdb95b1be4d3d695"
+      },
+      "index.ts": {
+        "hash": "8751913a8ed8016e7fc69f7ea979a88d5d0254dc13f2ac1865dfdee37607743d"
+      }
+    }
+  },
+  "theme": {
+    "default.css": {
+      "hash": "1de0af3e74d0ec13de113e6a50347b3ba66d583c84d86ac46b3ccb1d2b3fb998"
+    },
+    "tailwind-plugin.ts": {
+      "hash": "1884f9902ca4245b933854847ebaaf88b522ae955bf5176b98e11e042bed0434"
+    }
+  }
+}

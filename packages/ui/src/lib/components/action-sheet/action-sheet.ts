@@ -13,10 +13,19 @@ import {
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
+import {
+  type AnimationHandle,
+  DURATION,
+  EASING,
+  SCALE,
+  fadeIn,
+  fadeOut,
+  pressDown,
+  pressRelease,
+  slideIn,
+  slideOut,
+} from '../../utils/animate';
 import { cn } from '../../utils/cn';
-
-const ANIM_DURATION_IN = 300;
-const ANIM_DURATION_OUT = 200;
 
 @Component({
   selector: 'ui-action-sheet',
@@ -24,10 +33,7 @@ const ANIM_DURATION_OUT = 200;
   imports: [LYNX_ELEMENTS],
   encapsulation: ViewEncapsulation.None,
   template: `
-    <overlay
-      [attr.visible]="overlayVisible()"
-      style="position: fixed; overflow: visible;"
-    >
+    <overlay [attr.visible]="overlayVisible()" [style]="overlayStyle()">
       <view #backdrop class="w-full h-full" (bindtap)="onBackdropTap()">
         <view
           #panel
@@ -51,11 +57,16 @@ export class UiActionSheet {
   readonly closed = output<void>();
 
   protected readonly overlayVisible = signal(false);
+  protected readonly overlayStyle = computed(() =>
+    this.overlayVisible()
+      ? 'position: fixed; overflow: visible;'
+      : 'position: fixed; overflow: visible; display: none;',
+  );
 
   readonly backdropRef = viewChild<ElementRef>('backdrop');
   readonly panelRef = viewChild<ElementRef>('panel');
-  #backdropAnim?: { cancel(): void };
-  #panelAnim?: { cancel(): void };
+  #backdropAnim?: AnimationHandle;
+  #panelAnim?: AnimationHandle;
   #hasBeenOpen = false;
 
   constructor() {
@@ -99,7 +110,7 @@ export class UiActionSheet {
       setTimeout(() => {
         this.overlayVisible.set(false);
         this.closed.emit();
-      }, ANIM_DURATION_OUT + 20);
+      }, DURATION.normal + 20);
     }, 0);
   }
 
@@ -111,20 +122,11 @@ export class UiActionSheet {
     this.#backdropAnim?.cancel();
     this.#panelAnim?.cancel();
 
-    this.#backdropAnim = backdrop.animate([{ opacity: 0 }, { opacity: 1 }], {
-      duration: 250,
-      easing: 'ease-out',
-      fill: 'forwards',
+    this.#backdropAnim = fadeIn(backdrop, { duration: DURATION.normal });
+    this.#panelAnim = slideIn(panel, 'up', {
+      duration: DURATION.slow,
+      easing: EASING.sheet,
     });
-
-    this.#panelAnim = panel.animate(
-      [{ transform: 'translateY(100%)' }, { transform: 'translateY(0%)' }],
-      {
-        duration: ANIM_DURATION_IN,
-        easing: 'cubic-bezier(0.32, 0.72, 0, 1)',
-        fill: 'forwards',
-      },
-    );
   }
 
   #animateOut(): void {
@@ -135,16 +137,11 @@ export class UiActionSheet {
     this.#backdropAnim?.cancel();
     this.#panelAnim?.cancel();
 
-    this.#backdropAnim = backdrop.animate([{ opacity: 1 }, { opacity: 0 }], {
-      duration: ANIM_DURATION_OUT,
-      easing: 'ease-in',
-      fill: 'forwards',
+    this.#backdropAnim = fadeOut(backdrop, { duration: DURATION.normal });
+    this.#panelAnim = slideOut(panel, 'down', {
+      duration: DURATION.normal,
+      easing: EASING.accelerate,
     });
-
-    this.#panelAnim = panel.animate(
-      [{ transform: 'translateY(0%)' }, { transform: 'translateY(100%)' }],
-      { duration: ANIM_DURATION_OUT, easing: 'ease-in', fill: 'forwards' },
-    );
   }
 }
 
@@ -177,7 +174,14 @@ export class UiActionSheetTitle {
   imports: [LYNX_ELEMENTS],
   encapsulation: ViewEncapsulation.None,
   template: `
-    <view [class]="containerClass()" (bindtap)="onTap()">
+    <view
+      #container
+      [class]="containerClass()"
+      (bindtouchstart)="onPressStart()"
+      (bindtouchend)="onPressEnd()"
+      (bindtouchcancel)="onPressCancel()"
+      (bindtap)="onTap()"
+    >
       <text [class]="textClass()"><ng-content /></text>
     </view>
   `,
@@ -190,9 +194,12 @@ export class UiActionSheetItem {
 
   readonly pressed = output<void>();
 
+  readonly containerRef = viewChild<ElementRef>('container');
+  #pressAnim?: AnimationHandle;
+
   protected readonly containerClass = computed(() =>
     cn(
-      'flex items-center justify-center py-3 px-4 border-t border-border active:opacity-80',
+      'flex items-center justify-center py-3 px-4 border-t border-border',
       this.userClass(),
     ),
   );
@@ -203,6 +210,24 @@ export class UiActionSheetItem {
       this.variant() === 'destructive' ? 'text-destructive' : 'text-primary',
     ),
   );
+
+  protected onPressStart(): void {
+    this.#pressAnim?.cancel();
+    this.#pressAnim = pressDown(
+      this.containerRef()?.nativeElement,
+      SCALE.pressDownLight,
+    );
+  }
+
+  protected onPressEnd(): void {
+    this.#pressAnim?.cancel();
+    this.#pressAnim = pressRelease(this.containerRef()?.nativeElement);
+  }
+
+  protected onPressCancel(): void {
+    this.#pressAnim?.cancel();
+    this.#pressAnim = pressRelease(this.containerRef()?.nativeElement);
+  }
 
   protected onTap(): void {
     this.pressed.emit();
@@ -216,7 +241,14 @@ export class UiActionSheetItem {
   imports: [LYNX_ELEMENTS],
   encapsulation: ViewEncapsulation.None,
   template: `
-    <view [class]="containerClass()" (bindtap)="onTap()">
+    <view
+      #container
+      [class]="containerClass()"
+      (bindtouchstart)="onPressStart()"
+      (bindtouchend)="onPressEnd()"
+      (bindtouchcancel)="onPressCancel()"
+      (bindtap)="onTap()"
+    >
       <text [class]="textClass()">{{ label() }}</text>
     </view>
   `,
@@ -227,9 +259,12 @@ export class UiActionSheetCancel {
   readonly label = input('Cancel');
   readonly userClass = input<string>('', { alias: 'class' });
 
+  readonly containerRef = viewChild<ElementRef>('container');
+  #pressAnim?: AnimationHandle;
+
   protected readonly containerClass = computed(() =>
     cn(
-      'flex items-center justify-center py-3 px-4 rounded-lg bg-card active:opacity-80',
+      'flex items-center justify-center py-3 px-4 rounded-lg bg-card',
       this.userClass(),
     ),
   );
@@ -237,6 +272,24 @@ export class UiActionSheetCancel {
   protected readonly textClass = computed(() =>
     cn('text-base font-semibold text-primary'),
   );
+
+  protected onPressStart(): void {
+    this.#pressAnim?.cancel();
+    this.#pressAnim = pressDown(
+      this.containerRef()?.nativeElement,
+      SCALE.pressDownLight,
+    );
+  }
+
+  protected onPressEnd(): void {
+    this.#pressAnim?.cancel();
+    this.#pressAnim = pressRelease(this.containerRef()?.nativeElement);
+  }
+
+  protected onPressCancel(): void {
+    this.#pressAnim?.cancel();
+    this.#pressAnim = pressRelease(this.containerRef()?.nativeElement);
+  }
 
   protected onTap(): void {
     this.#sheet.close();

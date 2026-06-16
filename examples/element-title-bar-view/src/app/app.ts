@@ -4,45 +4,50 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 @Component({
   selector: 'app-root',
   template: `
-    <scroll-view scroll-orientation="vertical" style="height: 100%;">
-      <view style="padding: 24px;">
-        <text style="font-size: 24px; font-weight: bold; margin-bottom: 16px;">
-          Title Bar View
+    <scroll-view class="page" scroll-orientation="vertical">
+      <view class="container">
+        <text class="title">Title Bar View</text>
+        <text class="subtitle">
+          A custom frameless window title bar with draggable regions.
         </text>
 
-        <text style="font-size: 14px; color: #666; margin-bottom: 16px;">
-          A custom frameless window title bar. The draggable region allows
-          moving the window, while the close button remains interactive.
-        </text>
-
-        <view
-          style="height: 48px; flex-direction: row; align-items: center; background-color: #f5f5f5; border-radius: 8px;"
-        >
-          <title-bar-view moveable="true" style="flex: 1; height: 100%;">
-            <text style="font-size: 14px; padding-left: 16px;">My App</text>
-          </title-bar-view>
-          <view
-            (bindtap)="close()"
-            style="width: 48px; height: 100%; align-items: center; justify-content: center;"
-          >
-            <text>X</text>
+        <view class="card">
+          <text class="section-label">Title Bar</text>
+          <view class="title-bar">
+            <title-bar-view moveable="true" class="title-bar-drag">
+              <text class="title-bar-text">My App</text>
+            </title-bar-view>
+            <view class="close-btn" (bindtap)="close()">
+              <text class="close-icon">✕</text>
+            </view>
           </view>
         </view>
 
-        <view
-          style="margin-top: 16px; padding: 12px; background-color: #f5f5f5; border-radius: 8px;"
-        >
-          <text style="font-size: 13px; color: #333;">
-            {{ message() }}
-          </text>
+        <view class="info-card">
+          <text class="info-text">{{ message() }}</text>
         </view>
       </view>
     </scroll-view>
   `,
+  styles: `
+    .page { height: 100%; background-color: #fafafa; }
+    .container { padding: 24px; }
+    .title { font-size: 28px; font-weight: bold; color: #18181b; margin-bottom: 4px; }
+    .subtitle { font-size: 13px; color: #71717a; margin-bottom: 20px; }
+    .card { background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+    .section-label { font-size: 11px; font-weight: 700; color: #a1a1aa; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .title-bar { height: 44px; flex-direction: row; align-items: center; background-color: #f4f4f5; border-radius: 8px; overflow: hidden; }
+    .title-bar-drag { flex: 1; height: 100%; justify-content: center; }
+    .title-bar-text { font-size: 14px; font-weight: 600; color: #18181b; padding-left: 14px; }
+    .close-btn { width: 44px; height: 100%; align-items: center; justify-content: center; border-left: 1px solid #e4e4e7; }
+    .close-icon { font-size: 14px; color: #71717a; }
+    .info-card { background-color: #f4f4f5; border-radius: 12px; padding: 14px; }
+    .info-text { font-size: 13px; color: #71717a; }
+  `,
   imports: [LYNX_ELEMENTS],
 })
 export class App {
-  message = signal('Drag the title bar to move the window.');
+  readonly message = signal('Drag the title bar to move the window.');
 
   close(): void {
     this.message.set('Close button tapped!');

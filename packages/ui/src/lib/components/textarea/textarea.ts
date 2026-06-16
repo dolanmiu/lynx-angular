@@ -1,13 +1,18 @@
+import type { ElementRef } from '@angular/core';
 import {
   Component,
   ViewEncapsulation,
   computed,
+  effect,
   input,
   model,
   output,
+  signal,
+  viewChild,
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
+import { type AnimationHandle, shake } from '../../utils/animate';
 import { cn } from '../../utils/cn';
 
 @Component({
@@ -16,7 +21,7 @@ import { cn } from '../../utils/cn';
   imports: [LYNX_ELEMENTS],
   encapsulation: ViewEncapsulation.None,
   template: `
-    <view [class]="containerClass()">
+    <view #container [class]="containerClass()">
       @if (label()) {
         <text [class]="labelClass()">{{ label() }}</text>
       }
@@ -26,8 +31,8 @@ import { cn } from '../../utils/cn';
         [attr.disabled]="disabled() || undefined"
         [class]="textareaClass()"
         (bindinput)="onInput($any($event))"
-        (bindfocus)="focused.emit()"
-        (bindblur)="blurred.emit()"
+        (bindfocus)="onFocus()"
+        (bindblur)="onBlur()"
       ></textarea>
       @if (error()) {
         <text [class]="errorClass()">{{ error() }}</text>
@@ -50,6 +55,24 @@ export class UiTextarea {
   readonly focused = output<void>();
   readonly blurred = output<void>();
 
+  readonly containerRef = viewChild<ElementRef>('container');
+  readonly #isFocused = signal(false);
+  #shakeAnim?: AnimationHandle;
+  #previousError = '';
+
+  constructor() {
+    // Shake when an error first appears
+    effect(() => {
+      const err = this.error();
+      const el = this.containerRef()?.nativeElement;
+      if (err && !this.#previousError && el) {
+        this.#shakeAnim?.cancel();
+        this.#shakeAnim = shake(el);
+      }
+      this.#previousError = err;
+    });
+  }
+
   protected readonly containerClass = computed(() =>
     cn('flex flex-col gap-1.5', this.userClass()),
   );
@@ -60,8 +83,12 @@ export class UiTextarea {
 
   protected readonly textareaClass = computed(() =>
     cn(
-      'min-h-20 w-full rounded-md border bg-background px-3 py-2 text-sm text-foreground',
-      this.error() ? 'border-destructive' : 'border-input',
+      'min-h-20 w-full rounded-lg border bg-background px-3.5 py-2.5 text-sm text-foreground',
+      this.error()
+        ? 'border-destructive'
+        : this.#isFocused()
+          ? 'border-ring border-2'
+          : 'border-input',
       this.disabled() && 'opacity-50',
     ),
   );
@@ -73,6 +100,16 @@ export class UiTextarea {
   protected readonly errorClass = computed(() =>
     cn('text-xs text-destructive'),
   );
+
+  protected onFocus(): void {
+    this.#isFocused.set(true);
+    this.focused.emit();
+  }
+
+  protected onBlur(): void {
+    this.#isFocused.set(false);
+    this.blurred.emit();
+  }
 
   protected onInput(event: { detail: { value: string } }): void {
     if (this.disabled()) return;

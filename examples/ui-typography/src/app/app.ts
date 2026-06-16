@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
-import { UiText } from '@blotch/ui/components/typography';
+import { UiText } from '../components/ui/typography';
 
 @Component({
   selector: 'app-root',

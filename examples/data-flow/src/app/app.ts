@@ -8,35 +8,36 @@ import {
 @Component({
   selector: 'app-root',
   template: `
-    <scroll-view scroll-orientation="vertical" style="height: 100%;">
-      <view style="padding: 24px;">
-        <text style="font-size: 20px; font-weight: bold; margin-bottom: 16px;">
-          Data Flow
-        </text>
+    <scroll-view class="page" scroll-orientation="vertical">
+      <view class="container">
+        <text class="title">Data Flow</text>
+        <text class="subtitle">Inject initial and global data from the Lynx runtime.</text>
 
-        <view
-          style="background-color: #f0f0f0; padding: 16px; border-radius: 8px; margin-bottom: 16px;"
-        >
-          <text style="font-size: 14px; font-weight: bold; margin-bottom: 8px;"
-            >InitData</text
-          >
-          <text style="font-size: 14px; color: #666;">
-            {{ initDataJson() }}
-          </text>
+        <view class="card">
+          <text class="section-label">InitData</text>
+          <view class="code-block">
+            <text class="code-text">{{ initDataJson() }}</text>
+          </view>
         </view>
 
-        <view
-          style="background-color: #e8f5e9; padding: 16px; border-radius: 8px;"
-        >
-          <text style="font-size: 14px; font-weight: bold; margin-bottom: 8px;"
-            >GlobalData</text
-          >
-          <text style="font-size: 14px; color: #666;">
-            {{ globalDataJson() }}
-          </text>
+        <view class="card">
+          <text class="section-label">GlobalData</text>
+          <view class="code-block">
+            <text class="code-text">{{ globalDataJson() }}</text>
+          </view>
         </view>
       </view>
     </scroll-view>
+  `,
+  styles: `
+    .page { height: 100%; background-color: #fafafa; }
+    .container { padding: 24px; }
+    .title { font-size: 28px; font-weight: bold; color: #18181b; margin-bottom: 4px; }
+    .subtitle { font-size: 13px; color: #71717a; margin-bottom: 20px; }
+    .card { background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+    .section-label { font-size: 11px; font-weight: 700; color: #a1a1aa; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .code-block { background-color: #f4f4f5; border-radius: 8px; padding: 14px; }
+    .code-text { font-size: 13px; color: #18181b; }
   `,
   imports: [LYNX_ELEMENTS],
 })

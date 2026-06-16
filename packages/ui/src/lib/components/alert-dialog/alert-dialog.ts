@@ -12,10 +12,17 @@ import {
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
+import {
+  type AnimationHandle,
+  DURATION,
+  EASING,
+  SCALE,
+  fadeIn,
+  fadeOut,
+  scaleIn,
+  scaleOut,
+} from '../../utils/animate';
 import { cn } from '../../utils/cn';
-
-const ANIM_DURATION_IN = 300;
-const ANIM_DURATION_OUT = 200;
 
 @Component({
   selector: 'ui-alert-dialog',
@@ -23,10 +30,7 @@ const ANIM_DURATION_OUT = 200;
   imports: [LYNX_ELEMENTS],
   encapsulation: ViewEncapsulation.None,
   template: `
-    <overlay
-      [attr.visible]="overlayVisible()"
-      style="position: fixed; overflow: visible;"
-    >
+    <overlay [attr.visible]="overlayVisible()" [style]="overlayStyle()">
       <view #backdrop [class]="backdropClass()">
         <view
           #panel
@@ -49,8 +53,8 @@ export class UiAlertDialog {
 
   readonly backdropRef = viewChild<ElementRef>('backdrop');
   readonly panelRef = viewChild<ElementRef>('panel');
-  #backdropAnim?: { cancel(): void };
-  #panelAnim?: { cancel(): void };
+  #backdropAnim?: AnimationHandle;
+  #panelAnim?: AnimationHandle;
   #hasBeenOpen = false;
 
   constructor() {
@@ -64,6 +68,12 @@ export class UiAlertDialog {
       }
     });
   }
+
+  protected readonly overlayStyle = computed(() =>
+    this.overlayVisible()
+      ? 'position: fixed; overflow: visible;'
+      : 'position: fixed; overflow: visible; display: none;',
+  );
 
   protected readonly backdropClass = computed(() =>
     cn('flex items-center justify-center', 'w-full h-full'),
@@ -89,7 +99,7 @@ export class UiAlertDialog {
       setTimeout(() => {
         this.overlayVisible.set(false);
         this.closed.emit();
-      }, ANIM_DURATION_OUT + 20);
+      }, DURATION.normal + 20);
     }, 0);
   }
 
@@ -101,23 +111,16 @@ export class UiAlertDialog {
     this.#backdropAnim?.cancel();
     this.#panelAnim?.cancel();
 
-    this.#backdropAnim = backdrop.animate([{ opacity: 0 }, { opacity: 1 }], {
-      duration: 250,
-      easing: 'ease-out',
-      fill: 'forwards',
-    });
+    this.#backdropAnim = fadeIn(backdrop, { duration: DURATION.normal });
 
-    this.#panelAnim = panel.animate(
-      [
-        { transform: 'scale(0.85) translateY(20px)', opacity: 0 },
-        { transform: 'scale(1) translateY(0px)', opacity: 1 },
-      ],
-      {
-        duration: ANIM_DURATION_IN,
-        easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
-        fill: 'forwards',
-      },
-    );
+    setTimeout(() => {
+      this.#panelAnim = scaleIn(panel, {
+        duration: DURATION.slow,
+        easing: EASING.springSubtle,
+        fromScale: SCALE.dialogFrom,
+        fromY: 10,
+      });
+    }, 30);
   }
 
   #animateOut(): void {
@@ -128,19 +131,14 @@ export class UiAlertDialog {
     this.#backdropAnim?.cancel();
     this.#panelAnim?.cancel();
 
-    this.#backdropAnim = backdrop.animate([{ opacity: 1 }, { opacity: 0 }], {
-      duration: ANIM_DURATION_OUT,
-      easing: 'ease-in',
-      fill: 'forwards',
+    this.#panelAnim = scaleOut(panel, {
+      duration: 180,
+      easing: EASING.accelerate,
+      toScale: SCALE.dialogTo,
+      toY: 10,
     });
 
-    this.#panelAnim = panel.animate(
-      [
-        { transform: 'scale(1) translateY(0px)', opacity: 1 },
-        { transform: 'scale(0.85) translateY(20px)', opacity: 0 },
-      ],
-      { duration: ANIM_DURATION_OUT, easing: 'ease-in', fill: 'forwards' },
-    );
+    this.#backdropAnim = fadeOut(backdrop, { duration: DURATION.normal });
   }
 }
 

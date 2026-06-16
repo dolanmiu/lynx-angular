@@ -4,31 +4,47 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 @Component({
   selector: 'app-root',
   template: `
-    <scroll-view scroll-orientation="vertical" style="height: 100%;">
-      <view style="padding: 24px;">
-        <text style="font-size: 24px; font-weight: bold; margin-bottom: 16px;">
-          Image Element
+    <scroll-view class="page" scroll-orientation="vertical">
+      <view class="container">
+        <text class="title">Image Element</text>
+        <text class="subtitle">
+          Display images with different scaling modes.
         </text>
 
-        <text style="font-size: 14px; color: #666; margin-bottom: 12px;">
-          aspectFit (default)
-        </text>
-        <image
-          src="https://angular.dev/assets/images/press-kit/angular_icon_gradient.gif"
-          mode="aspectFit"
-          style="width: 120px; height: 120px; margin-bottom: 16px; background-color: #f0f0f0;"
-        />
+        <view class="card">
+          <text class="section-label">aspectFit (default)</text>
+          <view class="image-frame">
+            <image
+              src="https://angular.dev/assets/images/press-kit/angular_icon_gradient.gif"
+              mode="aspectFit"
+              class="image-fit"
+            />
+          </view>
+        </view>
 
-        <text style="font-size: 14px; color: #666; margin-bottom: 12px;">
-          aspectFill
-        </text>
-        <image
-          src="https://angular.dev/assets/images/press-kit/angular_icon_gradient.gif"
-          mode="aspectFill"
-          style="width: 120px; height: 80px; background-color: #f0f0f0;"
-        />
+        <view class="card">
+          <text class="section-label">aspectFill</text>
+          <view class="image-frame">
+            <image
+              src="https://angular.dev/assets/images/press-kit/angular_icon_gradient.gif"
+              mode="aspectFill"
+              class="image-fill"
+            />
+          </view>
+        </view>
       </view>
     </scroll-view>
+  `,
+  styles: `
+    .page { height: 100%; background-color: #fafafa; }
+    .container { padding: 24px; }
+    .title { font-size: 28px; font-weight: bold; color: #18181b; margin-bottom: 4px; }
+    .subtitle { font-size: 13px; color: #71717a; margin-bottom: 20px; }
+    .card { background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+    .section-label { font-size: 11px; font-weight: 700; color: #a1a1aa; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .image-frame { background-color: #f4f4f5; border-radius: 8px; padding: 16px; align-items: center; }
+    .image-fit { width: 120px; height: 120px; }
+    .image-fill { width: 120px; height: 80px; }
   `,
   imports: [LYNX_ELEMENTS],
 })

@@ -6,38 +6,45 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   template: `
     <refresh (bindstartrefresh)="onRefresh()">
       <refresh-header>
-        <view style="height: 60px; align-items: center; justify-content: center;">
-          <text style="font-size: 14px; color: #666;">
+        <view class="refresh-header">
+          <text class="refresh-text">
             {{ refreshing() ? 'Refreshing...' : 'Pull down to refresh' }}
           </text>
         </view>
       </refresh-header>
-      <scroll-view scroll-orientation="vertical" style="height: 100vh;">
-        <view style="padding: 16px;">
-          <text style="font-size: 24px; font-weight: bold; margin-bottom: 16px;">
-            Refresh Example
-          </text>
+      <scroll-view class="page" scroll-orientation="vertical">
+        <view class="container">
+          <text class="title">Refresh Element</text>
+          <text class="subtitle">Pull down to reload the list.</text>
+
           @for (item of items(); track item.id) {
-            <view
-              style="padding: 16px; margin-bottom: 8px; background-color: #f5f5f5; border-radius: 8px;"
-            >
-              <text style="font-size: 16px;">{{ item.name }}</text>
-              <text style="font-size: 12px; color: #999; margin-top: 4px;">
-                Added {{ item.time }}
-              </text>
+            <view class="item-card">
+              <text class="item-name">{{ item.name }}</text>
+              <text class="item-time">Added {{ item.time }}</text>
             </view>
           }
         </view>
       </scroll-view>
     </refresh>
   `,
+  styles: `
+    .page { height: 100vh; background-color: #fafafa; }
+    .container { padding: 24px; }
+    .title { font-size: 28px; font-weight: bold; color: #18181b; margin-bottom: 4px; }
+    .subtitle { font-size: 13px; color: #71717a; margin-bottom: 20px; }
+    .refresh-header { height: 60px; align-items: center; justify-content: center; }
+    .refresh-text { font-size: 13px; color: #a1a1aa; }
+    .item-card { padding: 14px 16px; background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; margin-bottom: 8px; }
+    .item-name { font-size: 15px; color: #18181b; font-weight: 500; }
+    .item-time { font-size: 12px; color: #a1a1aa; margin-top: 4px; }
+  `,
   imports: [LYNX_ELEMENTS],
 })
 export class App {
   #counter = 0;
 
-  refreshing = signal(false);
-  items = signal(this.#generateItems());
+  readonly refreshing = signal(false);
+  readonly items = signal(this.#generateItems());
 
   onRefresh(): void {
     this.refreshing.set(true);

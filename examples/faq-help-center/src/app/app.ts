@@ -5,23 +5,23 @@ import {
   UiAccordionItem,
   UiAccordionTrigger,
   UiAccordionContent,
-} from '@blotch/ui/components/accordion';
+} from '../components/ui/accordion';
 import {
   UiCollapsible,
   UiCollapsibleTrigger,
   UiCollapsibleContent,
-} from '@blotch/ui/components/collapsible';
-import { UiInput } from '@blotch/ui/components/input';
+} from '../components/ui/collapsible';
+import { UiInput } from '../components/ui/input';
 import {
   UiDialog,
   UiDialogHeader,
   UiDialogTitle,
   UiDialogDescription,
   UiDialogFooter,
-} from '@blotch/ui/components/dialog';
-import { UiButton } from '@blotch/ui/components/button';
-import { UiTextarea } from '@blotch/ui/components/textarea';
-import { UiLabel } from '@blotch/ui/components/label';
+} from '../components/ui/dialog';
+import { UiButton } from '../components/ui/button';
+import { UiTextarea } from '../components/ui/textarea';
+import { UiLabel } from '../components/ui/label';
 
 interface FaqItem { q: string; a: string; }
 interface FaqCategory { title: string; items: FaqItem[]; }
@@ -37,38 +37,49 @@ interface FaqCategory { title: string; items: FaqItem[]; }
     UiButton, UiTextarea, UiLabel,
   ],
   template: `
-    <scroll-view scroll-orientation="vertical" class="h-full">
-      <view class="flex flex-col gap-6 p-6">
-        <text class="text-2xl font-bold text-foreground">Help Center</text>
+    <scroll-view scroll-orientation="vertical" class="page">
+      <view class="container">
+        <view class="hero">
+          <text class="title">Help Center</text>
+          <text class="subtitle">Find answers to common questions</text>
+        </view>
 
         <ui-input [value]="query()" (valueChange)="query.set($event)" placeholder="Search FAQs..." />
 
         @for (cat of filtered(); track cat.title) {
-          <ui-collapsible [open]="true">
-            <ui-collapsible-trigger>
-              <view class="flex flex-row items-center justify-between py-2">
-                <text class="text-base font-semibold text-foreground">{{ cat.title }}</text>
-                <text class="text-xs text-muted-foreground">{{ cat.items.length }} items</text>
-              </view>
-            </ui-collapsible-trigger>
-            <ui-collapsible-content>
-              <ui-accordion type="single" [collapsible]="true">
-                @for (item of cat.items; track item.q) {
-                  <ui-accordion-item [value]="item.q">
-                    <ui-accordion-trigger>{{ item.q }}</ui-accordion-trigger>
-                    <ui-accordion-content>
-                      <text class="text-sm text-muted-foreground">{{ item.a }}</text>
-                    </ui-accordion-content>
-                  </ui-accordion-item>
-                }
-              </ui-accordion>
-            </ui-collapsible-content>
-          </ui-collapsible>
+          <view class="category-card">
+            <ui-collapsible [open]="true">
+              <ui-collapsible-trigger>
+                <view class="category-header">
+                  <text class="category-title">{{ cat.title }}</text>
+                  <text class="category-count">{{ cat.items.length }} items</text>
+                </view>
+              </ui-collapsible-trigger>
+              <ui-collapsible-content>
+                <ui-accordion type="single" [collapsible]="true">
+                  @for (item of cat.items; track item.q) {
+                    <ui-accordion-item [value]="item.q">
+                      <ui-accordion-trigger>{{ item.q }}</ui-accordion-trigger>
+                      <ui-accordion-content>
+                        <text class="answer-text">{{ item.a }}</text>
+                      </ui-accordion-content>
+                    </ui-accordion-item>
+                  }
+                </ui-accordion>
+              </ui-collapsible-content>
+            </ui-collapsible>
+          </view>
         } @empty {
-          <text class="text-sm text-muted-foreground text-center py-8">No results for "{{ query() }}"</text>
+          <view class="no-results">
+            <text class="no-results-icon">🔍</text>
+            <text class="no-results-text">No results for "{{ query() }}"</text>
+          </view>
         }
 
-        <ui-button variant="outline" (tap)="contactOpen.set(true)">Contact Support</ui-button>
+        <view class="contact-section">
+          <text class="contact-hint">Can't find what you need?</text>
+          <ui-button variant="outline" (pressed)="contactOpen.set(true)">Contact Support</ui-button>
+        </view>
       </view>
     </scroll-view>
 
@@ -77,21 +88,40 @@ interface FaqCategory { title: string; items: FaqItem[]; }
         <ui-dialog-title>Contact Support</ui-dialog-title>
         <ui-dialog-description>We'll get back to you within 24 hours.</ui-dialog-description>
       </ui-dialog-header>
-      <view class="flex flex-col gap-4 p-4">
-        <view class="flex flex-col gap-1.5">
+      <view class="dialog-form">
+        <view class="field">
           <ui-label>Subject</ui-label>
           <ui-input [(value)]="subject" placeholder="Brief description of your issue" />
         </view>
-        <view class="flex flex-col gap-1.5">
+        <view class="field">
           <ui-label>Message</ui-label>
           <ui-textarea [(value)]="message" placeholder="Describe your issue in detail..." />
         </view>
       </view>
       <ui-dialog-footer>
-        <ui-button variant="outline" (tap)="contactOpen.set(false)">Cancel</ui-button>
-        <ui-button (tap)="sendMessage()">Send</ui-button>
+        <ui-button variant="outline" (pressed)="contactOpen.set(false)">Cancel</ui-button>
+        <ui-button (pressed)="sendMessage()">Send</ui-button>
       </ui-dialog-footer>
     </ui-dialog>
+  `,
+  styles: `
+    .page { height: 100vh; background-color: #fafafa; }
+    .container { display: flex; flex-direction: column; gap: 20px; padding: 24px; }
+    .hero { display: flex; flex-direction: column; gap: 4px; }
+    .title { font-size: 28px; font-weight: bold; color: #18181b; }
+    .subtitle { font-size: 14px; color: #71717a; }
+    .category-card { background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 16px; padding: 16px; }
+    .category-header { display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 8px 0; }
+    .category-title { font-size: 16px; font-weight: 600; color: #18181b; }
+    .category-count { font-size: 12px; color: #a1a1aa; }
+    .answer-text { font-size: 14px; color: #71717a; line-height: 20px; }
+    .no-results { display: flex; flex-direction: column; align-items: center; padding: 40px 0; gap: 8px; }
+    .no-results-icon { font-size: 32px; }
+    .no-results-text { font-size: 14px; color: #a1a1aa; }
+    .contact-section { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 0; }
+    .contact-hint { font-size: 13px; color: #71717a; }
+    .dialog-form { display: flex; flex-direction: column; gap: 16px; padding: 16px; }
+    .field { display: flex; flex-direction: column; gap: 6px; }
   `,
 })
 export class App {

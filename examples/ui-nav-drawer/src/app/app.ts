@@ -7,9 +7,9 @@ import {
   UiNavDrawerItem,
   UiNavDrawerFooter,
   UiNavDrawerTrigger,
-} from '@blotch/ui/components/nav-drawer';
-import { UiIcon } from '@blotch/ui/components/icon';
-import { UiSeparator } from '@blotch/ui/components/separator';
+} from '../components/ui/nav-drawer';
+import { UiIcon } from '../components/ui/icon';
+import { UiSeparator } from '../components/ui/separator';
 
 @Component({
   selector: 'app-root',

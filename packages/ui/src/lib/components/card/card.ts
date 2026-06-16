@@ -1,6 +1,19 @@
-import { Component, ViewEncapsulation, computed, input } from '@angular/core';
+import type { ElementRef } from '@angular/core';
+import {
+  Component,
+  ViewEncapsulation,
+  computed,
+  input,
+  viewChild,
+} from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
+import {
+  type AnimationHandle,
+  SCALE,
+  pressDown,
+  pressRelease,
+} from '../../utils/animate';
 import { cn } from '../../utils/cn';
 
 @Component({
@@ -9,17 +22,49 @@ import { cn } from '../../utils/cn';
   imports: [LYNX_ELEMENTS],
   encapsulation: ViewEncapsulation.None,
   template: `
-    <view [class]="containerClass()">
+    <view
+      #container
+      [class]="containerClass()"
+      (bindtouchstart)="onPressStart()"
+      (bindtouchend)="onPressEnd()"
+      (bindtouchcancel)="onPressCancel()"
+    >
       <ng-content />
     </view>
   `,
 })
 export class UiCard {
+  /** When true, the card responds to touch with a subtle scale animation */
+  readonly pressable = input(false);
   readonly userClass = input<string>('', { alias: 'class' });
+
+  readonly containerRef = viewChild<ElementRef>('container');
+  #pressAnim?: AnimationHandle;
 
   protected readonly containerClass = computed(() =>
     cn('rounded-lg border border-border bg-card', this.userClass()),
   );
+
+  protected onPressStart(): void {
+    if (!this.pressable()) return;
+    this.#pressAnim?.cancel();
+    this.#pressAnim = pressDown(
+      this.containerRef()?.nativeElement,
+      SCALE.pressDownLight,
+    );
+  }
+
+  protected onPressEnd(): void {
+    if (!this.pressable()) return;
+    this.#pressAnim?.cancel();
+    this.#pressAnim = pressRelease(this.containerRef()?.nativeElement);
+  }
+
+  protected onPressCancel(): void {
+    if (!this.pressable()) return;
+    this.#pressAnim?.cancel();
+    this.#pressAnim = pressRelease(this.containerRef()?.nativeElement);
+  }
 }
 
 @Component({

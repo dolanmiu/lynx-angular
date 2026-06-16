@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
-import { UiEmptyState } from '@blotch/ui/components/empty-state';
-import { UiButton } from '@blotch/ui/components/button';
+import { UiEmptyState } from '../components/ui/empty-state';
+import { UiButton } from '../components/ui/button';
 
 @Component({
   selector: 'app-root',

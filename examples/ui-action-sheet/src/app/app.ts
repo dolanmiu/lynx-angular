@@ -5,8 +5,8 @@ import {
   UiActionSheetTitle,
   UiActionSheetItem,
   UiActionSheetCancel,
-} from '@blotch/ui/components/action-sheet';
-import { UiButton } from '@blotch/ui/components/button';
+} from '../components/ui/action-sheet';
+import { UiButton } from '../components/ui/button';
 
 @Component({
   selector: 'app-root',

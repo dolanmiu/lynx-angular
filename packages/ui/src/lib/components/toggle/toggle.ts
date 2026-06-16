@@ -1,3 +1,4 @@
+import type { ElementRef } from '@angular/core';
 import {
   Component,
   ViewEncapsulation,
@@ -5,32 +6,35 @@ import {
   inject,
   input,
   model,
+  viewChild,
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 import { cva, type VariantProps } from 'class-variance-authority';
 
+import {
+  type AnimationHandle,
+  pressDown,
+  pressRelease,
+} from '../../utils/animate';
 import { cn } from '../../utils/cn';
 
-const toggleVariants = cva(
-  'flex items-center justify-center rounded-md active:opacity-80',
-  {
-    variants: {
-      variant: {
-        default: '',
-        outline: 'border border-border',
-      },
-      size: {
-        default: 'h-10 px-3',
-        sm: 'h-9 px-2.5',
-        lg: 'h-11 px-5',
-      },
+const toggleVariants = cva('flex items-center justify-center rounded-md', {
+  variants: {
+    variant: {
+      default: '',
+      outline: 'border border-border',
     },
-    defaultVariants: {
-      variant: 'default',
-      size: 'default',
+    size: {
+      default: 'h-10 px-3',
+      sm: 'h-9 px-2.5',
+      lg: 'h-11 px-5',
     },
   },
-);
+  defaultVariants: {
+    variant: 'default',
+    size: 'default',
+  },
+});
 
 export type ToggleVariant = NonNullable<
   VariantProps<typeof toggleVariants>['variant']
@@ -45,7 +49,14 @@ export type ToggleSize = NonNullable<
   imports: [LYNX_ELEMENTS],
   encapsulation: ViewEncapsulation.None,
   template: `
-    <view [class]="containerClass()" (bindtap)="onTap()">
+    <view
+      #container
+      [class]="containerClass()"
+      (bindtouchstart)="onPressStart()"
+      (bindtouchend)="onPressEnd()"
+      (bindtouchcancel)="onPressCancel()"
+      (bindtap)="onTap()"
+    >
       <ng-content />
     </view>
   `,
@@ -57,14 +68,34 @@ export class UiToggle {
   readonly disabled = input(false);
   readonly userClass = input<string>('', { alias: 'class' });
 
+  readonly containerRef = viewChild<ElementRef>('container');
+  #pressAnim?: AnimationHandle;
+
   protected readonly containerClass = computed(() =>
     cn(
       toggleVariants({ variant: this.variant(), size: this.size() }),
       this.pressed() ? 'bg-accent' : 'bg-transparent',
-      this.disabled() && 'opacity-50 active:opacity-50',
+      this.disabled() && 'opacity-50',
       this.userClass(),
     ),
   );
+
+  protected onPressStart(): void {
+    if (this.disabled()) return;
+    this.#pressAnim?.cancel();
+    this.#pressAnim = pressDown(this.containerRef()?.nativeElement);
+  }
+
+  protected onPressEnd(): void {
+    if (this.disabled()) return;
+    this.#pressAnim?.cancel();
+    this.#pressAnim = pressRelease(this.containerRef()?.nativeElement);
+  }
+
+  protected onPressCancel(): void {
+    this.#pressAnim?.cancel();
+    this.#pressAnim = pressRelease(this.containerRef()?.nativeElement);
+  }
 
   protected onTap(): void {
     if (this.disabled()) return;
@@ -118,7 +149,14 @@ export class UiToggleGroup {
   imports: [LYNX_ELEMENTS],
   encapsulation: ViewEncapsulation.None,
   template: `
-    <view [class]="containerClass()" (bindtap)="onTap()">
+    <view
+      #container
+      [class]="containerClass()"
+      (bindtouchstart)="onPressStart()"
+      (bindtouchend)="onPressEnd()"
+      (bindtouchcancel)="onPressCancel()"
+      (bindtap)="onTap()"
+    >
       <ng-content />
     </view>
   `,
@@ -128,6 +166,9 @@ export class UiToggleGroupItem {
 
   readonly itemValue = input.required<string>({ alias: 'value' });
   readonly userClass = input<string>('', { alias: 'class' });
+
+  readonly containerRef = viewChild<ElementRef>('container');
+  #pressAnim?: AnimationHandle;
 
   protected readonly isSelected = computed(() =>
     this.#group.isSelected(this.itemValue()),
@@ -140,10 +181,27 @@ export class UiToggleGroupItem {
         size: this.#group.size(),
       }),
       this.isSelected() ? 'bg-accent' : 'bg-transparent',
-      this.#group.disabled() && 'opacity-50 active:opacity-50',
+      this.#group.disabled() && 'opacity-50',
       this.userClass(),
     ),
   );
+
+  protected onPressStart(): void {
+    if (this.#group.disabled()) return;
+    this.#pressAnim?.cancel();
+    this.#pressAnim = pressDown(this.containerRef()?.nativeElement);
+  }
+
+  protected onPressEnd(): void {
+    if (this.#group.disabled()) return;
+    this.#pressAnim?.cancel();
+    this.#pressAnim = pressRelease(this.containerRef()?.nativeElement);
+  }
+
+  protected onPressCancel(): void {
+    this.#pressAnim?.cancel();
+    this.#pressAnim = pressRelease(this.containerRef()?.nativeElement);
+  }
 
   protected onTap(): void {
     this.#group.toggle(this.itemValue());

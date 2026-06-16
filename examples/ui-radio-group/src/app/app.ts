@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
-import { UiRadioGroup, UiRadioGroupItem } from '@blotch/ui/components/radio-group';
-import { UiLabel } from '@blotch/ui/components/label';
+import { UiRadioGroup, UiRadioGroupItem } from '../components/ui/radio-group';
+import { UiLabel } from '../components/ui/label';
 
 @Component({
   selector: 'app-root',

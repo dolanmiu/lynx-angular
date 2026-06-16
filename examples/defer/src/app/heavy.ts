@@ -6,13 +6,13 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   standalone: true,
   imports: [LYNX_ELEMENTS],
   template: `
-    <view
-      style="background-color: #e8f5e9; padding: 16px; border-radius: 8px; margin-top: 8px;"
-    >
-      <text style="font-size: 16px; font-weight: bold; color: #2e7d32;">
-        Deferred Component Loaded!
-      </text>
+    <view class="loaded">
+      <text class="loaded-text">Deferred Component Loaded!</text>
     </view>
+  `,
+  styles: `
+    .loaded { background-color: #f0fdf4; border: 1px solid #bbf7d0; padding: 14px; border-radius: 8px; margin-top: 8px; }
+    .loaded-text { font-size: 15px; font-weight: 600; color: #166534; }
   `,
 })
 export class Heavy {}

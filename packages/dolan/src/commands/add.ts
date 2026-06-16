@@ -97,7 +97,6 @@ export const addCommand = async (components: string[]) => {
   s.start('Adding components...');
 
   const componentsDir = resolve(cwd, config.aliases.components);
-  const utilsDir = resolve(cwd, config.aliases.utils);
   const lockfile = getOrCreateLockfile(cwd);
 
   for (const name of resolved) {
@@ -112,7 +111,7 @@ export const addCommand = async (components: string[]) => {
     const files = getComponentFiles(name);
     for (const file of files) {
       const content = readFileSync(join(srcDir, file), 'utf-8');
-      const rewritten = rewriteImports(content, destDir, utilsDir);
+      const rewritten = rewriteImports(content);
       writeFileSync(join(destDir, file), rewritten);
       lockfile.components[name][file] = { hash: hashContent(rewritten) };
     }

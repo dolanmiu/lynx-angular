@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
+import { type AnimationHandle, revealIn } from '../../utils/animate';
 import { cn } from '../../utils/cn';
 
 @Component({
@@ -99,10 +100,7 @@ export class UiAccordionTrigger {
   readonly userClass = input<string>('', { alias: 'class' });
 
   protected readonly triggerClass = computed(() =>
-    cn(
-      'flex flex-row items-center justify-between py-4 active:opacity-80',
-      this.userClass(),
-    ),
+    cn('flex flex-row items-center justify-between py-4', this.userClass()),
   );
 
   protected readonly textClass = computed(() =>
@@ -136,16 +134,15 @@ export class UiAccordionContent {
   readonly userClass = input<string>('', { alias: 'class' });
 
   readonly contentRef = viewChild<ElementRef>('content');
+  #anim?: AnimationHandle;
 
   constructor() {
     effect(() => {
       const el = this.contentRef()?.nativeElement;
       if (el && this.item.isExpanded()) {
-        el.animate([{ opacity: 0 }, { opacity: 1 }], {
-          duration: 200,
-          easing: 'ease-out',
-          fill: 'forwards',
-        });
+        this.#anim?.cancel();
+        // Content reveals with a slide-down + fade for a polished expand feel
+        this.#anim = revealIn(el, { fromY: -8 });
       }
     });
   }

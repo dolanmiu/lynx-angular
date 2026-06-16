@@ -110,7 +110,6 @@ export const upgradeCommand = async (options: { force?: boolean }) => {
   }
 
   const lockfile = getOrCreateLockfile(cwd);
-  const utilsDir = resolve(cwd, config.aliases.utils);
 
   // --- Analysis phase ---
   const s = p.spinner();
@@ -119,7 +118,6 @@ export const upgradeCommand = async (options: { force?: boolean }) => {
   const componentAnalyses: ComponentAnalysis[] = [];
 
   for (const name of installed) {
-    const srcDir = getComponentSourceDir(name);
     const destDir = resolve(componentsDir, name);
     const files = getComponentFiles(name);
     const lockedComponent = lockfile.components[name] ?? {};
@@ -127,8 +125,11 @@ export const upgradeCommand = async (options: { force?: boolean }) => {
     const fileAnalyses: FileAnalysis[] = [];
 
     for (const file of files) {
-      const srcContent = readFileSync(join(srcDir, file), 'utf-8');
-      const newContent = rewriteImports(srcContent, destDir, utilsDir);
+      const srcContent = readFileSync(
+        join(getComponentSourceDir(name), file),
+        'utf-8',
+      );
+      const newContent = rewriteImports(srcContent);
       const destPath = join(destDir, file);
 
       const currentContent = existsSync(destPath)
@@ -154,27 +155,9 @@ export const upgradeCommand = async (options: { force?: boolean }) => {
     componentAnalyses.push({ name, files: fileAnalyses });
   }
 
-  // Analyze shared files (utils + theme)
+  // Analyze shared files (theme only — utils now come from @blotch/dolan)
   const uiSrc = getUiSourceDir();
   const sharedAnalyses: FileAnalysis[] = [];
-
-  // cn.ts
-  const cnSrc = join(uiSrc, 'utils', 'cn.ts');
-  if (existsSync(cnSrc)) {
-    const newContent = readFileSync(cnSrc, 'utf-8');
-    const destPath = join(utilsDir, 'cn.ts');
-    const currentContent = existsSync(destPath)
-      ? readFileSync(destPath, 'utf-8')
-      : null;
-    const storedHash = lockfile.utils['cn.ts']?.hash ?? null;
-
-    sharedAnalyses.push({
-      file: 'utils/cn.ts',
-      status: analyzeFile(currentContent, newContent, storedHash, hashContent),
-      currentContent: currentContent ?? '',
-      newContent,
-    });
-  }
 
   // Theme files
   const themeDir = resolve(cwd, config.aliases.theme);
@@ -384,19 +367,11 @@ export const upgradeCommand = async (options: { force?: boolean }) => {
     }
   }
 
-  // Apply shared files
+  // Apply shared files (theme only)
   for (const file of sharedAnalyses) {
-    const isUtil = file.file.startsWith('utils/');
     const fileName = file.file.split('/').pop()!;
-    let destPath: string;
-
-    if (isUtil) {
-      mkdirSync(utilsDir, { recursive: true });
-      destPath = join(utilsDir, fileName);
-    } else {
-      mkdirSync(themeDir, { recursive: true });
-      destPath = join(themeDir, fileName);
-    }
+    mkdirSync(themeDir, { recursive: true });
+    const destPath = join(themeDir, fileName);
 
     const shouldOverwrite =
       file.status === 'auto-upgrade' ||
@@ -409,16 +384,13 @@ export const upgradeCommand = async (options: { force?: boolean }) => {
 
     if (shouldOverwrite) {
       writeFileSync(destPath, file.newContent);
-      if (isUtil) newLockfile.utils[fileName] = entry;
-      else newLockfile.theme[fileName] = entry;
+      newLockfile.theme[fileName] = entry;
       appliedCount++;
     } else if (file.status === 'conflict') {
-      if (isUtil) newLockfile.utils[fileName] = entry;
-      else newLockfile.theme[fileName] = entry;
+      newLockfile.theme[fileName] = entry;
       skippedCount++;
     } else if (file.status === 'up-to-date') {
-      if (isUtil) newLockfile.utils[fileName] = entry;
-      else newLockfile.theme[fileName] = entry;
+      newLockfile.theme[fileName] = entry;
     }
   }
 
@@ -457,11 +429,9 @@ const buildLockfile = (
   }
 
   for (const file of shared) {
-    const isUtil = file.file.startsWith('utils/');
     const fileName = file.file.split('/').pop()!;
     const entry = { hash: hashContent(file.newContent) };
-    if (isUtil) lockfile.utils[fileName] = entry;
-    else lockfile.theme[fileName] = entry;
+    lockfile.theme[fileName] = entry;
   }
 
   return lockfile;

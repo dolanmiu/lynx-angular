@@ -5,49 +5,56 @@ import { Heavy } from './heavy';
 @Component({
   selector: 'app-root',
   template: `
-    <scroll-view scroll-orientation="vertical" style="height: 100%;">
-      <view style="padding: 24px;">
-        <text style="font-size: 20px; font-weight: bold; margin-bottom: 16px;">
-          defer Blocks
-        </text>
+    <scroll-view class="page" scroll-orientation="vertical">
+      <view class="container">
+        <text class="title">defer Blocks</text>
+        <text class="subtitle">Lazy-load components with declarative triggers.</text>
 
-        <view
-          style="background-color: #6200ee; padding: 12px 24px; border-radius: 8px; margin-bottom: 16px;"
-          (bindtap)="loadDeferred()"
-        >
-          <text style="color: white; font-size: 16px;">Tap to load</text>
+        <view class="card">
+          <text class="section-label">Tap to Load</text>
+          <view class="btn" (bindtap)="loadDeferred()">
+            <text class="btn-text">Tap to load</text>
+          </view>
+
+          @defer (when visible()) {
+            <app-heavy />
+          } @placeholder {
+            <view class="placeholder">
+              <text class="placeholder-text">Placeholder — not yet triggered</text>
+            </view>
+          } @loading {
+            <view class="loading">
+              <text class="loading-text">Loading...</text>
+            </view>
+          }
         </view>
 
-        @defer (when visible()) {
-          <app-heavy />
-        } @placeholder {
-          <view
-            style="background-color: #f5f5f5; padding: 16px; border-radius: 8px;"
-          >
-            <text style="color: #999;">Placeholder — not yet triggered</text>
-          </view>
-        } @loading {
-          <view
-            style="background-color: #fff3e0; padding: 16px; border-radius: 8px;"
-          >
-            <text style="color: #e65100;">Loading...</text>
-          </view>
-        }
-
-        <text style="font-size: 14px; color: #666; margin-top: 16px;">
-          Timer-based defer (3s):
-        </text>
-        @defer (on timer(3000ms)) {
-          <app-heavy />
-        } @placeholder {
-          <view
-            style="background-color: #f5f5f5; padding: 16px; border-radius: 8px; margin-top: 8px;"
-          >
-            <text style="color: #999;">Auto-loads in 3 seconds...</text>
-          </view>
-        }
+        <view class="card">
+          <text class="section-label">Timer-based (3s)</text>
+          @defer (on timer(3000ms)) {
+            <app-heavy />
+          } @placeholder {
+            <view class="placeholder">
+              <text class="placeholder-text">Auto-loads in 3 seconds...</text>
+            </view>
+          }
+        </view>
       </view>
     </scroll-view>
+  `,
+  styles: `
+    .page { height: 100%; background-color: #fafafa; }
+    .container { padding: 24px; }
+    .title { font-size: 28px; font-weight: bold; color: #18181b; margin-bottom: 4px; }
+    .subtitle { font-size: 13px; color: #71717a; margin-bottom: 20px; }
+    .card { background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+    .section-label { font-size: 11px; font-weight: 700; color: #a1a1aa; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .btn { background-color: #6366f1; padding: 12px 24px; border-radius: 8px; align-items: center; margin-bottom: 12px; }
+    .btn-text { color: white; font-size: 15px; font-weight: 600; }
+    .placeholder { background-color: #f4f4f5; padding: 14px; border-radius: 8px; }
+    .placeholder-text { color: #a1a1aa; font-size: 14px; }
+    .loading { background-color: #fffbeb; padding: 14px; border-radius: 8px; }
+    .loading-text { color: #92400e; font-size: 14px; }
   `,
   imports: [LYNX_ELEMENTS, Heavy],
 })

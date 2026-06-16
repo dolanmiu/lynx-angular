@@ -14,13 +14,19 @@ import {
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
+import {
+  type AnimationHandle,
+  DURATION,
+  EASING,
+  fadeIn,
+  fadeOut,
+  slideIn,
+  slideOut,
+} from '../../utils/animate';
 import { cn } from '../../utils/cn';
 
 const CHEVRON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`;
 const CHECK_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`;
-
-const ANIM_DURATION_IN = 300;
-const ANIM_DURATION_OUT = 200;
 
 @Component({
   selector: 'ui-select',
@@ -32,10 +38,7 @@ const ANIM_DURATION_OUT = 200;
       <text [class]="valueTextClass()">{{ displayText() }}</text>
       <svg [attr.content]="chevronSvg" style="width: 16px; height: 16px;" />
     </view>
-    <overlay
-      [attr.visible]="overlayVisible()"
-      style="position: fixed; overflow: visible;"
-    >
+    <overlay [attr.visible]="overlayVisible()" [style]="overlayStyle()">
       <view #backdrop class="w-full h-full" (bindtap)="close()">
         <view
           #panel
@@ -65,13 +68,18 @@ export class UiSelect {
   readonly changed = output<string>();
 
   protected readonly overlayVisible = signal(false);
+  protected readonly overlayStyle = computed(() =>
+    this.overlayVisible()
+      ? 'position: fixed; overflow: visible;'
+      : 'position: fixed; overflow: visible; display: none;',
+  );
   protected readonly chevronSvg = CHEVRON_SVG;
 
   readonly itemRefs = contentChildren(forwardRef(() => UiSelectItem));
   readonly backdropRef = viewChild<ElementRef>('backdrop');
   readonly panelRef = viewChild<ElementRef>('panel');
-  #backdropAnim?: { cancel(): void };
-  #panelAnim?: { cancel(): void };
+  #backdropAnim?: AnimationHandle;
+  #panelAnim?: AnimationHandle;
   #isOpen = false;
 
   protected readonly displayText = computed(() => {
@@ -84,8 +92,7 @@ export class UiSelect {
   protected readonly triggerClass = computed(() =>
     cn(
       'flex flex-row items-center justify-between rounded-md border border-input bg-background px-3 py-2 h-10',
-      'active:opacity-80',
-      this.disabled() && 'opacity-50 active:opacity-50',
+      this.disabled() && 'opacity-50',
       this.userClass(),
     ),
   );
@@ -132,7 +139,7 @@ export class UiSelect {
     this.#animateOut();
     setTimeout(() => {
       this.overlayVisible.set(false);
-    }, ANIM_DURATION_OUT + 20);
+    }, DURATION.normal + 20);
   }
 
   #animateIn(): void {
@@ -143,20 +150,11 @@ export class UiSelect {
     this.#backdropAnim?.cancel();
     this.#panelAnim?.cancel();
 
-    this.#backdropAnim = backdrop.animate([{ opacity: 0 }, { opacity: 1 }], {
-      duration: 250,
-      easing: 'ease-out',
-      fill: 'forwards',
+    this.#backdropAnim = fadeIn(backdrop, { duration: DURATION.normal });
+    this.#panelAnim = slideIn(panel, 'up', {
+      duration: DURATION.slow,
+      easing: EASING.sheet,
     });
-
-    this.#panelAnim = panel.animate(
-      [{ transform: 'translateY(100%)' }, { transform: 'translateY(0%)' }],
-      {
-        duration: ANIM_DURATION_IN,
-        easing: 'cubic-bezier(0.32, 0.72, 0, 1)',
-        fill: 'forwards',
-      },
-    );
   }
 
   #animateOut(): void {
@@ -167,16 +165,11 @@ export class UiSelect {
     this.#backdropAnim?.cancel();
     this.#panelAnim?.cancel();
 
-    this.#backdropAnim = backdrop.animate([{ opacity: 1 }, { opacity: 0 }], {
-      duration: ANIM_DURATION_OUT,
-      easing: 'ease-in',
-      fill: 'forwards',
+    this.#backdropAnim = fadeOut(backdrop, { duration: DURATION.normal });
+    this.#panelAnim = slideOut(panel, 'down', {
+      duration: DURATION.normal,
+      easing: EASING.accelerate,
     });
-
-    this.#panelAnim = panel.animate(
-      [{ transform: 'translateY(0%)' }, { transform: 'translateY(100%)' }],
-      { duration: ANIM_DURATION_OUT, easing: 'ease-in', fill: 'forwards' },
-    );
   }
 }
 
@@ -209,7 +202,7 @@ export class UiSelectItem {
 
   protected readonly containerClass = computed(() =>
     cn(
-      'flex flex-row items-center justify-between px-4 py-3 active:opacity-80',
+      'flex flex-row items-center justify-between px-4 py-3',
       this.isSelected() && 'bg-accent',
       this.userClass(),
     ),

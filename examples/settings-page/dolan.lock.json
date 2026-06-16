@@ -1,0 +1,80 @@
+{
+  "version": 1,
+  "components": {
+    "switch": {
+      "index.ts": {
+        "hash": "d99a20e9b2225bb739408734a7d0bf3d0be3de7c3c3c93edb0b0d05f41b99ced"
+      },
+      "switch.ts": {
+        "hash": "847995c04f34f27191b6f3761e125fcad3b734fe1d1492aa1b91e7a21c3c12a8"
+      }
+    },
+    "label": {
+      "index.ts": {
+        "hash": "85cf48114b14edc8adc7413797684c8c5127f8ceed3a98aa57bd7a09a36319dd"
+      },
+      "label.ts": {
+        "hash": "b46043b92054137d634dda5a6baf4fafb14d00f04a3a7b05c65428c1fb390ea3"
+      }
+    },
+    "separator": {
+      "index.ts": {
+        "hash": "38be18254bf078300e603f8609f81d9a3c07183c835fedb0914be6dd493fe9eb"
+      },
+      "separator.ts": {
+        "hash": "47ae5bb34c171c0b0ed38f9faa8427d788e79edf00044ea147520160651db875"
+      }
+    },
+    "select": {
+      "index.ts": {
+        "hash": "e105ea931cdcd52c2569e482bd47a6c37bcc2ccedb826a8ec4d318118bf37f0f"
+      },
+      "select.ts": {
+        "hash": "26d7b1f831fcc4398025c9ba9abca1e49a1659d1a673f01cda89d093545c5be6"
+      }
+    },
+    "radio-group": {
+      "index.ts": {
+        "hash": "f9f7111ca1ef47023dd930850c856e8224529dc7a85b3a1cb025672bdbf9ab04"
+      },
+      "radio-group.ts": {
+        "hash": "d63c15e7f119b5167f6a531510fa691e46af2f80f41907f5abb87e576461654b"
+      }
+    },
+    "alert-dialog": {
+      "alert-dialog.ts": {
+        "hash": "dec141d420daaff8a0d72d690de43c466b23658b40fd93e605a1801a6d686964"
+      },
+      "index.ts": {
+        "hash": "dad7247c95e254dc5361c6aebadf27c608070035d0e8846228d30b66a2b8b4dd"
+      }
+    },
+    "spinner": {
+      "index.ts": {
+        "hash": "1cac2b09f8e24c3a280de59e4577fb5db4219a22ff18f67420c3728faee59adc"
+      },
+      "spinner.ts": {
+        "hash": "d1eaab3e15a2a3dcc3a43d94bce3e9db02f8f71c75d17d85569bc595b5e0b186"
+      }
+    },
+    "button": {
+      "button.test.ts": {
+        "hash": "1fd1e73bbc4421511bfaa905248c7c99427c39d1932f9940a3f89aec45842b60"
+      },
+      "button.ts": {
+        "hash": "b91d2afadae69fc38ac801abec81f835612d1d62ccc30706d51f23b0aebf594a"
+      },
+      "index.ts": {
+        "hash": "571fcd53d172c5123236823343d2e04fd40246f802a75af1a7f6125a56b12c21"
+      }
+    }
+  },
+  "theme": {
+    "default.css": {
+      "hash": "1de0af3e74d0ec13de113e6a50347b3ba66d583c84d86ac46b3ccb1d2b3fb998"
+    },
+    "tailwind-plugin.ts": {
+      "hash": "1884f9902ca4245b933854847ebaaf88b522ae955bf5176b98e11e042bed0434"
+    }
+  }
+}
