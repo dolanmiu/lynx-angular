@@ -15,6 +15,16 @@ export type LynxAnimationOptions = AnimationOptions & {
   timingFunction?: string;
 };
 
+/**
+ * Shared interface for all animation implementations (real and no-op).
+ * Used by `BaseLynxElement.animate()` return type so both `LynxAnimation`
+ * (main thread) and `NoopLynxAnimation` (background thread) are valid.
+ */
+export type BaseLynxAnimation = Pick<
+  LynxJsAnimation,
+  'id' | 'cancel' | 'pause' | 'play'
+>;
+
 // Wire-protocol constants for __ElementAnimate operations.
 // Must match the native Lynx engine expectations (see PAPI types).
 const ANIMATION_START = 0 as const;

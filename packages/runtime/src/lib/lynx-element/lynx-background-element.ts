@@ -1,7 +1,5 @@
-import type {
-  LynxAnimation,
-  LynxAnimationOptions,
-} from '../animation/animation';
+import type { LynxAnimationOptions } from '../animation/animation';
+import { NoopLynxAnimation } from '../animation/noop-animation';
 import type { BaseLynxElement } from './types';
 
 export class LynxBackgroundElement implements BaseLynxElement {
@@ -228,11 +226,18 @@ export class LynxBackgroundElement implements BaseLynxElement {
   animate(
     _keyframes: Record<string, string | number>[],
     _options?: number | LynxAnimationOptions,
-  ): LynxAnimation {
+  ): NoopLynxAnimation {
     // __ElementAnimate is a main-thread PAPI function — it does not exist
-    // on the background thread. Throwing here surfaces the error early
-    // rather than silently failing.
-    throw new Error('animate() is only available on the main thread');
+    // on the background thread. Return a no-op animation so callers don't
+    // crash; the animation simply won't play. This matches web-core's
+    // behavior where __ElementAnimate is a no-op in preview environments.
+    if (__DEV__) {
+      console.warn(
+        '[angular-lynx] animate() called on background thread — animation will not play. ' +
+          'Use a main-thread script for imperative animations.',
+      );
+    }
+    return new NoopLynxAnimation();
   }
 
   addEventListener(name: string, cb: (event: any) => any): () => void {

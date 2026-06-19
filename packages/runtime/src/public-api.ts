@@ -6,7 +6,10 @@ export { LynxAccessibility } from './lib/accessibility';
 export { LynxAnimation } from './lib/animation/animation';
 export { LynxDevTools, LynxPerformance } from './lib/devtools';
 export type { DevToolsStats } from './lib/devtools';
-export type { LynxAnimationOptions } from './lib/animation/animation';
+export type {
+  BaseLynxAnimation,
+  LynxAnimationOptions,
+} from './lib/animation/animation';
 export { registerDataProcessors } from './lib/data-flow/data-processors';
 export type {
   DataProcessorDefinition,

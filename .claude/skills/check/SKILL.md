@@ -26,6 +26,7 @@ Run these commands one at a time in order. If any step fails, stop, report the f
    ```sh
    npm run cspell
    ```
+   If cspell fails, automatically invoke the `/fix-spelling` skill to resolve the unknown words, then re-run `npm run cspell` to confirm the fix. Only proceed to the next step once spelling passes.
 
 4. **Build**
    ```sh

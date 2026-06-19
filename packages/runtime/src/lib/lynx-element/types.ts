@@ -16,7 +16,7 @@ export const EVENT_PREFIXES: [string, LynxEventType][] = [
 import type { Element as LynxJsElement } from '@lynx-js/types/main-thread';
 
 import type {
-  LynxAnimation,
+  BaseLynxAnimation,
   LynxAnimationOptions,
 } from '../animation/animation';
 
@@ -43,5 +43,5 @@ export type BaseLynxElement = Pick<LynxJsElement, 'setAttribute'> & {
   animate(
     keyframes: Record<string, string | number>[],
     options?: number | LynxAnimationOptions,
-  ): LynxAnimation;
+  ): BaseLynxAnimation;
 };
