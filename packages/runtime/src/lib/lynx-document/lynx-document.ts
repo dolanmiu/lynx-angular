@@ -35,11 +35,18 @@ import {
 } from './element-creators';
 import type { LynxDocumentBase } from './types';
 
+// Main-thread document that creates native Lynx elements via PAPI functions.
+// Each createElement call wraps a PAPI call (__CreateView, __CreateText, etc.)
+// and returns a LynxElement wrapping the native ElementRef. The document owns
+// the root page element and tracks its unique ID for child element creation.
 export class LynxDocument implements LynxDocumentBase {
   page!: LynxElement;
   #pageId = 0;
   #pageElementRequested = false;
-  // Track NoneElements (Angular comment markers from @for/@if) so list can skip them
+  // Track NoneElements (Angular comment markers from @for/@if) so LynxListElement
+  // can skip them in getUIChildren(). Without this, invisible comment-anchor
+  // views would be counted as list items, causing misaligned indices in
+  // componentAtIndex and incorrect update-list-info diffs.
   readonly #nonElements = new WeakSet<ElementRef>();
 
   constructor() {}

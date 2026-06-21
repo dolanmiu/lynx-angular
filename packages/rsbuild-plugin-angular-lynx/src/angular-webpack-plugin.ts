@@ -184,12 +184,22 @@ class AngularWebpackPlugin {
     compiler.hooks.thisCompilation.tap(this.constructor.name, (compilation) => {
       const onceForChunkSet = new WeakSet<Chunk>();
 
+      // Lazy loading wiring: when webpack detects a dynamic import() and emits
+      // ensureChunkHandlers (the hook for async chunk loading), we add
+      // lynxProcessEvalResult as a runtime requirement. This installs the
+      // chunk-installation function that Lynx's native runtime calls after it
+      // fetches and evaluates an async chunk via requireModuleAsync.
       compilation.hooks.runtimeRequirementInTree
         .for(compiler.webpack.RuntimeGlobals.ensureChunkHandlers)
         .tap('VanillaWebpackPlugin', (chunk, runtimeRequirements) => {
           runtimeRequirements.add(RuntimeGlobals.lynxProcessEvalResult);
         });
 
+      // Add the lynxProcessEvalResult runtime module to ALL chunks that need it,
+      // including background-thread chunks. Angular Router's loadComponent() runs
+      // on the background thread, so chunk installation must work there. An earlier
+      // version excluded :background chunks — that caused lazy routes to silently
+      // fail because the chunk installer was missing from the thread that needed it.
       compilation.hooks.runtimeRequirementInTree
         .for(RuntimeGlobals.lynxProcessEvalResult)
         .tap('VanillaWebpackPlugin', (chunk) => {
@@ -206,6 +216,11 @@ class AngularWebpackPlugin {
           );
         });
 
+      // Mark main-thread assets with `lynx:main-thread` info so
+      // LynxTemplatePlugin knows which .js files are Lepus code (main thread)
+      // vs background-thread code. This includes both explicitly listed
+      // mainThreadChunks AND any async chunks whose originating modules are
+      // in the MAIN_THREAD layer (e.g. lazy route main-thread splits).
       compilation.hooks.processAssets.tap(
         {
           name: this.constructor.name,
@@ -235,6 +250,11 @@ class AngularWebpackPlugin {
       // The thread-globals-loader approach (via webpack layers/oneOf) is unreliable
       // because Rsbuild's parent typescript rule processes modules before the oneOf
       // rules match. Instead, inject the flag directly into the bundled output.
+      //
+      // For lazy loading: __MAIN_THREAD__ is critical because the main thread (Lepus)
+      // has NO async module loading capability — lynx.requireModuleAsync is background-
+      // thread-only. Runtime code checks this flag to suppress chunk loading on the
+      // main thread (returning a never-resolving promise) preventing crashes.
       {
         const { ConcatSource } = compiler.webpack.sources;
         const mainThreadChunkSet = new Set(options.mainThreadChunks ?? []);
@@ -256,7 +276,10 @@ class AngularWebpackPlugin {
               );
             }
 
-            // Inject globDynamicComponentEntry into main-thread chunks
+            // Inject globDynamicComponentEntry into main-thread chunks.
+            // Only needed when NOT in lazy bundle mode — in that mode, async
+            // sub-bundles provide their own entry via the AMD init mechanism
+            // and globDynamicComponentEntry comes from the native runtime context.
             if (!options.experimental_isLazyBundle) {
               for (const name of options.mainThreadChunks ?? []) {
                 const asset = compilation.getAsset(name);
@@ -289,11 +312,15 @@ class AngularWebpackPlugin {
 
       const { ConcatSource } = compiler.webpack.sources;
 
-      // Inject `module.exports` for async main-thread chunks
+      // Inject `module.exports` wrapper for DynamicComponent (lazy bundle)
+      // main-thread chunks. When the native engine loads a lazy bundle, it
+      // evaluates the main-thread JS via __init_card_bundle__() which expects
+      // a function that returns `module.exports`. Card-type (root app) chunks
+      // don't need this — they execute at top level. Only DynamicComponent
+      // chunks (from loadComponent routes) need the wrapper.
       hooks.beforeEncode.tap(this.constructor.name, (args) => {
         const { encodeData } = args;
 
-        // A lazy bundle may not have main-thread code
         if (!encodeData.lepusCode.root) {
           return args;
         }
@@ -302,7 +329,6 @@ class AngularWebpackPlugin {
           return args;
         }
 
-        // We inject `module.exports` for each async template.
         compilation.updateAsset(
           encodeData.lepusCode.root.name,
           (old) =>

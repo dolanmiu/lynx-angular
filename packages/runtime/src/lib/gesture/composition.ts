@@ -20,6 +20,8 @@ export const Gesture = {
   },
 
   // Gestures are tried in order — each waits for all previous to fail before activating.
+  // E.g. Exclusive(doubleTap, singleTap): singleTap waits for doubleTap to fail
+  // before it can activate, giving doubleTap priority.
   Exclusive(...gestures: AnyGesture[]): ComposedGesture {
     for (let i = 1; i < gestures.length; i++) {
       gestures[i].waitFor(...gestures.slice(0, i));

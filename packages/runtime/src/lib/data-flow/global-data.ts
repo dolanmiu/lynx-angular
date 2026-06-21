@@ -11,6 +11,10 @@ export class LynxGlobalData {
   );
 
   constructor() {
+    // Only subscribe on the background thread — global props are a host→JS
+    // data channel that only fires on the background thread. The main thread
+    // check guards against running in the Lepus context where getJSModule
+    // doesn't exist and GlobalEventEmitter is not available.
     if (
       typeof lynx === 'undefined' ||
       (typeof __MAIN_THREAD__ !== 'undefined' && __MAIN_THREAD__) ||

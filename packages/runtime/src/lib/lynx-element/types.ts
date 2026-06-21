@@ -15,6 +15,9 @@ export const EVENT_PREFIXES: [string, LynxEventType][] = [
 
 import type { Element as LynxJsElement } from '@lynx-js/types/main-thread';
 
+// Uses BaseLynxAnimation (not LynxAnimation) so both the real main-thread
+// implementation and the background-thread NoopLynxAnimation satisfy this
+// interface without requiring inheritance or unsafe casts.
 import type {
   BaseLynxAnimation,
   LynxAnimationOptions,

@@ -41,6 +41,14 @@ export const applyAngularConfig = (
     } else {
       config.source.preEntry ??= [];
     }
+    // preEntry order matters — these run before the app's main entry:
+    // 1. Polyfills (AbortController, URL, etc.) must come first since Angular
+    //    and user code assume they exist at import time
+    // 2. @angular/localize/init (if i18n is configured) — registers $localize
+    //    which template strings may reference at module evaluation
+    // 3. User polyfills from angular.json
+    // 4. Global stylesheets — must load before components so CSS is available
+    //    when the first component renders
     config.source.preEntry.push(path.resolve(__dirname, './polyfills'));
     if (buildOptions.i18n.hasDefinedSourceLocale) {
       config.source.preEntry.push('@angular/localize/init');

@@ -15,6 +15,12 @@ export type LynxAnimationOptions = AnimationOptions & {
   timingFunction?: string;
 };
 
+// Required because LynxAnimation uses ES private fields (#element, #count)
+// which brand the class — TypeScript's structural typing won't accept
+// NoopLynxAnimation as assignable to LynxAnimation. This shared Pick type
+// extracts only the public API both implementations satisfy, so
+// BaseLynxElement.animate() can return either without a type error.
+
 /**
  * Shared interface for all animation implementations (real and no-op).
  * Used by `BaseLynxElement.animate()` return type so both `LynxAnimation`

@@ -37,6 +37,10 @@ const loadBundle = (source: string): Promise<Type<unknown>> => {
   return loadOnBackgroundThread(source);
 };
 
+// Main-thread (Lepus) loading is synchronous — __QueryComponent evaluates the
+// bundle inline and returns immediately. The callback parameter is required by
+// the PAPI signature but never fires on the main thread (it's for background
+// thread async loading). The empty callback is a no-op placeholder.
 const loadOnMainThread = (source: string): Promise<Type<unknown>> => {
   try {
     const result = __QueryComponent(source, () => {});
@@ -46,11 +50,18 @@ const loadOnMainThread = (source: string): Promise<Type<unknown>> => {
   } catch (e) {
     // Main thread renders once for first-screen — return a never-resolving
     // promise so Lynx doesn't crash on failed lazy loads (matches React Lynx).
+    // The component simply won't appear in the first-screen render, which is
+    // acceptable since lazy components are below-the-fold by definition.
     reportError(source, e);
     return new Promise(() => {});
   }
 };
 
+// Background-thread loading is async — __QueryComponent triggers the native
+// runtime to fetch the .lynx.bundle file, evaluate its JS, and invoke the
+// callback with the result. result.data.evalResult is a function (not a value)
+// that must be called with the source name to execute the bundle's AMD module
+// registration and return the component exports.
 const loadOnBackgroundThread = (source: string): Promise<Type<unknown>> => {
   return new Promise((resolve, reject) => {
     __QueryComponent(source, (result) => {

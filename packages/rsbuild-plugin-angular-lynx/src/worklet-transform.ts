@@ -31,7 +31,9 @@ export const transformWorklets = (code: string, filename: string): string => {
     return code;
   }
 
-  // Apply replacements from end to start so positions stay valid.
+  // Apply replacements from end to start so earlier positions remain valid
+  // after text is inserted. Forward iteration would shift all subsequent
+  // offsets by the length difference of each replacement.
   let result = code;
   for (let i = workletRanges.length - 1; i >= 0; i--) {
     const { start, end } = workletRanges[i];
@@ -40,6 +42,7 @@ export const transformWorklets = (code: string, filename: string): string => {
       result.slice(0, start) + `mainThreadFn(${fnText})` + result.slice(end);
   }
 
+  // Single import at the top covers all wrapped functions in this file.
   result = `import { mainThreadFn } from '@blotch/angular-lynx';\n` + result;
 
   return result;

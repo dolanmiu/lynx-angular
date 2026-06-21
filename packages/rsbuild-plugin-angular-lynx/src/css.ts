@@ -46,6 +46,11 @@ export const applyCSS = (
         ? CssExtractRspackPlugin
         : CssExtractWebpackPlugin;
 
+    // LightningCSS transforms CSS features that Lynx's native CSS engine
+    // doesn't support (e.g. nesting, custom media queries). But it also
+    // rewrites selectors in ways that break Lynx's CSS matching — for example,
+    // it merges duplicate selectors and reorders properties. Remove it so
+    // CSS passes through to Lynx's engine as-authored.
     const removeLightningCSS = (rule: ReturnType<typeof chain.module.rule>) => {
       if (
         // Webpack does not have lightningcss-loader
@@ -71,8 +76,8 @@ export const applyCSS = (
 
       removeLightningCSS(rule);
 
-      // Replace the CssExtractRspackPlugin.loader with ours.
-      // This is for scoped CSS.
+      // Background layer: extract CSS to separate .css files for the Lynx
+      // template plugin. CSS is processed by css-loader → CssExtractPlugin.
       rule
         .issuerLayer(LAYERS.BACKGROUND)
         .use(CHAIN_ID.USE.MINI_CSS_EXTRACT)
@@ -91,12 +96,10 @@ export const applyCSS = (
         CHAIN_ID.USE.CSS
       ]?.entries() as Rspack.RuleSetRule;
 
-      // We add an additional rule for background layer.
-      // With only the following loaders:
-      //   - ignore-css-loader
-      //   - css-loader
-      //   - resolve-url-loader(for sass/less)
-      //   - sass-loader/less-loader(for sass/less)
+      // Main-thread layer: CSS is NOT extracted — the main thread JS has no
+      // CSS runtime. Use ignore-css-loader to return empty module exports.
+      // css-loader still runs (with exportOnlyLocals: true) so CSS module
+      // class name bindings resolve, but no actual CSS is emitted.
       // dprint-ignore
       chain.module
         .rule(`${ruleName}:${LAYERS.MAIN_THREAD}`)

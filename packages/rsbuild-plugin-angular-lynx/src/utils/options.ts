@@ -26,6 +26,14 @@ export type PluginAngularLynxOptions = {
   pipelineSchedulerConfig?: number;
   removeDescendantSelectorScope?: boolean;
   targetSdkVersion?: string;
+  // Enables true lazy loading for Angular Router's loadComponent() routes.
+  // When true: asyncChunks remains enabled so each dynamic import() produces a
+  // separate .js file, AMD-wrapped and loadable via Lynx's native
+  // requireModuleAsync API at runtime.
+  // When false (default): all dynamic imports are inlined into the initial bundle
+  // (asyncChunks=false), avoiding the need for native chunk loading entirely.
+  // Note: this flag is NOT passed to LynxTemplatePlugin — doing so would change
+  // the root app's appType from 'card' to 'DynamicComponent', crashing the runtime.
   experimental_isLazyBundle?: boolean;
 };
 

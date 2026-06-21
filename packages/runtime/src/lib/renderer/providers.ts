@@ -12,15 +12,23 @@ import { LynxHydrateDocument } from '../ssr/hydrate-document';
 import { LynxRendererFactory2 } from './lynx-renderer-factory2';
 import { LYNX_DOCUMENT } from './token';
 
+// Central DI configuration for the Lynx renderer. Must be included in every
+// Lynx Angular app's providers (typically via app.config.ts). Sets up:
+// 1. Thread-aware document (LynxDocument vs LynxBackgroundDocument)
+// 2. DOCUMENT stub (Angular requires this token but Lynx has no DOM Document)
+// 3. APP_BASE_HREF (prevents BrowserPlatformLocation from crashing)
+// 4. Renderer factory (creates LynxRenderer / EmulatedLynxRenderer)
+// 5. Error handler (routes to _ReportError + __lynxLastError)
 export const provideRenderer = (): EnvironmentProviders => {
   return makeEnvironmentProviders([
     {
       provide: LYNX_DOCUMENT,
       useFactory: () => {
+        // Three paths based on thread + SSR state:
+        // 1. Main thread + SSR hydrating → LynxHydrateDocument (reuse snapshot elements)
+        // 2. Main thread + normal → LynxDocument (create native elements via PAPI)
+        // 3. Background thread → LynxBackgroundDocument (virtual in-memory tree)
         if (__MAIN_THREAD__) {
-          // SSR hydration: the Lynx engine already reconstructed native
-          // elements from a snapshot. Return a document that reuses those
-          // elements instead of creating new ones.
           if (__ENABLE_SSR__ && (globalThis as any).__LYNX_IS_HYDRATING__) {
             return new LynxHydrateDocument(
               (globalThis as any).__LYNX_HYDRATE_PAGE__,
@@ -33,6 +41,9 @@ export const provideRenderer = (): EnvironmentProviders => {
       },
     },
     {
+      // Angular's internal code occasionally accesses @Inject(DOCUMENT). In Lynx
+      // there is no DOM document, so we provide an empty object. Specific access
+      // points (defaultView, querySelector) are polyfilled in runtime.ts.
       provide: DOCUMENT,
       useValue: {},
     },

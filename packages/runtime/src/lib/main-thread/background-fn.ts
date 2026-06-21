@@ -1,5 +1,9 @@
-// Counter stays in sync across threads because both bundles evaluate
-// the same module graph in the same order.
+// Counter stays in sync across threads because the build plugin produces
+// two bundles (main + background) from the same source. Both evaluate the
+// same module graph in the same order, so the N-th backgroundFn() call
+// produces ID '__angular_bg_N' on both threads. The main thread can then
+// dispatch a call to a background function by its _wkltId string, and the
+// background thread resolves it to the correct registered function.
 let nextBgWorkletId = 0;
 
 export type BackgroundFnHandle<

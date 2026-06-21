@@ -135,6 +135,9 @@ export class LynxPortal {
     this.#appRef.attachView(componentRef.hostView);
     overlay.appendChild(componentRef.location.nativeElement);
 
+    // createRootElement() returns the existing singleton page element, NOT a new
+    // one. The overlay must be a direct child of the page so native Lynx renders
+    // it as a top-level overlay above all other content.
     const page = this.#doc.createRootElement();
     page.appendChild(overlay);
 
@@ -164,6 +167,7 @@ export class LynxPortal {
       overlay.appendChild(node);
     }
 
+    // Same singleton page pattern as open() — overlay goes under the root page.
     const page = this.#doc.createRootElement();
     page.appendChild(overlay);
 

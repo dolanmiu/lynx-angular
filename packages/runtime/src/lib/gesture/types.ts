@@ -58,6 +58,8 @@ export type LongPressGestureEvent = {
   duration: number;
 } & GestureEvent;
 
+// Bitmask values — combine with bitwise OR for multi-direction fling:
+// e.g. FlingDirection.LEFT | FlingDirection.RIGHT for horizontal fling.
 export enum FlingDirection {
   RIGHT = 1,
   LEFT = 2,

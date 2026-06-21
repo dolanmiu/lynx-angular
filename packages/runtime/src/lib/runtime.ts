@@ -185,6 +185,13 @@ if (
   }
 }
 
+// Lynx lifecycle callbacks. The engine calls these globals at specific points:
+// - renderPage: called once when the page is ready to render. On the main thread,
+//   bootstrapApplication() awaits this before calling Angular's bootstrap.
+// - updatePage: called when the host app sends updated data. No-op for now —
+//   Angular's change detection handles reactivity via LynxInitData/LynxGlobalData.
+// - processData: called before data delivery for transformation. Overridden by
+//   registerDataProcessors() if the app needs custom data processing.
 // @ts-expect-error
 globalThis.renderPage = () => {
   pageReady.next();
@@ -290,8 +297,11 @@ globalThis.runWorklet = (ctx: unknown, params: unknown[]) => {
   }
 };
 
-// Cross-thread RPC: main thread listens for execution requests from background
-// AND provides runOnBackground global for main-thread worklet functions
+// Cross-thread RPC system. Lynx's JSContext event system is bidirectional:
+//   Main → Background: 'Lynx.Worklet.runOnBackground' (request) + 'Lynx.Worklet.BgFunctionCallRet' (response)
+//   Background → Main: 'Lynx.Worklet.runWorkletCtx' (request) + 'Lynx.Worklet.FunctionCallRet' (response)
+// Each thread registers listeners for incoming requests AND for return values
+// from its own outgoing calls. resolveId ties each response to its Promise.
 if (__MAIN_THREAD__) {
   try {
     if (typeof lynx !== 'undefined' && (lynx as any).getJSContext) {
@@ -415,7 +425,9 @@ if (!__MAIN_THREAD__) {
   }
 }
 
-// Exposed for LynxMainThread to dispatch cross-thread calls
+// Exposed for LynxMainThread service (main-thread.ts) to dispatch cross-thread
+// calls. Can't use import because runtime.ts is evaluated at module load time
+// (side effects) while LynxMainThread is DI-instantiated. Globals bridge the gap.
 globalThis.__lynxMtsPendingResolvers = __pendingResolvers;
 globalThis.__lynxMtsNextResolveId = () => __nextResolveId++;
 

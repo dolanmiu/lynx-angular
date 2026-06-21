@@ -2,9 +2,17 @@ import type { LynxAnimationOptions } from '../animation/animation';
 import { NoopLynxAnimation } from '../animation/noop-animation';
 import type { BaseLynxElement } from './types';
 
+// Virtual element for the background thread where no native PAPI functions exist.
+// Maintains an in-memory linked-list tree (parent/child/sibling pointers) that
+// mirrors what LynxDocument builds on the main thread. Used by:
+// - Angular's change detection (reads parentNode/nextSibling for view insertion)
+// - querySelector/querySelectorAll (for testing and background-thread lookups)
+// - LynxBackgroundDocument (creates these instead of native elements)
+//
+// Props, styles, classes, and events are stored in Maps/Sets but never sent to
+// native — they exist so component code can read back what it set without
+// crashing, and so the testing library can inspect element state.
 export class LynxBackgroundElement implements BaseLynxElement {
-  // When true, this element is the root page element and must not be
-  // re-parented or removed from the tree.
   isRootPageElement = false;
 
   #props = new Map<string, any>();
@@ -223,6 +231,12 @@ export class LynxBackgroundElement implements BaseLynxElement {
 
     return true;
   }
+  // Previously threw: `throw new Error('animate() is only available on the
+  // main thread')`. This crashed the Go web preview on the docs site because
+  // the animations example's (bindtap) handler calls el.nativeElement.animate()
+  // which lands here on the background thread. Returning a no-op is safe —
+  // the animation won't visually play, but the caller's code (including
+  // .cancel() / .pause() / .play() chains) continues without error.
   animate(
     _keyframes: Record<string, string | number>[],
     _options?: number | LynxAnimationOptions,

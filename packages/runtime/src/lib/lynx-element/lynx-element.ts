@@ -93,17 +93,26 @@ export class LynxElement implements BaseLynxElement {
     __AddClass(this.element, name);
   }
 
+  // Lynx has no __RemoveClass PAPI — we must get current classes, filter,
+  // and set back. This is O(n) per class removal but class lists on Lynx
+  // elements are typically small (1-5 classes for scope/component styling).
   removeClass(name: string): void {
     const classes = __GetClasses(this.element).filter((c) => c !== name);
     __SetClasses(this.element, classes.join(' '));
   }
 
+  // Two distinct removal paths:
+  // 1. Virtual parent (list) → delegate to removeVirtualChild(), which updates
+  //    the JS linked list and schedules an update-list-info diff. Does NOT call
+  //    __RemoveElement — list item removal is managed exclusively through
+  //    update-list-info's removeAction (calling both would double-remove and crash).
+  // 2. Normal parent → __RemoveElement detaches from the native element tree.
+  //    Note: __RemoveElement does NOT free the element's native pool slot —
+  //    there is no __ReleaseElement in Lynx's PAPI.
   remove() {
     if (this.isRootPageElement) return;
     if (__PROFILE__) devStats.elementRemoved++;
     if (this._virtualParent) {
-      // Remove from virtual tree (e.g., when parent is an list).
-      // Duck-typed to avoid a circular import with LynxListElement.
       const vp = this._virtualParent as any;
       if (typeof vp.removeVirtualChild === 'function') {
         vp.removeVirtualChild(this);
@@ -117,6 +126,11 @@ export class LynxElement implements BaseLynxElement {
     __RemoveElement((parent as LynxElement).element, this.element);
   }
 
+  // Returns the parent element. For list children, the virtual parent (the JS
+  // LynxListElement) is returned instead of the native parent — this maintains
+  // the illusion that list children are parented by the list even though they
+  // may not be __AppendElement'd to the native list yet (lazy append in
+  // componentAtIndex).
   parentNode(): LynxElement | null {
     if (this._virtualParent) return this._virtualParent;
     const parent = __GetParent(this.element);
@@ -151,6 +165,12 @@ export class LynxElement implements BaseLynxElement {
     return new LynxAnimation(this.element, keyframes, normalizedOptions);
   }
 
+  // Angular's renderer.listen() calls this with event names like 'bindtap',
+  // 'catchtouchstart', 'bindscroll', etc. We strip the Lynx event prefix
+  // (bind/catch/capture-bind/capture-catch) to extract the native event name
+  // and determine the event type for __AddEvent.
+  // Events that don't match any prefix (e.g. DOM-style 'click') are silently
+  // ignored — Lynx has no equivalent event system for arbitrary names.
   addEventListener(name: string, cb: (event: any) => any) {
     let eventName = '';
     let eventType: LynxEventType | undefined;
@@ -167,6 +187,10 @@ export class LynxElement implements BaseLynxElement {
       return () => {};
     }
 
+    // type: 'worklet' routes the callback through Lynx's worklet system
+    // (runWorklet), which is the only way to receive events in the JS thread.
+    // Direct function callbacks also work here (not just worklet handles) —
+    // the native engine checks the value type at runtime.
     __AddEvent(this.element, eventType, eventName, {
       type: 'worklet',
       value: cb,

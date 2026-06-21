@@ -21,9 +21,11 @@ import {
  * | Leave start  | `{name}-leave-from`, `{name}-leave-active`       |
  * | Leave active | `{name}-leave-to`, `{name}-leave-active`         |
  *
- * The `duration` input (default 300ms) must match your CSS transition length
- * because the background thread cannot read computed styles to auto-detect it
- * (same constraint as Vue Lynx).
+ * Uses timer-based completion (setTimeout) instead of transitionend events
+ * because the Lynx background thread has no access to CSS computed values —
+ * transitionend fires on the native main thread but there's no bridge to
+ * deliver it to the JS background thread. The `duration` input (default 300ms)
+ * must match your CSS transition length (same constraint as Vue Lynx).
  *
  * @usageNotes
  * ```html

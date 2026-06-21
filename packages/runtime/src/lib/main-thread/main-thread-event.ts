@@ -17,7 +17,9 @@ type MaybeHandle =
   | undefined
   | null;
 
-// Maps directive input names to [eventType, eventName] for __AddEvent.
+// Maps directive input names to [eventType, eventName] for Lynx's __AddEvent PAPI.
+// eventType is 'bindEvent' (bubbles) or 'catchEvent' (stops propagation) —
+// these map to Lynx's bind* / catch* event model, not DOM addEventListener.
 const INPUT_TO_EVENT: Record<string, [string, string]> = {
   mainThreadBindtap: ['bindEvent', 'tap'],
   mainThreadCatchtap: ['catchEvent', 'tap'],
@@ -105,6 +107,11 @@ export class LynxMainThreadEvent implements OnChanges, OnDestroy {
       const handle = (this as any)[inputName] as MaybeHandle;
 
       if (isMainThreadHandle(handle)) {
+        // type: 'worklet' tells the Lynx engine to invoke this handler via the
+        // worklet system (runWorklet) on the main thread, NOT via the normal
+        // background-thread event dispatch. _workletType: 'main-thread' ensures
+        // the handler runs on the Lepus thread where it can call __AddInlineStyle,
+        // __SetAttribute, etc. for 60fps animations without cross-thread latency.
         __AddEvent(elementRef, eventType, eventName, {
           type: 'worklet',
           value: { _wkltId: handle._wkltId, _workletType: 'main-thread' },

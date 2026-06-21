@@ -12,6 +12,8 @@ export class LynxInitData {
   );
 
   constructor() {
+    // Same background-thread-only guard as LynxGlobalData — GlobalEventEmitter
+    // is a background-thread API. See global-data.ts for details.
     if (
       typeof lynx === 'undefined' ||
       (typeof __MAIN_THREAD__ !== 'undefined' && __MAIN_THREAD__) ||

@@ -54,6 +54,9 @@ export class LynxRenderer implements Renderer2 {
   ): void {
     oldChild.remove();
   }
+  // Angular calls selectRootElement once during bootstrap to get the root
+  // node where the app component will be rendered. In browser Angular this
+  // finds an existing DOM element; here we create the Lynx page element.
   selectRootElement(): BaseLynxElement {
     return this.#document.createRootElement();
   }
@@ -117,6 +120,9 @@ export class LynxRenderer implements Renderer2 {
   setProperty(el: BaseLynxElement, name: string, value: any): void {
     el.setProperty(name, value);
   }
+  // Angular calls setValue for text nodes created via createText(). In the
+  // browser DOM this sets node.nodeValue. In Lynx, raw-text elements store
+  // their content in the 'text' attribute.
   setValue(node: BaseLynxElement, value: string): void {
     node.setAttribute('text', value);
   }

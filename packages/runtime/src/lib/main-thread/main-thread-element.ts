@@ -6,11 +6,16 @@ import {
 
 // Batched flush — coalesces multiple style/attribute mutations into a single
 // native render pass, matching React Lynx's Element.flushElementTree() behavior.
+// Without batching, each setAttribute/setStyleProperty would trigger a separate
+// layout pass. With batching, a handler that sets 5 properties produces 1 flush
+// (on the next microtask) instead of 5, preventing visible frame drops.
 let willFlush = false;
 
 const scheduleFlush = (): void => {
   if (willFlush) return;
   willFlush = true;
+  // Microtask ensures the flush runs after all synchronous mutations in the
+  // current event handler are applied, but before the next frame renders.
   Promise.resolve().then(() => {
     willFlush = false;
     __FlushElementTree();
@@ -66,6 +71,10 @@ export class MainThreadElement {
     );
   }
 
+  // Invokes a native UI method on this element (e.g. scrollTo, autoPlay).
+  // __InvokeUIMethod is asynchronous — the result arrives in the callback.
+  // scheduleFlush() must be called AFTER __InvokeUIMethod so the method
+  // invocation is included in the next native render pass.
   invoke(
     methodName: string,
     params?: Record<string, unknown>,

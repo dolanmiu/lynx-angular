@@ -355,6 +355,12 @@ export const applyAngularRules = async (
         }
         code = importsString + code;
       }
+      // Patch the component's \u0275cmp.id to match the scope ID derived from the
+      // component's class name + file path. Angular normally generates this via
+      // encapsulateStyle, but we bypass Angular's style encapsulation entirely
+      // (Lynx's template engine handles scoping). This ID connects CSS files
+      // (which use the scope ID in their filename) to the component's renderer
+      // (EmulatedLynxRenderer adds _nghost-{id} to the host element).
       const scopeInfo = componentScopeIds.get(context.resourcePath);
       if (scopeInfo) {
         code += `\n;${scopeInfo.className}.\u0275cmp.id = '${scopeInfo.scopeId}';\n`;
@@ -363,6 +369,9 @@ export const applyAngularRules = async (
       // trigger a full page reload. The entry re-evaluates on any dependency
       // update, calling bootstrapApplication again (which handles
       // re-bootstrap by destroying the previous app and creating a fresh one).
+      // Without this, webpack falls back to a full CDP Page.reload on every
+      // change because no module calls module.hot.accept() — the reload works
+      // but is slow (rebuilds everything, loses navigation state).
       if (
         process.env['NODE_ENV'] !== 'production' &&
         code.includes('bootstrapApplication')

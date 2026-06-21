@@ -35,6 +35,12 @@ export const applySplitChunksRule = (
   api.modifyRsbuildConfig((config, { mergeRsbuildConfig }) => {
     const userConfig = api.getRsbuildConfig('original');
     if (!userConfig.performance?.chunkSplit?.strategy) {
+      // all-in-one disables SplitChunksPlugin's shared-module extraction.
+      // This is critical for lazy loading: without it, shared dependencies get
+      // extracted into unnamed sibling chunks that are absent from lynx_aci
+      // (Lynx's async chunk index). Those unnamed chunks fall through to
+      // requireModuleAsync (broken on some SDKs), causing navigation failures.
+      // With all-in-one, each lazy route is a single self-contained chunk.
       return mergeRsbuildConfig(config, {
         performance: {
           chunkSplit: {
@@ -51,9 +57,13 @@ export const applySplitChunksRule = (
       return rspackConfig;
     }
 
-    // Disable async chunks so rspack inlines all dynamic imports into the
-    // initial bundle. Routes still use loadComponent() syntax but modules
-    // are synchronously available — no Lynx native loading APIs needed.
+    // When experimental_isLazyBundle is disabled (the default), set asyncChunks=false
+    // so rspack inlines all dynamic imports into the initial bundle. Routes still use
+    // loadComponent() syntax but modules are synchronously available at runtime — this
+    // avoids needing Lynx's native async chunk loading APIs (requireModuleAsync /
+    // QueryComponent) which require AMD wrapping, .lynx.bundle packaging, and SDK 2.14+.
+    // When enabled, asyncChunks remains true and each loadComponent() produces a
+    // separate .js file loaded at runtime via Lynx's native requireModuleAsync.
     rspackConfig.output = rspackConfig.output ?? {};
     if (!options.experimental_isLazyBundle) {
       (rspackConfig.output as any).asyncChunks = false;
