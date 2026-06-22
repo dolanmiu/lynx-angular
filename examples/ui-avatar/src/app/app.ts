@@ -31,7 +31,9 @@ import { UiAvatar } from '../components/ui/avatar';
         </view>
 
         <!-- Sizes -->
-        <text class="text-sm font-medium text-muted-foreground mb-3">Sizes</text>
+        <text class="text-sm font-medium text-muted-foreground mb-3"
+          >Sizes</text
+        >
         <view class="flex-row items-center gap-3 mb-6">
           <ui-avatar src="https://i.pravatar.cc/150?img=3" size="sm" />
           <ui-avatar src="https://i.pravatar.cc/150?img=3" size="default" />

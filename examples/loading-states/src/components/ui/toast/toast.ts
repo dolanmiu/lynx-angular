@@ -9,7 +9,11 @@ import {
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
-import { type AnimationHandle, DURATION, EASING } from '@blotch/dolan/utils/animate';
+import {
+  type AnimationHandle,
+  DURATION,
+  EASING,
+} from '@blotch/dolan/utils/animate';
 import { cn } from '@blotch/dolan/utils/cn';
 import { type ToastData, toasts } from './toast-state';
 
@@ -19,32 +23,29 @@ import { type ToastData, toasts } from './toast-state';
   imports: [LYNX_ELEMENTS],
   encapsulation: ViewEncapsulation.None,
   template: `
-    <overlay
-      [attr.visible]="overlayVisible()"
-      [style]="overlayStyle()"
-    >
-        <view
-          style="position: absolute; bottom: 0; left: 0; right: 0;"
-          class="flex flex-col items-center p-4"
-        >
-          @if (displayedToast(); as t) {
-            <view #toastEl [class]="toastClass()" (bindtap)="dismiss()">
-              <view class="flex flex-col gap-1 flex-1">
-                @if (t.title) {
-                  <text [class]="titleClass()">{{ t.title }}</text>
-                }
-                @if (t.description) {
-                  <text [class]="descriptionClass()">{{ t.description }}</text>
-                }
-              </view>
-              @if (t.action) {
-                <view [class]="actionClass()" (catchtap)="onAction()">
-                  <text [class]="actionTextClass()">{{ t.action.label }}</text>
-                </view>
+    <overlay [attr.visible]="overlayVisible()" [style]="overlayStyle()">
+      <view
+        style="position: absolute; bottom: 0; left: 0; right: 0;"
+        class="flex flex-col items-center p-4"
+      >
+        @if (displayedToast(); as t) {
+          <view #toastEl [class]="toastClass()" (bindtap)="dismiss()">
+            <view class="flex flex-col gap-1 flex-1">
+              @if (t.title) {
+                <text [class]="titleClass()">{{ t.title }}</text>
+              }
+              @if (t.description) {
+                <text [class]="descriptionClass()">{{ t.description }}</text>
               }
             </view>
-          }
-        </view>
+            @if (t.action) {
+              <view [class]="actionClass()" (catchtap)="onAction()">
+                <text [class]="actionTextClass()">{{ t.action.label }}</text>
+              </view>
+            }
+          </view>
+        }
+      </view>
     </overlay>
   `,
 })

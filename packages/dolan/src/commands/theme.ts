@@ -72,7 +72,9 @@ const createTheme = (name: string, themeDir: string) => {
 
   const template = readFileSync(defaultThemePath, 'utf-8');
 
-  // Replace the header comment with a custom one
+  // Replace only the first block comment (the header). The lazy `*?` is
+  // critical — without it, the greedy version would consume everything from
+  // the first `/*` to the LAST `*/` in the file, wiping all comments.
   const content = template.replace(
     /\/\*[\s\S]*?\*\//,
     `/* Custom theme: ${name}\n *\n * Edit the CSS variables below to customize your theme.\n * Values are HSL without the hsl() wrapper (e.g., "240 5.9% 10%").\n */`,

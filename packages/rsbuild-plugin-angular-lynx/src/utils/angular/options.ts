@@ -9,6 +9,19 @@ import {
   normalizeCacheOptions,
 } from './normalize-cache.js';
 
+/**
+ * Normalizes angular.json's `sourceMap` field which accepts two shapes:
+ *
+ *   - Boolean (`true` / `false`) — applies the same setting to scripts, styles,
+ *     hidden, and vendor sourcemaps.
+ *   - Object (`{ scripts, styles, hidden, vendor }`) — fine-grained control
+ *     used by production builds that want script maps but not vendor or
+ *     stylesheet maps for bundle-size reasons.
+ *
+ * Downstream consumers (the JavaScriptTransformer, the rspack devtool option,
+ * and the diagnostic reporters) all expect the object shape, so we expand the
+ * boolean into the equivalent uniform-object form here.
+ */
 export const normalizeSourceMaps = (sourceMap: any): any => {
   const scripts = typeof sourceMap === 'object' ? sourceMap.scripts : sourceMap;
   const styles = typeof sourceMap === 'object' ? sourceMap.styles : sourceMap;
@@ -23,6 +36,25 @@ export const normalizeSourceMaps = (sourceMap: any): any => {
   };
 };
 
+/**
+ * Normalizes angular.json's `optimization` field which accepts three shapes:
+ *
+ *   - `undefined` / `true` — enable everything (the default for production).
+ *   - `false` — disable everything (typical for dev builds).
+ *   - Object — granular control over scripts/styles/fonts subsections, where
+ *     each subsection can itself be a boolean or a config object.
+ *
+ * The double-nested shape is messy: `{ styles: true }` means "minify styles
+ * with the default config" while `{ styles: { minify: false, inlineCritical: true } }`
+ * means "use these exact style settings". This function flattens both forms
+ * into a single canonical `{ scripts, styles, fonts }` object that all
+ * downstream code can rely on without re-doing the shape check.
+ *
+ * Note: `inlineCritical` is included in the default style config even though
+ * Lynx doesn't have a concept of "above-the-fold critical CSS" — leaving it
+ * mirrored from Angular's default keeps the option surface compatible with
+ * Angular's own builder so users can copy/paste angular.json snippets.
+ */
 export const normalizeOptimization = (
   optimization: boolean | Record<string, any> | undefined = true,
 ): any => {
@@ -128,7 +160,9 @@ export const readBuildOptions = async (
         'Make sure the target has an "options" section with at least "browser", "tsConfig", and "index" defined.',
     );
   }
-  // appending the configuration to build options
+  // Merge the selected configuration (e.g., 'production') over base options.
+  // Object.assign overwrites keys present in the configuration while leaving
+  // unmentioned keys at their base-options values.
   const configurations = target.configurations;
   if (configurations) {
     for (const name in configurations) {
@@ -151,6 +185,8 @@ export const readBuildOptions = async (
   const sourcemapOptions = normalizeSourceMaps(buildOptions.sourceMap ?? false);
   const browser = path.join(workspaceRoot, buildOptions.browser as string);
   const index = path.join(workspaceRoot, buildOptions.index as string);
+  // Angular's `polyfills` option accepts either a string or string[] in angular.json.
+  // Normalize to array so downstream code can always use spread/push.
   let polyfills = buildOptions.polyfills as string | string[] | undefined;
   polyfills =
     polyfills === undefined || Array.isArray(polyfills)
@@ -178,6 +214,15 @@ export const readBuildOptions = async (
   }
   const outputHashing = buildOptions.outputHashing as OutputHashing;
   const media = 'media';
+  // outputHashing controls cache-busting hashes in emitted asset filenames.
+  // Angular's option vocabulary:
+  //   'none'    — no hashes (deterministic filenames, good for dev)
+  //   'all'     — hashes on both bundles and media (the production default)
+  //   'bundles' — hashes only on JS/CSS bundles, raw filenames for assets
+  //   'media'   — hashes only on assets, raw filenames for bundles
+  // Lynx delivers .lynx bundles via a URL/path that the host app embeds, so
+  // bundle hashes matter for cache invalidation but media hashes mostly affect
+  // images and fonts loaded at runtime.
   const outputNames = {
     bundles:
       outputHashing === 'all' || outputHashing === 'bundles'
@@ -189,6 +234,13 @@ export const readBuildOptions = async (
         ? '/[name]-[hash]'
         : '/[name]'),
   };
+  // advancedOptimizations gates Angular's pure-annotation-aware tree-shaking
+  // in @angular/build's JavaScriptTransformer. It's only safe with AOT because
+  // JIT keeps decorator metadata as runtime-reachable expressions; aggressive
+  // pure-call removal would strip them and break component instantiation.
+  // It's also gated on `optimizationOptions.scripts` — there's no point
+  // running advanced JS transforms when the user explicitly disabled script
+  // optimization (typically because they're debugging).
   const advancedOptimizations = !!aot && optimizationOptions.scripts;
   const cacheOptions = normalizeCacheOptions(
     buildOptions.projectMetadata,

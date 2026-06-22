@@ -185,13 +185,15 @@ if (
   }
 }
 
-// Lynx lifecycle callbacks. The engine calls these globals at specific points:
-// - renderPage: called once when the page is ready to render. On the main thread,
-//   bootstrapApplication() awaits this before calling Angular's bootstrap.
-// - updatePage: called when the host app sends updated data. No-op for now —
-//   Angular's change detection handles reactivity via LynxInitData/LynxGlobalData.
-// - processData: called before data delivery for transformation. Overridden by
-//   registerDataProcessors() if the app needs custom data processing.
+/**
+ * Lynx lifecycle callbacks. The engine calls these globals at specific points:
+ * - renderPage: called once when the page is ready to render. On the main thread,
+ *   bootstrapApplication() awaits this before calling Angular's bootstrap.
+ * - updatePage: called when the host app sends updated data. No-op for now —
+ *   Angular's change detection handles reactivity via LynxInitData/LynxGlobalData.
+ * - processData: called before data delivery for transformation. Overridden by
+ *   registerDataProcessors() if the app needs custom data processing.
+ */
 // @ts-expect-error
 globalThis.renderPage = () => {
   pageReady.next();
@@ -234,12 +236,16 @@ if (__ENABLE_SSR__) {
   };
 }
 
-// Worklet registry — mainThreadFn() registers functions here on the main thread;
-// the native engine invokes them via runWorklet when MTS events fire.
+/**
+ * Worklet registry — mainThreadFn() registers functions here on the main thread;
+ * the native engine invokes them via runWorklet when MTS events fire.
+ */
 const __workletMap: Record<string, Function> = {};
 const __mainThreadRefMap: Record<number, { current: unknown }> = {};
 
-// Pending runOnMainThread Promises keyed by resolveId.
+/**
+ * Pending runOnMainThread Promises keyed by resolveId.
+ */
 const __pendingResolvers: Record<
   number,
   { resolve: (v: unknown) => void; reject: (e: unknown) => void }
@@ -256,9 +262,11 @@ globalThis.registerWorklet = (
 
 globalThis.__workletRefMap = __mainThreadRefMap;
 
-// Recursively transforms raw Lynx event params into usable objects:
-// - Objects with `elementRefptr` become MainThreadElement wrappers
-// - Objects with `_wvid` resolve to their MainThreadRef instances
+/**
+ * Recursively transforms raw Lynx event params into usable objects:
+ * - Objects with `elementRefptr` become MainThreadElement wrappers
+ * - Objects with `_wvid` resolve to their MainThreadRef instances
+ */
 const transformParams = (value: unknown): unknown => {
   if (typeof value !== 'object' || value === null) return value;
   if (Array.isArray(value)) return value.map(transformParams);
@@ -349,8 +357,10 @@ if (__MAIN_THREAD__) {
     // lynx.getJSContext() may not be available in all environments
   }
 
-  // Global runOnBackground — callable from main-thread worklet functions.
-  // Dispatches a function call to the background thread and returns a Promise.
+  /**
+   * Global runOnBackground — callable from main-thread worklet functions.
+   * Dispatches a function call to the background thread and returns a Promise.
+   */
   (globalThis as any).runOnBackground = (
     handle: { _wkltId: string },
     ...args: unknown[]
@@ -425,14 +435,21 @@ if (!__MAIN_THREAD__) {
   }
 }
 
-// Exposed for LynxMainThread service (main-thread.ts) to dispatch cross-thread
-// calls. Can't use import because runtime.ts is evaluated at module load time
-// (side effects) while LynxMainThread is DI-instantiated. Globals bridge the gap.
+/**
+ * Exposed for LynxMainThread service (main-thread.ts) to dispatch cross-thread
+ * calls. Can't use import because runtime.ts is evaluated at module load time
+ * (side effects) while LynxMainThread is DI-instantiated. Globals bridge the gap.
+ */
 globalThis.__lynxMtsPendingResolvers = __pendingResolvers;
 globalThis.__lynxMtsNextResolveId = () => __nextResolveId++;
 
 const pageReady = new Subject<void>();
 
+/**
+ * Bootstrap Angular application on the Lynx runtime. Waits for the main thread to
+ * signal it's ready before initializing the framework, then registers global
+ * callbacks for page updates and worklet invocations.
+ */
 export const bootstrapApplication = async (
   rootComponent: Type<unknown>,
   options?: ApplicationConfig,

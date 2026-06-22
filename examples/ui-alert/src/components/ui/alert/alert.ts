@@ -1,5 +1,12 @@
 import type { ElementRef } from '@angular/core';
-import { Component, ViewEncapsulation, computed, effect, input, viewChild } from '@angular/core';
+import {
+  Component,
+  ViewEncapsulation,
+  computed,
+  effect,
+  input,
+  viewChild,
+} from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 import { cva, type VariantProps } from 'class-variance-authority';
 

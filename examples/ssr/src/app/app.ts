@@ -7,7 +7,9 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
     <scroll-view class="page" scroll-orientation="vertical">
       <view class="container">
         <text class="title">SSR</text>
-        <text class="subtitle">Instant first-frame rendering with snapshot encoding.</text>
+        <text class="subtitle"
+          >Instant first-frame rendering with snapshot encoding.</text
+        >
 
         <!-- SSR diagnostic panel -->
         <view
@@ -70,26 +72,106 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
     </scroll-view>
   `,
   styles: `
-    .page { height: 100%; background-color: #fafafa; }
-    .container { padding: 24px; }
-    .title { font-size: 28px; font-weight: bold; color: #18181b; margin-bottom: 4px; }
-    .subtitle { font-size: 13px; color: #71717a; margin-bottom: 20px; }
-    .status-card { border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-    .status-ok { background-color: #f0fdf4; border: 1px solid #bbf7d0; }
-    .status-err { background-color: #fef2f2; border: 1px solid #fecaca; }
-    .status-title { font-size: 14px; font-weight: 600; color: #18181b; margin-bottom: 8px; }
-    .status-line { font-size: 13px; color: #71717a; margin-bottom: 2px; }
-    .btn { background-color: #6366f1; padding: 12px 24px; border-radius: 10px; align-items: center; margin-bottom: 16px; }
-    .btn-sm { margin-top: 12px; margin-bottom: 0; }
-    .btn-text { color: white; font-size: 15px; font-weight: 600; }
-    .code-card { background-color: #f4f4f5; border-radius: 8px; padding: 12px; margin-bottom: 16px; }
-    .code-text { font-size: 11px; color: #18181b; }
-    .card { background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-    .section-label { font-size: 11px; font-weight: 700; color: #a1a1aa; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .static-text { font-size: 14px; color: #71717a; line-height: 20px; }
-    .item-row { padding: 10px 0; border-bottom: 1px solid #e4e4e7; }
-    .item-text { font-size: 14px; color: #18181b; }
-    .note { font-size: 12px; color: #a1a1aa; }
+    .page {
+      height: 100%;
+      background-color: #fafafa;
+    }
+    .container {
+      padding: 24px;
+    }
+    .title {
+      font-size: 28px;
+      font-weight: bold;
+      color: #18181b;
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 13px;
+      color: #71717a;
+      margin-bottom: 20px;
+    }
+    .status-card {
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .status-ok {
+      background-color: #f0fdf4;
+      border: 1px solid #bbf7d0;
+    }
+    .status-err {
+      background-color: #fef2f2;
+      border: 1px solid #fecaca;
+    }
+    .status-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #18181b;
+      margin-bottom: 8px;
+    }
+    .status-line {
+      font-size: 13px;
+      color: #71717a;
+      margin-bottom: 2px;
+    }
+    .btn {
+      background-color: #6366f1;
+      padding: 12px 24px;
+      border-radius: 10px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .btn-sm {
+      margin-top: 12px;
+      margin-bottom: 0;
+    }
+    .btn-text {
+      color: white;
+      font-size: 15px;
+      font-weight: 600;
+    }
+    .code-card {
+      background-color: #f4f4f5;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+    .code-text {
+      font-size: 11px;
+      color: #18181b;
+    }
+    .card {
+      background-color: #ffffff;
+      border: 1px solid #e4e4e7;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #a1a1aa;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .static-text {
+      font-size: 14px;
+      color: #71717a;
+      line-height: 20px;
+    }
+    .item-row {
+      padding: 10px 0;
+      border-bottom: 1px solid #e4e4e7;
+    }
+    .item-text {
+      font-size: 14px;
+      color: #18181b;
+    }
+    .note {
+      font-size: 12px;
+      color: #a1a1aa;
+    }
   `,
   imports: [LYNX_ELEMENTS],
 })

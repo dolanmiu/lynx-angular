@@ -14,18 +14,28 @@ export abstract class BaseGesture<
   readonly id = nextGestureId++;
   abstract readonly type: GestureType;
 
-  /** @internal — accessed by the directive to build the PAPI config. */
-  // GestureCallback<any> avoids an invariance error when assigning concrete gesture
-  // subclasses (e.g. PanGesture) to BaseGesture<GestureEvent, any>. The directive
-  // already casts callbacks to any when invoking them, so the wider type is safe.
+  /**
+   * @internal — accessed by the directive to build the PAPI config.
+   * GestureCallback<any> avoids an invariance error when assigning concrete gesture
+   * subclasses (e.g. PanGesture) to BaseGesture<GestureEvent, any>. The directive
+   * already casts callbacks to any when invoking them, so the wider type is safe.
+   */
   _callbacks: Record<string, GestureCallback<any>> = {};
-  /** @internal */
+  /**
+   * @internal
+   */
   _config: Record<string, unknown> = {};
-  /** @internal */
+  /**
+   * @internal
+   */
   _waitFor: BaseGesture[] = [];
-  /** @internal */
+  /**
+   * @internal
+   */
   _simultaneousWith: BaseGesture[] = [];
-  /** @internal */
+  /**
+   * @internal
+   */
   _continueWith: BaseGesture[] = [];
 
   onBegin(cb: GestureCallbackWithState<TEvent>): TSelf {
@@ -53,16 +63,30 @@ export abstract class BaseGesture<
     return this as unknown as TSelf;
   }
 
+  /**
+   * Delays this gesture until all listed gestures have failed.
+   * Use to give higher-priority gestures (e.g. double-tap) first right of refusal.
+   * `as unknown as TSelf` is needed because TypeScript can't prove that `this`
+   * satisfies the concrete TSelf bound — the double cast is intentional.
+   */
   waitFor(...gestures: BaseGesture[]): TSelf {
     this._waitFor.push(...gestures);
     return this as unknown as TSelf;
   }
 
+  /**
+   * Allows this gesture and the listed gestures to be active at the same time.
+   * Without this, Lynx's gesture system lets only one gesture be active per element.
+   */
   simultaneousWith(...gestures: BaseGesture[]): TSelf {
     this._simultaneousWith.push(...gestures);
     return this as unknown as TSelf;
   }
 
+  /**
+   * This gesture activates after the listed gestures END (not fail).
+   * Useful for chaining: e.g. a long-press followed by a drag.
+   */
   continueWith(...gestures: BaseGesture[]): TSelf {
     this._continueWith.push(...gestures);
     return this as unknown as TSelf;
@@ -74,8 +98,10 @@ export abstract class BaseGesture<
   }
 }
 
-// Continuous gestures (pan, fling, rotation, pinch) have an onUpdate callback
-// that fires on every frame while the gesture is active.
+/**
+ * Continuous gestures (pan, fling, rotation, pinch) have an onUpdate callback
+ * that fires on every frame while the gesture is active.
+ */
 export abstract class ContinuousGesture<
   TEvent extends GestureEvent = GestureEvent,
   TSelf extends ContinuousGesture<TEvent, any> = any,

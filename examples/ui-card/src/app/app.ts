@@ -39,9 +39,7 @@ import {
           <ui-card-content>
             <view class="flex flex-col gap-3">
               <view class="flex flex-row items-center gap-3">
-                <view
-                  class="h-2 w-2 rounded-full bg-primary"
-                />
+                <view class="h-2 w-2 rounded-full bg-primary" />
                 <view class="flex flex-col">
                   <text class="text-sm font-medium text-foreground">
                     New deployment started
@@ -52,9 +50,7 @@ import {
                 </view>
               </view>
               <view class="flex flex-row items-center gap-3">
-                <view
-                  class="h-2 w-2 rounded-full bg-primary"
-                />
+                <view class="h-2 w-2 rounded-full bg-primary" />
                 <view class="flex flex-col">
                   <text class="text-sm font-medium text-foreground">
                     Build completed
@@ -65,16 +61,12 @@ import {
                 </view>
               </view>
               <view class="flex flex-row items-center gap-3">
-                <view
-                  class="h-2 w-2 rounded-full bg-muted-foreground"
-                />
+                <view class="h-2 w-2 rounded-full bg-muted-foreground" />
                 <view class="flex flex-col">
                   <text class="text-sm font-medium text-foreground">
                     Your trial expires soon
                   </text>
-                  <text class="text-xs text-muted-foreground">
-                    Yesterday
-                  </text>
+                  <text class="text-xs text-muted-foreground"> Yesterday </text>
                 </view>
               </view>
             </view>

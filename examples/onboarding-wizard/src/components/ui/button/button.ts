@@ -10,7 +10,11 @@ import {
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 import { cva, type VariantProps } from 'class-variance-authority';
 
-import { type AnimationHandle, pressDown, pressRelease } from '@blotch/dolan/utils/animate';
+import {
+  type AnimationHandle,
+  pressDown,
+  pressRelease,
+} from '@blotch/dolan/utils/animate';
 import { cn } from '@blotch/dolan/utils/cn';
 import { UiSpinner } from '../spinner/spinner';
 

@@ -36,9 +36,7 @@ import { UiButton } from '../components/ui/button';
             </ui-dialog-description>
           </ui-dialog-header>
           <view class="flex flex-col gap-3 py-4">
-            <text class="text-sm text-foreground">
-              Name: John Doe
-            </text>
+            <text class="text-sm text-foreground"> Name: John Doe </text>
             <text class="text-sm text-foreground">
               Email: john&#64;example.com
             </text>

@@ -164,6 +164,9 @@ export class FormsDemo {
     message: new FormControl('', { nonNullable: true }),
   });
 
+  // `disabled` mirrors form.disabled as a signal because Angular's FormGroup
+  // doesn't expose its enabled/disabled state as a signal — the template can't
+  // reactively read form.disabled without an explicit signal bridge.
   disabled = signal(false);
   result = signal('');
 
@@ -172,6 +175,8 @@ export class FormsDemo {
     if (this.form.valid) {
       const { name, email } = this.form.getRawValue();
       this.result.set(`From ${name} <${email}>`);
+      // Clear the result banner after 4 seconds and reset the form.
+      // setTimeout is safe here — it's outside the native event callback.
       setTimeout(() => {
         this.result.set('');
         this.form.reset();

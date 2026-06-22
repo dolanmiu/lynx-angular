@@ -6,7 +6,9 @@ import { describe, expect, it, vi } from 'vitest';
 import { applyGenerator } from './generator';
 import { LAYERS } from './layers';
 
-// Builds a mock webpack chain with a fluent rule builder and captures the rule name
+/**
+ * Builds a mock webpack chain with a fluent rule builder and captures the rule name.
+ */
 const createMockChain = () => {
   let capturedRuleName: string | undefined;
 
@@ -29,7 +31,9 @@ const createMockChain = () => {
   return { chain, ruleBuilder, getRuleName: () => capturedRuleName };
 };
 
-// Builds a mock RsbuildPluginAPI and captures the handler passed to modifyBundlerChain
+/**
+ * Builds a mock RsbuildPluginAPI and captures the handler passed to modifyBundlerChain.
+ */
 const createMockApi = () => {
   let capturedOrder: string | undefined;
   let capturedHandler: ((chain: unknown) => void) | undefined;

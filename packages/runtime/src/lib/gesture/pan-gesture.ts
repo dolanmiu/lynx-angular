@@ -9,6 +9,12 @@ export class PanGesture extends ContinuousGesture<PanGestureEvent, PanGesture> {
     return this;
   }
 
+  /**
+   * activeOffset: the gesture activates once the finger moves past this
+   * threshold. A number means "any direction" (symmetrical); a tuple [min, max]
+   * means the offset must be within that range. Example: activeOffsetX(20)
+   * activates after 20px of horizontal movement.
+   */
   activeOffsetX(offset: number | [number, number]): this {
     this._config['activeOffsetX'] = offset;
     return this;
@@ -19,6 +25,12 @@ export class PanGesture extends ContinuousGesture<PanGestureEvent, PanGesture> {
     return this;
   }
 
+  /**
+   * failOffset: if the finger moves past this threshold in the perpendicular
+   * direction, the gesture fails (ceding to a competing gesture). Example:
+   * failOffsetY(10) on a horizontal pan: if the user moves >10px vertically
+   * before activating, the gesture fails and a vertical scroll can take over.
+   */
   failOffsetX(offset: number | [number, number]): this {
     this._config['failOffsetX'] = offset;
     return this;

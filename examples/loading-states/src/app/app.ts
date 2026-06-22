@@ -4,25 +4,38 @@ import { UiProgress } from '../components/ui/progress';
 import { UiSkeleton } from '../components/ui/skeleton';
 import { UiSpinner } from '../components/ui/spinner';
 import { UiToaster, toast } from '../components/ui/toast';
-import { UiCard, UiCardContent, UiCardHeader, UiCardTitle } from '../components/ui/card';
+import {
+  UiCard,
+  UiCardContent,
+  UiCardHeader,
+  UiCardTitle,
+} from '../components/ui/card';
 import { UiButton } from '../components/ui/button';
 import { UiBadge } from '../components/ui/badge';
 import { UiSeparator } from '../components/ui/separator';
 
-interface UploadFile {
+type UploadFile = {
   id: number;
   name: string;
   progress: number;
   done: boolean;
-}
+};
 
 @Component({
   selector: 'app-root',
   imports: [
     LYNX_ELEMENTS,
-    UiProgress, UiSkeleton, UiSpinner, UiToaster,
-    UiCard, UiCardContent, UiCardHeader, UiCardTitle,
-    UiButton, UiBadge, UiSeparator,
+    UiProgress,
+    UiSkeleton,
+    UiSpinner,
+    UiToaster,
+    UiCard,
+    UiCardContent,
+    UiCardHeader,
+    UiCardTitle,
+    UiButton,
+    UiBadge,
+    UiSeparator,
   ],
   template: `
     <scroll-view scroll-orientation="vertical" class="page">
@@ -56,7 +69,11 @@ interface UploadFile {
                   <ui-progress [value]="file.progress" />
                 </view>
               }
-              <ui-button size="sm" (pressed)="startUpload()" [disabled]="uploading()">
+              <ui-button
+                size="sm"
+                (pressed)="startUpload()"
+                [disabled]="uploading()"
+              >
                 @if (uploading()) {
                   <view class="btn-loading">
                     <ui-spinner size="sm" />
@@ -92,7 +109,9 @@ interface UploadFile {
                 </view>
                 <view class="file-details">
                   <text class="file-detail-name">{{ file.name }}</text>
-                  <text class="file-detail-meta">{{ file.size }} · {{ file.date }}</text>
+                  <text class="file-detail-meta"
+                    >{{ file.size }} · {{ file.date }}</text
+                  >
                 </view>
               </view>
             }
@@ -105,31 +124,140 @@ interface UploadFile {
     <ui-toaster />
   `,
   styles: `
-    .page { height: 100vh; background-color: #fafafa; }
-    .container { display: flex; flex-direction: column; gap: 24px; padding: 24px; }
-    .title { font-size: 28px; font-weight: bold; color: #18181b; }
-    .card-header-row { display: flex; flex-direction: row; align-items: center; justify-content: space-between; }
-    .sync-indicator { display: flex; flex-direction: row; align-items: center; gap: 8px; }
-    .sync-text { font-size: 12px; color: #a1a1aa; }
-    .upload-list { display: flex; flex-direction: column; gap: 16px; }
-    .upload-item { display: flex; flex-direction: column; gap: 6px; }
-    .upload-info { display: flex; flex-direction: row; align-items: center; justify-content: space-between; }
-    .file-name { font-size: 14px; color: #18181b; }
-    .file-progress { font-size: 12px; color: #a1a1aa; }
-    .btn-loading { display: flex; flex-direction: row; align-items: center; gap: 8px; }
-    .recent-section { display: flex; flex-direction: column; gap: 12px; }
-    .section-title { font-size: 14px; font-weight: 500; color: #18181b; }
-    .skeleton-row { display: flex; flex-direction: row; align-items: center; gap: 12px; }
-    .skeleton-icon { width: 40px; height: 40px; border-radius: 8px; }
-    .skeleton-text-group { display: flex; flex-direction: column; gap: 8px; flex: 1; }
-    .skeleton-line { height: 14px; width: 75%; border-radius: 4px; }
-    .skeleton-line-short { height: 12px; width: 50%; border-radius: 4px; }
-    .file-row { display: flex; flex-direction: row; align-items: center; gap: 12px; padding: 10px 14px; background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; }
-    .file-icon { width: 40px; height: 40px; border-radius: 8px; background-color: #f4f4f5; align-items: center; justify-content: center; }
-    .file-icon-text { font-size: 18px; }
-    .file-details { display: flex; flex-direction: column; gap: 2px; flex: 1; }
-    .file-detail-name { font-size: 14px; font-weight: 500; color: #18181b; }
-    .file-detail-meta { font-size: 12px; color: #a1a1aa; }
+    .page {
+      height: 100vh;
+      background-color: #fafafa;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      padding: 24px;
+    }
+    .title {
+      font-size: 28px;
+      font-weight: bold;
+      color: #18181b;
+    }
+    .card-header-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .sync-indicator {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
+    }
+    .sync-text {
+      font-size: 12px;
+      color: #a1a1aa;
+    }
+    .upload-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .upload-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .upload-info {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .file-name {
+      font-size: 14px;
+      color: #18181b;
+    }
+    .file-progress {
+      font-size: 12px;
+      color: #a1a1aa;
+    }
+    .btn-loading {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
+    }
+    .recent-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .section-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: #18181b;
+    }
+    .skeleton-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 12px;
+    }
+    .skeleton-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+    }
+    .skeleton-text-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+    }
+    .skeleton-line {
+      height: 14px;
+      width: 75%;
+      border-radius: 4px;
+    }
+    .skeleton-line-short {
+      height: 12px;
+      width: 50%;
+      border-radius: 4px;
+    }
+    .file-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      background-color: #ffffff;
+      border: 1px solid #e4e4e7;
+      border-radius: 12px;
+    }
+    .file-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background-color: #f4f4f5;
+      align-items: center;
+      justify-content: center;
+    }
+    .file-icon-text {
+      font-size: 18px;
+    }
+    .file-details {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex: 1;
+    }
+    .file-detail-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: #18181b;
+    }
+    .file-detail-meta {
+      font-size: 12px;
+      color: #a1a1aa;
+    }
   `,
 })
 export class App {
@@ -144,7 +272,12 @@ export class App {
 
   readonly recentFiles = [
     { icon: '📄', name: 'project-brief.pdf', size: '2.4 MB', date: 'Today' },
-    { icon: '🖼️', name: 'design-mockup.png', size: '5.1 MB', date: 'Yesterday' },
+    {
+      icon: '🖼️',
+      name: 'design-mockup.png',
+      size: '5.1 MB',
+      date: 'Yesterday',
+    },
     { icon: '📊', name: 'analytics.xlsx', size: '820 KB', date: '2 days ago' },
   ];
 
@@ -155,12 +288,22 @@ export class App {
   startUpload(): void {
     this.uploading.set(true);
     this.syncing.set(true);
-    this.files.update((list) => list.map((f) => ({ ...f, progress: f.done ? 100 : 0 })));
+    this.files.update((list) =>
+      list.map((f) => ({ ...f, progress: f.done ? 100 : 0 })),
+    );
     let tick = 0;
     const interval = setInterval(() => {
       tick += 10;
       this.files.update((list) =>
-        list.map((f) => f.done ? f : { ...f, progress: Math.min(f.progress + 15, 100), done: f.progress + 15 >= 100 }),
+        list.map((f) =>
+          f.done
+            ? f
+            : {
+                ...f,
+                progress: Math.min(f.progress + 15, 100),
+                done: f.progress + 15 >= 100,
+              },
+        ),
       );
       if (this.files().every((f) => f.done) || tick >= 100) {
         clearInterval(interval);

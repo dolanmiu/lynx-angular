@@ -13,7 +13,13 @@ import {
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
-import { type AnimationHandle, DURATION, EASING, directionalSlideIn, revealIn } from '@blotch/dolan/utils/animate';
+import {
+  type AnimationHandle,
+  DURATION,
+  EASING,
+  directionalSlideIn,
+  revealIn,
+} from '@blotch/dolan/utils/animate';
 import { cn } from '@blotch/dolan/utils/cn';
 
 @Component({
@@ -62,7 +68,9 @@ export class UiTabs {
     });
   }
 
-  /** Called by UiTabsTrigger to register ordering for direction detection. */
+  /**
+   * Called by UiTabsTrigger to register ordering for direction detection.
+   */
   registerTab(value: string): void {
     if (!this.#tabOrder.includes(value)) {
       this.#tabOrder.push(value);
@@ -145,7 +153,11 @@ export class UiTabsTrigger {
             { transform: 'scaleX(0.95)', opacity: 0.7 },
             { transform: 'scaleX(1)', opacity: 1 },
           ],
-          { duration: DURATION.normal, easing: EASING.springSubtle, fill: 'forwards' },
+          {
+            duration: DURATION.normal,
+            easing: EASING.springSubtle,
+            fill: 'forwards',
+          },
         );
       } else {
         // Deactivation: quick shrink + fade for a graceful exit
@@ -154,7 +166,11 @@ export class UiTabsTrigger {
             { transform: 'scaleX(1)', opacity: 1 },
             { transform: 'scaleX(0.97)', opacity: 0.7 },
           ],
-          { duration: DURATION.fast, easing: EASING.accelerate, fill: 'forwards' },
+          {
+            duration: DURATION.fast,
+            easing: EASING.accelerate,
+            fill: 'forwards',
+          },
         );
       }
     });
@@ -225,7 +241,10 @@ export class UiTabsContent {
         } else {
           // Subsequent renders: direction-aware horizontal slide
           const dir = this.#tabs.direction();
-          this.#anim = directionalSlideIn(el, dir, { distance: 24, duration: 300 });
+          this.#anim = directionalSlideIn(el, dir, {
+            distance: 24,
+            duration: 300,
+          });
         }
       }, 0);
     });

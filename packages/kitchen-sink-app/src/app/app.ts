@@ -204,6 +204,8 @@ export class App {
   showOverlay = signal(false);
 
   openOverlay(): void {
+    // Defer the signal update out of the native bindtap callback to avoid
+    // flushing the renderer while the native event is still on the call stack.
     setTimeout(() => this.showOverlay.set(true), 0);
   }
 

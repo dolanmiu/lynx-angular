@@ -2,13 +2,21 @@ import { computed, inject, Injectable } from '@angular/core';
 import { LynxGlobalData } from '../data-flow/global-data';
 import { LynxSystemInfo } from '../system-info/system-info';
 
-/** CSS `env()` value for the top safe area inset (notch / status bar). */
+/**
+ * CSS `env()` value for the top safe area inset (notch / status bar).
+ */
 export const SAFE_AREA_INSET_TOP = 'env(safe-area-inset-top)';
-/** CSS `env()` value for the bottom safe area inset (home indicator). */
+/**
+ * CSS `env()` value for the bottom safe area inset (home indicator).
+ */
 export const SAFE_AREA_INSET_BOTTOM = 'env(safe-area-inset-bottom)';
-/** CSS `env()` value for the left safe area inset. */
+/**
+ * CSS `env()` value for the left safe area inset.
+ */
 export const SAFE_AREA_INSET_LEFT = 'env(safe-area-inset-left)';
-/** CSS `env()` value for the right safe area inset. */
+/**
+ * CSS `env()` value for the right safe area inset.
+ */
 export const SAFE_AREA_INSET_RIGHT = 'env(safe-area-inset-right)';
 
 /**
@@ -42,7 +50,9 @@ export class LynxSafeArea {
   readonly #globalData = inject(LynxGlobalData);
   readonly #systemInfo = inject(LynxSystemInfo);
 
-  /** Whether the device has a display notch or cutout. Reactive — updates when global props change. */
+  /**
+   * Whether the device has a display notch or cutout. Reactive — updates when global props change.
+   */
   readonly isNotchScreen = computed(
     () =>
       !!(this.#globalData.globalData() as Record<string, unknown>)[
@@ -50,7 +60,9 @@ export class LynxSafeArea {
       ],
   );
 
-  /** The current platform (`'iOS'`, `'Android'`, `'Harmony'`, etc.). */
+  /**
+   * The current platform (`'iOS'`, `'Android'`, `'Harmony'`, etc.).
+   */
   get platform() {
     return this.#systemInfo.platform;
   }

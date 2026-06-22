@@ -6,20 +6,26 @@
 import type { AnyObject } from '@lynx-js/types/common';
 import type { LynxAnimationOptions } from '../animation/animation';
 
-// Phantom brand symbol — makes each ElementRef variant nominally distinct at
-// the type level even though Lynx PAPI handles have no runtime structure.
+/**
+ * Phantom brand symbol — makes each ElementRef variant nominally distinct at
+ * the type level even though Lynx PAPI handles have no runtime structure.
+ */
 declare const __brand: unique symbol;
 
-// Generic opaque handle returned by every __Create* PAPI function.
-// The Tag parameter narrows the type to a specific native element kind,
-// preventing accidental cross-element assignments (e.g. ListElementRef ≠ ViewElementRef).
+/**
+ * Generic opaque handle returned by every __Create* PAPI function.
+ * The Tag parameter narrows the type to a specific native element kind,
+ * preventing accidental cross-element assignments (e.g. ListElementRef ≠ ViewElementRef).
+ */
 export type ElementRef<Tag extends string = string> = {
   readonly [__brand]?: Tag;
 };
 
-// ComponentElementRef accepts both 'component' and 'page' so that
-// PageElementRef (which is ElementRef<'page'>) remains assignable to it,
-// preserving the original hierarchy: Page ⊆ Component ⊆ ElementRef.
+/**
+ * ComponentElementRef accepts both 'component' and 'page' so that
+ * PageElementRef (which is ElementRef<'page'>) remains assignable to it,
+ * preserving the original hierarchy: Page ⊆ Component ⊆ ElementRef.
+ */
 export type ComponentElementRef = ElementRef<'component' | 'page'>;
 export type PageElementRef = ElementRef<'page'>;
 export type ListElementRef = ElementRef<'list'>;
@@ -35,8 +41,10 @@ export type ForElementRef = ElementRef<'for'>;
 export type BlockElementRef = ElementRef<'block'>;
 export type FrameElementRef = ElementRef<'frame'>;
 
-// AnyObject = Record<string, any>, sourced from @lynx-js/types rather than
-// duplicating the definition locally.
+/**
+ * AnyObject = Record<string, any>, sourced from @lynx-js/types rather than
+ * duplicating the definition locally.
+ */
 export type ElementInfo = AnyObject;
 
 export type SelectorParams = {
@@ -52,9 +60,11 @@ export type DynamicComponentResult = {
   };
 };
 
-// ── Global PAPI declarations ───────────────────────────────────────────────
-// These __* functions are injected by the Lynx native engine and are not
-// part of @lynx-js/types (which covers the high-level JS API layer only).
+/**
+ * Global PAPI declarations — these __* functions are injected by the Lynx
+ * native engine and are not part of @lynx-js/types (which covers the
+ * high-level JS API layer only).
+ */
 declare global {
   function __CreatePage(
     componentId: string,
@@ -306,7 +316,9 @@ declare global {
       reloadTemplate?: boolean;
       listID?: number;
       pipelineOptions?: Record<string, any>;
-      /** Delegate async scheduling to the native engine (used in componentAtIndexes batch path). */
+      /**
+       * Delegate async scheduling to the native engine (used in componentAtIndexes batch path).
+       */
       asyncFlush?: boolean;
     },
   ): void;

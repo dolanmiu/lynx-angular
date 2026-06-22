@@ -35,11 +35,21 @@ class Meteor {
     this.length = this.gridSize * (1 + Math.random() * 2);
     this.opacity = 0.6 + Math.random() * 0.4;
 
+    /**
+     * Bias the perpendicular spawn coordinate toward the middle 60% of the
+     * canvas edge (20% margin on each side). Without this, meteors that
+     * spawn near a corner would only be visible for a few frames before
+     * exiting an adjacent edge, looking like glitches rather than streaks.
+     */
     const getMiddlePosition = (size: number) => {
       const margin = size * 0.2;
       return margin + Math.random() * (size * 0.6);
     };
 
+    // Snap the perpendicular coordinate to the grid (Math.floor / gridSize)
+    // so meteors travel along the visible grid lines drawn behind them.
+    // Without snapping, meteors would streak between grid lines and lose the
+    // intentional "tracing the grid" visual association.
     switch (this.direction) {
       case Direction.UP:
         this.x =
@@ -68,6 +78,11 @@ class Meteor {
     }
   }
 
+  /**
+   * Reset thresholds use `+ this.length` (vs just position) so the meteor
+   * stays alive until its full tail has crossed off-screen. Otherwise the
+   * tail would visibly snap-disappear the instant the head left the canvas.
+   */
   update() {
     switch (this.direction) {
       case Direction.UP:

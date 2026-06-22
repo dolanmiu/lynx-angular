@@ -6,13 +6,17 @@ import {
   processPendingListUpdates,
 } from './lynx-list-element';
 
-// Fake ElementRef — the Lynx PAPI handles have no runtime structure.
+/**
+ * Fake ElementRef — the Lynx PAPI handles have no runtime structure.
+ */
 const makeRef = (): ElementRef => ({}) as ElementRef;
 const makeChild = (): LynxElement => new LynxElement(makeRef());
 const makeList = (nonElements?: WeakSet<ElementRef>): LynxListElement =>
   new LynxListElement(makeRef(), nonElements ?? new WeakSet());
 
-// All globals that any code path in LynxListElement / LynxElement can reach.
+/**
+ * All globals that any code path in LynxListElement / LynxElement can reach.
+ */
 const setupGlobals = () => {
   globalThis.__SetAttribute = vi.fn();
   globalThis.__GetAttributeByName = vi.fn(() => null);

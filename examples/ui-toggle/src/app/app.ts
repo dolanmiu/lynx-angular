@@ -1,17 +1,15 @@
 import { Component, signal } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
-import { UiToggle, UiToggleGroup, UiToggleGroupItem } from '../components/ui/toggle';
+import {
+  UiToggle,
+  UiToggleGroup,
+  UiToggleGroupItem,
+} from '../components/ui/toggle';
 import { UiLabel } from '../components/ui/label';
 
 @Component({
   selector: 'app-root',
-  imports: [
-    LYNX_ELEMENTS,
-    UiToggle,
-    UiToggleGroup,
-    UiToggleGroupItem,
-    UiLabel,
-  ],
+  imports: [LYNX_ELEMENTS, UiToggle, UiToggleGroup, UiToggleGroupItem, UiLabel],
   template: `
     <scroll-view scroll-orientation="vertical" class="h-full">
       <view class="flex flex-col gap-6 p-6">
@@ -32,8 +30,11 @@ import { UiLabel } from '../components/ui/label';
               <text class="text-sm italic text-foreground">I</text>
             </ui-toggle>
             <ui-toggle [(pressed)]="underline">
-              <text class="text-sm text-foreground"
-                style="text-decoration: underline;">U</text>
+              <text
+                class="text-sm text-foreground"
+                style="text-decoration: underline;"
+                >U</text
+              >
             </ui-toggle>
           </view>
         </view>
@@ -65,8 +66,11 @@ import { UiLabel } from '../components/ui/label';
               <text class="text-sm italic text-foreground">I</text>
             </ui-toggle-group-item>
             <ui-toggle-group-item value="strike">
-              <text class="text-sm text-foreground"
-                style="text-decoration: line-through;">S</text>
+              <text
+                class="text-sm text-foreground"
+                style="text-decoration: line-through;"
+                >S</text
+              >
             </ui-toggle-group-item>
           </ui-toggle-group>
         </view>

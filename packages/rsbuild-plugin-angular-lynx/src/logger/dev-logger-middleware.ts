@@ -1,12 +1,14 @@
-// Connect-style middleware that receives log batches from on-device and
-// writes them to a log file. Rspeedy's TUI uses the alternate screen buffer,
-// so stdout writes are hidden — a file + `tail -f` is more reliable.
-
 import fs from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import path from 'node:path';
 
-// ANSI color codes (for the log file when viewed with `tail -f` in a terminal)
+/**
+ * Connect-style middleware that receives log batches from on-device and
+ * writes them to a log file. Rspeedy's TUI uses the alternate screen buffer,
+ * so stdout writes are hidden — a file + `tail -f` is more reliable.
+ *
+ * ANSI color codes (for the log file when viewed with `tail -f` in a terminal)
+ */
 const RESET = '\x1b[0m';
 const GRAY = '\x1b[90m';
 const RED = '\x1b[31m';
@@ -43,6 +45,11 @@ const formatTimestamp = (ts: number): string => {
 const formatArg = (arg: unknown): string => {
   if (arg === null || arg === undefined) return String(arg);
   if (typeof arg === 'string') return arg;
+  // Error objects don't survive JSON.stringify (the message/stack are
+  // non-enumerable, so they'd serialize to `{}`). The client-side relay in
+  // `runtime/src/lib/lynx-logger` reshapes Errors into a plain object with a
+  // `__type: 'Error'` marker so we can reconstruct a readable representation
+  // here — preferring the full stack trace when available.
   if (
     typeof arg === 'object' &&
     (arg as Record<string, unknown>).__type === 'Error'
@@ -53,6 +60,9 @@ const formatArg = (arg: unknown): string => {
   try {
     return JSON.stringify(arg, null, 2);
   } catch {
+    // JSON.stringify throws on circular references — fall back to String()
+    // which produces something like "[object Object]" rather than crashing
+    // the log handler and losing the rest of the batch.
     return String(arg);
   }
 };
@@ -93,13 +103,21 @@ const writeLog = (entry: LogEntry): void => {
  * Creates a connect-style middleware that handles POST /__dev_logs.
  * Other requests are passed through to the next middleware.
  */
+/**
+ * Creates a connect-style middleware that handles POST /__dev_logs.
+ * Other requests are passed through to the next middleware.
+ */
 export const createDevLoggerMiddleware = (): ((
   req: IncomingMessage,
   res: ServerResponse,
   next: () => void,
 ) => void) => {
   return (req, res, next) => {
-    // Handle CORS preflight
+    // CORS preflight: the on-device Lynx runtime makes cross-origin POST
+    // requests to the dev server (it runs at a different origin than the
+    // bundled JS). Browsers/WebViews send an OPTIONS preflight first; without
+    // a 204 response with these headers, the actual POST gets blocked and we
+    // lose all on-device logs.
     if (req.method === 'OPTIONS' && req.url === '/__dev_logs') {
       res.writeHead(204, {
         'Access-Control-Allow-Origin': '*',
@@ -120,6 +138,9 @@ export const createDevLoggerMiddleware = (): ((
       body += chunk.toString();
     });
     req.on('end', () => {
+      // Reply 204 before parsing so the device doesn't wait on us — the log
+      // relay batches entries and the client doesn't care about the response
+      // body, only that the request didn't error.
       res.writeHead(204, { 'Access-Control-Allow-Origin': '*' });
       res.end();
 
@@ -129,7 +150,9 @@ export const createDevLoggerMiddleware = (): ((
           writeLog(entry);
         }
       } catch {
-        // Malformed payload — silently ignore
+        // Malformed payload — silently ignore. Throwing here would crash the
+        // connect middleware chain and break the dev server for unrelated
+        // requests.
       }
     });
   };

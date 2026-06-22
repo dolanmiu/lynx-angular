@@ -11,8 +11,18 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
     </view>
   `,
   styles: `
-    .loaded { background-color: #f0fdf4; border: 1px solid #bbf7d0; padding: 14px; border-radius: 8px; margin-top: 8px; }
-    .loaded-text { font-size: 15px; font-weight: 600; color: #166534; }
+    .loaded {
+      background-color: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      padding: 14px;
+      border-radius: 8px;
+      margin-top: 8px;
+    }
+    .loaded-text {
+      font-size: 15px;
+      font-weight: 600;
+      color: #166534;
+    }
   `,
 })
 export class Heavy {}

@@ -3,7 +3,12 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 import { UiAvatar } from '../components/ui/avatar';
 import { UiInput } from '../components/ui/input';
 import { UiSeparator } from '../components/ui/separator';
-import { UiDialog, UiDialogHeader, UiDialogTitle, UiDialogFooter } from '../components/ui/dialog';
+import {
+  UiDialog,
+  UiDialogHeader,
+  UiDialogTitle,
+  UiDialogFooter,
+} from '../components/ui/dialog';
 import {
   UiAlertDialog,
   UiAlertDialogHeader,
@@ -15,22 +20,32 @@ import { UiButton } from '../components/ui/button';
 import { UiEmptyState } from '../components/ui/empty-state';
 import { UiLabel } from '../components/ui/label';
 
-interface Contact {
+type Contact = {
   id: number;
   name: string;
   phone: string;
   email: string;
-}
+};
 
 @Component({
   selector: 'app-root',
   imports: [
     LYNX_ELEMENTS,
-    UiAvatar, UiInput, UiSeparator,
-    UiDialog, UiDialogHeader, UiDialogTitle, UiDialogFooter,
-    UiAlertDialog, UiAlertDialogHeader, UiAlertDialogTitle,
-    UiAlertDialogDescription, UiAlertDialogFooter,
-    UiButton, UiEmptyState, UiLabel,
+    UiAvatar,
+    UiInput,
+    UiSeparator,
+    UiDialog,
+    UiDialogHeader,
+    UiDialogTitle,
+    UiDialogFooter,
+    UiAlertDialog,
+    UiAlertDialogHeader,
+    UiAlertDialogTitle,
+    UiAlertDialogDescription,
+    UiAlertDialogFooter,
+    UiButton,
+    UiEmptyState,
+    UiLabel,
   ],
   template: `
     <view class="page">
@@ -40,13 +55,20 @@ interface Contact {
       </view>
 
       <view class="search-bar">
-        <ui-input [value]="query()" (valueChange)="query.set($event)" placeholder="Search contacts..." />
+        <ui-input
+          [value]="query()"
+          (valueChange)="query.set($event)"
+          placeholder="Search contacts..."
+        />
       </view>
 
       <scroll-view scroll-orientation="vertical" class="list">
         @if (grouped().length === 0) {
           <view class="empty-container">
-            <ui-empty-state title="No contacts" description="Add your first contact above." />
+            <ui-empty-state
+              title="No contacts"
+              description="Add your first contact above."
+            />
           </view>
         }
         @for (group of grouped(); track group.letter) {
@@ -54,9 +76,17 @@ interface Contact {
             <view class="section-header">
               <text class="section-letter">{{ group.letter }}</text>
             </view>
-            @for (contact of group.contacts; track contact.id; let last = $last) {
+            @for (
+              contact of group.contacts;
+              track contact.id;
+              let last = $last
+            ) {
               <view class="contact-row" (bindtap)="viewContact(contact)">
-                <ui-avatar size="sm" src="" [fallback]="initials(contact.name)" />
+                <ui-avatar
+                  size="sm"
+                  src=""
+                  [fallback]="initials(contact.name)"
+                />
                 <view class="contact-info">
                   <text class="contact-name">{{ contact.name }}</text>
                   <text class="contact-phone">{{ contact.phone }}</text>
@@ -75,7 +105,11 @@ interface Contact {
       <ui-dialog [(open)]="viewOpen">
         <ui-dialog-header>
           <view class="dialog-profile">
-            <ui-avatar size="lg" src="" [fallback]="initials(selected()!.name)" />
+            <ui-avatar
+              size="lg"
+              src=""
+              [fallback]="initials(selected()!.name)"
+            />
             <ui-dialog-title>{{ selected()!.name }}</ui-dialog-title>
           </view>
         </ui-dialog-header>
@@ -90,14 +124,18 @@ interface Contact {
           </view>
         </view>
         <ui-dialog-footer>
-          <ui-button variant="destructive" (pressed)="confirmDelete()">Delete</ui-button>
+          <ui-button variant="destructive" (pressed)="confirmDelete()"
+            >Delete</ui-button
+          >
           <ui-button (pressed)="viewOpen.set(false)">Close</ui-button>
         </ui-dialog-footer>
       </ui-dialog>
     }
 
     <ui-dialog [(open)]="addOpen">
-      <ui-dialog-header><ui-dialog-title>New Contact</ui-dialog-title></ui-dialog-header>
+      <ui-dialog-header
+        ><ui-dialog-title>New Contact</ui-dialog-title></ui-dialog-header
+      >
       <view class="dialog-form">
         <view class="field">
           <ui-label>Name</ui-label>
@@ -113,7 +151,9 @@ interface Contact {
         </view>
       </view>
       <ui-dialog-footer>
-        <ui-button variant="outline" (pressed)="addOpen.set(false)">Cancel</ui-button>
+        <ui-button variant="outline" (pressed)="addOpen.set(false)"
+          >Cancel</ui-button
+        >
         <ui-button (pressed)="addContact()">Save</ui-button>
       </ui-dialog-footer>
     </ui-dialog>
@@ -122,36 +162,122 @@ interface Contact {
       <ui-alert-dialog-header>
         <ui-alert-dialog-title>Delete Contact</ui-alert-dialog-title>
         <ui-alert-dialog-description>
-          Remove {{ selected()?.name }} from your contacts? This cannot be undone.
+          Remove {{ selected()?.name }} from your contacts? This cannot be
+          undone.
         </ui-alert-dialog-description>
       </ui-alert-dialog-header>
       <ui-alert-dialog-footer>
-        <ui-button variant="outline" (pressed)="deleteOpen.set(false)">Cancel</ui-button>
-        <ui-button variant="destructive" (pressed)="deleteContact()">Delete</ui-button>
+        <ui-button variant="outline" (pressed)="deleteOpen.set(false)"
+          >Cancel</ui-button
+        >
+        <ui-button variant="destructive" (pressed)="deleteContact()"
+          >Delete</ui-button
+        >
       </ui-alert-dialog-footer>
     </ui-alert-dialog>
   `,
   styles: `
-    .page { display: flex; flex-direction: column; height: 100vh; background-color: #fafafa; }
-    .header { display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 16px 20px; background-color: #ffffff; border-bottom: 1px solid #e4e4e7; }
-    .title { font-size: 22px; font-weight: bold; color: #18181b; }
-    .search-bar { padding: 12px 16px 8px 16px; }
-    .list { flex: 1; }
-    .empty-container { padding: 24px; }
-    .group { display: flex; flex-direction: column; }
-    .section-header { padding: 6px 16px; background-color: #f4f4f5; }
-    .section-letter { font-size: 12px; font-weight: bold; color: #a1a1aa; }
-    .contact-row { display: flex; flex-direction: row; align-items: center; gap: 12px; padding: 12px 16px; }
-    .contact-info { display: flex; flex-direction: column; gap: 2px; flex: 1; }
-    .contact-name { font-size: 15px; font-weight: 500; color: #18181b; }
-    .contact-phone { font-size: 12px; color: #a1a1aa; }
-    .dialog-profile { display: flex; flex-direction: column; align-items: center; gap: 10px; padding-bottom: 8px; }
-    .dialog-details { display: flex; flex-direction: column; gap: 14px; padding: 16px; }
-    .detail-field { display: flex; flex-direction: column; gap: 2px; }
-    .detail-label { font-size: 12px; color: #a1a1aa; }
-    .detail-value { font-size: 14px; color: #18181b; }
-    .dialog-form { display: flex; flex-direction: column; gap: 14px; padding: 16px; }
-    .field { display: flex; flex-direction: column; gap: 6px; }
+    .page {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background-color: #fafafa;
+    }
+    .header {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      background-color: #ffffff;
+      border-bottom: 1px solid #e4e4e7;
+    }
+    .title {
+      font-size: 22px;
+      font-weight: bold;
+      color: #18181b;
+    }
+    .search-bar {
+      padding: 12px 16px 8px 16px;
+    }
+    .list {
+      flex: 1;
+    }
+    .empty-container {
+      padding: 24px;
+    }
+    .group {
+      display: flex;
+      flex-direction: column;
+    }
+    .section-header {
+      padding: 6px 16px;
+      background-color: #f4f4f5;
+    }
+    .section-letter {
+      font-size: 12px;
+      font-weight: bold;
+      color: #a1a1aa;
+    }
+    .contact-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+    }
+    .contact-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex: 1;
+    }
+    .contact-name {
+      font-size: 15px;
+      font-weight: 500;
+      color: #18181b;
+    }
+    .contact-phone {
+      font-size: 12px;
+      color: #a1a1aa;
+    }
+    .dialog-profile {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 8px;
+    }
+    .dialog-details {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 16px;
+    }
+    .detail-field {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .detail-label {
+      font-size: 12px;
+      color: #a1a1aa;
+    }
+    .detail-value {
+      font-size: 14px;
+      color: #18181b;
+    }
+    .dialog-form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 16px;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
   `,
 })
 export class App {
@@ -166,49 +292,102 @@ export class App {
   #nextId = 6;
 
   readonly contacts = signal<Contact[]>([
-    { id: 1, name: 'Alice Chen', phone: '+1 555 0101', email: 'alice@example.com' },
-    { id: 2, name: 'Bob Martinez', phone: '+1 555 0102', email: 'bob@example.com' },
-    { id: 3, name: 'Carol White', phone: '+1 555 0103', email: 'carol@example.com' },
-    { id: 4, name: 'David Kim', phone: '+1 555 0104', email: 'david@example.com' },
-    { id: 5, name: 'Eva Lopez', phone: '+1 555 0105', email: 'eva@example.com' },
+    {
+      id: 1,
+      name: 'Alice Chen',
+      phone: '+1 555 0101',
+      email: 'alice@example.com',
+    },
+    {
+      id: 2,
+      name: 'Bob Martinez',
+      phone: '+1 555 0102',
+      email: 'bob@example.com',
+    },
+    {
+      id: 3,
+      name: 'Carol White',
+      phone: '+1 555 0103',
+      email: 'carol@example.com',
+    },
+    {
+      id: 4,
+      name: 'David Kim',
+      phone: '+1 555 0104',
+      email: 'david@example.com',
+    },
+    {
+      id: 5,
+      name: 'Eva Lopez',
+      phone: '+1 555 0105',
+      email: 'eva@example.com',
+    },
   ]);
 
   readonly filtered = computed(() => {
     const q = this.query().toLowerCase();
     if (!q) return this.contacts();
-    return this.contacts().filter((c) => c.name.toLowerCase().includes(q) || c.phone.includes(q));
+    return this.contacts().filter(
+      (c) => c.name.toLowerCase().includes(q) || c.phone.includes(q),
+    );
   });
 
   readonly grouped = computed(() => {
-    const sorted = [...this.filtered()].sort((a, b) => a.name.localeCompare(b.name));
+    const sorted = [...this.filtered()].sort((a, b) =>
+      a.name.localeCompare(b.name),
+    );
     const map = new Map<string, Contact[]>();
     for (const c of sorted) {
       const letter = c.name[0].toUpperCase();
       if (!map.has(letter)) map.set(letter, []);
       map.get(letter)!.push(c);
     }
-    return Array.from(map.entries()).map(([letter, contacts]) => ({ letter, contacts }));
+    return Array.from(map.entries()).map(([letter, contacts]) => ({
+      letter,
+      contacts,
+    }));
   });
 
   initials(name: string): string {
-    return name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase();
   }
 
-  viewContact(c: Contact): void { this.selected.set(c); this.viewOpen.set(true); }
+  viewContact(c: Contact): void {
+    this.selected.set(c);
+    this.viewOpen.set(true);
+  }
 
   openAdd(): void {
-    this.newName.set(''); this.newPhone.set(''); this.newEmail.set('');
+    this.newName.set('');
+    this.newPhone.set('');
+    this.newEmail.set('');
     this.addOpen.set(true);
   }
 
   addContact(): void {
     const name = this.newName().trim();
     if (!name) return;
-    this.contacts.update((list) => [...list, { id: this.#nextId++, name, phone: this.newPhone(), email: this.newEmail() }]);
+    this.contacts.update((list) => [
+      ...list,
+      {
+        id: this.#nextId++,
+        name,
+        phone: this.newPhone(),
+        email: this.newEmail(),
+      },
+    ]);
     this.addOpen.set(false);
   }
 
-  confirmDelete(): void { this.viewOpen.set(false); this.deleteOpen.set(true); }
+  confirmDelete(): void {
+    this.viewOpen.set(false);
+    this.deleteOpen.set(true);
+  }
 
   deleteContact(): void {
     const id = this.selected()!.id;

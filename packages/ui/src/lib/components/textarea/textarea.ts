@@ -25,6 +25,9 @@ import { cn } from '../../utils/cn';
       @if (label()) {
         <text [class]="labelClass()">{{ label() }}</text>
       }
+      <!-- [attr.disabled]="disabled() || undefined": passing 'undefined'
+           removes the attribute entirely; passing 'false' would set
+           disabled="false" which Lynx still treats as disabled. -->
       <textarea
         [attr.placeholder]="placeholder()"
         [attr.value]="value()"
@@ -111,6 +114,10 @@ export class UiTextarea {
     this.blurred.emit();
   }
 
+  /**
+   * Lynx input events carry the updated value in `event.detail.value`,
+   * not in `event.target.value` as on the web — hence the custom type.
+   */
   protected onInput(event: { detail: { value: string } }): void {
     if (this.disabled()) return;
     this.value.set(event.detail.value);

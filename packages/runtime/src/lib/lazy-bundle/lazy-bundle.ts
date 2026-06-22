@@ -2,6 +2,11 @@ import type { Type } from '@angular/core';
 
 declare const __MAIN_THREAD__: boolean;
 
+/**
+ * Module-level cache so repeat calls to loadLazyBundle() with the same source
+ * return the same promise. Angular Router calls loadComponent() on each navigation
+ * to a lazy route; without caching, each visit would re-fetch the bundle.
+ */
 const cache = new Map<string, Promise<Type<unknown>>>();
 
 /**
@@ -37,10 +42,12 @@ const loadBundle = (source: string): Promise<Type<unknown>> => {
   return loadOnBackgroundThread(source);
 };
 
-// Main-thread (Lepus) loading is synchronous — __QueryComponent evaluates the
-// bundle inline and returns immediately. The callback parameter is required by
-// the PAPI signature but never fires on the main thread (it's for background
-// thread async loading). The empty callback is a no-op placeholder.
+/**
+ * Main-thread (Lepus) loading is synchronous — __QueryComponent evaluates the
+ * bundle inline and returns immediately. The callback parameter is required by
+ * the PAPI signature but never fires on the main thread (it's for background
+ * thread async loading). The empty callback is a no-op placeholder.
+ */
 const loadOnMainThread = (source: string): Promise<Type<unknown>> => {
   try {
     const result = __QueryComponent(source, () => {});
@@ -57,11 +64,13 @@ const loadOnMainThread = (source: string): Promise<Type<unknown>> => {
   }
 };
 
-// Background-thread loading is async — __QueryComponent triggers the native
-// runtime to fetch the .lynx.bundle file, evaluate its JS, and invoke the
-// callback with the result. result.data.evalResult is a function (not a value)
-// that must be called with the source name to execute the bundle's AMD module
-// registration and return the component exports.
+/**
+ * Background-thread loading is async — __QueryComponent triggers the native
+ * runtime to fetch the .lynx.bundle file, evaluate its JS, and invoke the
+ * callback with the result. result.data.evalResult is a function (not a value)
+ * that must be called with the source name to execute the bundle's AMD module
+ * registration and return the component exports.
+ */
 const loadOnBackgroundThread = (source: string): Promise<Type<unknown>> => {
   return new Promise((resolve, reject) => {
     __QueryComponent(source, (result) => {

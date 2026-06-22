@@ -78,6 +78,10 @@ export class TextMeasureDemo {
   readonly large = signal<TextMetrics>({ width: 0 });
   readonly wrapped = signal<TextMetrics>({ width: 0 });
 
+  /**
+   * Lynx input events deliver the updated value in `event.detail.value`,
+   * not `event.target.value` as in the browser DOM — hence the custom type.
+   */
   onInput(event: { detail: { value: string } }): void {
     const text = event.detail.value;
     if (!text) {

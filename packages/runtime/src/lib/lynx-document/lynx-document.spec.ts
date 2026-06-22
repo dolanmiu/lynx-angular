@@ -11,20 +11,26 @@ import { LynxElement } from '../lynx-element';
 import { LynxListElement } from '../lynx-element/lynx-list-element';
 import { LynxDocument } from './lynx-document';
 
-// Counter for generating unique fake ElementRef handles per test.
+/**
+ * Counter for generating unique fake ElementRef handles per test.
+ */
 let _refCounter = 0;
 
-// Lynx ElementRef handles are opaque objects with no runtime structure.
-// `as unknown as T` lets us hand a plain object to any branded ElementRef slot
-// without producing a real branded value (which only the native engine creates).
+/**
+ * Lynx ElementRef handles are opaque objects with no runtime structure.
+ * `as unknown as T` lets us hand a plain object to any branded ElementRef slot
+ * without producing a real branded value (which only the native engine creates).
+ */
 const makeRef = <T extends ElementRef = ElementRef>(): T =>
   ({ _id: ++_refCounter }) as unknown as T;
 
 const mock = <T>(impl: T) => vi.fn(impl as any) as unknown as T;
 
-// Casts a global PAPI function (typed as the real signature) to a Vitest mock
-// for use in assertions. The mock() helper installs a vi.fn() at runtime;
-// this cast lets TypeScript's type checker agree.
+/**
+ * Casts a global PAPI function (typed as the real signature) to a Vitest mock
+ * for use in assertions. The mock() helper installs a vi.fn() at runtime;
+ * this cast lets TypeScript's type checker agree.
+ */
 const asMock = (fn: unknown) => fn as unknown as MockInstance;
 
 const setupGlobals = () => {

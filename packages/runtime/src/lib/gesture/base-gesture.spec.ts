@@ -3,7 +3,9 @@ import { BaseGesture, ContinuousGesture } from './base-gesture';
 import { GestureType } from './types';
 import type { GestureEvent } from './types';
 
-// Minimal concrete subclasses for testing abstract base classes.
+/**
+ * Minimal concrete subclasses for testing abstract base classes.
+ */
 class ConcreteGesture extends BaseGesture<GestureEvent, ConcreteGesture> {
   readonly type = GestureType.DEFAULT;
 }

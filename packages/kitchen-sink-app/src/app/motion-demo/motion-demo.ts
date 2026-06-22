@@ -70,6 +70,13 @@ export class MotionDemo {
 
   #currentAnimation: LynxAnimation | null = null;
 
+  /**
+   * All four toggle methods defer signal updates via setTimeout to avoid
+   * updating signals synchronously inside a Lynx native `bindtap` handler.
+   * Updating directly inside the handler can cause the renderer to flush
+   * while the native event is still on the call stack, which breaks Lynx's
+   * main-thread frame pipeline.
+   */
   toggleTransition(): void {
     setTimeout(() => this.transitionActive.update((v) => !v), 0);
   }

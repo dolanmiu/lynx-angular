@@ -14,6 +14,10 @@ import { cn } from '../../utils/cn';
   standalone: true,
   imports: [LYNX_ELEMENTS],
   encapsulation: ViewEncapsulation.None,
+  // `|| undefined` on boolean attributes removes the attribute entirely when
+  // false. Passing the string "false" (what Angular produces for a false
+  // binding without `|| undefined`) is still treated as truthy by Lynx's
+  // native attribute parser, so absence is the only way to truly disable.
   template: `
     <scroll-view
       [attr.scroll-orientation]="orientation()"
@@ -42,6 +46,9 @@ export class UiScrollArea {
   readonly upperThreshold = input(0);
   readonly lowerThreshold = input(0);
   readonly userClass = input<string>('', { alias: 'class' });
+  // Trailing underscore avoids a naming collision with the protected
+  // `contentClass` computed property below; the public alias 'contentClass'
+  // keeps the template API clean for consumers.
   readonly contentClass_ = input<string>('', { alias: 'contentClass' });
 
   readonly scrolledToStart = output<void>();

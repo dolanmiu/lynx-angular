@@ -1,11 +1,12 @@
-// Parses the opcode stream produced by ssrEncode and maps each ssrId to its
-// native ElementRef via the refs map from __GetTemplateParts(). Returns an
-// ordered queue that LynxHydrateDocument consumes — one ElementRef per
-// createElement/createText/createComment call during Angular's bootstrap.
-
 import type { ElementRef } from '../types/lynx';
 import { Opcode } from './opcodes';
 
+/**
+ * Parses the opcode stream produced by ssrEncode and maps each ssrId to its
+ * native ElementRef via the refs map from __GetTemplateParts(). Returns an
+ * ordered queue that LynxHydrateDocument consumes — one ElementRef per
+ * createElement/createText/createComment call during Angular's bootstrap.
+ */
 export const buildElementQueueFromOpcodes = (
   opcodes: unknown[],
   refsMap: Record<string, ElementRef>,

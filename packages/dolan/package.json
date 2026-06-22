@@ -6,13 +6,22 @@
   "bin": {
     "blotch": "./dist/index.js"
   },
+  "files": [
+    "dist"
+  ],
   "type": "module",
   "exports": {
-    "./utils/cn": "./src/utils/cn.ts",
-    "./utils/animate": "./src/utils/animate.ts"
+    "./utils/cn": {
+      "types": "./dist/utils/cn.d.ts",
+      "default": "./dist/utils/cn.js"
+    },
+    "./utils/animate": {
+      "types": "./dist/utils/animate.d.ts",
+      "default": "./dist/utils/animate.js"
+    }
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && vite build",
     "test": "vitest run",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",

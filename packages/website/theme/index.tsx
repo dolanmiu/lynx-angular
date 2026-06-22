@@ -72,7 +72,9 @@ const HeroCommandBox = () => {
   );
 };
 
-/** Poll with rAF until `selector` matches, then call `cb`. Gives up after 5 s. */
+/**
+ * Poll with rAF until `selector` matches, then call `cb`. Gives up after 5 s.
+ */
 const whenReady = (
   selector: string,
   cb: (el: Element) => void,

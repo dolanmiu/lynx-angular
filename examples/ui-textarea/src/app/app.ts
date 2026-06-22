@@ -49,9 +49,7 @@ import { UiTextarea } from '../components/ui/textarea';
           <text class="text-sm font-medium text-foreground mb-2">
             Current Values
           </text>
-          <text class="text-xs text-muted-foreground">
-            Bio: {{ bio() }}
-          </text>
+          <text class="text-xs text-muted-foreground"> Bio: {{ bio() }} </text>
           <text class="text-xs text-muted-foreground">
             Feedback: {{ feedback() }}
           </text>

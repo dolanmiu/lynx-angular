@@ -22,7 +22,9 @@ import { LynxGlobalData } from '../data-flow/global-data';
 export class LynxLocale {
   readonly #globalData = inject(LynxGlobalData);
 
-  /** The current locale. Reactive — updates when global props change. */
+  /**
+   * The current locale. Reactive — updates when global props change.
+   */
   readonly locale = computed(() => {
     const value = (this.#globalData.globalData() as Record<string, unknown>)[
       'appLocale'

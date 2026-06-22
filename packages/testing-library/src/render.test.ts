@@ -749,11 +749,13 @@ describe('componentRef', () => {
   });
 
   it('exposes instance signals for direct state manipulation', async () => {
-    // In the Vitest JIT environment, Angular does not compile signal inputs
-    // (input()) or @Input() decorators into the component definition — both
-    // require the full AOT pipeline or TestBed. The practical test-authoring
-    // pattern is to expose a writable signal() on the instance and drive it
-    // directly via componentRef.instance.
+    /**
+     * In the Vitest JIT environment, Angular does not compile signal inputs
+     * (input()) or @Input() decorators into the component definition — both
+     * require the full AOT pipeline or TestBed. The practical test-authoring
+     * pattern is to expose a writable signal() on the instance and drive it
+     * directly via componentRef.instance.
+     */
     @Component({
       selector: 'test-component-ref-signal',
       template: `<text>{{ label() }}</text>`,

@@ -7,6 +7,7 @@ export class LynxBackgroundDocument implements LynxDocumentBase {
   constructor() {}
   createRootElement(): LynxBackgroundElement {
     const page = new LynxBackgroundElement();
+    page.tagName = 'page';
     page.setAttribute('tagName', 'page');
     page.isRootPageElement = true;
     this.#page = page;
@@ -21,6 +22,7 @@ export class LynxBackgroundDocument implements LynxDocumentBase {
     // In the background thread, we create virtual elements but store their tag name
     // to help with debugging and potential future synchronization
     const element = new LynxBackgroundElement();
+    element.tagName = tag;
     element.setAttribute('tagName', tag);
 
     // For debugging purposes, store text content if provided
@@ -32,12 +34,14 @@ export class LynxBackgroundDocument implements LynxDocumentBase {
   }
   createText(value: string): LynxBackgroundElement {
     const element = new LynxBackgroundElement();
+    element.tagName = 'text';
     element.setAttribute('tagName', 'text');
     element.setAttribute('textContent', value);
     return element;
   }
   createComment(): LynxBackgroundElement {
     const element = new LynxBackgroundElement();
+    element.tagName = 'comment';
     element.setAttribute('tagName', 'comment');
     return element;
   }

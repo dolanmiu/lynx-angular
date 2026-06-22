@@ -13,10 +13,7 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
         <view class="card">
           <text class="section-label">Scrollable List</text>
-          <scroll-view
-            scroll-orientation="vertical"
-            class="scroll-area"
-          >
+          <scroll-view scroll-orientation="vertical" class="scroll-area">
             @for (item of items(); track item) {
               <view class="scroll-item">
                 <text class="scroll-item-text">Item {{ item }}</text>
@@ -28,15 +25,52 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
     </scroll-view>
   `,
   styles: `
-    .page { height: 100%; background-color: #fafafa; }
-    .container { padding: 24px; }
-    .title { font-size: 28px; font-weight: bold; color: #18181b; margin-bottom: 4px; }
-    .subtitle { font-size: 13px; color: #71717a; margin-bottom: 20px; }
-    .card { background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; padding: 16px; overflow: hidden; }
-    .section-label { font-size: 11px; font-weight: 700; color: #a1a1aa; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .scroll-area { height: 300px; border: 1px solid #e4e4e7; border-radius: 8px; }
-    .scroll-item { padding: 14px 16px; border-bottom: 1px solid #e4e4e7; }
-    .scroll-item-text { font-size: 15px; color: #18181b; }
+    .page {
+      height: 100%;
+      background-color: #fafafa;
+    }
+    .container {
+      padding: 24px;
+    }
+    .title {
+      font-size: 28px;
+      font-weight: bold;
+      color: #18181b;
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 13px;
+      color: #71717a;
+      margin-bottom: 20px;
+    }
+    .card {
+      background-color: #ffffff;
+      border: 1px solid #e4e4e7;
+      border-radius: 12px;
+      padding: 16px;
+      overflow: hidden;
+    }
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #a1a1aa;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .scroll-area {
+      height: 300px;
+      border: 1px solid #e4e4e7;
+      border-radius: 8px;
+    }
+    .scroll-item {
+      padding: 14px 16px;
+      border-bottom: 1px solid #e4e4e7;
+    }
+    .scroll-item-text {
+      font-size: 15px;
+      color: #18181b;
+    }
   `,
   imports: [LYNX_ELEMENTS],
 })

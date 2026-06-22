@@ -12,13 +12,15 @@ import { LynxHydrateDocument } from '../ssr/hydrate-document';
 import { LynxRendererFactory2 } from './lynx-renderer-factory2';
 import { LYNX_DOCUMENT } from './token';
 
-// Central DI configuration for the Lynx renderer. Must be included in every
-// Lynx Angular app's providers (typically via app.config.ts). Sets up:
-// 1. Thread-aware document (LynxDocument vs LynxBackgroundDocument)
-// 2. DOCUMENT stub (Angular requires this token but Lynx has no DOM Document)
-// 3. APP_BASE_HREF (prevents BrowserPlatformLocation from crashing)
-// 4. Renderer factory (creates LynxRenderer / EmulatedLynxRenderer)
-// 5. Error handler (routes to _ReportError + __lynxLastError)
+/**
+ * Central DI configuration for the Lynx renderer. Must be included in every
+ * Lynx Angular app's providers (typically via app.config.ts). Sets up:
+ * 1. Thread-aware document (LynxDocument vs LynxBackgroundDocument)
+ * 2. DOCUMENT stub (Angular requires this token but Lynx has no DOM Document)
+ * 3. APP_BASE_HREF (prevents BrowserPlatformLocation from crashing)
+ * 4. Renderer factory (creates LynxRenderer / EmulatedLynxRenderer)
+ * 5. Error handler (routes to _ReportError + __lynxLastError)
+ */
 export const provideRenderer = (): EnvironmentProviders => {
   return makeEnvironmentProviders([
     {

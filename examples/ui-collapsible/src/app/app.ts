@@ -1,6 +1,10 @@
 import { Component } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
-import { UiCollapsible, UiCollapsibleTrigger, UiCollapsibleContent } from '../components/ui/collapsible';
+import {
+  UiCollapsible,
+  UiCollapsibleTrigger,
+  UiCollapsibleContent,
+} from '../components/ui/collapsible';
 
 @Component({
   selector: 'app-root',
@@ -20,9 +24,7 @@ import { UiCollapsible, UiCollapsibleTrigger, UiCollapsibleContent } from '../co
 
         <!-- Basic collapsible -->
         <view class="flex flex-col gap-2">
-          <text class="text-lg font-semibold text-foreground">
-            Basic
-          </text>
+          <text class="text-lg font-semibold text-foreground"> Basic </text>
         </view>
 
         <ui-collapsible class="rounded-lg border border-border">
@@ -74,15 +76,16 @@ import { UiCollapsible, UiCollapsibleTrigger, UiCollapsibleContent } from '../co
 
         <!-- Disabled collapsible -->
         <view class="flex flex-col gap-2">
-          <text class="text-lg font-semibold text-foreground">
-            Disabled
-          </text>
+          <text class="text-lg font-semibold text-foreground"> Disabled </text>
           <text class="text-xs text-muted-foreground">
             Cannot be toggled when disabled.
           </text>
         </view>
 
-        <ui-collapsible [disabled]="true" class="rounded-lg border border-border">
+        <ui-collapsible
+          [disabled]="true"
+          class="rounded-lg border border-border"
+        >
           <ui-collapsible-trigger class="justify-between p-4">
             <text class="text-sm font-medium text-foreground">
               This section is locked

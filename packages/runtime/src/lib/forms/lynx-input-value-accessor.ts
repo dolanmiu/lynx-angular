@@ -35,8 +35,10 @@ export class LynxInputValueAccessor implements ControlValueAccessor {
   #onChange: (value: string) => void = () => {};
   #onTouched: () => void = () => {};
 
-  // @HostListener ultimately calls renderer.listen(), which is the correct Lynx
-  // event path. Using @Output() would break delivery (template compiler intercepts it).
+  /**
+   * @HostListener ultimately calls renderer.listen(), which is the correct Lynx
+   * event path. Using @Output() would break delivery (template compiler intercepts it).
+   */
   @HostListener('bindinput', ['$event'])
   onInput(event: Event): void {
     // Lynx bindinput carries the typed value in event.detail.value, not event.target.value.

@@ -1,9 +1,11 @@
 import type { RsbuildPluginAPI, Rspack } from '@lynx-js/rspeedy';
 
-// Webpack layer names for the dual-thread build. Each entry is duplicated
-// into two webpack entries with different layers — the layer determines which
-// SWC target (ES2015 vs ES2019) and which thread-specific configuration
-// (CSS extraction vs ignore, AMD wrapping vs plain) applies to the module.
+/**
+ * Webpack layer names for the dual-thread build. Each entry is duplicated
+ * into two webpack entries with different layers — the layer determines which
+ * SWC target (ES2015 vs ES2019) and which thread-specific configuration
+ * (CSS extraction vs ignore, AMD wrapping vs plain) applies to the module.
+ */
 export const LAYERS = {
   BACKGROUND: 'background',
   MAIN_THREAD: 'main',

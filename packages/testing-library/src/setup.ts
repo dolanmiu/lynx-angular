@@ -26,8 +26,10 @@ import { LynxTestingEnv } from '@lynx-js/testing-environment';
 
 // ─── CSS fetch intercept ─────────────────────────────────────────────────────
 
-// Angular JIT calls fetch('./component.css') to load external styleUrls.
-// jsdom has no base URL, so relative URLs fail. Return empty 200 for .css fetches.
+/**
+ * Angular JIT calls fetch('./component.css') to load external styleUrls.
+ * jsdom has no base URL, so relative URLs fail. Return empty 200 for .css fetches.
+ */
 const _originalFetch = globalThis.fetch;
 globalThis.fetch = (
   url: RequestInfo | URL,
@@ -80,19 +82,27 @@ lynxTestingEnv.switchToMainThread();
 // We polyfill the subset of PAPI that AngularLynx uses but testing-environment
 // does not implement.
 
-/** Returns the parent of a JSDOM element (equivalent to element.parentNode). */
+/**
+ * Returns the parent of a JSDOM element (equivalent to element.parentNode).
+ */
 (globalThis as any).__GetParent = (e: Element) =>
   e.parentElement ?? e.parentNode;
 
-/** Returns the next sibling element. */
+/**
+ * Returns the next sibling element.
+ */
 (globalThis as any).__NextElement = (e: Element) =>
   e.nextElementSibling ?? e.nextSibling;
 
-/** querySelector on a JSDOM element. */
+/**
+ * querySelector on a JSDOM element.
+ */
 (globalThis as any).__QuerySelector = (e: Element, selector: string) =>
   e.querySelector(selector);
 
-/** querySelectorAll on a JSDOM element — returns an array. */
+/**
+ * querySelectorAll on a JSDOM element — returns an array.
+ */
 (globalThis as any).__QuerySelectorAll = (e: Element, selector: string) =>
   Array.from(e.querySelectorAll(selector));
 
@@ -102,7 +112,9 @@ lynxTestingEnv.switchToMainThread();
  */
 (globalThis as any).__GetEvents = (e: any) => e.eventMap ?? {};
 
-/** Replaces the eventMap on the element. Used by the removeEventListener path. */
+/**
+ * Replaces the eventMap on the element. Used by the removeEventListener path.
+ */
 (globalThis as any).__SetEvents = (e: any, events: any[]) => {
   e.eventMap = Object.fromEntries(
     events.map((ev: any) => [ev.type + ':' + ev.name, ev.jsFunction]),
@@ -117,11 +129,15 @@ for (const tag of ['block', 'for', 'frame', 'if']) {
       (globalThis as any).__CreateElement(tag, parentComponentUniqueId);
 }
 
-/** __CreateNonElement creates an invisible placeholder (comment anchor). */
+/**
+ * __CreateNonElement creates an invisible placeholder (comment anchor).
+ */
 (globalThis as any).__CreateNonElement = () =>
   (globalThis as any).__CreateElement('non-element', 0);
 
-/** Class manipulation helpers. */
+/**
+ * Class manipulation helpers.
+ */
 (globalThis as any).__AddClass = (e: Element, cls: string) =>
   e.classList.add(cls);
 // Must return an array — LynxElement.removeClass() calls .filter() on the result.
@@ -131,7 +147,9 @@ for (const tag of ['block', 'for', 'frame', 'if']) {
   e.className = classes;
 };
 
-/** __SetConfig is called during bootstrap to pass Lynx config; no-op in tests. */
+/**
+ * __SetConfig is called during bootstrap to pass Lynx config; no-op in tests.
+ */
 (globalThis as any).__SetConfig = () => {};
 
 // ─── After reset ─────────────────────────────────────────────────────────────

@@ -16,11 +16,17 @@ import { LYNX_DOCUMENT } from '../renderer/token';
  * Configuration for creating a portal overlay.
  */
 export type PortalConfig = {
-  /** Overlay z-level (1–4). Higher levels render above lower ones. */
+  /**
+   * Overlay z-level (1–4). Higher levels render above lower ones.
+   */
   level?: number;
-  /** Custom injector for the component's dependency injection context. */
+  /**
+   * Custom injector for the component's dependency injection context.
+   */
   injector?: EnvironmentInjector;
-  /** Initial input values to set on the component after creation. */
+  /**
+   * Initial input values to set on the component after creation.
+   */
   inputs?: Record<string, unknown>;
 };
 
@@ -35,7 +41,9 @@ export class PortalRef<T> {
   readonly #componentRef: ComponentRef<T> | null;
   readonly #viewRef: EmbeddedViewRef<unknown> | null;
 
-  /** @internal */
+  /**
+   * @internal
+   */
   constructor(
     overlay: BaseLynxElement,
     appRef: ApplicationRef,
@@ -48,7 +56,9 @@ export class PortalRef<T> {
     this.#viewRef = viewRef;
   }
 
-  /** The component instance. `null` for template portals. */
+  /**
+   * The component instance. `null` for template portals.
+   */
   get instance(): T | null {
     return this.#componentRef?.instance ?? null;
   }

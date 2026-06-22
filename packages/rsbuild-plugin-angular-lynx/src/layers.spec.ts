@@ -5,7 +5,9 @@
 import { describe, expect, it, vi } from 'vitest';
 import { LAYERS, applyLayers } from './layers';
 
-// Builds a fluent oneOf builder that tracks calls, returned by chain.module.rule().oneOf()
+/**
+ * Builds a fluent oneOf builder that tracks calls, returned by chain.module.rule().oneOf().
+ */
 const createOneOfBuilder = () => {
   const useBuilder = {
     loader: vi.fn().mockReturnThis(),
@@ -26,7 +28,9 @@ const createOneOfBuilder = () => {
   return builder;
 };
 
-// Builds a mock bundler chain that tracks experiments and per-layer rule builders
+/**
+ * Builds a mock bundler chain that tracks experiments and per-layer rule builders.
+ */
 const createMockChain = (existingExperiments: Record<string, unknown> = {}) => {
   const oneOfBuilders: Record<
     string,
@@ -53,7 +57,9 @@ const createMockChain = (existingExperiments: Record<string, unknown> = {}) => {
   };
 };
 
-// Builds a mock RsbuildPluginAPI and captures the handler passed to modifyBundlerChain
+/**
+ * Builds a mock RsbuildPluginAPI and captures the handler passed to modifyBundlerChain.
+ */
 const createMockApi = () => {
   let capturedHandler: ((chain: unknown) => void) | undefined;
 

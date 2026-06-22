@@ -72,6 +72,10 @@ export class GestureDemo {
       this.composedAction.set('pan ended');
     });
 
+  // Exclusive: gesture system tries each in order; the first one to enter
+  // its active state wins and cancels the others. Here pan wins over tap
+  // because it has a minDistance(10) threshold — short movements still
+  // resolve as taps since pan fails until the distance requirement is met.
   readonly exclusiveGesture = Gesture.Exclusive(
     this.composedPan,
     this.composedTap,

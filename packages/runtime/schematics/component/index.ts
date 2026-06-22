@@ -4,6 +4,21 @@ import { getWorkspace } from '@schematics/angular/utility/workspace';
 
 import type { Schema } from './schema';
 
+/**
+ * Generates a Lynx-flavored Angular component (standalone, OnPush, signal-based)
+ * along with optional template/style/spec files. This is the AngularLynx
+ * equivalent of `ng generate component`, but it differs in three important
+ * ways:
+ *
+ *   1. **Template uses Lynx elements** — the boilerplate template renders
+ *      `<view><text>...</text></view>` instead of `<div><p>...`. LYNX_ELEMENTS
+ *      is imported automatically so the elements type-check.
+ *   2. **OnPush + zoneless** — Lynx apps run zoneless, so default change
+ *      detection would never tick. OnPush + signals is the only safe pattern.
+ *   3. **Vitest spec, not Karma** — Karma launches a browser and can't host
+ *      the Lynx runtime; the testing-library spec template runs under Vitest
+ *      with `@blotch/angular-lynx-testing-library` providing PAPI polyfills.
+ */
 export default (options: Schema): Rule =>
   async (tree: Tree) => {
     const workspace = await getWorkspace(tree);
@@ -29,6 +44,11 @@ export default (options: Schema): Rule =>
     const prefix =
       options.prefix ?? (project.extensions['prefix'] as string) ?? 'app';
 
+    // Split a slash-bearing name like "forms/inputs/my-button" into
+    //   componentName     = "my-button"  (the actual component identifier)
+    //   additionalPath    = "forms/inputs" (intermediate directories to nest in)
+    // This lets users colocate generated components with their feature folder
+    // in a single `ng generate` invocation instead of cd-ing or passing --path.
     const nameParts = options.name.split('/');
     const componentName = nameParts[nameParts.length - 1];
     const additionalPath = nameParts.slice(0, -1).join('/');
@@ -37,6 +57,10 @@ export default (options: Schema): Rule =>
     const classified = classify(componentName);
     const selector = `${prefix}-${dasherized}`;
 
+    // --flat means "put the files directly in the parent directory", matching
+    // Angular's own --flat. Otherwise create a wrapping folder named after
+    // the dasherized component so each component has its own directory for
+    // template, styles, spec, and any future per-component assets.
     const basePath = options.path ?? 'app';
     const dirPath = options.flat
       ? `${sourceRoot}/${basePath}${additionalPath ? '/' + additionalPath : ''}`
@@ -45,6 +69,9 @@ export default (options: Schema): Rule =>
     const componentPath = `${dirPath}/${dasherized}.ts`;
 
     if (tree.exists(componentPath)) {
+      // Hard fail rather than overwrite — Schematics has no "force" semantics
+      // for component generation and silently overwriting user code would be
+      // dangerous. The user can `rm` and re-run if they really want to.
       throw new SchematicsException(
         `Component file already exists: ${componentPath}`,
       );
@@ -92,6 +119,9 @@ const buildComponentFile = (
   lines.push(`  imports: [LYNX_ELEMENTS],`);
   lines.push(`  changeDetection: ChangeDetectionStrategy.OnPush,`);
 
+  // `!== false` means the template is inlined by default (when the option
+  // is true or undefined). This matches Lynx's convention of keeping the
+  // template in the same file since Lynx components rarely have large templates.
   if (options.inlineTemplate !== false) {
     lines.push(`  template: \``);
     lines.push(`    <view>`);
@@ -141,7 +171,9 @@ describe('${className}', () => {
 `;
 };
 
-/** Converts "myComponent" or "MyComponent" to "my-component" */
+/**
+ * Converts "myComponent" or "MyComponent" to "my-component"
+ */
 const dasherize = (str: string): string => {
   return str
     .replace(/([a-z\d])([A-Z])/g, '$1-$2')
@@ -150,7 +182,9 @@ const dasherize = (str: string): string => {
     .toLowerCase();
 };
 
-/** Converts "my-component" to "MyComponent" (PascalCase) */
+/**
+ * Converts "my-component" to "MyComponent" (PascalCase)
+ */
 const classify = (str: string): string => {
   return str
     .split(/[-_]/)

@@ -15,10 +15,12 @@ import { GestureStateManager } from './state-manager';
 type AnyGesture = BaseGesture<any, any>;
 type GestureInput = AnyGesture | AnyGesture[] | ComposedGesture;
 
-// Directive that bridges Angular's gesture binding to Lynx's native gesture
-// system (__SetGestureDetector / __RemoveGestureDetector). Accepts a single
-// gesture, an array of gestures, or a ComposedGesture (simultaneous/exclusive).
-// Each gesture is registered with the native engine via its unique numeric ID.
+/**
+ * Directive that bridges Angular's gesture binding to Lynx's native gesture
+ * system (__SetGestureDetector / __RemoveGestureDetector). Accepts a single
+ * gesture, an array of gestures, or a ComposedGesture (simultaneous/exclusive).
+ * Each gesture is registered with the native engine via its unique numeric ID.
+ */
 @Directive({
   selector: '[lynxGesture]',
   inputs: ['lynxGesture'],
@@ -29,9 +31,11 @@ export class LynxGestureDetector implements OnChanges, OnDestroy {
 
   lynxGesture!: GestureInput;
 
-  // Full teardown + re-register on every input change. This is safe because
-  // gesture IDs are stable (assigned once in BaseGesture constructor), so
-  // inter-gesture relationships (waitFor, simultaneousWith) stay valid.
+  /**
+   * Full teardown + re-register on every input change. This is safe because
+   * gesture IDs are stable (assigned once in BaseGesture constructor), so
+   * inter-gesture relationships (waitFor, simultaneousWith) stay valid.
+   */
   ngOnChanges(_changes: SimpleChanges): void {
     this.#detachAll();
     const gestures = this.#resolveGestures();

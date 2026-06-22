@@ -2,8 +2,10 @@ import { devStats } from '../devtools/stats';
 import { LynxElement, type LynxListElement } from '../lynx-element';
 import type { ElementRef } from '../types/lynx';
 
-// Exposed for SSR encode — ssrEncode() needs the raw page ElementRef to walk
-// the native tree. Only set on the main thread after createRootElement().
+/**
+ * Exposed for SSR encode — ssrEncode() needs the raw page ElementRef to walk
+ * the native tree. Only set on the main thread after createRootElement().
+ */
 export let __pageElementRef: ElementRef | null = null;
 
 import {
@@ -35,24 +37,29 @@ import {
 } from './element-creators';
 import type { LynxDocumentBase } from './types';
 
-// Main-thread document that creates native Lynx elements via PAPI functions.
-// Each createElement call wraps a PAPI call (__CreateView, __CreateText, etc.)
-// and returns a LynxElement wrapping the native ElementRef. The document owns
-// the root page element and tracks its unique ID for child element creation.
+/**
+ * Main-thread document that creates native Lynx elements via PAPI functions.
+ * Each createElement call wraps a PAPI call (__CreateView, __CreateText, etc.)
+ * and returns a LynxElement wrapping the native ElementRef. The document owns
+ * the root page element and tracks its unique ID for child element creation.
+ */
 export class LynxDocument implements LynxDocumentBase {
   page!: LynxElement;
   #pageId = 0;
   #pageElementRequested = false;
-  // Track NoneElements (Angular comment markers from @for/@if) so LynxListElement
-  // can skip them in getUIChildren(). Without this, invisible comment-anchor
-  // views would be counted as list items, causing misaligned indices in
-  // componentAtIndex and incorrect update-list-info diffs.
+  /**
+   * Track NoneElements (Angular comment markers from @for/@if) so LynxListElement
+   * can skip them in getUIChildren(). Without this, invisible comment-anchor
+   * views would be counted as list items, causing misaligned indices in
+   * componentAtIndex and incorrect update-list-info diffs.
+   */
   readonly #nonElements = new WeakSet<ElementRef>();
 
   constructor() {}
   createRootElement(): LynxElement {
     const pageElement = __CreatePage('0', 0);
     this.page = new LynxElement(pageElement);
+    this.page.tagName = 'page';
     // Prevent Angular from reparenting or removing the root page element
     // during normal component lifecycle (appendChild/remove calls).
     this.page.isRootPageElement = true;
@@ -165,11 +172,14 @@ export class LynxDocument implements LynxDocumentBase {
         element = createDefaultElement(tag, this.#pageId);
       }
     }
-    return new LynxElement(element);
+    const el = new LynxElement(element);
+    el.tagName = tag;
+    return el;
   }
   createText(value: string): LynxElement {
     const text = __CreateRawText(value);
     const lynxElement = new LynxElement(text);
+    lynxElement.tagName = 'raw-text';
     return lynxElement;
   }
   createComment(): LynxElement {
@@ -181,7 +191,9 @@ export class LynxDocument implements LynxDocumentBase {
     const element = __CreateView(this.#pageId);
     __AddInlineStyle(element, 'display', 'none');
     this.#nonElements.add(element);
-    return new LynxElement(element);
+    const el = new LynxElement(element);
+    el.tagName = 'comment';
+    return el;
   }
   appendChild(newChild: LynxElement): void {
     this.page.appendChild(newChild);

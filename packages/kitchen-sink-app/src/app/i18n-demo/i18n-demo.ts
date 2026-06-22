@@ -11,7 +11,9 @@ const FRENCH_TRANSLATIONS: Record<string, string> = {
   'kitchen.switchToFr': 'Passer en anglais',
   'kitchen.switchToEn': 'Passer en français',
 };
-// cspell:enable
+/**
+ * cspell:enable
+ */
 
 @Component({
   selector: 'app-i18n-demo',

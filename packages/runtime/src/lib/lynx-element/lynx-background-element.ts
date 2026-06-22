@@ -2,18 +2,21 @@ import type { LynxAnimationOptions } from '../animation/animation';
 import { NoopLynxAnimation } from '../animation/noop-animation';
 import type { BaseLynxElement } from './types';
 
-// Virtual element for the background thread where no native PAPI functions exist.
-// Maintains an in-memory linked-list tree (parent/child/sibling pointers) that
-// mirrors what LynxDocument builds on the main thread. Used by:
-// - Angular's change detection (reads parentNode/nextSibling for view insertion)
-// - querySelector/querySelectorAll (for testing and background-thread lookups)
-// - LynxBackgroundDocument (creates these instead of native elements)
-//
-// Props, styles, classes, and events are stored in Maps/Sets but never sent to
-// native — they exist so component code can read back what it set without
-// crashing, and so the testing library can inspect element state.
+/**
+ * Virtual element for the background thread where no native PAPI functions exist.
+ * Maintains an in-memory linked-list tree (parent/child/sibling pointers) that
+ * mirrors what LynxDocument builds on the main thread. Used by:
+ * - Angular's change detection (reads parentNode/nextSibling for view insertion)
+ * - querySelector/querySelectorAll (for testing and background-thread lookups)
+ * - LynxBackgroundDocument (creates these instead of native elements)
+ *
+ * Props, styles, classes, and events are stored in Maps/Sets but never sent to
+ * native — they exist so component code can read back what it set without
+ * crashing, and so the testing library can inspect element state.
+ */
 export class LynxBackgroundElement implements BaseLynxElement {
   isRootPageElement = false;
+  tagName = '';
 
   #props = new Map<string, any>();
   #styles = new Map<string, any>();
@@ -145,7 +148,9 @@ export class LynxBackgroundElement implements BaseLynxElement {
     return results;
   }
 
-  // Collects all descendants (pre-order DFS) that match the selector.
+  /**
+   * Collects all descendants (pre-order DFS) that match the selector.
+   */
   #collectMatches(selector: string, results: LynxBackgroundElement[]): void {
     let child = this.#firstChild;
     while (child) {
@@ -157,11 +162,13 @@ export class LynxBackgroundElement implements BaseLynxElement {
     }
   }
 
-  // Supports the CSS selector subset Angular actually needs: tag names, class
-  // selectors, ID selectors, and simple attribute selectors — all combinable
-  // as a compound selector (e.g. "view.active[id=foo]").
-  // Combinators (space, >, ~, +) are not supported on the background thread
-  // because Angular's renderer doesn't use them at this layer.
+  /**
+   * Supports the CSS selector subset Angular actually needs: tag names, class
+   * selectors, ID selectors, and simple attribute selectors — all combinable
+   * as a compound selector (e.g. "view.active[id=foo]").
+   * Combinators (space, >, ~, +) are not supported on the background thread
+   * because Angular's renderer doesn't use them at this layer.
+   */
   #matchesSelector(selector: string): boolean {
     let remaining = selector.trim();
 
@@ -231,12 +238,14 @@ export class LynxBackgroundElement implements BaseLynxElement {
 
     return true;
   }
-  // Previously threw: `throw new Error('animate() is only available on the
-  // main thread')`. This crashed the Go web preview on the docs site because
-  // the animations example's (bindtap) handler calls el.nativeElement.animate()
-  // which lands here on the background thread. Returning a no-op is safe —
-  // the animation won't visually play, but the caller's code (including
-  // .cancel() / .pause() / .play() chains) continues without error.
+  /**
+   * Previously threw: `throw new Error('animate() is only available on the
+   * main thread')`. This crashed the Go web preview on the docs site because
+   * the animations example's (bindtap) handler calls el.nativeElement.animate()
+   * which lands here on the background thread. Returning a no-op is safe —
+   * the animation won't visually play, but the caller's code (including
+   * .cancel() / .pause() / .play() chains) continues without error.
+   */
   animate(
     _keyframes: Record<string, string | number>[],
     _options?: number | LynxAnimationOptions,

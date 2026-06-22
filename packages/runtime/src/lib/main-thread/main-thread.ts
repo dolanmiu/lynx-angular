@@ -1,18 +1,20 @@
 import { Injectable } from '@angular/core';
 import type { MainThreadFnHandle } from './main-thread-fn';
 
-// Injectable service for calling main-thread (Lepus) functions from the
-// background thread. Uses Lynx's cross-thread RPC via JSContext events:
-//
-//   background calls runOnMainThread(handle, ...args)
-//   → dispatches 'Lynx.Worklet.runWorkletCtx' with { worklet, params, resolveId }
-//   → main thread's listener (in runtime.ts) invokes the registered worklet fn
-//   → dispatches 'Lynx.Worklet.FunctionCallRet' with { resolveId, returnValue }
-//   → background thread's listener resolves the Promise
-//
-// This enables background-thread Angular code (services, effects) to trigger
-// main-thread imperative operations (animate, measure, invoke UI methods)
-// with proper async/await ergonomics.
+/**
+ * Injectable service for calling main-thread (Lepus) functions from the
+ * background thread. Uses Lynx's cross-thread RPC via JSContext events:
+ *
+ *   background calls runOnMainThread(handle, ...args)
+ *   → dispatches 'Lynx.Worklet.runWorkletCtx' with { worklet, params, resolveId }
+ *   → main thread's listener (in runtime.ts) invokes the registered worklet fn
+ *   → dispatches 'Lynx.Worklet.FunctionCallRet' with { resolveId, returnValue }
+ *   → background thread's listener resolves the Promise
+ *
+ * This enables background-thread Angular code (services, effects) to trigger
+ * main-thread imperative operations (animate, measure, invoke UI methods)
+ * with proper async/await ergonomics.
+ */
 @Injectable({ providedIn: 'root' })
 export class LynxMainThread {
   runOnMainThread<TArgs extends unknown[], TReturn>(

@@ -28,7 +28,9 @@ export type ExtractStrConfig = {
    * @public
    */
   strLength: number;
-  /** @internal */
+  /**
+   * @internal
+   */
   extractedStrArr?: string[];
 };
 /**

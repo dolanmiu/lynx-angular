@@ -9,7 +9,11 @@ import {
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
-import { type AnimationHandle, DURATION, EASING } from '@blotch/dolan/utils/animate';
+import {
+  type AnimationHandle,
+  DURATION,
+  EASING,
+} from '@blotch/dolan/utils/animate';
 import { cn } from '@blotch/dolan/utils/cn';
 
 @Component({
@@ -26,7 +30,9 @@ import { cn } from '@blotch/dolan/utils/cn';
 export class UiProgress {
   readonly value = input(0);
   readonly max = input(100);
-  /** When true, shows an indeterminate (looping) animation */
+  /**
+   * When true, shows an indeterminate (looping) animation
+   */
   readonly indeterminate = input(false);
   readonly userClass = input<string>('', { alias: 'class' });
 

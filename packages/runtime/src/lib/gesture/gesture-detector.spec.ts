@@ -7,7 +7,9 @@ import { TapGesture } from './tap-gesture';
 import { PanGesture } from './pan-gesture';
 import { GestureType } from './types';
 
-// Builds a directive instance with a fake element injected via DI.
+/**
+ * Builds a directive instance with a fake element injected via DI.
+ */
 const createDirective = (nativeElement: object): LynxGestureDetector => {
   const injector = Injector.create({
     providers: [
@@ -17,7 +19,9 @@ const createDirective = (nativeElement: object): LynxGestureDetector => {
   return runInInjectionContext(injector, () => new LynxGestureDetector());
 };
 
-// Simulates Angular's change detection call after an input is set.
+/**
+ * Simulates Angular's change detection call after an input is set.
+ */
 const applyGesture = (
   directive: LynxGestureDetector,
   gesture: LynxGestureDetector['lynxGesture'],

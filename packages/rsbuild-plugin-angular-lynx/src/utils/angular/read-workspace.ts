@@ -44,6 +44,9 @@ const findProjectByPath = (
     return false;
   };
 
+  // Sort by path depth (deepest first) so nested projects win over their parents.
+  // Example: if cwd is inside both "app" (root: "") and "my-lib" (root: "my-lib"),
+  // "my-lib" has a longer root path and sorts first — the more-specific project wins.
   const projects = Array.from(workspace.projects)
     .map(([name, project]) => [project.root, name] as [string, string])
     .filter((tuple) => isInside(tuple[0], location))

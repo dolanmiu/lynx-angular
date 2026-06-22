@@ -66,6 +66,10 @@ export class UiSheet {
   #hasBeenOpen = false;
 
   constructor() {
+    // `#hasBeenOpen` prevents the close animation from running on the initial
+    // effect evaluation when `open` starts as false. Without this guard, the
+    // first run would call #doClose() and emit `closed` before the sheet
+    // has ever been opened.
     effect(() => {
       const isOpen = this.open();
       if (isOpen) {
@@ -93,6 +97,11 @@ export class UiSheet {
     this.open.set(false);
   }
 
+  /**
+   * Two-phase open: make the overlay visible first so native elements exist
+   * in the tree, then animate on the next frame. Without this, animate()
+   * targets elements that haven't been flushed to native yet and silently fails.
+   */
   #doOpen(): void {
     setTimeout(() => {
       this.overlayVisible.set(true);
@@ -100,6 +109,12 @@ export class UiSheet {
     }, 0);
   }
 
+  /**
+   * Reverse: animate out first, then hide the overlay once the animation
+   * completes. The +20ms buffer absorbs timer imprecision in the Lynx
+   * runtime — hiding the overlay mid-animation causes elements to vanish
+   * before the fade finishes.
+   */
   #doClose(): void {
     setTimeout(() => {
       this.#animateOut();

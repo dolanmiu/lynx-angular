@@ -1,3 +1,4 @@
+// cspell:words Español Français Deutsch
 import { Component, signal } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 import { UiSwitch } from '../components/ui/switch';
@@ -18,11 +19,18 @@ import { UiButton } from '../components/ui/button';
   selector: 'app-root',
   imports: [
     LYNX_ELEMENTS,
-    UiSwitch, UiLabel, UiSeparator,
-    UiSelect, UiSelectItem,
-    UiRadioGroup, UiRadioGroupItem,
-    UiAlertDialog, UiAlertDialogHeader, UiAlertDialogTitle,
-    UiAlertDialogDescription, UiAlertDialogFooter,
+    UiSwitch,
+    UiLabel,
+    UiSeparator,
+    UiSelect,
+    UiSelectItem,
+    UiRadioGroup,
+    UiRadioGroupItem,
+    UiAlertDialog,
+    UiAlertDialogHeader,
+    UiAlertDialogTitle,
+    UiAlertDialogDescription,
+    UiAlertDialogFooter,
     UiButton,
   ],
   template: `
@@ -81,7 +89,11 @@ import { UiButton } from '../components/ui/button';
 
         <view class="section">
           <text class="section-header-danger">Danger Zone</text>
-          <ui-button variant="destructive" (pressed)="deleteDialogOpen.set(true)">Delete Account</ui-button>
+          <ui-button
+            variant="destructive"
+            (pressed)="deleteDialogOpen.set(true)"
+            >Delete Account</ui-button
+          >
         </view>
       </view>
     </scroll-view>
@@ -90,29 +102,99 @@ import { UiButton } from '../components/ui/button';
       <ui-alert-dialog-header>
         <ui-alert-dialog-title>Delete Account</ui-alert-dialog-title>
         <ui-alert-dialog-description>
-          This will permanently delete your account and all data. This action cannot be undone.
+          This will permanently delete your account and all data. This action
+          cannot be undone.
         </ui-alert-dialog-description>
       </ui-alert-dialog-header>
       <ui-alert-dialog-footer>
-        <ui-button variant="outline" (pressed)="deleteDialogOpen.set(false)">Cancel</ui-button>
-        <ui-button variant="destructive" (pressed)="deleteDialogOpen.set(false)">Delete</ui-button>
+        <ui-button variant="outline" (pressed)="deleteDialogOpen.set(false)"
+          >Cancel</ui-button
+        >
+        <ui-button variant="destructive" (pressed)="deleteDialogOpen.set(false)"
+          >Delete</ui-button
+        >
       </ui-alert-dialog-footer>
     </ui-alert-dialog>
   `,
   styles: `
-    .page { height: 100vh; background-color: #fafafa; }
-    .container { display: flex; flex-direction: column; gap: 24px; padding: 24px; }
-    .title { font-size: 28px; font-weight: bold; color: #18181b; }
-    .section { display: flex; flex-direction: column; gap: 14px; }
-    .section-header { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #a1a1aa; }
-    .section-header-danger { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #ef4444; }
-    .setting-row { display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 12px 16px; background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; }
-    .setting-info { display: flex; flex-direction: column; gap: 2px; }
-    .setting-desc { font-size: 12px; color: #a1a1aa; }
-    .field { display: flex; flex-direction: column; gap: 6px; }
-    .field-lg { display: flex; flex-direction: column; gap: 10px; }
-    .radio-list { display: flex; flex-direction: column; gap: 10px; }
-    .radio-row { display: flex; flex-direction: row; align-items: center; gap: 10px; padding: 12px 16px; background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; }
+    .page {
+      height: 100vh;
+      background-color: #fafafa;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      padding: 24px;
+    }
+    .title {
+      font-size: 28px;
+      font-weight: bold;
+      color: #18181b;
+    }
+    .section {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .section-header {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #a1a1aa;
+    }
+    .section-header-danger {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #ef4444;
+    }
+    .setting-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background-color: #ffffff;
+      border: 1px solid #e4e4e7;
+      border-radius: 12px;
+    }
+    .setting-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .setting-desc {
+      font-size: 12px;
+      color: #a1a1aa;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .field-lg {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .radio-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .radio-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background-color: #ffffff;
+      border: 1px solid #e4e4e7;
+      border-radius: 12px;
+    }
   `,
 })
 export class App {

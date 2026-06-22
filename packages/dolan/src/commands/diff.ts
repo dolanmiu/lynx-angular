@@ -27,6 +27,18 @@ const STATUS_SHORT_LABELS: Record<FileStatus, string> = {
   'new-upstream': pc.blue('new upstream'),
 };
 
+/**
+ * Shows the diff between installed components and their current upstream
+ * source. Two modes:
+ *
+ *   - With a component name: print the per-file diff immediately. Useful for
+ *     CI-style "what would change?" inspection.
+ *   - Without arguments: summarize all components that have any divergence
+ *     from upstream and prompt to pick which one's diff to display.
+ *
+ * Uses the same analyzeFile + summarizeComponent pipeline as `list`/`upgrade`
+ * so what you see here matches what those commands will report.
+ */
 export const diffCommand = async (component?: string) => {
   const cwd = process.cwd();
 
@@ -188,6 +200,8 @@ const showComponentDiff = (
     p.log.message(`\n${pc.dim(header)}`);
 
     if (analysis.status === 'new-upstream') {
+      // No current content to diff against — render the full upstream file
+      // in green so it visually reads as "new content" rather than as a diff.
       p.log.message(pc.green(analysis.newContent));
     } else {
       const diff = formatDiff(analysis.currentContent, analysis.newContent);

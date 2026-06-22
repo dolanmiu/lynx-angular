@@ -1,8 +1,19 @@
 import type { ElementRef } from '@angular/core';
-import { Component, ViewEncapsulation, computed, input, viewChild } from '@angular/core';
+import {
+  Component,
+  ViewEncapsulation,
+  computed,
+  input,
+  viewChild,
+} from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
-import { type AnimationHandle, SCALE, pressDown, pressRelease } from '@blotch/dolan/utils/animate';
+import {
+  type AnimationHandle,
+  SCALE,
+  pressDown,
+  pressRelease,
+} from '@blotch/dolan/utils/animate';
 import { cn } from '@blotch/dolan/utils/cn';
 
 @Component({
@@ -23,7 +34,9 @@ import { cn } from '@blotch/dolan/utils/cn';
   `,
 })
 export class UiCard {
-  /** When true, the card responds to touch with a subtle scale animation */
+  /**
+   * When true, the card responds to touch with a subtle scale animation
+   */
   readonly pressable = input(false);
   readonly userClass = input<string>('', { alias: 'class' });
 
@@ -37,7 +50,10 @@ export class UiCard {
   protected onPressStart(): void {
     if (!this.pressable()) return;
     this.#pressAnim?.cancel();
-    this.#pressAnim = pressDown(this.containerRef()?.nativeElement, SCALE.pressDownLight);
+    this.#pressAnim = pressDown(
+      this.containerRef()?.nativeElement,
+      SCALE.pressDownLight,
+    );
   }
 
   protected onPressEnd(): void {

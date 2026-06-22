@@ -1,7 +1,12 @@
 {
   "name": "@blotch/angular-lynx",
-  "version": "21.0.0",
+  "version": "22.0.0",
   "description": "Angular renderer for the Lynx cross-platform native UI framework",
+  "files": [
+    "dist",
+    "schematics",
+    "README.md"
+  ],
   "sideEffects": false,
   "exports": {
     "./package.json": {
@@ -27,26 +32,26 @@
     "tslib": "^2.3.0"
   },
   "devDependencies": {
-    "@angular-devkit/core": "^21.0.0",
-    "@angular-devkit/schematics": "^21.0.0",
-    "@angular/common": "^21.0.0",
-    "@angular/compiler": "^21.0.0",
-    "@angular/compiler-cli": "^21.0.0",
-    "@angular/core": "^21.0.0",
-    "@angular/platform-browser": "^21.0.0",
-    "@angular/router": "^21.0.0",
-    "@schematics/angular": "^21.0.0",
+    "@angular-devkit/core": "^22.0.0",
+    "@angular-devkit/schematics": "^22.0.0",
+    "@angular/common": "^22.0.0",
+    "@angular/compiler": "^22.0.0",
+    "@angular/compiler-cli": "^22.0.0",
+    "@angular/core": "^22.0.0",
+    "@angular/platform-browser": "^22.0.0",
+    "@angular/router": "^22.0.0",
+    "@schematics/angular": "^22.0.0",
     "@types/node": "^22.0.0",
-    "ng-packagr": "^21.0.0",
-    "typescript": "~5.9.0"
+    "ng-packagr": "^22.0.0",
+    "typescript": "~6.0.0"
   },
   "peerDependencies": {
-    "@angular/common": "^21.0.0",
-    "@angular/core": "^21.0.0",
-    "@angular/forms": "^21.0.0",
-    "@angular/localize": "^21.0.0",
-    "@angular/platform-browser": "^21.0.0",
-    "@angular/router": "^21.0.0"
+    "@angular/common": "^22.0.0",
+    "@angular/core": "^22.0.0",
+    "@angular/forms": "^22.0.0",
+    "@angular/localize": "^22.0.0",
+    "@angular/platform-browser": "^22.0.0",
+    "@angular/router": "^22.0.0"
   },
   "peerDependenciesMeta": {
     "@angular/forms": {

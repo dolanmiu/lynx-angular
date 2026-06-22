@@ -1,7 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { loadLazyBundle as LoadLazyBundleFn } from './lazy-bundle';
 
-// Dynamic import so the module picks up stubbed globals on each test.
+/**
+ * Dynamic import so the module picks up stubbed globals on each test.
+ */
 let loadLazyBundle: typeof LoadLazyBundleFn;
 
 class FakeComponent {}

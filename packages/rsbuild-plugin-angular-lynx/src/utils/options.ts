@@ -57,6 +57,10 @@ export const normalizeOptions = (
     enableSSR: false,
     //@ts-expect-error
     pages: undefined,
+    // 0x00010000 = 65536: Lynx-internal pipeline scheduler flag passed to
+    // LynxTemplatePlugin. Enables the async pipeline scheduler mode required
+    // for Angular's change detection to interleave correctly with Lynx's
+    // native frame rendering pipeline.
     pipelineSchedulerConfig: 0x00010000,
     targetSdkVersion: '3.2',
     defaultOverflowVisible: true,

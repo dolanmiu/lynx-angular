@@ -52,8 +52,10 @@ const incrementBgCounter = backgroundFn(() => {
   return bgCounter;
 });
 
-// Main-thread handler that does instant visual feedback THEN dispatches
-// to the background thread to update app state.
+/**
+ * Main-thread handler that does instant visual feedback THEN dispatches
+ * to the background thread to update app state.
+ */
 const handleCrossThreadTap = mainThreadFn((event: MainThread.TouchEvent) => {
   const el = event.currentTarget;
 
@@ -70,9 +72,11 @@ const handleCrossThreadTap = mainThreadFn((event: MainThread.TouchEvent) => {
   }, 150);
 });
 
-// Main-thread function callable from the background thread via
-// LynxMainThread.runOnMainThread(). Demonstrates background→main
-// communication for triggering native animations or element manipulation.
+/**
+ * Main-thread function callable from the background thread via
+ * LynxMainThread.runOnMainThread(). Demonstrates background→main
+ * communication for triggering native animations or element manipulation.
+ */
 const flashElement = mainThreadFn((color: string, elementSelector: string) => {
   const page = __GetPageElement();
   const target = __QuerySelector(page, elementSelector, {});
@@ -109,14 +113,18 @@ export class MainThreadDemo {
     this.bgTapCount.update((v) => v + 1);
   }
 
-  // Background → Main Thread: call a main-thread function from Angular code
+  /**
+   * Background → Main Thread: call a main-thread function from Angular code
+   */
   onFlashFromBackground(): void {
     const colors = ['#e91e63', '#00bcd4', '#ffeb3b', '#8bc34a'];
     const color = colors[Math.floor(Math.random() * colors.length)]!;
     this.#mts.runOnMainThread(flashElement, color, '.flash-target');
   }
 
-  // Polls the background counter (updated by cross-thread tap via runOnBackground)
+  /**
+   * Polls the background counter (updated by cross-thread tap via runOnBackground)
+   */
   onCrossThreadTap(): void {
     this.crossThreadCount.update((v) => v + 1);
   }

@@ -30,10 +30,7 @@ import { cn } from '@blotch/dolan/utils/cn';
   imports: [LYNX_ELEMENTS],
   encapsulation: ViewEncapsulation.None,
   template: `
-    <overlay
-      [attr.visible]="overlayVisible()"
-      [style]="overlayStyle()"
-    >
+    <overlay [attr.visible]="overlayVisible()" [style]="overlayStyle()">
       <view #backdrop [class]="backdropClass()">
         <view
           #panel

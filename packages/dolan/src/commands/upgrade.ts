@@ -32,10 +32,19 @@ import {
   type ComponentAnalysis,
 } from '../utils/analyze.js';
 
+/**
+ * Interactively presents a three-way merge conflict (user has edits + upstream
+ * has changes) and asks the user to resolve it. The "Show diff" option loops
+ * back into the same prompt so the user can inspect before committing — only
+ * "keep mine" or "take upstream" finalizes.
+ */
 const resolveConflict = async (
   componentName: string,
   analysis: FileAnalysis,
 ): Promise<'keep' | 'upstream'> => {
+  // Infinite loop so the user can view the diff and then choose. "Show diff"
+  // loops back to the same prompt rather than terminating — the loop only
+  // exits when the user picks a final action (keep or upstream).
   // eslint-disable-next-line no-constant-condition
   while (true) {
     const choice = await p.select({
@@ -76,6 +85,33 @@ const resolveConflict = async (
   }
 };
 
+/**
+ * Three-way merge upgrade for installed components, modeled on the same flow
+ * git/Mercurial use when applying upstream changes to a fork:
+ *
+ *   - **base** (lockfile hash) — what the file was at last add/upgrade.
+ *   - **current** (disk content) — what the user has now.
+ *   - **upstream** (registry source, re-rewritten) — what we'd install fresh.
+ *
+ * For each file, `analyzeFile` produces a status:
+ *   - **up-to-date**       — base == current == upstream (no work needed).
+ *   - **auto-upgrade**     — current matches base, upstream differs (safe to
+ *                            overwrite — user hasn't touched the file).
+ *   - **new-upstream**     — file didn't exist locally (new dependency file).
+ *   - **user-modified**    — current differs from base, upstream matches base
+ *                            (user has edits, no upstream change → keep theirs).
+ *   - **conflict**         — current differs from base AND upstream differs
+ *                            from base (both sides moved → prompt the user).
+ *
+ * `--force` bypasses all prompts and overwrites every file with upstream,
+ * which is destructive but useful for resetting to a clean baseline.
+ *
+ * After the apply phase, the lockfile is updated to record the new upstream
+ * hash for every file — even ones the user chose to keep. This intentionally
+ * "advances the base" so the user only sees the same conflict once: next
+ * upgrade compares against the (now-advanced) base and surfaces only changes
+ * introduced since this upgrade.
+ */
 export const upgradeCommand = async (options: { force?: boolean }) => {
   const cwd = process.cwd();
 
@@ -332,6 +368,11 @@ export const upgradeCommand = async (options: { force?: boolean }) => {
       const destPath = join(destDir, file.file);
       const key = `${comp.name}/${file.file}`;
 
+      // Overwrite when ANY of these are true:
+      //   1. auto-upgrade  — user hasn't touched it, safe to update
+      //   2. new-upstream  — file is new (didn't exist locally), no risk
+      //   3. force + user-modified — explicit reset of user's edits
+      //   4. conflict resolved as 'upstream' (or force) — user said take theirs
       const shouldOverwrite =
         file.status === 'auto-upgrade' ||
         file.status === 'new-upstream' ||
@@ -346,7 +387,12 @@ export const upgradeCommand = async (options: { force?: boolean }) => {
         };
         appliedCount++;
       } else if (file.status === 'conflict') {
-        // User chose to keep — update baseline so next upgrade won't re-flag
+        // User chose to keep their version. We still advance the lockfile base
+        // to the current upstream hash. This means on the next upgrade:
+        //   - If upstream hasn't changed again: base==upstream but base!=current
+        //     → shows as "user-modified" (not a conflict). Correct.
+        //   - If upstream changes again: base=old-upstream ≠ new-upstream AND
+        //     base ≠ user's current → conflict again. Correct.
         newLockfile.components[comp.name][file.file] = {
           hash: hashContent(file.newContent),
         };
@@ -409,7 +455,9 @@ export const upgradeCommand = async (options: { force?: boolean }) => {
   p.outro('Upgrade complete.');
 };
 
-// Build a fresh lockfile snapshot for the "nothing to apply" case
+/**
+ * Build a fresh lockfile snapshot for the "nothing to apply" case
+ */
 const buildLockfile = (
   components: ComponentAnalysis[],
   shared: FileAnalysis[],

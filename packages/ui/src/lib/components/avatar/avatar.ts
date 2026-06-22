@@ -19,6 +19,9 @@ import { cn } from '../../utils/cn';
   template: `
     <view [class]="containerClass()">
       @if (src()) {
+        <!-- Image starts invisible (opacity: 0) to avoid a flash of the
+             broken/loading placeholder before the network load completes.
+             onImageLoad() fades it in once ready. -->
         <image
           #img
           [attr.src]="src()"
@@ -42,7 +45,9 @@ export class UiAvatar {
 
   readonly imgRef = viewChild<ElementRef>('img');
 
-  /** Fade the image in once it has loaded */
+  /**
+   * Fade the image in once it has loaded
+   */
   protected onImageLoad(): void {
     const el = this.imgRef()?.nativeElement;
     if (el) {

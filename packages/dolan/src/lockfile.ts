@@ -15,6 +15,11 @@ export type Lockfile = {
 
 const LOCKFILE_NAME = 'dolan.lock.json';
 
+/**
+ * 16 hex chars = 64-bit prefix of SHA-256. Enough collision resistance for
+ * file integrity checks (the probability of a false "no change" detection is
+ * 1 in 2^64), while keeping the lockfile compact and human-readable.
+ */
 export const hashContent = (content: string): string => {
   return createHash('sha256').update(content).digest('hex').slice(0, 16);
 };

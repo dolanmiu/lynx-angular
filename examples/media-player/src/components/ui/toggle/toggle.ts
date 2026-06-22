@@ -11,29 +11,30 @@ import {
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 import { cva, type VariantProps } from 'class-variance-authority';
 
-import { type AnimationHandle, pressDown, pressRelease } from '@blotch/dolan/utils/animate';
+import {
+  type AnimationHandle,
+  pressDown,
+  pressRelease,
+} from '@blotch/dolan/utils/animate';
 import { cn } from '@blotch/dolan/utils/cn';
 
-const toggleVariants = cva(
-  'flex items-center justify-center rounded-md',
-  {
-    variants: {
-      variant: {
-        default: '',
-        outline: 'border border-border',
-      },
-      size: {
-        default: 'h-10 px-3',
-        sm: 'h-9 px-2.5',
-        lg: 'h-11 px-5',
-      },
+const toggleVariants = cva('flex items-center justify-center rounded-md', {
+  variants: {
+    variant: {
+      default: '',
+      outline: 'border border-border',
     },
-    defaultVariants: {
-      variant: 'default',
-      size: 'default',
+    size: {
+      default: 'h-10 px-3',
+      sm: 'h-9 px-2.5',
+      lg: 'h-11 px-5',
     },
   },
-);
+  defaultVariants: {
+    variant: 'default',
+    size: 'default',
+  },
+});
 
 export type ToggleVariant = NonNullable<
   VariantProps<typeof toggleVariants>['variant']

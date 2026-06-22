@@ -1,7 +1,9 @@
 import { Directive } from '@angular/core';
 import { LynxElementBase } from './base';
 
-/** Anonymous grouping element with no visual output. */
+/**
+ * Anonymous grouping element with no visual output.
+ */
 @Directive({ selector: 'block', standalone: true })
 export class LynxBlock extends LynxElementBase {}
 

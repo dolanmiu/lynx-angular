@@ -1,8 +1,10 @@
 import type { DevToolsStats } from './devtools.types';
 
-// Module-level counters for hot-path instrumentation.
-// Plain object avoids DI/signal overhead on every element operation.
-// Only incremented when __PROFILE__ is true (dead-code-eliminated otherwise).
+/**
+ * Module-level counters for hot-path instrumentation.
+ * Plain object avoids DI/signal overhead on every element operation.
+ * Only incremented when __PROFILE__ is true (dead-code-eliminated otherwise).
+ */
 export const devStats: DevToolsStats & { reset(): void } = {
   cdCycles: 0,
   elementCreated: 0,

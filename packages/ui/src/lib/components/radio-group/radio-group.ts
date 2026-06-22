@@ -79,7 +79,9 @@ export class UiRadioGroupItem {
   );
 
   constructor() {
-    // Animate the radio dot on selection changes (skip initial render)
+    // Same guard pattern as UiCheckbox: `#previousSelected === undefined` skips
+    // the first run so a pre-selected item doesn't animate in on mount.
+    // The equality guard prevents duplicate animations if the effect re-runs.
     effect(() => {
       const selected = this.isSelected();
       const el = this.dotRef()?.nativeElement;

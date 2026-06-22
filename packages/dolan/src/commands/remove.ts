@@ -6,6 +6,21 @@ import { configExists, readConfig } from '../config.js';
 import { getEntry, getComponentNames, registry } from '../registry.js';
 import { getOrCreateLockfile, writeLockfile } from '../lockfile.js';
 
+/**
+ * Removes one installed UI component from the user's project, and offers to
+ * also remove any dependencies that would become orphaned (installed but no
+ * longer referenced by any remaining installed component).
+ *
+ * Two safety nets:
+ *   - **Dependents check** — if other installed components still depend on
+ *     this one, warn before removal because removing it would break them.
+ *   - **Orphan detection** — `findOrphans` walks the registry to find
+ *     dependencies that became "dead weight" after this removal. The user
+ *     opts in via prompt (default yes — cleanup is usually what they want).
+ *
+ * `--force` skips both prompts: dependents are removed anyway, and orphans
+ * are auto-removed without asking.
+ */
 export const removeCommand = async (
   component: string,
   options: { force?: boolean },
@@ -38,7 +53,10 @@ export const removeCommand = async (
     process.exit(1);
   }
 
-  // Find which installed components depend on this one
+  // Determine what's currently installed by intersecting the components dir
+  // with the registry — directories we don't recognize from the registry are
+  // assumed to be user-owned and ignored. The Set lookup is required for the
+  // O(1) `installed.has()` checks inside the dependents filter below.
   const allKnown = new Set(getComponentNames());
   const installed = new Set(
     existsSync(componentsDir)
@@ -48,6 +66,11 @@ export const removeCommand = async (
       : [],
   );
 
+  // A component is a "dependent" if (a) the registry lists `component` in its
+  // dependencies array AND (b) it's currently installed. The self-exclusion
+  // guard (`r.name !== component`) handles the degenerate case of a component
+  // appearing in its own dependency list — shouldn't happen, but it would
+  // produce a misleading warning if it did.
   const dependents = registry.filter(
     (r) =>
       r.dependencies.includes(component) &&
@@ -114,6 +137,17 @@ export const removeCommand = async (
 /**
  * Find dependencies of `target` that are installed but no longer needed by
  * any other installed component (excluding those already in the removal set).
+ *
+ * Algorithm: for each direct dependency of the target, ask "is any OTHER
+ * installed component (that isn't itself being removed) still referencing
+ * this dependency?" — if no, it's orphaned.
+ *
+ * Note: this is intentionally single-level, not transitive. If A depends on B
+ * which depends on C, and we remove A, we'll detect B as orphaned but won't
+ * automatically detect C — the user would need to re-run remove on B (or run
+ * `dolan doctor` which scans for all orphans). Transitive orphan detection
+ * here would require a fixed-point iteration and is overkill given how short
+ * component dependency chains typically are (1-2 levels deep).
  */
 const findOrphans = (
   target: string,
@@ -126,7 +160,10 @@ const findOrphans = (
   const orphans: string[] = [];
 
   for (const dep of targetEntry.dependencies) {
+    // Skip deps that aren't actually installed (e.g. the user removed them
+    // manually) — there's nothing to orphan.
     if (!installed.has(dep)) continue;
+    // Skip deps already queued for removal — avoid double-reporting.
     if (removalSet.has(dep)) continue;
 
     // Check if any other installed component (not being removed) depends on this

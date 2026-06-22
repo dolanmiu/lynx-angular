@@ -1,7 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-// env.ts evaluates the env vars at module load time, so each test resets
-// the module registry before setting the env var and re-importing.
+/**
+ * env.ts evaluates the env vars at module load time, so each test resets
+ * the module registry before setting the env var and re-importing.
+ */
 const importEnv = () => import('./env');
 
 describe('maxWorkers', () => {

@@ -25,7 +25,9 @@ import { RuntimeGlobals as LynxRuntimeGlobals } from '@lynx-js/webpack-runtime-g
 import { createLynxProcessEvalResultRuntimeModule } from './lynx-process-eval-result-runtime-module.js';
 import { AngularWebpackPlugin } from './angular-webpack-plugin';
 
-// Minimal ConcatSource that behaves like the real webpack one for testing
+/**
+ * Minimal ConcatSource that behaves like the real webpack one for testing.
+ */
 class MockConcatSource {
   #parts: (string | { source(): string })[];
 
@@ -48,15 +50,19 @@ type MockAsset = {
 
 const mockSource = (content: string) => ({ source: () => content });
 
-// Builds a minimal compiler mock and returns helpers to trigger compilation hooks
+/**
+ * Builds a minimal compiler mock and returns helpers to trigger compilation hooks.
+ */
 const createMockCompiler = (
   mode: 'development' | 'production' = 'development',
 ) => {
   let capturedDefineArgs: Record<string, string> = {};
   let capturedEnvironmentArgs: Record<string, unknown> = {};
 
-  // Must be real constructors because the plugin calls `new DefinePlugin(...)` etc.
-  // Mutate (not reassign) so destructured references in tests stay valid.
+  /**
+   * Must be real constructors because the plugin calls `new DefinePlugin(...)` etc.
+   * Mutate (not reassign) so destructured references in tests stay valid.
+   */
   const MockDefinePlugin = function (
     this: { apply: ReturnType<typeof vi.fn> },
     args: Record<string, string>,
@@ -109,7 +115,9 @@ const createMockCompiler = (
   };
 };
 
-// Builds a minimal compilation mock with helpers to trigger each hook type
+/**
+ * Builds a minimal compilation mock with helpers to trigger each hook type.
+ */
 const createMockCompilation = () => {
   const runtimeRequirementCallbacks: Record<
     string,
@@ -194,7 +202,9 @@ const createMockCompilation = () => {
   return compilation;
 };
 
-// Wires up the beforeEncode hook mock and returns a trigger function
+/**
+ * Wires up the beforeEncode hook mock and returns a trigger function.
+ */
 const setupBeforeEncodeHook = () => {
   let beforeEncodeCb: ((args: unknown) => unknown) | undefined;
 

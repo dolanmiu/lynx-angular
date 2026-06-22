@@ -5,22 +5,26 @@
   "type": "module",
   "scripts": {
     "start": "rspeedy dev",
-    "build": "rspeedy build --environment lynx && rspeedy build --environment web"
+    "build": "rspeedy build --environment lynx && rspeedy build --environment web",
+    "lint": "oxlint .",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check .",
+    "lint:fix": "oxlint --fix ."
   },
   "dependencies": {
-    "@angular/common": "^21.0.0",
-    "@angular/compiler": "^21.0.0",
-    "@angular/core": "^21.0.0",
-    "@angular/platform-browser": "^21.0.0",
+    "@angular/common": "^22.0.0",
+    "@angular/compiler": "^22.0.0",
+    "@angular/core": "^22.0.0",
+    "@angular/platform-browser": "^22.0.0",
     "@blotch/angular-lynx": "*"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^21.0.0",
-    "@angular/cli": "^21.0.0",
-    "@angular/compiler-cli": "^21.0.0",
+    "@angular-devkit/build-angular": "^22.0.0",
+    "@angular/cli": "^22.0.0",
+    "@angular/compiler-cli": "^22.0.0",
     "@blotch/rsbuild-plugin-angular-lynx": "*",
     "@lynx-js/rspeedy": "^0.14.3",
     "@lynx-js/types": "^3.8.0",
-    "typescript": "~5.9.0"
+    "typescript": "~6.0.0"
   }
 }

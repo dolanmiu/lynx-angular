@@ -68,9 +68,7 @@ import { UiButton } from '../components/ui/button';
             <ui-button variant="secondary" [loading]="true">
               Loading
             </ui-button>
-            <ui-button variant="outline" [loading]="true">
-              Loading
-            </ui-button>
+            <ui-button variant="outline" [loading]="true"> Loading </ui-button>
           </view>
         </view>
 
@@ -91,7 +89,7 @@ import { UiButton } from '../components/ui/button';
 export class App {
   readonly pressCount = signal(0);
 
-  onPress(variant: string): void {
+  onPress(_variant: string): void {
     this.pressCount.update((n) => n + 1);
   }
 }

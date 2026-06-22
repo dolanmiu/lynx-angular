@@ -1,8 +1,3 @@
-// Starts a standalone HTTP server to receive logs from on-device.
-// Also injects __DEV_LOG_URL__ at compile time so the runtime knows
-// where to POST logs (rspack's __webpack_public_path__ isn't accessible
-// as a globalThis property in Lynx's JS environment).
-
 import http from 'node:http';
 import type { RsbuildPluginAPI, Rspack } from '@lynx-js/rspeedy';
 import {
@@ -10,7 +5,14 @@ import {
   getLogFilePath,
 } from './dev-logger-middleware.js';
 
-// Offset from the rspeedy dev server port (e.g. 3000 → 3001)
+/**
+ * Starts a standalone HTTP server to receive logs from on-device.
+ * Also injects __DEV_LOG_URL__ at compile time so the runtime knows
+ * where to POST logs (rspack's __webpack_public_path__ isn't accessible
+ * as a globalThis property in Lynx's JS environment).
+ *
+ * Offset from the rspeedy dev server port (e.g. 3000 → 3001)
+ */
 const LOG_PORT_OFFSET = 1;
 
 export const applyDevLogger = (api: RsbuildPluginAPI): void => {

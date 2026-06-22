@@ -3,21 +3,31 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 import { UiProgress } from '../components/ui/progress';
 import { UiToggle } from '../components/ui/toggle';
 import { UiCard, UiCardContent } from '../components/ui/card';
-import { UiCollapsible, UiCollapsibleTrigger, UiCollapsibleContent } from '../components/ui/collapsible';
+import {
+  UiCollapsible,
+  UiCollapsibleTrigger,
+  UiCollapsibleContent,
+} from '../components/ui/collapsible';
 import { UiButton } from '../components/ui/button';
 import { UiAvatar } from '../components/ui/avatar';
 import { UiSeparator } from '../components/ui/separator';
 
-interface Track { title: string; artist: string; duration: string; }
+type Track = { title: string; artist: string; duration: string };
 
 @Component({
   selector: 'app-root',
   imports: [
     LYNX_ELEMENTS,
-    UiProgress, UiToggle,
-    UiCard, UiCardContent,
-    UiCollapsible, UiCollapsibleTrigger, UiCollapsibleContent,
-    UiButton, UiAvatar, UiSeparator,
+    UiProgress,
+    UiToggle,
+    UiCard,
+    UiCardContent,
+    UiCollapsible,
+    UiCollapsibleTrigger,
+    UiCollapsibleContent,
+    UiButton,
+    UiAvatar,
+    UiSeparator,
   ],
   template: `
     <scroll-view scroll-orientation="vertical" class="page">
@@ -69,9 +79,11 @@ interface Track { title: string; artist: string; duration: string; }
           <ui-collapsible-content>
             <view class="queue-list">
               @for (track of queue; track track.title; let i = $index) {
-                <view class="queue-item"
-                      [class.queue-item-active]="i === trackIndex()"
-                      (bindtap)="jumpTo(i)">
+                <view
+                  class="queue-item"
+                  [class.queue-item-active]="i === trackIndex()"
+                  (bindtap)="jumpTo(i)"
+                >
                   <ui-avatar size="sm" src="" [fallback]="String(i + 1)" />
                   <view class="queue-item-info">
                     <text class="queue-item-title">{{ track.title }}</text>
@@ -87,30 +99,129 @@ interface Track { title: string; artist: string; duration: string; }
     </scroll-view>
   `,
   styles: `
-    .page { height: 100vh; background-color: #fafafa; }
-    .container { display: flex; flex-direction: column; align-items: center; gap: 24px; padding: 32px 24px; }
-    .album-art { padding: 8px; background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 20px; }
-    .track-info { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-    .track-title { font-size: 22px; font-weight: bold; color: #18181b; }
-    .track-artist { font-size: 14px; color: #71717a; }
-    .progress-section { display: flex; flex-direction: column; gap: 6px; width: 100%; }
-    .time-row { display: flex; flex-direction: row; justify-content: space-between; }
-    .time-text { font-size: 12px; color: #a1a1aa; }
-    .controls { display: flex; flex-direction: row; align-items: center; gap: 20px; }
-    .control-icon { font-size: 16px; }
-    .control-icon-lg { font-size: 24px; }
-    .play-btn { width: 64px; height: 64px; border-radius: 50%; background-color: #6366f1; align-items: center; justify-content: center; }
-    .play-icon { font-size: 24px; color: #ffffff; }
-    .queue-header { display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 8px 0; }
-    .queue-title { font-size: 14px; font-weight: 600; color: #18181b; }
-    .queue-count { font-size: 12px; color: #a1a1aa; }
-    .queue-list { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
-    .queue-item { display: flex; flex-direction: row; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 10px; }
-    .queue-item-active { background-color: #eef2ff; }
-    .queue-item-info { display: flex; flex-direction: column; gap: 2px; flex: 1; }
-    .queue-item-title { font-size: 14px; font-weight: 500; color: #18181b; }
-    .queue-item-artist { font-size: 12px; color: #a1a1aa; }
-    .queue-item-duration { font-size: 12px; color: #a1a1aa; }
+    .page {
+      height: 100vh;
+      background-color: #fafafa;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      padding: 32px 24px;
+    }
+    .album-art {
+      padding: 8px;
+      background-color: #ffffff;
+      border: 1px solid #e4e4e7;
+      border-radius: 20px;
+    }
+    .track-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .track-title {
+      font-size: 22px;
+      font-weight: bold;
+      color: #18181b;
+    }
+    .track-artist {
+      font-size: 14px;
+      color: #71717a;
+    }
+    .progress-section {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 100%;
+    }
+    .time-row {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+    .time-text {
+      font-size: 12px;
+      color: #a1a1aa;
+    }
+    .controls {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 20px;
+    }
+    .control-icon {
+      font-size: 16px;
+    }
+    .control-icon-lg {
+      font-size: 24px;
+    }
+    .play-btn {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background-color: #6366f1;
+      align-items: center;
+      justify-content: center;
+    }
+    .play-icon {
+      font-size: 24px;
+      color: #ffffff;
+    }
+    .queue-header {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+    }
+    .queue-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #18181b;
+    }
+    .queue-count {
+      font-size: 12px;
+      color: #a1a1aa;
+    }
+    .queue-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .queue-item {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 10px;
+    }
+    .queue-item-active {
+      background-color: #eef2ff;
+    }
+    .queue-item-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex: 1;
+    }
+    .queue-item-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: #18181b;
+    }
+    .queue-item-artist {
+      font-size: 12px;
+      color: #a1a1aa;
+    }
+    .queue-item-duration {
+      font-size: 12px;
+      color: #a1a1aa;
+    }
   `,
 })
 export class App {
@@ -122,6 +233,7 @@ export class App {
   readonly trackIndex = signal(0);
 
   readonly queue: Track[] = [
+    // cspell:disable-next-line
     { title: 'Signals & Noise', artist: 'The Reactives', duration: '3:42' },
     { title: 'Zone-Free Zone', artist: 'Async Await', duration: '4:15' },
     { title: 'Computed Values', artist: 'Signal Corps', duration: '2:58' },
@@ -137,8 +249,22 @@ export class App {
     return `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
   });
 
-  togglePlay(): void { this.playing.update((p) => !p); }
-  next(): void { this.trackIndex.update((i) => (i + 1) % this.queue.length); this.position.set(0); }
-  prev(): void { this.trackIndex.update((i) => (i - 1 + this.queue.length) % this.queue.length); this.position.set(0); }
-  jumpTo(index: number): void { this.trackIndex.set(index); this.position.set(0); this.playing.set(true); }
+  togglePlay(): void {
+    this.playing.update((p) => !p);
+  }
+  next(): void {
+    this.trackIndex.update((i) => (i + 1) % this.queue.length);
+    this.position.set(0);
+  }
+  prev(): void {
+    this.trackIndex.update(
+      (i) => (i - 1 + this.queue.length) % this.queue.length,
+    );
+    this.position.set(0);
+  }
+  jumpTo(index: number): void {
+    this.trackIndex.set(index);
+    this.position.set(0);
+    this.playing.set(true);
+  }
 }

@@ -112,6 +112,11 @@ export class ListExample {
 
   nextId = signal(4);
 
+  /**
+   * On-device debug output — Lynx has no browser console, so debug state
+   * is rendered to screen via a <text> element. The runtime or native layer
+   * can write to `globalThis.__dbg` and it surfaces here immediately.
+   */
   get dbg(): string {
     return (globalThis as any).__dbg || 'none';
   }

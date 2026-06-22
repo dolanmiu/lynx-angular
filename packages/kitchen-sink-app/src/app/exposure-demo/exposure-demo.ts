@@ -38,6 +38,10 @@ export class ExposureDemo {
 
   toggleExposure(): void {
     if (this.active()) {
+      // `sendEvent: false` stops tracking without firing a disexposure event
+      // for elements that are currently visible. With `sendEvent: true` (the
+      // default), every tracked element in the viewport would emit a
+      // disexposure event on pause — not desirable for a demo toggle.
       this.#exposureService.stopExposure({ sendEvent: false });
     } else {
       this.#exposureService.resumeExposure();

@@ -11,7 +11,11 @@ import {
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
-import { type AnimationHandle, popIn, popOut } from '@blotch/dolan/utils/animate';
+import {
+  type AnimationHandle,
+  popIn,
+  popOut,
+} from '@blotch/dolan/utils/animate';
 import { cn } from '@blotch/dolan/utils/cn';
 
 @Component({
@@ -20,13 +24,17 @@ import { cn } from '@blotch/dolan/utils/cn';
   imports: [LYNX_ELEMENTS],
   encapsulation: ViewEncapsulation.None,
   template: `
-    <view class="flex items-center justify-center h-11 w-11" (bindtap)="toggle()">
+    <view
+      class="flex items-center justify-center h-11 w-11"
+      (bindtap)="toggle()"
+    >
       <view [class]="boxClass()">
         <text
           #checkmark
           [class]="checkClass()"
           [style]="checked() ? 'opacity: 1;' : 'opacity: 0;'"
-        >✓</text>
+          >✓</text
+        >
       </view>
     </view>
   `,

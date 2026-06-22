@@ -82,22 +82,90 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
     </scroll-view>
   `,
   styles: `
-    .page { height: 100vh; background-color: #fafafa; }
-    .container { padding: 24px; }
-    .title { font-size: 28px; font-weight: bold; color: #18181b; margin-bottom: 4px; }
-    .subtitle { font-size: 13px; color: #71717a; margin-bottom: 20px; }
-    .card { background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
-    .field-label { font-size: 13px; font-weight: 600; color: #18181b; margin-bottom: 6px; }
-    .field-gap { margin-top: 4px; }
-    .input { padding: 12px 14px; font-size: 15px; border: 1px solid #e4e4e7; border-radius: 8px; }
-    .textarea { padding: 12px 14px; font-size: 15px; border: 1px solid #e4e4e7; border-radius: 8px; height: 100px; }
-    .error { font-size: 12px; color: #ef4444; margin-top: 4px; margin-bottom: 8px; }
-    .spacer { height: 12px; }
-    .btn { background-color: #6366f1; padding: 14px; border-radius: 10px; align-items: center; }
-    .btn-text { color: white; font-size: 16px; font-weight: 600; }
-    .success-card { background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 14px; margin-top: 16px; }
-    .success-title { font-size: 14px; color: #166534; font-weight: 600; margin-bottom: 4px; }
-    .success-detail { font-size: 13px; color: #166534; }
+    .page {
+      height: 100vh;
+      background-color: #fafafa;
+    }
+    .container {
+      padding: 24px;
+    }
+    .title {
+      font-size: 28px;
+      font-weight: bold;
+      color: #18181b;
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 13px;
+      color: #71717a;
+      margin-bottom: 20px;
+    }
+    .card {
+      background-color: #ffffff;
+      border: 1px solid #e4e4e7;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .field-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #18181b;
+      margin-bottom: 6px;
+    }
+    .field-gap {
+      margin-top: 4px;
+    }
+    .input {
+      padding: 12px 14px;
+      font-size: 15px;
+      border: 1px solid #e4e4e7;
+      border-radius: 8px;
+    }
+    .textarea {
+      padding: 12px 14px;
+      font-size: 15px;
+      border: 1px solid #e4e4e7;
+      border-radius: 8px;
+      height: 100px;
+    }
+    .error {
+      font-size: 12px;
+      color: #ef4444;
+      margin-top: 4px;
+      margin-bottom: 8px;
+    }
+    .spacer {
+      height: 12px;
+    }
+    .btn {
+      background-color: #6366f1;
+      padding: 14px;
+      border-radius: 10px;
+      align-items: center;
+    }
+    .btn-text {
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .success-card {
+      background-color: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 16px;
+    }
+    .success-title {
+      font-size: 14px;
+      color: #166534;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .success-detail {
+      font-size: 13px;
+      color: #166534;
+    }
   `,
 })
 export class App {

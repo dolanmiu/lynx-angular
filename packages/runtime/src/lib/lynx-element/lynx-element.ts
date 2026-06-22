@@ -12,17 +12,22 @@ import {
 
 export class LynxElement implements BaseLynxElement {
   readonly element: ElementRef;
+  tagName = '';
 
-  // When true, this element is the root page element and must not be
-  // re-parented (appendChild/insertBefore) or removed from the tree.
-  // Angular calls appendChild/remove as part of normal component lifecycle,
-  // but the page element is the immutable root — moving or removing it
-  // would corrupt the native element tree.
+  /**
+   * When true, this element is the root page element and must not be
+   * re-parented (appendChild/insertBefore) or removed from the tree.
+   * Angular calls appendChild/remove as part of normal component lifecycle,
+   * but the page element is the immutable root — moving or removing it
+   * would corrupt the native element tree.
+   */
   isRootPageElement = false;
 
-  // Virtual tree tracking — used when parent manages children outside the
-  // native element tree (e.g., list manages children via componentAtIndex
-  // callbacks rather than __AppendElement)
+  /**
+   * Virtual tree tracking — used when parent manages children outside the
+   * native element tree (e.g., list manages children via componentAtIndex
+   * callbacks rather than __AppendElement)
+   */
   _virtualParent: LynxElement | null = null;
   _virtualPrev: LynxElement | null = null;
   _virtualNext: LynxElement | null = null;
@@ -93,22 +98,26 @@ export class LynxElement implements BaseLynxElement {
     __AddClass(this.element, name);
   }
 
-  // Lynx has no __RemoveClass PAPI — we must get current classes, filter,
-  // and set back. This is O(n) per class removal but class lists on Lynx
-  // elements are typically small (1-5 classes for scope/component styling).
+  /**
+   * Lynx has no __RemoveClass PAPI — we must get current classes, filter,
+   * and set back. This is O(n) per class removal but class lists on Lynx
+   * elements are typically small (1-5 classes for scope/component styling).
+   */
   removeClass(name: string): void {
     const classes = __GetClasses(this.element).filter((c) => c !== name);
     __SetClasses(this.element, classes.join(' '));
   }
 
-  // Two distinct removal paths:
-  // 1. Virtual parent (list) → delegate to removeVirtualChild(), which updates
-  //    the JS linked list and schedules an update-list-info diff. Does NOT call
-  //    __RemoveElement — list item removal is managed exclusively through
-  //    update-list-info's removeAction (calling both would double-remove and crash).
-  // 2. Normal parent → __RemoveElement detaches from the native element tree.
-  //    Note: __RemoveElement does NOT free the element's native pool slot —
-  //    there is no __ReleaseElement in Lynx's PAPI.
+  /**
+   * Two distinct removal paths:
+   * 1. Virtual parent (list) → delegate to removeVirtualChild(), which updates
+   *    the JS linked list and schedules an update-list-info diff. Does NOT call
+   *    __RemoveElement — list item removal is managed exclusively through
+   *    update-list-info's removeAction (calling both would double-remove and crash).
+   * 2. Normal parent → __RemoveElement detaches from the native element tree.
+   *    Note: __RemoveElement does NOT free the element's native pool slot —
+   *    there is no __ReleaseElement in Lynx's PAPI.
+   */
   remove() {
     if (this.isRootPageElement) return;
     if (__PROFILE__) devStats.elementRemoved++;
@@ -126,11 +135,13 @@ export class LynxElement implements BaseLynxElement {
     __RemoveElement((parent as LynxElement).element, this.element);
   }
 
-  // Returns the parent element. For list children, the virtual parent (the JS
-  // LynxListElement) is returned instead of the native parent — this maintains
-  // the illusion that list children are parented by the list even though they
-  // may not be __AppendElement'd to the native list yet (lazy append in
-  // componentAtIndex).
+  /**
+   * Returns the parent element. For list children, the virtual parent (the JS
+   * LynxListElement) is returned instead of the native parent — this maintains
+   * the illusion that list children are parented by the list even though they
+   * may not be __AppendElement'd to the native list yet (lazy append in
+   * componentAtIndex).
+   */
   parentNode(): LynxElement | null {
     if (this._virtualParent) return this._virtualParent;
     const parent = __GetParent(this.element);
@@ -165,12 +176,14 @@ export class LynxElement implements BaseLynxElement {
     return new LynxAnimation(this.element, keyframes, normalizedOptions);
   }
 
-  // Angular's renderer.listen() calls this with event names like 'bindtap',
-  // 'catchtouchstart', 'bindscroll', etc. We strip the Lynx event prefix
-  // (bind/catch/capture-bind/capture-catch) to extract the native event name
-  // and determine the event type for __AddEvent.
-  // Events that don't match any prefix (e.g. DOM-style 'click') are silently
-  // ignored — Lynx has no equivalent event system for arbitrary names.
+  /**
+   * Angular's renderer.listen() calls this with event names like 'bindtap',
+   * 'catchtouchstart', 'bindscroll', etc. We strip the Lynx event prefix
+   * (bind/catch/capture-bind/capture-catch) to extract the native event name
+   * and determine the event type for __AddEvent.
+   * Events that don't match any prefix (e.g. DOM-style 'click') are silently
+   * ignored — Lynx has no equivalent event system for arbitrary names.
+   */
   addEventListener(name: string, cb: (event: any) => any) {
     let eventName = '';
     let eventType: LynxEventType | undefined;

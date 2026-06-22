@@ -1,6 +1,8 @@
 import { availableParallelism } from 'node:os';
 
-/** Returns true only for non-empty string values — filters out undefined and `""`. */
+/**
+ * Returns true only for non-empty string values — filters out undefined and `""`.
+ */
 const isPresent = (variable: string | undefined): variable is string => {
   return typeof variable === 'string' && variable !== '';
 };

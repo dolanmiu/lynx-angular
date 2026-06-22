@@ -78,20 +78,26 @@ describe('LynxTransition', () => {
     cbs.forEach((cb) => cb());
   };
 
-  // Creates the component and runs the initial effect (show=false → shouldRender=false).
+  /**
+   * Creates the component and runs the initial effect (show=false → shouldRender=false).
+   */
   const create = () => {
     const fixture = TestBed.createComponent(LynxTransition);
     fixture.detectChanges();
     return fixture;
   };
 
-  // Triggers enter by setting show=true after initialization.
+  /**
+   * Triggers enter by setting show=true after initialization.
+   */
   const triggerEnter = (fixture: any) => {
     setInputSignal(fixture.componentInstance.show, true);
     TestBed.flushEffects();
   };
 
-  // Starts with show=true (initial render), then triggers leave.
+  /**
+   * Starts with show=true (initial render), then triggers leave.
+   */
   const createShowing = () => {
     const fixture = TestBed.createComponent(LynxTransition);
     // Set show=true BEFORE first detectChanges so the initial effect

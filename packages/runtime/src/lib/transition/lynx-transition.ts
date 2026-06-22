@@ -75,6 +75,9 @@ export class LynxTransition {
     effect(() => {
       const show = this.show();
 
+      // Skip animation on the very first run — sync shouldRender to the initial
+      // show value without playing an enter/leave transition. This prevents the
+      // component from animating in on page load when it starts as visible.
       if (!this.#initialized) {
         this.#initialized = true;
         this.shouldRender.set(show);
@@ -96,15 +99,23 @@ export class LynxTransition {
     const name = this.name();
     const duration = this.duration();
 
+    // Apply enter-from + enter-active BEFORE rendering the element so the
+    // initial state (e.g. opacity: 0) is present on first paint.
     this.#renderer.addClass(el, `${name}-enter-from`);
     this.#renderer.addClass(el, `${name}-enter-active`);
     this.shouldRender.set(true);
 
+    // requestAnimationFrame gives the browser one paint cycle to apply enter-from,
+    // then swaps to enter-to to start the transition. Without this one-frame gap,
+    // the element would jump straight to its final state with no animation.
     this.#enterRaf = requestAnimationFrame(() => {
       this.#enterRaf = null;
       this.#renderer.removeClass(el, `${name}-enter-from`);
       this.#renderer.addClass(el, `${name}-enter-to`);
 
+      // setTimeout matches the CSS transition duration — then cleans up classes.
+      // We can't use transitionend because the Lynx background thread has no
+      // access to CSS computed values (transitionend fires on the native thread).
       this.#enterTimer = setTimeout(() => {
         this.#enterTimer = null;
         this.#renderer.removeClass(el, `${name}-enter-active`);
@@ -121,6 +132,10 @@ export class LynxTransition {
     const name = this.name();
     const duration = this.duration();
 
+    // Same two-frame approach as enter: apply leave-from so CSS can read the
+    // starting state, then swap to leave-to on the next frame to start the
+    // transition. shouldRender stays true until the animation completes so
+    // the element isn't removed before it finishes leaving.
     this.#renderer.addClass(el, `${name}-leave-from`);
     this.#renderer.addClass(el, `${name}-leave-active`);
 
@@ -131,6 +146,7 @@ export class LynxTransition {
 
       this.#leaveTimer = setTimeout(() => {
         this.#leaveTimer = null;
+        // Only unmount the element after the leave transition completes.
         this.shouldRender.set(false);
         this.#renderer.removeClass(el, `${name}-leave-active`);
         this.#renderer.removeClass(el, `${name}-leave-to`);

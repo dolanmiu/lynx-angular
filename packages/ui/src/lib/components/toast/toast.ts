@@ -134,6 +134,13 @@ export class UiToaster {
     this.dismiss();
   }
 
+  /**
+   * Serial queue processor: shows one toast at a time. When a toast is
+   * dismissed (manually or by auto-timer), dismiss() resets #isProcessing
+   * and calls #processQueue() again to show the next toast if queued.
+   * The #isProcessing guard prevents the effect() from spawning concurrent
+   * show/dismiss cycles when new toasts are added while one is visible.
+   */
   #processQueue(): void {
     const queue = toasts();
     if (queue.length === 0) {
@@ -148,6 +155,10 @@ export class UiToaster {
     this.#showToast(next);
   }
 
+  /**
+   * Same two-phase pattern as nav-drawer: make overlay visible first (so
+   * elements exist in the tree), then animate on the next frame.
+   */
   #showToast(data: ToastData): void {
     setTimeout(() => {
       this.overlayVisible.set(true);

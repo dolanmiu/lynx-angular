@@ -48,8 +48,8 @@ import {
             <ui-accordion-trigger>Is it styled?</ui-accordion-trigger>
             <ui-accordion-content>
               <text class="text-sm text-muted-foreground">
-                Yes. Components are styled with Tailwind CSS and support
-                theming through CSS custom properties.
+                Yes. Components are styled with Tailwind CSS and support theming
+                through CSS custom properties.
               </text>
             </ui-accordion-content>
           </ui-accordion-item>
@@ -57,8 +57,8 @@ import {
             <ui-accordion-trigger>Can I customize it?</ui-accordion-trigger>
             <ui-accordion-content>
               <text class="text-sm text-muted-foreground">
-                Absolutely. Every component accepts a class input for
-                additional Tailwind overrides.
+                Absolutely. Every component accepts a class input for additional
+                Tailwind overrides.
               </text>
             </ui-accordion-content>
           </ui-accordion-item>
@@ -87,8 +87,8 @@ import {
             <ui-accordion-trigger>Second Section</ui-accordion-trigger>
             <ui-accordion-content>
               <text class="text-sm text-muted-foreground">
-                Open this alongside the first section to see multiple
-                mode in action.
+                Open this alongside the first section to see multiple mode in
+                action.
               </text>
             </ui-accordion-content>
           </ui-accordion-item>

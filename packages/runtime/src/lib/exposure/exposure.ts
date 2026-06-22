@@ -21,6 +21,10 @@ export class LynxExposure implements OnDestroy {
   #removeDisappear: (() => void) | null = null;
 
   constructor() {
+    // `binduiappear` / `binduidisappear` are Lynx-native events fired by the
+    // element's UIAppearance system — the equivalent of IntersectionObserver on web.
+    // They fire when the element enters or leaves the visible viewport of its
+    // scroll container, enabling lazy-load and analytics tracking patterns.
     this.#removeAppear = this.#el.addEventListener('binduiappear', () =>
       this.visible.set(true),
     );

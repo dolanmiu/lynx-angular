@@ -27,6 +27,16 @@ const STATUS_SHORT_LABELS: Record<FileStatus, string> = {
   'new-upstream': pc.blue('new upstream'),
 };
 
+/**
+ * Reports installed components that have diverged from upstream — a focused
+ * subset of `dolan list` that filters out up-to-date entries.
+ *
+ * Designed to be CI-friendly:
+ *   - `--json` emits machine-readable output for scripting.
+ *   - Exit code 1 when ANY components are outdated, 0 when fully up to date.
+ *     This lets pipelines fail loudly without parsing output (mirrors
+ *     `npm outdated` behavior).
+ */
 export const outdatedCommand = async (options: { json?: boolean }) => {
   const cwd = process.cwd();
 
@@ -122,6 +132,8 @@ export const outdatedCommand = async (options: { json?: boolean }) => {
 
   if (options.json) {
     console.log(JSON.stringify({ components: outdated }, null, 2));
+    // Exit 1 when outdated so CI pipelines can detect "updates available"
+    // without parsing stdout (e.g., `dolan outdated --json || echo "Run dolan upgrade"`).
     process.exit(outdated.length > 0 ? 1 : 0);
   }
 

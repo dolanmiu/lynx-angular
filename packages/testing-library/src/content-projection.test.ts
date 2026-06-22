@@ -8,8 +8,10 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, waitForUpdate } from './index.js';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
-// Custom component selectors (card-wrapper, panel, etc.) are unknown to the
-// Lynx document and trigger a console.warn fallback. Suppress for clean output.
+/**
+ * Custom component selectors (card-wrapper, panel, etc.) are unknown to the
+ * Lynx document and trigger a console.warn fallback. Suppress for clean output.
+ */
 let warnSpy: ReturnType<typeof vi.spyOn>;
 
 beforeEach(() => {

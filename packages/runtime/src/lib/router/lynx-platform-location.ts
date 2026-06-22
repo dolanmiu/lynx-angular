@@ -33,7 +33,9 @@ export class LynxPlatformLocation extends PlatformLocation {
     return this.#history[this.#index];
   }
 
-  // Manual URL parsing — avoids `new URL()` which is unavailable in Lynx runtime.
+  /**
+   * Manual URL parsing — avoids `new URL()` which is unavailable in Lynx runtime.
+   */
   #parseUrl(): { pathname: string; search: string; hash: string } {
     const url = this.#current.url;
     const hashIndex = url.indexOf('#');

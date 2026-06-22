@@ -11,7 +11,9 @@ import { UiSpinner } from '../components/ui/spinner';
         <text class="text-2xl font-bold text-foreground mb-6">Spinner</text>
 
         <!-- Sizes -->
-        <text class="text-sm font-medium text-muted-foreground mb-3">Sizes</text>
+        <text class="text-sm font-medium text-muted-foreground mb-3"
+          >Sizes</text
+        >
         <view class="flex-row items-center gap-6 mb-6">
           <view class="items-center gap-2">
             <ui-spinner size="xs" />

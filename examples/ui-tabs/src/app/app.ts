@@ -120,9 +120,7 @@ import {
                     <text class="text-sm font-medium text-foreground">
                       Language
                     </text>
-                    <text class="text-sm text-muted-foreground">
-                      English
-                    </text>
+                    <text class="text-sm text-muted-foreground"> English </text>
                   </view>
                   <view class="flex flex-col gap-1">
                     <text class="text-sm font-medium text-foreground">
@@ -136,9 +134,7 @@ import {
                     <text class="text-sm font-medium text-foreground">
                       Notifications
                     </text>
-                    <text class="text-sm text-muted-foreground">
-                      Enabled
-                    </text>
+                    <text class="text-sm text-muted-foreground"> Enabled </text>
                   </view>
                 </view>
               </ui-card-content>

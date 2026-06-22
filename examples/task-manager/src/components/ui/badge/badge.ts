@@ -1,5 +1,12 @@
 import type { ElementRef } from '@angular/core';
-import { Component, ViewEncapsulation, computed, effect, input, viewChild } from '@angular/core';
+import {
+  Component,
+  ViewEncapsulation,
+  computed,
+  effect,
+  input,
+  viewChild,
+} from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 import { cva, type VariantProps } from 'class-variance-authority';
 
@@ -54,7 +61,9 @@ export type BadgeVariant = NonNullable<
 })
 export class UiBadge {
   readonly variant = input<BadgeVariant>('default');
-  /** When true, badge pops in with a spring animation on first render */
+  /**
+   * When true, badge pops in with a spring animation on first render
+   */
   readonly animated = input(true);
   readonly userClass = input<string>('', { alias: 'class' });
 

@@ -4,36 +4,43 @@ declare global {
   /**
    * Determines if code should be placed in the background thread, used as a compile-time define macro
    */
-  let __BACKGROUND__: boolean;
+  // eslint-disable-next-line no-var
+  var __BACKGROUND__: boolean;
   /**
    * Determines if code should be placed in the main thread, used as a compile-time define macro
    */
-  let __MAIN_THREAD__: boolean;
+  // eslint-disable-next-line no-var
+  var __MAIN_THREAD__: boolean;
   /**
    * Determines if running in dev mode
    */
-  let __DEV__: boolean;
+  // eslint-disable-next-line no-var
+  var __DEV__: boolean;
   /**
    * Determines if running in profile mode
    */
-  let __PROFILE__: boolean;
+  // eslint-disable-next-line no-var
+  var __PROFILE__: boolean;
   /**
    * Whether SSR (Instant First-Frame Rendering) is enabled. When true, the
    * runtime registers `ssrEncode` and `ssrHydrate` global callbacks that
    * the Lynx engine calls to snapshot and restore the element tree.
    */
-  let __ENABLE_SSR__: boolean;
+  // eslint-disable-next-line no-var
+  var __ENABLE_SSR__: boolean;
   /**
    * Full URL of the dev log server (e.g. http://192.168.1.91:3001/__dev_logs).
    * Injected by the rsbuild plugin's DefinePlugin in dev builds only.
    */
-  let __DEV_LOG_URL__: string;
+  // eslint-disable-next-line no-var
+  var __DEV_LOG_URL__: string;
   /**
    * The source locale from angular.json i18n config (e.g. 'en-US', 'fr').
    * Injected by the rsbuild plugin's DefinePlugin. Used by LynxLocale
    * as a fallback when lynx.__globalProps.appLocale is not set.
    */
-  let __LYNX_SOURCE_LOCALE__: string;
+  // eslint-disable-next-line no-var
+  var __LYNX_SOURCE_LOCALE__: string;
 
   // MTS worklet registry — set up in runtime.ts, used by mainThreadFn()
   // oxlint-disable-next-line typescript/consistent-type-definitions -- interface required for global augmentation

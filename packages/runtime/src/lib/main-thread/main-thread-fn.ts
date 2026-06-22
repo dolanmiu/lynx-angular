@@ -1,7 +1,12 @@
-// Both thread bundles evaluate the same module graph in the same order,
-// so this counter produces matching IDs without a compiler plugin.
+/**
+ * Both thread bundles evaluate the same module graph in the same order,
+ * so this counter produces matching IDs without a compiler plugin.
+ */
 let nextWorkletId = 0;
 
+/**
+ * Type definition for main-thread function handles used by {@link mainThreadFn}.
+ */
 export type MainThreadFnHandle<
   TArgs extends unknown[] = unknown[],
   TReturn = unknown,
@@ -30,7 +35,9 @@ export const mainThreadFn = <TArgs extends unknown[], TReturn>(
   } as MainThreadFnHandle<TArgs, TReturn>;
 };
 
-// Reset counter on HMR — called from runtime.ts before modules re-evaluate
+/**
+ * Reset counter on HMR — called from runtime.ts before modules re-evaluate.
+ */
 export const __resetWorkletCounter = (): void => {
   nextWorkletId = 0;
 };

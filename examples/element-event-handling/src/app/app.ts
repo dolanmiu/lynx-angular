@@ -35,18 +35,68 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
     </scroll-view>
   `,
   styles: `
-    .page { height: 100%; background-color: #fafafa; }
-    .container { padding: 24px; }
-    .title { font-size: 28px; font-weight: bold; color: #18181b; margin-bottom: 4px; }
-    .subtitle { font-size: 13px; color: #71717a; margin-bottom: 20px; }
-    .card { background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-    .section-label { font-size: 11px; font-weight: 700; color: #a1a1aa; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .outer-box { background-color: #eef2ff; padding: 20px; border-radius: 10px; align-items: center; }
-    .outer-label { font-size: 13px; color: #4338ca; margin-bottom: 12px; }
-    .inner-box { background-color: #6366f1; padding: 14px 24px; border-radius: 8px; }
-    .inner-label { color: white; font-size: 13px; }
-    .log-entry { font-size: 13px; color: #18181b; margin-bottom: 4px; }
-    .log-empty { font-size: 13px; color: #a1a1aa; }
+    .page {
+      height: 100%;
+      background-color: #fafafa;
+    }
+    .container {
+      padding: 24px;
+    }
+    .title {
+      font-size: 28px;
+      font-weight: bold;
+      color: #18181b;
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 13px;
+      color: #71717a;
+      margin-bottom: 20px;
+    }
+    .card {
+      background-color: #ffffff;
+      border: 1px solid #e4e4e7;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #a1a1aa;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .outer-box {
+      background-color: #eef2ff;
+      padding: 20px;
+      border-radius: 10px;
+      align-items: center;
+    }
+    .outer-label {
+      font-size: 13px;
+      color: #4338ca;
+      margin-bottom: 12px;
+    }
+    .inner-box {
+      background-color: #6366f1;
+      padding: 14px 24px;
+      border-radius: 8px;
+    }
+    .inner-label {
+      color: white;
+      font-size: 13px;
+    }
+    .log-entry {
+      font-size: 13px;
+      color: #18181b;
+      margin-bottom: 4px;
+    }
+    .log-empty {
+      font-size: 13px;
+      color: #a1a1aa;
+    }
   `,
   imports: [LYNX_ELEMENTS],
 })

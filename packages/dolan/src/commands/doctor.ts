@@ -6,6 +6,20 @@ import { configExists, readConfig, type DolanConfig } from '../config.js';
 import { getEntry } from '../registry.js';
 import { getComponentFiles } from '../utils/resolve-paths.js';
 
+/**
+ * Runs a battery of project health checks similar to `npm doctor` or
+ * `shadcn doctor`. Each check uses a pass/warn/fail tracker so the command
+ * exits with the appropriate status code:
+ *
+ *   - **pass** (counted) — green, informational
+ *   - **warn** (counted) — yellow, fixable issue that doesn't block builds
+ *   - **fail** (counted) — red, breaks something; exit code 1
+ *
+ * The check order is intentional: config first (everything depends on it,
+ * abort if invalid), then directories (the alias paths must resolve), then
+ * progressively more specific integrations (theme files, Tailwind, deps,
+ * component consistency).
+ */
 export const doctorCommand = async () => {
   const cwd = process.cwd();
   const counts = { pass: 0, warn: 0, fail: 0 };
@@ -68,7 +82,9 @@ export const doctorCommand = async () => {
   process.exit(counts.fail > 0 ? 1 : 0);
 };
 
-// --- Check implementations ---
+/**
+ * --- Check implementations ---
+ */
 
 const checkConfig = (
   cwd: string,
@@ -85,6 +101,11 @@ const checkConfig = (
   try {
     const config = readConfig(cwd);
     const aliases = config?.aliases;
+    // The three alias keys dolan requires at runtime. We don't validate `utils`
+    // anywhere else because it's not actually used (utilities now ship from
+    // @blotch/dolan directly) — but it's still listed because old configs may
+    // have it and removing it from validation would silently accept broken
+    // configs that newer commands might assume.
     const requiredKeys = ['components', 'utils', 'theme'] as const;
     const missing = requiredKeys.filter(
       (key) => typeof aliases?.[key] !== 'string' || aliases[key].length === 0,
@@ -258,6 +279,10 @@ const checkComponentHealth = (
   for (const name of installed) {
     const entry = getEntry(name);
     if (!entry) {
+      // Directory exists in components/ but no registry entry — either the
+      // user manually colocated their own code, or they renamed something
+      // away from a known component name. Either way, dolan can't manage it
+      // so we surface a warning rather than treating it as a fatal error.
       warn(`${pc.cyan(name)} is not a known dolan component`);
       allHealthy = false;
       continue;
@@ -272,6 +297,8 @@ const checkComponentHealth = (
       );
 
       if (missingFiles.length > 0) {
+        // A registered component is missing files — likely because the user
+        // deleted one by hand. Suggest `dolan add` to restore them.
         warn(
           `${pc.cyan(name)} is missing files: ${missingFiles.map((f) => pc.dim(f)).join(', ')}`,
         );
@@ -282,7 +309,10 @@ const checkComponentHealth = (
       allHealthy = false;
     }
 
-    // Check dependency consistency
+    // Check dependency consistency — every dependency declared in the
+    // registry must also be installed, otherwise the component's imports
+    // will fail to resolve at build time. Surface with the exact `dolan add`
+    // command so the fix is one copy-paste away.
     for (const dep of entry.dependencies) {
       if (!installed.includes(dep)) {
         warn(

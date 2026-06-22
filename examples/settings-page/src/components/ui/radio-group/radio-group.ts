@@ -12,7 +12,11 @@ import {
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
-import { type AnimationHandle, popIn, popOut } from '@blotch/dolan/utils/animate';
+import {
+  type AnimationHandle,
+  popIn,
+  popOut,
+} from '@blotch/dolan/utils/animate';
 import { cn } from '@blotch/dolan/utils/cn';
 
 @Component({
@@ -55,7 +59,9 @@ export class UiRadioGroup {
         <view
           #dot
           [class]="dotClass()"
-          [style]="isSelected() ? 'opacity: 1;' : 'opacity: 0; transform: scale(0.6);'"
+          [style]="
+            isSelected() ? 'opacity: 1;' : 'opacity: 0; transform: scale(0.6);'
+          "
         />
       </view>
       <text [class]="labelClass()"><ng-content /></text>

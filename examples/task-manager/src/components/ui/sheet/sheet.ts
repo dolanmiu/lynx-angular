@@ -29,23 +29,20 @@ import { cn } from '@blotch/dolan/utils/cn';
   imports: [LYNX_ELEMENTS],
   encapsulation: ViewEncapsulation.None,
   template: `
-    <overlay
-      [attr.visible]="overlayVisible()"
-      [style]="overlayStyle()"
-    >
-        <view #backdrop class="w-full h-full" (bindtap)="onBackdropTap()">
-          <view
-            #panel
-            [class]="panelClass()"
-            [style]="panelPositionStyle()"
-            (catchtap)="$event.stopPropagation()"
-          >
-            <view class="flex items-center justify-center pt-2 pb-4">
-              <view class="h-1 w-10 rounded-full bg-muted" />
-            </view>
-            <ng-content />
+    <overlay [attr.visible]="overlayVisible()" [style]="overlayStyle()">
+      <view #backdrop class="w-full h-full" (bindtap)="onBackdropTap()">
+        <view
+          #panel
+          [class]="panelClass()"
+          [style]="panelPositionStyle()"
+          (catchtap)="$event.stopPropagation()"
+        >
+          <view class="flex items-center justify-center pt-2 pb-4">
+            <view class="h-1 w-10 rounded-full bg-muted" />
           </view>
+          <ng-content />
         </view>
+      </view>
     </overlay>
   `,
 })

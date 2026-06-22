@@ -13,7 +13,9 @@ type Item = { id: number; label: string };
     <scroll-view class="page" scroll-orientation="vertical">
       <view class="container">
         <text class="title">Transitions</text>
-        <text class="subtitle">Animate elements entering and leaving the DOM.</text>
+        <text class="subtitle"
+          >Animate elements entering and leaving the DOM.</text
+        >
 
         <view class="card">
           <text class="section-label">LynxTransition — Single Element</text>
@@ -57,39 +59,126 @@ type Item = { id: number; label: string };
   `,
   styles: [
     `
-      .page { height: 100%; background-color: #fafafa; }
-      .container { padding: 24px; }
-      .title { font-size: 28px; font-weight: bold; color: #18181b; margin-bottom: 4px; }
-      .subtitle { font-size: 13px; color: #71717a; margin-bottom: 20px; }
-      .card { background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-      .section-label { font-size: 11px; font-weight: 700; color: #a1a1aa; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
-
-      .btn { background-color: #6366f1; border-radius: 8px; padding: 10px 20px; align-items: center; justify-content: center; margin-bottom: 12px; }
-      .btn-text { color: white; font-size: 14px; font-weight: 600; }
-
-      .panel { background-color: #eef2ff; border-radius: 8px; padding: 16px; margin-bottom: 8px; }
-      .panel-text { color: #4338ca; font-size: 14px; }
-
-      .fade-enter-active, .fade-leave-active {
-        transition: opacity 300ms ease, transform 300ms ease;
+      .page {
+        height: 100%;
+        background-color: #fafafa;
       }
-      .fade-enter-from { opacity: 0; transform: translateY(-16px); }
-      .fade-leave-to { opacity: 0; transform: translateY(-16px); }
+      .container {
+        padding: 24px;
+      }
+      .title {
+        font-size: 28px;
+        font-weight: bold;
+        color: #18181b;
+        margin-bottom: 4px;
+      }
+      .subtitle {
+        font-size: 13px;
+        color: #71717a;
+        margin-bottom: 20px;
+      }
+      .card {
+        background-color: #ffffff;
+        border: 1px solid #e4e4e7;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+      .section-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: #a1a1aa;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
 
-      .list-area { margin-top: 4px; }
+      .btn {
+        background-color: #6366f1;
+        border-radius: 8px;
+        padding: 10px 20px;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 12px;
+      }
+      .btn-text {
+        color: white;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .panel {
+        background-color: #eef2ff;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 8px;
+      }
+      .panel-text {
+        color: #4338ca;
+        font-size: 14px;
+      }
+
+      .fade-enter-active,
+      .fade-leave-active {
+        transition:
+          opacity 300ms ease,
+          transform 300ms ease;
+      }
+      .fade-enter-from {
+        opacity: 0;
+        transform: translateY(-16px);
+      }
+      .fade-leave-to {
+        opacity: 0;
+        transform: translateY(-16px);
+      }
+
+      .list-area {
+        margin-top: 4px;
+      }
       .list-item {
-        background-color: #6366f1; border-radius: 8px; padding: 12px 16px;
-        margin-bottom: 8px; flex-direction: row; justify-content: space-between; align-items: center;
+        background-color: #6366f1;
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin-bottom: 8px;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
       }
-      .list-item-text { color: white; font-size: 14px; font-weight: 600; flex: 1; }
-      .remove-btn { background-color: rgba(0, 0, 0, 0.15); border-radius: 14px; width: 28px; height: 28px; align-items: center; justify-content: center; }
-      .remove-btn-text { color: white; font-size: 16px; font-weight: bold; }
+      .list-item-text {
+        color: white;
+        font-size: 14px;
+        font-weight: 600;
+        flex: 1;
+      }
+      .remove-btn {
+        background-color: rgba(0, 0, 0, 0.15);
+        border-radius: 14px;
+        width: 28px;
+        height: 28px;
+        align-items: center;
+        justify-content: center;
+      }
+      .remove-btn-text {
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+      }
 
-      .list-enter-active, .list-leave-active {
-        transition: opacity 300ms ease, transform 300ms ease;
+      .list-enter-active,
+      .list-leave-active {
+        transition:
+          opacity 300ms ease,
+          transform 300ms ease;
       }
-      .list-enter-from { opacity: 0; transform: translateX(30px); }
-      .list-leave-to { opacity: 0; transform: translateX(-30px); }
+      .list-enter-from {
+        opacity: 0;
+        transform: translateX(30px);
+      }
+      .list-leave-to {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
     `,
   ],
   imports: [LYNX_ELEMENTS, LynxTransition, LynxTransitionGroup],

@@ -6,6 +6,14 @@ import { configExists, readConfig } from '../config.js';
 import { getEntry, getComponentNames } from '../registry.js';
 import { getOrCreateLockfile, writeLockfile } from '../lockfile.js';
 
+/**
+ * "Eject" removes a component from dolan's upgrade tracking (the lockfile)
+ * without deleting the component's files. After ejecting, `dolan upgrade`
+ * will no longer detect or apply upstream changes to this component.
+ * This is useful when a user has heavily customized a component and wants
+ * to own it entirely — they keep the files but opt out of the diff/upgrade
+ * workflow. The files remain in the components directory for continued use.
+ */
 export const ejectCommand = async (
   component: string,
   options: { force?: boolean },

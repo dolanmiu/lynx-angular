@@ -22,11 +22,13 @@ export const createListElement = (
   // Forward-declared so callbacks can close over the fully-initialized instance.
   let listEl: LynxListElement;
 
-  // componentAtIndex is called by the native engine during the targeted
-  // __FlushElementTree(listElement, ...) in _processUpdate(). We append the
-  // pre-built element and return its ID. No per-item flush — the element
-  // subtree was already committed by the bare __FlushElementTree() in end()
-  // which runs BEFORE processPendingListUpdates().
+  /**
+   * componentAtIndex is called by the native engine during the targeted
+   * __FlushElementTree(listElement, ...) in _processUpdate(). We append the
+   * pre-built element and return its ID. No per-item flush — the element
+   * subtree was already committed by the bare __FlushElementTree() in end()
+   * which runs BEFORE processPendingListUpdates().
+   */
   const componentAtIndex = (
     listRef: ListElementRef,
     _listId: number,
@@ -53,11 +55,13 @@ export const createListElement = (
     // list tree permanently.
   };
 
-  // Batch version called by the native engine when it needs multiple items.
-  // Same no-flush approach as componentAtIndex — items are already committed.
-  // If the engine passes asyncFlush: true, we use it since that path delegates
-  // scheduling to native (no re-entrancy). The !asyncFlush batch path collects
-  // all elementIDs and does a single non-re-entrant flush at the end.
+  /**
+   * Batch version called by the native engine when it needs multiple items.
+   * Same no-flush approach as componentAtIndex — items are already committed.
+   * If the engine passes asyncFlush: true, we use it since that path delegates
+   * scheduling to native (no re-entrancy). The !asyncFlush batch path collects
+   * all elementIDs and does a single non-re-entrant flush at the end.
+   */
   const componentAtIndexes = (
     listRef: ListElementRef,
     listId: number,
@@ -106,6 +110,7 @@ export const createListElement = (
   // __CreateList — they flow through the normal attribute-setting path.
 
   listEl = new LynxListElement(nativeList, nonElements);
+  listEl.tagName = 'list';
   listEl.setCallbacks(componentAtIndex, enqueueComponent, componentAtIndexes);
   return listEl;
 };

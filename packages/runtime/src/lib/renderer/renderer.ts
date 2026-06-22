@@ -5,8 +5,10 @@ import type { BaseLynxElement } from '../lynx-element';
 
 export class LynxRenderer implements Renderer2 {
   readonly #document: LynxDocumentBase;
-  // Stable storage for Angular's per-renderer metadata (e.g. component styles).
-  // Must be the same object reference across calls — Angular reads back what it writes.
+  /**
+   * Stable storage for Angular's per-renderer metadata (e.g. component styles).
+   * Must be the same object reference across calls — Angular reads back what it writes.
+   */
   readonly #data: { [key: string]: unknown } = {};
 
   constructor(document: LynxDocumentBase) {
@@ -54,9 +56,11 @@ export class LynxRenderer implements Renderer2 {
   ): void {
     oldChild.remove();
   }
-  // Angular calls selectRootElement once during bootstrap to get the root
-  // node where the app component will be rendered. In browser Angular this
-  // finds an existing DOM element; here we create the Lynx page element.
+  /**
+   * Angular calls selectRootElement once during bootstrap to get the root
+   * node where the app component will be rendered. In browser Angular this
+   * finds an existing DOM element; here we create the Lynx page element.
+   */
   selectRootElement(): BaseLynxElement {
     return this.#document.createRootElement();
   }
@@ -120,9 +124,11 @@ export class LynxRenderer implements Renderer2 {
   setProperty(el: BaseLynxElement, name: string, value: any): void {
     el.setProperty(name, value);
   }
-  // Angular calls setValue for text nodes created via createText(). In the
-  // browser DOM this sets node.nodeValue. In Lynx, raw-text elements store
-  // their content in the 'text' attribute.
+  /**
+   * Angular calls setValue for text nodes created via createText(). In the
+   * browser DOM this sets node.nodeValue. In Lynx, raw-text elements store
+   * their content in the 'text' attribute.
+   */
   setValue(node: BaseLynxElement, value: string): void {
     node.setAttribute('text', value);
   }

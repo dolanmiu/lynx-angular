@@ -28,15 +28,50 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
     </refresh>
   `,
   styles: `
-    .page { height: 100vh; background-color: #fafafa; }
-    .container { padding: 24px; }
-    .title { font-size: 28px; font-weight: bold; color: #18181b; margin-bottom: 4px; }
-    .subtitle { font-size: 13px; color: #71717a; margin-bottom: 20px; }
-    .refresh-header { height: 60px; align-items: center; justify-content: center; }
-    .refresh-text { font-size: 13px; color: #a1a1aa; }
-    .item-card { padding: 14px 16px; background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; margin-bottom: 8px; }
-    .item-name { font-size: 15px; color: #18181b; font-weight: 500; }
-    .item-time { font-size: 12px; color: #a1a1aa; margin-top: 4px; }
+    .page {
+      height: 100vh;
+      background-color: #fafafa;
+    }
+    .container {
+      padding: 24px;
+    }
+    .title {
+      font-size: 28px;
+      font-weight: bold;
+      color: #18181b;
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 13px;
+      color: #71717a;
+      margin-bottom: 20px;
+    }
+    .refresh-header {
+      height: 60px;
+      align-items: center;
+      justify-content: center;
+    }
+    .refresh-text {
+      font-size: 13px;
+      color: #a1a1aa;
+    }
+    .item-card {
+      padding: 14px 16px;
+      background-color: #ffffff;
+      border: 1px solid #e4e4e7;
+      border-radius: 12px;
+      margin-bottom: 8px;
+    }
+    .item-name {
+      font-size: 15px;
+      color: #18181b;
+      font-weight: 500;
+    }
+    .item-time {
+      font-size: 12px;
+      color: #a1a1aa;
+      margin-top: 4px;
+    }
   `,
   imports: [LYNX_ELEMENTS],
 })
@@ -56,7 +91,7 @@ export class App {
 
   #generateItems(): { id: number; name: string; time: string }[] {
     const now = new Date().toLocaleTimeString();
-    return Array.from({ length: 5 }, (_, i) => ({
+    return Array.from({ length: 5 }, (_) => ({
       id: ++this.#counter,
       name: `Item ${this.#counter}`,
       time: now,

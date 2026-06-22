@@ -10,45 +10,81 @@
 // Constants
 // ---------------------------------------------------------------------------
 
-/** Duration constants in milliseconds */
+/**
+ * Duration constants in milliseconds
+ */
 export const DURATION = {
-  /** Micro-interactions: checkbox tick, radio dot */
+  /**
+   * Micro-interactions: checkbox tick, radio dot
+   */
   instant: 100,
-  /** Press/release, thumb slide */
+  /**
+   * Press/release, thumb slide
+   */
   fast: 150,
-  /** Overlays, content transitions */
+  /**
+   * Overlays, content transitions
+   */
   normal: 250,
-  /** Sheet/drawer slide, accordion expand */
+  /**
+   * Sheet/drawer slide, accordion expand
+   */
   slow: 350,
 } as const;
 
-/** Easing curves for different animation contexts */
+/**
+ * Easing curves for different animation contexts
+ */
 export const EASING = {
-  /** Entering elements — fast start, gentle stop */
+  /**
+   * Entering elements — fast start, gentle stop
+   */
   decelerate: 'cubic-bezier(0.0, 0.0, 0.2, 1)',
-  /** Exiting elements — gentle start, fast stop */
+  /**
+   * Exiting elements — gentle start, fast stop
+   */
   accelerate: 'cubic-bezier(0.4, 0.0, 1, 1)',
-  /** General purpose movement */
+  /**
+   * General purpose movement
+   */
   standard: 'cubic-bezier(0.4, 0.0, 0.2, 1)',
-  /** Bouncy overshoot — playful, energetic entrance */
+  /**
+   * Bouncy overshoot — playful, energetic entrance
+   */
   spring: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
-  /** Gentle overshoot — refined entrance */
+  /**
+   * Gentle overshoot — refined entrance
+   */
   springSubtle: 'cubic-bezier(0.22, 1.2, 0.36, 1)',
-  /** iOS-style sheet/drawer slide */
+  /**
+   * iOS-style sheet/drawer slide
+   */
   sheet: 'cubic-bezier(0.32, 0.72, 0, 1)',
 } as const;
 
-/** Scale factors for transform animations */
+/**
+ * Scale factors for transform animations
+ */
 export const SCALE = {
-  /** Button/toggle press */
+  /**
+   * Button/toggle press
+   */
   pressDown: 0.97,
-  /** List item / card press (lighter) */
+  /**
+   * List item / card press (lighter)
+   */
   pressDownLight: 0.985,
-  /** Small elements popping in (check, radio dot) */
+  /**
+   * Small elements popping in (check, radio dot)
+   */
   popFrom: 0.6,
-  /** Dialog entrance starting scale */
+  /**
+   * Dialog entrance starting scale
+   */
   dialogFrom: 0.9,
-  /** Dialog exit ending scale */
+  /**
+   * Dialog exit ending scale
+   */
   dialogTo: 0.95,
 } as const;
 
@@ -56,14 +92,18 @@ export const SCALE = {
 // Types
 // ---------------------------------------------------------------------------
 
-/** Options shared by most animation helpers */
+/**
+ * Options shared by most animation helpers
+ */
 export type AnimateOptions = {
   duration?: number;
   easing?: string;
   fill?: 'none' | 'forwards' | 'backwards' | 'both';
 };
 
-/** A cancelable animation handle returned by Lynx element.animate() */
+/**
+ * A cancelable animation handle returned by Lynx element.animate()
+ */
 export type AnimationHandle = {
   cancel(): void;
 };

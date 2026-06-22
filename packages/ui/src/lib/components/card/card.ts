@@ -34,7 +34,9 @@ import { cn } from '../../utils/cn';
   `,
 })
 export class UiCard {
-  /** When true, the card responds to touch with a subtle scale animation */
+  /**
+   * When true, the card responds to touch with a subtle scale animation
+   */
   readonly pressable = input(false);
   readonly userClass = input<string>('', { alias: 'class' });
 
@@ -61,6 +63,8 @@ export class UiCard {
   }
 
   protected onPressCancel(): void {
+    // Restore scale on cancel — without this, a scroll gesture taking over
+    // mid-press would leave the card stuck in its pressed-down state.
     if (!this.pressable()) return;
     this.#pressAnim?.cancel();
     this.#pressAnim = pressRelease(this.containerRef()?.nativeElement);

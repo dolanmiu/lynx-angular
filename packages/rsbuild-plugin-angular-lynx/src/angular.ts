@@ -28,6 +28,34 @@ import {
 } from './lynx-diagnostics.js';
 import type { PluginAngularLynxOptions } from './utils/options.js';
 
+/**
+ * Wires Angular's AOT/JIT compilation pipeline into the rsbuild/rspack build
+ * graph. This is the heart of the AngularLynx build — it bridges three worlds:
+ *
+ *   1. **Angular's compiler** (`@angular/build`) — runs `createAngularCompilation`
+ *      to type-check templates, transform component metadata, and emit JS+CSS.
+ *   2. **Lynx's native element model** — Angular's template type-checker has
+ *      no knowledge of `<view>`, `<text>`, `<scroll-view>`, etc., so we inject
+ *      CUSTOM_ELEMENTS_SCHEMA into every @Component-bearing source file before
+ *      Angular's compiler sees it.
+ *   3. **rspack's loader pipeline** — Angular emits transformed output into a
+ *      `typeScriptFileCache`; the `api.transform()` hook below intercepts every
+ *      `.ts`/`.js` request and serves the precompiled content instead of
+ *      letting rspack try to parse the original TypeScript.
+ *
+ * The flow runs once per environment build:
+ *   onBeforeEnvironmentCompile → buildLynxSchemaSourceFileCache (schema inject)
+ *     → compilation.initialize (Angular AOT walk + transformStylesheet callback)
+ *     → emitAffectedFiles (fills typeScriptFileCache)
+ *     → diagnoseFiles (filtered to suppress Lynx-element false positives)
+ *
+ * Then for each module request:
+ *   api.transform → look up compiled output in typeScriptFileCache
+ *     → prepend `import` statements for the component's scoped CSS files
+ *     → patch ɵcmp.id to the deterministic scope ID
+ *     → inject HMR self-accept on bootstrap entries (dev only)
+ *     → run worklet directive transformation
+ */
 export const applyAngularRules = async (
   api: RsbuildPluginAPI,
   pluginOptions: Required<PluginAngularLynxOptions>,
@@ -86,6 +114,11 @@ export const applyAngularRules = async (
   );
   const tsconfig = buildOptions.tsconfig;
   const compilation = await createAngularCompilation(false, aot);
+  // typeScriptFileCache holds the *already-compiled* JS for every TS source
+  // emitted by Angular. The rspack loader (api.transform below) reads from here
+  // instead of running tsc/esbuild itself — Angular has already done the work
+  // including template compilation, component metadata generation, and DI
+  // ɵfac wiring, none of which a plain TS transpile would reproduce.
   const typeScriptFileCache = new Map<string, string | Uint8Array>();
   // Determines if TypeScript should process JavaScript files based on tsconfig `allowJs` option
   // let shouldTsIgnoreJs = true;
@@ -93,6 +126,8 @@ export const applyAngularRules = async (
   // let useTypeScriptTranspilation = true;
   // Write scoped CSS to a cache directory instead of next to source files.
   // The bundler resolves them via relative imports computed by path.relative().
+  // Using node_modules/.cache means the files are gitignored by default and
+  // cleared on `npm install` if cache invalidation is needed.
   const scopedCssCacheDir = path.join(
     basePath,
     'node_modules',
@@ -101,6 +136,11 @@ export const applyAngularRules = async (
   );
   fs.mkdirSync(scopedCssCacheDir, { recursive: true });
 
+  // Tracks every stylesheet emitted by Angular's transformStylesheet callback
+  // for a given component source file. `imports` lists the on-disk paths the
+  // loader will prepend as `import` statements; `processedFiles` deduplicates
+  // calls that Angular's AOT compiler makes multiple times for the same
+  // stylesheet (see comment inside transformStylesheet for the dedup rationale).
   const componentStylesCache = new Map<
     string,
     {
@@ -110,6 +150,9 @@ export const applyAngularRules = async (
       processedFiles: Map<string, string>;
     }
   >();
+  // Maps component source file → { className, scopeId } so the loader can emit
+  // the `Component.ɵcmp.id = '<scopeId>'` assignment that ties the CSS files
+  // (whose filenames carry the same scope ID) to the runtime component instance.
   const componentScopeIds = new Map<
     string,
     { className: string; scopeId: string }
@@ -277,6 +320,11 @@ export const applyAngularRules = async (
         filename,
         contents,
       } of await compilation.emitAffectedFiles()) {
+        // emitAffectedFiles is incremental — on the first build it returns
+        // every project file; on rebuilds (watch mode) only the files whose
+        // contents or transitive template dependencies changed. The cache is
+        // therefore additive and survives across builds, which is what makes
+        // dev-mode rebuilds fast.
         typeScriptFileCache.set(path.normalize(filename), contents);
       }
     } catch {}
@@ -316,6 +364,11 @@ export const applyAngularRules = async (
     async (context) => {
       const isJs = /\.[cm]?js$/.test(context.resourcePath);
       if (isJs) {
+        // Plain JS files (third-party deps, .mjs/.cjs sources) bypass the
+        // Angular compiler — they don't carry component metadata. Run them
+        // through @angular/build's JavaScriptTransformer to apply the same
+        // advanced optimizations (pure annotations, async removal, etc.) as
+        // Angular's normal build, then run worklet transforms on top.
         const contents = await javascriptTransformer.transformData(
           context.resourcePath,
           context.code,
@@ -331,6 +384,11 @@ export const applyAngularRules = async (
       }
       const content = typeScriptFileCache.get(context.resourcePath);
       if (!content) {
+        // No entry in the cache means Angular's compiler never saw this file
+        // — usually because the user imported a .ts file that isn't in the
+        // tsconfig include list. Surface this as a hard error rather than
+        // silently passing through (which would let rspack try to parse raw
+        // TypeScript with @angular decorators, producing confusing errors).
         throw new Error(`No compiled output found for ${context.resourcePath}`);
       }
       let code: string;
@@ -344,6 +402,10 @@ export const applyAngularRules = async (
         const { imports } = componentStyles;
         let importsString = '';
         for (let i = 0; i < imports.length; ++i) {
+          // Stylesheets live in node_modules/.cache/angular-lynx-css/, so
+          // compute the relative path from the component file. Prepending
+          // `./` when the relative path doesn't start with `..` keeps it a
+          // valid ES module specifier (rspack rejects bare specifiers here).
           let relativeImport = path.relative(
             path.dirname(context.resourcePath),
             imports[i],
@@ -353,6 +415,9 @@ export const applyAngularRules = async (
           }
           importsString += `import "${relativeImport}";`;
         }
+        // Prepend the imports so the CSS chunks are pulled into the bundle
+        // before the component class is defined — matching the side-effect
+        // ordering Angular itself produces in its standard build.
         code = importsString + code;
       }
       // Patch the component's \u0275cmp.id to match the scope ID derived from the

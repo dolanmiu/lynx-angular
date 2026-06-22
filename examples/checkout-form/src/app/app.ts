@@ -4,7 +4,12 @@ import { UiInput } from '../components/ui/input';
 import { UiLabel } from '../components/ui/label';
 import { UiSelect, UiSelectItem } from '../components/ui/select';
 import { UiRadioGroup, UiRadioGroupItem } from '../components/ui/radio-group';
-import { UiCard, UiCardHeader, UiCardTitle, UiCardContent } from '../components/ui/card';
+import {
+  UiCard,
+  UiCardHeader,
+  UiCardTitle,
+  UiCardContent,
+} from '../components/ui/card';
 import { UiProgress } from '../components/ui/progress';
 import { UiButton } from '../components/ui/button';
 import { UiCheckbox } from '../components/ui/checkbox';
@@ -14,11 +19,20 @@ import { UiSeparator } from '../components/ui/separator';
   selector: 'app-root',
   imports: [
     LYNX_ELEMENTS,
-    UiInput, UiLabel,
-    UiSelect, UiSelectItem,
-    UiRadioGroup, UiRadioGroupItem,
-    UiCard, UiCardHeader, UiCardTitle, UiCardContent,
-    UiProgress, UiButton, UiCheckbox, UiSeparator,
+    UiInput,
+    UiLabel,
+    UiSelect,
+    UiSelectItem,
+    UiRadioGroup,
+    UiRadioGroupItem,
+    UiCard,
+    UiCardHeader,
+    UiCardTitle,
+    UiCardContent,
+    UiProgress,
+    UiButton,
+    UiCheckbox,
+    UiSeparator,
   ],
   template: `
     <scroll-view scroll-orientation="vertical" class="page">
@@ -72,7 +86,10 @@ import { UiSeparator } from '../components/ui/separator';
                 <view class="radio-list">
                   @for (opt of paymentOptions; track opt.value) {
                     <view class="radio-row">
-                      <ui-radio-group-item [value]="opt.value" [id]="opt.value" />
+                      <ui-radio-group-item
+                        [value]="opt.value"
+                        [id]="opt.value"
+                      />
                       <ui-label [for]="opt.value">{{ opt.label }}</ui-label>
                     </view>
                   }
@@ -83,7 +100,10 @@ import { UiSeparator } from '../components/ui/separator';
               <view class="card-fields">
                 <view class="field">
                   <ui-label>Card Number</ui-label>
-                  <ui-input [(value)]="cardNumber" placeholder="4242 4242 4242 4242" />
+                  <ui-input
+                    [(value)]="cardNumber"
+                    placeholder="4242 4242 4242 4242"
+                  />
                 </view>
                 <view class="row">
                   <view class="field row-expand">
@@ -108,7 +128,9 @@ import { UiSeparator } from '../components/ui/separator';
           <view class="form-section">
             <text class="form-title">Order Summary</text>
             <ui-card>
-              <ui-card-header><ui-card-title>Items</ui-card-title></ui-card-header>
+              <ui-card-header
+                ><ui-card-title>Items</ui-card-title></ui-card-header
+              >
               <ui-card-content>
                 <view class="summary-rows">
                   <view class="summary-row">
@@ -132,43 +154,146 @@ import { UiSeparator } from '../components/ui/separator';
 
         <view class="button-row">
           @if (step() > 1) {
-            <ui-button variant="outline" class="flex-1" (pressed)="back()">Back</ui-button>
+            <ui-button variant="outline" class="flex-1" (pressed)="back()"
+              >Back</ui-button
+            >
           }
           @if (step() < 3) {
             <ui-button class="flex-1" (pressed)="next()">Continue</ui-button>
           } @else {
-            <ui-button class="flex-1" (pressed)="placeOrder()">Place Order</ui-button>
+            <ui-button class="flex-1" (pressed)="placeOrder()"
+              >Place Order</ui-button
+            >
           }
         </view>
       </view>
     </scroll-view>
   `,
   styles: `
-    .page { height: 100vh; background-color: #fafafa; }
-    .container { display: flex; flex-direction: column; gap: 24px; padding: 24px; }
-    .progress-section { display: flex; flex-direction: column; gap: 8px; }
-    .progress-labels { display: flex; flex-direction: row; justify-content: space-between; }
-    .step-text { font-size: 14px; font-weight: 500; color: #18181b; }
-    .step-label { font-size: 14px; color: #71717a; }
-    .form-section { display: flex; flex-direction: column; gap: 16px; }
-    .form-title { font-size: 22px; font-weight: bold; color: #18181b; }
-    .field { display: flex; flex-direction: column; gap: 6px; }
-    .field-lg { display: flex; flex-direction: column; gap: 10px; }
-    .row { display: flex; flex-direction: row; gap: 12px; }
-    .row-expand { flex: 1; }
-    .zip-field { width: 96px; }
-    .radio-list { display: flex; flex-direction: column; gap: 8px; }
-    .radio-row { display: flex; flex-direction: row; align-items: center; gap: 10px; padding: 12px 16px; background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; }
-    .card-fields { display: flex; flex-direction: column; gap: 12px; }
-    .checkbox-row { display: flex; flex-direction: row; align-items: center; gap: 10px; }
-    .summary-rows { display: flex; flex-direction: column; gap: 10px; }
-    .summary-row { display: flex; flex-direction: row; justify-content: space-between; }
-    .summary-label { font-size: 14px; color: #18181b; }
-    .summary-value { font-size: 14px; font-weight: 500; color: #18181b; }
-    .discount-value { font-size: 14px; color: #16a34a; }
-    .total-label { font-size: 14px; font-weight: bold; color: #18181b; }
-    .total-value { font-size: 14px; font-weight: bold; color: #18181b; }
-    .button-row { display: flex; flex-direction: row; gap: 12px; }
+    .page {
+      height: 100vh;
+      background-color: #fafafa;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      padding: 24px;
+    }
+    .progress-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .progress-labels {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+    .step-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: #18181b;
+    }
+    .step-label {
+      font-size: 14px;
+      color: #71717a;
+    }
+    .form-section {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .form-title {
+      font-size: 22px;
+      font-weight: bold;
+      color: #18181b;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .field-lg {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .row {
+      display: flex;
+      flex-direction: row;
+      gap: 12px;
+    }
+    .row-expand {
+      flex: 1;
+    }
+    .zip-field {
+      width: 96px;
+    }
+    .radio-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .radio-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background-color: #ffffff;
+      border: 1px solid #e4e4e7;
+      border-radius: 12px;
+    }
+    .card-fields {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .checkbox-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
+    }
+    .summary-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .summary-row {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+    .summary-label {
+      font-size: 14px;
+      color: #18181b;
+    }
+    .summary-value {
+      font-size: 14px;
+      font-weight: 500;
+      color: #18181b;
+    }
+    .discount-value {
+      font-size: 14px;
+      color: #16a34a;
+    }
+    .total-label {
+      font-size: 14px;
+      font-weight: bold;
+      color: #18181b;
+    }
+    .total-value {
+      font-size: 14px;
+      font-weight: bold;
+      color: #18181b;
+    }
+    .button-row {
+      display: flex;
+      flex-direction: row;
+      gap: 12px;
+    }
   `,
 })
 export class App {
@@ -191,9 +316,17 @@ export class App {
   ];
 
   readonly progress = computed(() => (this.step() / 3) * 100);
-  readonly stepLabel = computed(() => ['Shipping', 'Payment', 'Review'][this.step() - 1]);
+  readonly stepLabel = computed(
+    () => ['Shipping', 'Payment', 'Review'][this.step() - 1],
+  );
 
-  next(): void { this.step.update((s) => Math.min(s + 1, 3)); }
-  back(): void { this.step.update((s) => Math.max(s - 1, 1)); }
-  placeOrder(): void { this.step.set(1); }
+  next(): void {
+    this.step.update((s) => Math.min(s + 1, 3));
+  }
+  back(): void {
+    this.step.update((s) => Math.max(s - 1, 1));
+  }
+  placeOrder(): void {
+    this.step.set(1);
+  }
 }

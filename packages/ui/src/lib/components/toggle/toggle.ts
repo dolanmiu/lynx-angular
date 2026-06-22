@@ -130,6 +130,9 @@ export class UiToggleGroup {
     if (this.disabled()) return;
     if (this.type() === 'single') {
       const current = this.value();
+      // Single mode allows deselection: tapping the active item again clears
+      // the selection to []. This differs from a radio group, which requires
+      // one item to always be selected.
       this.value.set(current.includes(val) ? [] : [val]);
     } else {
       this.value.update((list) =>

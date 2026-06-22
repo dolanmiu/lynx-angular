@@ -8,7 +8,7 @@ description: Run the spell checker (cspell) across all packages in the monorepo 
 Run the spell checker from the project root:
 
 ```sh
-npm run cspell
+npm run cspell -- --force
 ```
 
 This runs `cspell .` in every package via turbo.

@@ -26,6 +26,19 @@ const STATUS_SHORT_LABELS: Record<FileStatus, string> = {
   'new-upstream': pc.blue('outdated'),
 };
 
+/**
+ * Lists every installed component along with its overall upgrade status.
+ *
+ * For each component, every file is analyzed via the same three-way merge
+ * function used by `dolan upgrade` (lockfile-base / current / upstream), then
+ * `summarizeComponent` rolls the per-file statuses up into a single component-
+ * level status using a priority order (conflict > user-modified > outdated >
+ * up-to-date) — so a component is flagged "modified" even if only one of its
+ * files has user edits.
+ *
+ * Supports --json for machine-readable output (used by CI/scripts), which
+ * short-circuits the interactive prompts entirely.
+ */
 export const listCommand = async (options: { json?: boolean }) => {
   const cwd = process.cwd();
 
@@ -57,6 +70,10 @@ export const listCommand = async (options: { json?: boolean }) => {
     return;
   }
 
+  // The installed set = intersection of "directories in components dir" and
+  // "names known to the registry". Anything else (e.g. user-authored folders
+  // colocated with components) is ignored so we don't accidentally report
+  // unrelated files as "missing upstream".
   const allKnown = new Set(getComponentNames());
   const installed = readdirSync(componentsDir, { withFileTypes: true })
     .filter((entry) => entry.isDirectory() && allKnown.has(entry.name))

@@ -15,9 +15,11 @@ import { LynxElement } from './lynx-element';
  * (create-list-element.ts) when the native engine requests the item.
  */
 
-// Module-level set of LynxListElements that need their native list updated.
-// Drained by processPendingListUpdates() which is called from
-// LynxRendererFactory2.end() — right before __FlushElementTree().
+/**
+ * Module-level set of LynxListElements that need their native list updated.
+ * Drained by processPendingListUpdates() which is called from
+ * LynxRendererFactory2.end() — right before __FlushElementTree().
+ */
 const pendingListUpdates = new Set<LynxListElement>();
 
 /**
@@ -41,12 +43,16 @@ export class LynxListElement extends LynxElement {
   #lastVirtualChild: LynxElement | null = null;
   readonly #nonElements: WeakSet<ElementRef>;
   #destroyed = false;
-  // Tracks which list-item elements have been appended to the native list tree.
-  // We append once (lazily in componentAtIndex) and never again —
-  // __AppendElement is not idempotent.
+  /**
+   * Tracks which list-item elements have been appended to the native list tree.
+   * We append once (lazily in componentAtIndex) and never again —
+   * __AppendElement is not idempotent.
+   */
   #appendedToNativeList = new WeakSet<ElementRef>();
-  // Tracks what was last committed to native via update-list-info so we can
-  // compute a diff (insertAction / removeAction) on the next update.
+  /**
+   * Tracks what was last committed to native via update-list-info so we can
+   * compute a diff (insertAction / removeAction) on the next update.
+   */
   #committedUIChildren: ElementRef[] = [];
 
   constructor(element: ElementRef, nonElements: WeakSet<ElementRef>) {
@@ -54,7 +60,9 @@ export class LynxListElement extends LynxElement {
     this.#nonElements = nonElements;
   }
 
-  /** Store the list callbacks so they can be re-registered before each flush. */
+  /**
+   * Store the list callbacks so they can be re-registered before each flush.
+   */
   setCallbacks(
     _componentAtIndex: any,
     _enqueueComponent: any,
@@ -137,7 +145,9 @@ export class LynxListElement extends LynxElement {
     this.#scheduleUpdate();
   }
 
-  /** Returns ElementRefs of real UI children (excludes NoneElements / comment markers). */
+  /**
+   * Returns ElementRefs of real UI children (excludes NoneElements / comment markers).
+   */
   getUIChildren(): ElementRef[] {
     const children: ElementRef[] = [];
     let child = this.#firstVirtualChild;

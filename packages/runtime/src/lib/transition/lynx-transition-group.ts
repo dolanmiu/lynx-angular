@@ -106,14 +106,16 @@ export class LynxTransitionGroup<T> {
     }
   }
 
-  // Three-phase reconciliation against the trackBy-keyed entry map:
-  // 1. Leave pass: items absent from new list get animated out
-  //    (items that reappear during their leave animation are rescued)
-  // 2. Enter pass: new items get created and animated in
-  //    (retained items get their context updated for change detection)
-  // 3. Reorder pass: non-leaving views are moved to match the new list order
-  //    via ViewContainerRef.move() — this triggers Lynx's __InsertElementBefore
-  //    which visually reorders elements without recreating them.
+  /**
+   * Three-phase reconciliation against the trackBy-keyed entry map:
+   * 1. Leave pass: items absent from new list get animated out
+   *    (items that reappear during their leave animation are rescued)
+   * 2. Enter pass: new items get created and animated in
+   *    (retained items get their context updated for change detection)
+   * 3. Reorder pass: non-leaving views are moved to match the new list order
+   *    via ViewContainerRef.move() — this triggers Lynx's __InsertElementBefore
+   *    which visually reorders elements without recreating them.
+   */
   #reconcile(items: T[], trackBy: (item: T) => unknown): void {
     const newKeys = new Set<unknown>();
     const newKeyOrder: unknown[] = [];

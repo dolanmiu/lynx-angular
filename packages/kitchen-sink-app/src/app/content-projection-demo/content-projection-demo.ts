@@ -8,7 +8,9 @@ import {
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
-// --- Reusable wrapper components demonstrating content projection ---
+/**
+ * --- Reusable wrapper components demonstrating content projection ---
+ */
 
 @Component({
   selector: 'app-card',
@@ -109,11 +111,17 @@ export class Collapsible {
   readonly expanded = signal(true);
 
   toggle(): void {
+    // setTimeout defers the signal update out of the native `bindtap` callback.
+    // Updating a signal synchronously inside a Lynx native event handler can
+    // cause the renderer to flush while the native event is still on the call
+    // stack, which breaks Lynx's frame pipeline on the main thread.
     setTimeout(() => this.expanded.update((v) => !v), 0);
   }
 }
 
-// Wrapper that uses contentChild() to detect projected content
+/**
+ * Wrapper that uses contentChild() to detect projected content.
+ */
 @Component({
   selector: 'app-query-demo',
   template: `
@@ -147,13 +155,18 @@ export class Collapsible {
   `,
 })
 export class QueryDemo {
+  // String-based selectors query by template reference variable name (#main,
+  // #item). Angular resolves these by matching the `#name` export in the
+  // projected content — a lighter-weight alternative to querying by type.
   readonly mainContent = contentChild('main', { read: ElementRef });
   readonly items = contentChildren('item', { read: ElementRef });
   readonly hasContent = computed(() => this.mainContent() != null);
   readonly itemCount = computed(() => this.items().length);
 }
 
-// --- Main demo component ---
+/**
+ * --- Main demo component ---
+ */
 
 @Component({
   selector: 'app-content-projection-demo',

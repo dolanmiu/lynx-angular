@@ -15,24 +15,24 @@ export type LynxAnimationOptions = AnimationOptions & {
   timingFunction?: string;
 };
 
-// Required because LynxAnimation uses ES private fields (#element, #count)
-// which brand the class — TypeScript's structural typing won't accept
-// NoopLynxAnimation as assignable to LynxAnimation. This shared Pick type
-// extracts only the public API both implementations satisfy, so
-// BaseLynxElement.animate() can return either without a type error.
-
 /**
  * Shared interface for all animation implementations (real and no-op).
  * Used by `BaseLynxElement.animate()` return type so both `LynxAnimation`
  * (main thread) and `NoopLynxAnimation` (background thread) are valid.
+ * Required because LynxAnimation uses ES private fields (#element, #count)
+ * which brand the class — TypeScript's structural typing won't accept
+ * NoopLynxAnimation as assignable to LynxAnimation. This shared Pick type
+ * extracts only the public API both implementations satisfy.
  */
 export type BaseLynxAnimation = Pick<
   LynxJsAnimation,
   'id' | 'cancel' | 'pause' | 'play'
 >;
 
-// Wire-protocol constants for __ElementAnimate operations.
-// Must match the native Lynx engine expectations (see PAPI types).
+/**
+ * Wire-protocol constants for __ElementAnimate operations.
+ * Must match the native Lynx engine expectations (see PAPI types).
+ */
 const ANIMATION_START = 0 as const;
 const ANIMATION_PLAY = 1 as const;
 const ANIMATION_PAUSE = 2 as const;

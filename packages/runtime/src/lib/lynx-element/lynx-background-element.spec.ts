@@ -126,8 +126,10 @@ describe('LynxBackgroundElement styles', () => {
   });
 });
 
-// Builds a LynxBackgroundElement with a given tag name (mimicking what
-// LynxBackgroundDocument.createElement does).
+/**
+ * Builds a LynxBackgroundElement with a given tag name (mimicking what
+ * LynxBackgroundDocument.createElement does).
+ */
 const makeElement = (tag: string): LynxBackgroundElement => {
   const el = new LynxBackgroundElement();
   el.setAttribute('tagName', tag);

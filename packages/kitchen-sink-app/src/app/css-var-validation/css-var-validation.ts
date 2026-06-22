@@ -1,6 +1,13 @@
 import { Component } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
+/**
+ * Visual test matrix for Lynx CSS engine compatibility. Lynx's native style
+ * parser doesn't support the full CSS4 spec — for example, the space-separated
+ * hsl() syntax (hsl(240 5.9% 10%)) fails silently (A5 is expected to be blank).
+ * Run this page on-device whenever changing CSS variable handling in the renderer
+ * to verify which formats survive the round-trip through __AddInlineStyle.
+ */
 @Component({
   selector: 'app-css-var-validation',
   standalone: true,

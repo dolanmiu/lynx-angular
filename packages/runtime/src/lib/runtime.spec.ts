@@ -1,8 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { bootstrapApplication as BootstrapApplicationFn } from './runtime';
 
-// vi.hoisted creates the mock function before any imports run, so the same
-// reference survives vi.resetModules() calls in beforeEach.
+/**
+ * vi.hoisted creates the mock function before any imports run, so the same
+ * reference survives vi.resetModules() calls in beforeEach.
+ */
 const { mockNgBootstrap } = vi.hoisted(() => ({
   mockNgBootstrap: vi.fn(),
 }));
@@ -137,7 +139,9 @@ describe('runtime', () => {
   });
 
   describe('transformParams (exercised through runWorklet)', () => {
-    // Helper: register a worklet that captures its first argument
+    /**
+     * Helper: register a worklet that captures its first argument
+     */
     const captureFirst = (id: string): { received: unknown[] } => {
       const received: unknown[] = [];
       globalThis.registerWorklet('type', id, (...args: unknown[]) => {

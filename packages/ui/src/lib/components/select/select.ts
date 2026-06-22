@@ -75,6 +75,9 @@ export class UiSelect {
   );
   protected readonly chevronSvg = CHEVRON_SVG;
 
+  // `forwardRef` is required because UiSelectItem is defined later in this
+  // file — without it, the reference would be `undefined` at class-definition
+  // time and contentChildren would silently query nothing.
   readonly itemRefs = contentChildren(forwardRef(() => UiSelectItem));
   readonly backdropRef = viewChild<ElementRef>('backdrop');
   readonly panelRef = viewChild<ElementRef>('panel');
@@ -124,6 +127,11 @@ export class UiSelect {
     }
   }
 
+  /**
+   * Two-phase open: same pattern as nav-drawer — make overlay visible first
+   * so native elements exist in the tree, then animate on the next frame.
+   * `#isOpen` guards against duplicate calls from rapid taps.
+   */
   open(): void {
     if (this.#isOpen) return;
     this.#isOpen = true;
@@ -133,6 +141,9 @@ export class UiSelect {
     }, 0);
   }
 
+  /**
+   * Animate out before hiding overlay; +20ms absorbs Lynx timer imprecision.
+   */
   close(): void {
     if (!this.#isOpen) return;
     this.#isOpen = false;

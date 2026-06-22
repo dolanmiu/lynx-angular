@@ -14,6 +14,11 @@ export class SsrDemo {
 
   runEncode(): void {
     try {
+      // `ssrEncode` is registered on globalThis by the renderer's SSR setup
+      // (provideRenderer() with SSR enabled). It's on globalThis — not in DI —
+      // because the SSR encode must be callable from outside Angular's injector:
+      // the native host (test harness, CLI tool) invokes it after the Angular
+      // app is bootstrapped but without access to the component tree.
       const ssrEncode = (globalThis as any).ssrEncode as
         | (() => string)
         | undefined;
@@ -46,6 +51,9 @@ export class SsrDemo {
     opcodeCount: number;
     snapshotSize: number;
   } {
+    // Both functions must be present for SSR to be operational: ssrEncode
+    // serializes the initial render to an opcode snapshot, and ssrHydrate
+    // replays that snapshot on the main thread before Angular hydrates.
     const encodeRegistered =
       typeof (globalThis as any).ssrEncode === 'function';
     const hydrateRegistered =

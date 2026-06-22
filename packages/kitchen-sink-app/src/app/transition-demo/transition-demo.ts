@@ -63,6 +63,12 @@ export class TransitionDemo {
 
   readonly trackById = (item: Item) => item.id;
 
+  /**
+   * All three methods defer signal updates via setTimeout to avoid updating signals
+   * synchronously inside a Lynx native event handler (bindtap). Updating directly
+   * inside the handler can cause the renderer to flush while the native event is
+   * still on the call stack, which breaks Lynx's main-thread frame pipeline.
+   */
   togglePanel(): void {
     setTimeout(() => this.showPanel.update((v) => !v), 0);
   }

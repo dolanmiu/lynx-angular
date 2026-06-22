@@ -69,6 +69,10 @@ export class UiNavDrawer {
   #hasBeenOpen = false;
 
   constructor() {
+    // `#hasBeenOpen` prevents the close animation from running on the initial
+    // effect evaluation when `open` starts as false. Without this guard, the
+    // first run would call #doClose() and emit `closed` before the drawer
+    // has ever been opened.
     effect(() => {
       const isOpen = this.open();
       if (isOpen) {
@@ -105,6 +109,12 @@ export class UiNavDrawer {
     this.open.set(false);
   }
 
+  /**
+   * Two-phase open: first make the overlay visible (so native elements exist),
+   * then animate in on the next frame. Without the nested setTimeout, the
+   * animate() call would target elements that haven't been flushed to native
+   * yet — Lynx element.animate() requires the element to be in the tree.
+   */
   #doOpen(): void {
     setTimeout(() => {
       this.overlayVisible.set(true);
@@ -112,6 +122,12 @@ export class UiNavDrawer {
     }, 0);
   }
 
+  /**
+   * Reverse of open: animate out first, then hide the overlay after the
+   * animation completes. The +20ms buffer accounts for timing imprecision
+   * in Lynx's timer system — removing the overlay mid-animation would
+   * cause a visual glitch (elements disappear before fade completes).
+   */
   #doClose(): void {
     setTimeout(() => {
       this.#animateOut();

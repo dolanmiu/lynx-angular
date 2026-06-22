@@ -18,6 +18,11 @@ const SIZE_MAP = { xs: 16, sm: 20, md: 24, lg: 32 } as const;
   standalone: true,
   imports: [LYNX_ELEMENTS],
   encapsulation: ViewEncapsulation.None,
+  // SVG markup is passed via [attr.content] rather than as child elements.
+  // Lynx's native <svg> element can't contain child nodes in the flat element
+  // model — the renderer doesn't support nested SVG elements. Passing the full
+  // SVG markup string as the `content` attribute is the Lynx-native way to
+  // embed vector graphics.
   template: `
     <view #spinner [style]="sizeStyle()">
       <svg [attr.content]="svgContent()" style="width: 100%; height: 100%;" />
@@ -48,6 +53,9 @@ export class UiSpinner {
   protected readonly svgContent = computed(() => {
     const c = this.color();
     if (c) {
+      // Lynx SVG elements don't inherit the CSS `color` property into their
+      // stroke attributes, so we must substitute directly in the SVG string
+      // rather than relying on `currentColor` propagation via CSS.
       return LOADER_SVG.replaceAll('currentColor', c);
     }
     return LOADER_SVG;

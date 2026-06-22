@@ -11,6 +11,23 @@ import { getWorkspace } from '@schematics/angular/utility/workspace';
 import type { Schema } from './schema';
 import { VERSIONS } from '../ng-add/versions';
 
+/**
+ * Wires Angular's `@angular/localize` package into an AngularLynx app and
+ * provides the Lynx-aware `provideLocale()` provider that reads the active
+ * locale from Lynx's SystemInfo.
+ *
+ * Four-step setup, each step idempotent so re-running is safe:
+ *   1. **angular.json `i18n` block** — declares the source locale so any
+ *      `ng extract-i18n` runs produce the right XLIFF.
+ *   2. **`@angular/localize/init` polyfill** — must run before the app boots
+ *      so the global `$localize` function exists when components are
+ *      instantiated.
+ *   3. **tsconfig `types`** — adds @angular/localize so $localize is typed
+ *      and TypeScript doesn't flag it as an undefined global.
+ *   4. **provideLocale() in app.config** — registers the runtime provider
+ *      that reads SystemInfo.language / appLocale and applies it to Angular's
+ *      LOCALE_ID token.
+ */
 export default (options: Schema): Rule =>
   async (tree: Tree) => {
     const workspace = await getWorkspace(tree);
@@ -54,6 +71,10 @@ const addI18nToAngularJson = (projectName: string): Rule => {
       });
     }
 
+    // `@angular/localize/init` must be in `polyfills`, not a regular import.
+    // It patches the global `$localize` function before the app boots — if
+    // it's loaded lazily via a normal import, some translated strings can be
+    // called before the patch is in place and throw at runtime.
     const polyfillsPath = [
       'projects',
       projectName,
@@ -102,12 +123,23 @@ const updateAppConfig = (sourceRoot: string): Rule => {
 
     let content = tree.readText(configPath);
 
-    // Skip if provideLocale is already present
+    // Idempotency guard: if the user has already imported provideLocale
+    // (either from a previous run or by hand), bail out — re-running would
+    // duplicate the import and the providers entry, breaking the file.
     if (content.includes('provideLocale')) {
       return;
     }
 
-    // Add provideLocale to existing @blotch/angular-lynx import
+    // Two paths for adding the symbol to imports:
+    //   - If `@blotch/angular-lynx` is already imported (the common case
+    //     after `ng add @blotch/angular-lynx`), append provideLocale to the
+    //     existing destructured import list. We split on `,` and rebuild so
+    //     trailing commas and whitespace are normalized regardless of the
+    //     user's formatting preferences.
+    //   - Otherwise prepend a brand-new import line at the top of the file.
+    //     This branch shouldn't normally fire (add-i18n is meant to run on
+    //     projects that already went through ng-add), but it keeps the
+    //     schematic self-contained if someone runs it standalone.
     if (content.includes("from '@blotch/angular-lynx'")) {
       content = content.replace(
         /import\s*\{([^}]*)\}\s*from\s*['"]@blotch\/angular-lynx['"]/,
@@ -121,12 +153,15 @@ const updateAppConfig = (sourceRoot: string): Rule => {
         },
       );
     } else {
-      // Add a new import line
       content =
         `import { provideLocale } from '@blotch/angular-lynx';\n` + content;
     }
 
-    // Add provideLocale() to the providers array
+    // Insert provideLocale() as the FIRST provider so it runs before
+    // anything that might call $localize during construction (e.g. a service
+    // that formats a date with a localized pattern at module load time).
+    // The regex matches `providers: [` and inserts on a new line right
+    // after, preserving the user's indentation/style for the rest of the array.
     content = content.replace(
       /providers:\s*\[/,
       'providers: [\n    provideLocale(),',

@@ -75,5 +75,9 @@ import styles from './demo.module.css';
   ],
 })
 export class CssModulesDemo {
+  // Expose the CSS Modules map as a class field so the template can access
+  // hashed class names via binding: [class]="styles['card']". The bundler
+  // generates the hashed names at build time; at runtime `styles` is a plain
+  // object mapping local names to their hashed counterparts.
   readonly styles = styles;
 }

@@ -33,23 +33,20 @@ import { cn } from '@blotch/dolan/utils/cn';
   imports: [LYNX_ELEMENTS],
   encapsulation: ViewEncapsulation.None,
   template: `
-    <overlay
-      [attr.visible]="overlayVisible()"
-      [style]="overlayStyle()"
-    >
-        <view #backdrop class="w-full h-full" (bindtap)="onBackdropTap()">
-          <view
-            #panel
-            [class]="panelClass()"
-            [style]="panelPositionStyle()"
-            (catchtap)="$event.stopPropagation()"
-          >
-            <view class="flex flex-col rounded-lg bg-card overflow-hidden">
-              <ng-content />
-            </view>
-            <ng-content select="ui-action-sheet-cancel" />
+    <overlay [attr.visible]="overlayVisible()" [style]="overlayStyle()">
+      <view #backdrop class="w-full h-full" (bindtap)="onBackdropTap()">
+        <view
+          #panel
+          [class]="panelClass()"
+          [style]="panelPositionStyle()"
+          (catchtap)="$event.stopPropagation()"
+        >
+          <view class="flex flex-col rounded-lg bg-card overflow-hidden">
+            <ng-content />
           </view>
+          <ng-content select="ui-action-sheet-cancel" />
         </view>
+      </view>
     </overlay>
   `,
 })
@@ -216,7 +213,10 @@ export class UiActionSheetItem {
 
   protected onPressStart(): void {
     this.#pressAnim?.cancel();
-    this.#pressAnim = pressDown(this.containerRef()?.nativeElement, SCALE.pressDownLight);
+    this.#pressAnim = pressDown(
+      this.containerRef()?.nativeElement,
+      SCALE.pressDownLight,
+    );
   }
 
   protected onPressEnd(): void {
@@ -275,7 +275,10 @@ export class UiActionSheetCancel {
 
   protected onPressStart(): void {
     this.#pressAnim?.cancel();
-    this.#pressAnim = pressDown(this.containerRef()?.nativeElement, SCALE.pressDownLight);
+    this.#pressAnim = pressDown(
+      this.containerRef()?.nativeElement,
+      SCALE.pressDownLight,
+    );
   }
 
   protected onPressEnd(): void {

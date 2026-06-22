@@ -1,5 +1,7 @@
-// Wire format for individual exposure/disexposure event entries.
-// Dual-cased fields (kebab and camel) match the Lynx engine's output exactly.
+/**
+ * Wire format for individual exposure/disexposure event entries.
+ * Dual-cased fields (kebab and camel) match the Lynx engine's output exactly.
+ */
 export type ExposureEventDetail = {
   'exposure-id': string;
   'exposure-scene': string;
@@ -8,8 +10,10 @@ export type ExposureEventDetail = {
   'unique-id': number;
 };
 
-// The Lynx engine batches element visibility changes at ~20fps and dispatches
-// them as arrays via GlobalEventEmitter ('exposure' / 'disexposure' events).
+/**
+ * The Lynx engine batches element visibility changes at ~20fps and dispatches
+ * them as arrays via GlobalEventEmitter ('exposure' / 'disexposure' events).
+ */
 export type GlobalExposureEvent = ExposureEventDetail[];
 
 export type ObserverFrameRateOptions = {

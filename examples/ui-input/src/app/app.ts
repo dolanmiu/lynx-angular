@@ -14,7 +14,11 @@ import { UiInput } from '../components/ui/input';
         </text>
 
         <!-- Basic input with label -->
-        <ui-input label="Email" placeholder="you@example.com" [(value)]="email" />
+        <ui-input
+          label="Email"
+          placeholder="you@example.com"
+          [(value)]="email"
+        />
 
         <!-- Input with helper text -->
         <ui-input

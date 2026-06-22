@@ -1,13 +1,15 @@
-// Remote logger service — sends log calls from on-device to the rspeedy dev
-// server via fetch() so they appear in the developer's terminal.
-// All methods are no-ops in production (__DEV__ guard dead-code-eliminated).
-//
-// Threading: Lynx dual-thread model means event handlers run on the main thread
-// (no fetch), while the Angular app runs on the background thread (has fetch).
-// Logs from the main thread are relayed to the background thread via IPC:
-//   main thread:       lynx.getJSContext().dispatchEvent(...)
-//   background thread: lynx.getCoreContext().addEventListener(...)
-// This mirrors how React Lynx's runOnBackground() IPC works.
+/**
+ * Remote logger service — sends log calls from on-device to the rspeedy dev
+ * server via fetch() so they appear in the developer's terminal.
+ * All methods are no-ops in production (__DEV__ guard dead-code-eliminated).
+ *
+ * Threading: Lynx dual-thread model means event handlers run on the main thread
+ * (no fetch), while the Angular app runs on the background thread (has fetch).
+ * Logs from the main thread are relayed to the background thread via IPC:
+ *   main thread:       lynx.getJSContext().dispatchEvent(...)
+ *   background thread: lynx.getCoreContext().addEventListener(...)
+ * This mirrors how React Lynx's runOnBackground() IPC works.
+ */
 import { Injectable } from '@angular/core';
 
 type LogLevel = 'log' | 'warn' | 'error' | 'info' | 'debug';
@@ -21,7 +23,9 @@ type LogEntry = {
 @Injectable({ providedIn: 'root' })
 export class LynxLogger {
   readonly #url: string = '';
-  // Only set on background thread where fetch is available via tt.define() scope.
+  /**
+   * Only set on background thread where fetch is available via tt.define() scope.
+   */
   #fetchFn:
     | ((url: string, init?: RequestInit) => Promise<Response>)
     | undefined;

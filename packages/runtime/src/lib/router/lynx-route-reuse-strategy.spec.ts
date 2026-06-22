@@ -6,8 +6,10 @@ import type {
 } from '@angular/router';
 import { LynxRouteReuseStrategy } from './lynx-route-reuse-strategy';
 
-// Builds a minimal ActivatedRouteSnapshot with a routeConfig path hierarchy.
-// `segments` maps to a chain of snapshots from root to leaf.
+/**
+ * Builds a minimal ActivatedRouteSnapshot with a routeConfig path hierarchy.
+ * `segments` maps to a chain of snapshots from root to leaf.
+ */
 const makeRoute = (
   segments: (string | null)[],
   routeConfig: object | null = { path: segments.at(-1) ?? '' },

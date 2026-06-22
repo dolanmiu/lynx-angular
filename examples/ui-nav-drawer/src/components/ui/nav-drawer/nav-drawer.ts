@@ -34,20 +34,17 @@ import { UiIcon } from '../icon';
   imports: [LYNX_ELEMENTS],
   encapsulation: ViewEncapsulation.None,
   template: `
-    <overlay
-      [attr.visible]="overlayVisible()"
-      [style]="overlayStyle()"
-    >
-        <view #backdrop class="w-full h-full" (bindtap)="onBackdropTap()">
-          <view
-            #panel
-            [class]="panelClass()"
-            [style]="panelPositionStyle()"
-            (catchtap)="$event.stopPropagation()"
-          >
-            <ng-content />
-          </view>
+    <overlay [attr.visible]="overlayVisible()" [style]="overlayStyle()">
+      <view #backdrop class="w-full h-full" (bindtap)="onBackdropTap()">
+        <view
+          #panel
+          [class]="panelClass()"
+          [style]="panelPositionStyle()"
+          (catchtap)="$event.stopPropagation()"
+        >
+          <ng-content />
         </view>
+      </view>
     </overlay>
   `,
 })
@@ -237,7 +234,10 @@ export class UiNavDrawerItem {
 
   protected onPressStart(): void {
     this.#pressAnim?.cancel();
-    this.#pressAnim = pressDown(this.containerRef()?.nativeElement, SCALE.pressDownLight);
+    this.#pressAnim = pressDown(
+      this.containerRef()?.nativeElement,
+      SCALE.pressDownLight,
+    );
   }
 
   protected onPressEnd(): void {

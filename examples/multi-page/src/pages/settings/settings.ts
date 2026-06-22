@@ -7,7 +7,9 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
     <scroll-view class="page" scroll-orientation="vertical">
       <view class="container">
         <text class="title">Settings Page</text>
-        <text class="subtitle">A separate Lynx page with its own entry point.</text>
+        <text class="subtitle"
+          >A separate Lynx page with its own entry point.</text
+        >
 
         <view class="card">
           <view class="setting-row">
@@ -44,16 +46,57 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
     </scroll-view>
   `,
   styles: `
-    .page { height: 100%; background-color: #fafafa; }
-    .container { padding: 24px; }
-    .title { font-size: 28px; font-weight: bold; color: #18181b; margin-bottom: 4px; }
-    .subtitle { font-size: 13px; color: #71717a; margin-bottom: 20px; }
-    .card { background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; padding: 16px; }
-    .setting-row { flex-direction: row; align-items: center; justify-content: space-between; padding: 4px 0; }
-    .setting-label { font-size: 15px; color: #18181b; }
-    .divider { height: 1px; background-color: #e4e4e7; margin: 12px 0; }
-    .toggle { width: 48px; height: 28px; border-radius: 14px; padding: 2px; }
-    .toggle-knob { width: 24px; height: 24px; border-radius: 12px; background-color: white; }
+    .page {
+      height: 100%;
+      background-color: #fafafa;
+    }
+    .container {
+      padding: 24px;
+    }
+    .title {
+      font-size: 28px;
+      font-weight: bold;
+      color: #18181b;
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 13px;
+      color: #71717a;
+      margin-bottom: 20px;
+    }
+    .card {
+      background-color: #ffffff;
+      border: 1px solid #e4e4e7;
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .setting-row {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 0;
+    }
+    .setting-label {
+      font-size: 15px;
+      color: #18181b;
+    }
+    .divider {
+      height: 1px;
+      background-color: #e4e4e7;
+      margin: 12px 0;
+    }
+    .toggle {
+      width: 48px;
+      height: 28px;
+      border-radius: 14px;
+      padding: 2px;
+    }
+    .toggle-knob {
+      width: 24px;
+      height: 24px;
+      border-radius: 12px;
+      background-color: white;
+    }
   `,
   imports: [LYNX_ELEMENTS],
 })

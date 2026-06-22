@@ -1,5 +1,11 @@
 import type { ElementRef } from '@angular/core';
-import { Component, ViewEncapsulation, computed, input, viewChild } from '@angular/core';
+import {
+  Component,
+  ViewEncapsulation,
+  computed,
+  input,
+  viewChild,
+} from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
 import { fadeIn } from '@blotch/dolan/utils/animate';
@@ -36,7 +42,9 @@ export class UiAvatar {
 
   readonly imgRef = viewChild<ElementRef>('img');
 
-  /** Fade the image in once it has loaded */
+  /**
+   * Fade the image in once it has loaded
+   */
   protected onImageLoad(): void {
     const el = this.imgRef()?.nativeElement;
     if (el) {

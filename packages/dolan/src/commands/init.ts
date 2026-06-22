@@ -57,6 +57,11 @@ export const initCommand = async () => {
     },
   });
 
+  // Theme files are physically copied from the bundled @blotch/ui package
+  // into the user's project rather than imported as package exports.
+  // This makes them user-owned source files that can be customized freely
+  // and that `dolan upgrade` can track with the three-way merge algorithm —
+  // just like component files.
   const uiSrc = getUiSourceDir();
 
   const themeDir = resolve(cwd, config.theme);

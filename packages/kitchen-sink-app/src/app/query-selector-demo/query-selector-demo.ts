@@ -184,7 +184,9 @@ export class QuerySelectorDemo implements AfterViewInit {
     );
   }
 
-  // Returns green for a passing result, red for a failure, gray while pending.
+  /**
+   * Returns green for a passing result, red for a failure, gray while pending.
+   */
   resultColor(val: string): string {
     if (val === 'pending') return '#888888';
     if (val.endsWith('✓')) return '#28a745';

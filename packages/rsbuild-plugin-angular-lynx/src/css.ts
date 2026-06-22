@@ -46,11 +46,13 @@ export const applyCSS = (
         ? CssExtractRspackPlugin
         : CssExtractWebpackPlugin;
 
-    // LightningCSS transforms CSS features that Lynx's native CSS engine
-    // doesn't support (e.g. nesting, custom media queries). But it also
-    // rewrites selectors in ways that break Lynx's CSS matching — for example,
-    // it merges duplicate selectors and reorders properties. Remove it so
-    // CSS passes through to Lynx's engine as-authored.
+    /**
+     * LightningCSS transforms CSS features that Lynx's native CSS engine
+     * doesn't support (e.g. nesting, custom media queries). But it also
+     * rewrites selectors in ways that break Lynx's CSS matching — for example,
+     * it merges duplicate selectors and reorders properties. Remove it so
+     * CSS passes through to Lynx's engine as-authored.
+     */
     const removeLightningCSS = (rule: ReturnType<typeof chain.module.rule>) => {
       if (
         // Webpack does not have lightningcss-loader
@@ -188,12 +190,14 @@ export const applyCSS = (
   });
 };
 
-// This is copied from https://github.com/web-infra-dev/rsbuild/blob/9f8be2d71ffeb7da969cda36fd9755db2cadaff5/packages/core/src/plugins/css.ts#L42
-//
-// If the target is not `web` and the modules option of css-loader is enabled,
-// we must enable exportOnlyLocals to only exports the modules identifier mappings.
-// Otherwise, the compiled CSS code may contain invalid code, such as `new URL`.
-// https://github.com/webpack-contrib/css-loader#exportonlylocals
+/**
+ * This is copied from https://github.com/web-infra-dev/rsbuild/blob/9f8be2d71ffeb7da969cda36fd9755db2cadaff5/packages/core/src/plugins/css.ts#L42
+ *
+ * If the target is not `web` and the modules option of css-loader is enabled,
+ * we must enable exportOnlyLocals to only exports the modules identifier mappings.
+ * Otherwise, the compiled CSS code may contain invalid code, such as `new URL`.
+ * https://github.com/webpack-contrib/css-loader#exportonlylocals
+ */
 export const normalizeCssLoaderOptions = (
   options: CSSLoaderOptions,
   exportOnlyLocals: boolean,

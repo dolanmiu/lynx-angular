@@ -15,15 +15,18 @@ export const EVENT_PREFIXES: [string, LynxEventType][] = [
 
 import type { Element as LynxJsElement } from '@lynx-js/types/main-thread';
 
-// Uses BaseLynxAnimation (not LynxAnimation) so both the real main-thread
-// implementation and the background-thread NoopLynxAnimation satisfy this
-// interface without requiring inheritance or unsafe casts.
+/**
+ * Uses BaseLynxAnimation (not LynxAnimation) so both the real main-thread
+ * implementation and the background-thread NoopLynxAnimation satisfy this
+ * interface without requiring inheritance or unsafe casts.
+ */
 import type {
   BaseLynxAnimation,
   LynxAnimationOptions,
 } from '../animation/animation';
 
 export type BaseLynxElement = Pick<LynxJsElement, 'setAttribute'> & {
+  tagName: string;
   setProperty(name: string, value: any): void;
   getAttribute(name: string): string | null;
   removeAttribute(name: string): void;

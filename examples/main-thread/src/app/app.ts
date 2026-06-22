@@ -9,11 +9,15 @@ import {
 import type { MainThread } from '@blotch/angular-lynx';
 
 // --- Main Thread Refs ---
-// Persist state across main-thread function calls.
+/**
+ * Persist state across main-thread function calls.
+ */
 const tapCount = createMainThreadRef(0);
 
 // --- Background Functions ---
-// Registered on the background thread. Callable from main-thread via runOnBackground().
+/**
+ * Registered on the background thread. Callable from main-thread via runOnBackground().
+ */
 let _lastColor = '';
 const notifyColorChange = backgroundFn((color: string) => {
   _lastColor = color;
@@ -51,15 +55,14 @@ const handleTouchEnd = mainThreadFn((event: MainThread.TouchEvent) => {
     <scroll-view class="page" scroll-orientation="vertical">
       <view class="container">
         <text class="title">Main Thread Scripts</text>
-        <text class="subtitle">Zero-latency UI updates via main-thread execution.</text>
+        <text class="subtitle"
+          >Zero-latency UI updates via main-thread execution.</text
+        >
 
         <view class="card">
           <text class="section-label">Instant Color Change</text>
           <text class="hint">mainThreadFn + MainThreadRef</text>
-          <view
-            [mainThreadBindtap]="handleTap"
-            class="demo-box color-box"
-          >
+          <view [mainThreadBindtap]="handleTap" class="demo-box color-box">
             <text class="demo-text">Tap to change color</text>
           </view>
         </view>
@@ -87,18 +90,64 @@ const handleTouchEnd = mainThreadFn((event: MainThread.TouchEvent) => {
     </scroll-view>
   `,
   styles: `
-    .page { height: 100%; background-color: #fafafa; }
-    .container { padding: 24px; }
-    .title { font-size: 28px; font-weight: bold; color: #18181b; margin-bottom: 4px; }
-    .subtitle { font-size: 13px; color: #71717a; margin-bottom: 20px; }
-    .card { background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-    .section-label { font-size: 11px; font-weight: 700; color: #a1a1aa; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .hint { font-size: 12px; color: #a1a1aa; margin-bottom: 12px; }
-    .demo-box { height: 80px; border-radius: 10px; justify-content: center; align-items: center; }
-    .demo-text { color: white; font-size: 15px; font-weight: 500; }
-    .color-box { background-color: #6366f1; }
-    .touch-box { background-color: #3b82f6; }
-    .bg-box { background-color: #71717a; }
+    .page {
+      height: 100%;
+      background-color: #fafafa;
+    }
+    .container {
+      padding: 24px;
+    }
+    .title {
+      font-size: 28px;
+      font-weight: bold;
+      color: #18181b;
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 13px;
+      color: #71717a;
+      margin-bottom: 20px;
+    }
+    .card {
+      background-color: #ffffff;
+      border: 1px solid #e4e4e7;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #a1a1aa;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .hint {
+      font-size: 12px;
+      color: #a1a1aa;
+      margin-bottom: 12px;
+    }
+    .demo-box {
+      height: 80px;
+      border-radius: 10px;
+      justify-content: center;
+      align-items: center;
+    }
+    .demo-text {
+      color: white;
+      font-size: 15px;
+      font-weight: 500;
+    }
+    .color-box {
+      background-color: #6366f1;
+    }
+    .touch-box {
+      background-color: #3b82f6;
+    }
+    .bg-box {
+      background-color: #71717a;
+    }
   `,
   imports: [LYNX_ELEMENTS, LynxMainThreadEvent],
 })

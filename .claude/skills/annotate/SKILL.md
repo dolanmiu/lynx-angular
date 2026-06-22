@@ -33,3 +33,12 @@ Add detailed inline comments to all code changes made in this conversation. For 
 - Don't reference ticket numbers or PR numbers — those belong in commit messages, not code
 - Don't add comments to unchanged code
 - Don't rewrite or refactor the code — only add comments
+- Don't add a separate `//` comment block when a TSDoc `/** ... */` comment already exists on the function/method — instead, append the rationale to the existing TSDoc block
+- When annotating function/method/class signatures with TSDoc, always use multi-line format:
+  ```ts
+  /**
+   * Explanation here.
+   */
+  ```
+  Never use single-line `/** Explanation here. */` for these — the multi-line form is the project convention
+- Don't rewrite or refactor the code — only add comments

@@ -2,27 +2,28 @@
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
 
-// Webpack RuntimeModule that installs async chunk modules into webpack's registry
-// after Lynx's native runtime evaluates them. This is the final step in the lazy
-// loading chain:
-//
-//   loadComponent() → import() → __webpack_require__.e(chunkId)
-//   → ensureChunkHandlers.require → lynx.requireModuleAsync(url, callback)
-//   → native fetches chunk .js, evaluates AMD IIFE → returns {ids, modules}
-//   → callback fires → externalInstallChunk({ids, modules})
-//   → module factories registered in __webpack_require__.m
-//   → import() promise resolves → Angular Router renders the component
-//
-// The lynxProcessEvalResult function is called by the native runtime when it has
-// already fetched and pre-evaluated a lazy bundle. It receives the chunk result
-// (containing module IDs and factory functions), installs them, then requires
-// modules in dependency order so side effects execute correctly.
-
 import { RuntimeGlobals as LynxRuntimeGlobals } from '@lynx-js/webpack-runtime-globals';
 import type { RuntimeModule, rspack } from '@rspack/core';
 
 type LynxProcessEvalResultRuntimeModule = new () => RuntimeModule;
 
+/**
+ * Webpack RuntimeModule that installs async chunk modules into webpack's registry
+ * after Lynx's native runtime evaluates them. This is the final step in the lazy
+ * loading chain:
+ *
+ *   loadComponent() → import() → __webpack_require__.e(chunkId)
+ *   → ensureChunkHandlers.require → lynx.requireModuleAsync(url, callback)
+ *   → native fetches chunk .js, evaluates AMD IIFE → returns {ids, modules}
+ *   → callback fires → externalInstallChunk({ids, modules})
+ *   → module factories registered in __webpack_require__.m
+ *   → import() promise resolves → Angular Router renders the component
+ *
+ * The lynxProcessEvalResult function is called by the native runtime when it has
+ * already fetched and pre-evaluated a lazy bundle. It receives the chunk result
+ * (containing module IDs and factory functions), installs them, then requires
+ * modules in dependency order so side effects execute correctly.
+ */
 export const createLynxProcessEvalResultRuntimeModule = (
   webpack: typeof rspack,
 ): LynxProcessEvalResultRuntimeModule => {

@@ -70,23 +70,95 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
     </scroll-view>
   `,
   styles: `
-    .page { height: 100vh; background-color: #fafafa; }
-    .container { padding: 24px; }
-    .title { font-size: 28px; font-weight: bold; color: #18181b; margin-bottom: 4px; }
-    .subtitle { font-size: 13px; color: #71717a; margin-bottom: 20px; }
-    .card { background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
-    .field-label { font-size: 13px; font-weight: 600; color: #18181b; margin-bottom: 6px; }
-    .field-gap { margin-top: 16px; }
-    .input { padding: 12px 14px; font-size: 15px; background-color: #ffffff; border-radius: 8px; border: 1px solid #e4e4e7; }
-    .input-focused { border-color: #6366f1; }
-    .input-error { border-color: #ef4444; }
-    .textarea { padding: 12px 14px; font-size: 15px; background-color: #ffffff; border-radius: 8px; border: 1px solid #e4e4e7; height: 100px; }
-    .char-count { font-size: 12px; color: #a1a1aa; text-align: right; margin-top: 4px; }
-    .error { font-size: 12px; color: #ef4444; margin-top: 4px; }
-    .btn { background-color: #6366f1; border-radius: 10px; padding: 14px; align-items: center; }
-    .btn-text { color: white; font-size: 16px; font-weight: 600; }
-    .success-card { background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 14px; margin-top: 16px; align-items: center; }
-    .success-text { font-size: 14px; color: #166534; }
+    .page {
+      height: 100vh;
+      background-color: #fafafa;
+    }
+    .container {
+      padding: 24px;
+    }
+    .title {
+      font-size: 28px;
+      font-weight: bold;
+      color: #18181b;
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 13px;
+      color: #71717a;
+      margin-bottom: 20px;
+    }
+    .card {
+      background-color: #ffffff;
+      border: 1px solid #e4e4e7;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .field-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #18181b;
+      margin-bottom: 6px;
+    }
+    .field-gap {
+      margin-top: 16px;
+    }
+    .input {
+      padding: 12px 14px;
+      font-size: 15px;
+      background-color: #ffffff;
+      border-radius: 8px;
+      border: 1px solid #e4e4e7;
+    }
+    .input-focused {
+      border-color: #6366f1;
+    }
+    .input-error {
+      border-color: #ef4444;
+    }
+    .textarea {
+      padding: 12px 14px;
+      font-size: 15px;
+      background-color: #ffffff;
+      border-radius: 8px;
+      border: 1px solid #e4e4e7;
+      height: 100px;
+    }
+    .char-count {
+      font-size: 12px;
+      color: #a1a1aa;
+      text-align: right;
+      margin-top: 4px;
+    }
+    .error {
+      font-size: 12px;
+      color: #ef4444;
+      margin-top: 4px;
+    }
+    .btn {
+      background-color: #6366f1;
+      border-radius: 10px;
+      padding: 14px;
+      align-items: center;
+    }
+    .btn-text {
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .success-card {
+      background-color: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 16px;
+      align-items: center;
+    }
+    .success-text {
+      font-size: 14px;
+      color: #166534;
+    }
   `,
 })
 export class App {
@@ -97,7 +169,9 @@ export class App {
   readonly submitted = signal(false);
   readonly successMessage = signal('');
 
-  readonly validEmail = computed(() => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email()));
+  readonly validEmail = computed(() =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email()),
+  );
 
   submit(): void {
     this.submitted.set(true);

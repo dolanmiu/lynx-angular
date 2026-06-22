@@ -55,6 +55,9 @@ export class LynxFont {
     if (existing?.status === 'loaded') {
       return Promise.resolve();
     }
+    // Return the already-in-flight promise to deduplicate concurrent callers.
+    // Without this guard, two simultaneous addFont() calls would both invoke
+    // lynx.addFont() and race to settle the same font.
     if (existing?.status === 'loading') {
       return this.#pending.get(fontFamily)!;
     }
@@ -100,6 +103,8 @@ export class LynxFont {
   }
 
   #updateEntry(fontFamily: string, entry: LynxFontEntry): void {
+    // Clone the Map before mutating — signals use reference equality, so
+    // mutating the existing Map in-place wouldn't trigger reactivity.
     const next = new Map(this.#fonts());
     next.set(fontFamily, entry);
     this.#fonts.set(next);

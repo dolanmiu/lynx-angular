@@ -48,9 +48,7 @@ import { UiSeparator } from '../components/ui/separator';
 
         <!-- Vertical separator in a row layout -->
         <view class="flex flex-col gap-4">
-          <text class="text-lg font-semibold text-foreground">
-            Vertical
-          </text>
+          <text class="text-lg font-semibold text-foreground"> Vertical </text>
           <view class="flex flex-row items-center gap-4 h-5">
             <text class="text-sm text-foreground">Blog</text>
             <ui-separator orientation="vertical" />

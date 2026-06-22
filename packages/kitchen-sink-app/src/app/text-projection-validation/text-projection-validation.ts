@@ -49,6 +49,10 @@ export class ConditionalText {
   readonly show = signal(true);
 
   toggle(): void {
+    // setTimeout defers the signal update out of the native `bindtap` callback.
+    // Updating a signal synchronously inside a Lynx native event handler can
+    // cause the renderer to flush while the native event is still on the call
+    // stack, which breaks Lynx's frame pipeline on the main thread.
     setTimeout(() => this.show.update((v) => !v), 0);
   }
 }

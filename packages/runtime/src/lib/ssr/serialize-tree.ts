@@ -1,11 +1,12 @@
-// Walks the native Lynx element tree after Angular's initial render and
-// produces an opcode stream that the Lynx engine can store as a snapshot.
-// Each element is also marked via __MarkPartElement so the engine can
-// reconstruct the ElementRef→ssrId mapping during hydration.
-
 import type { ElementRef } from '../types/lynx';
 import type { OpcodeRecorder } from './opcodes';
 
+/**
+ * Walks the native Lynx element tree after Angular's initial render and
+ * produces an opcode stream that the Lynx engine can store as a snapshot.
+ * Each element is also marked via __MarkPartElement so the engine can
+ * reconstruct the ElementRef→ssrId mapping during hydration.
+ */
 export const serializeElementTree = (
   root: ElementRef,
   recorder: OpcodeRecorder,
@@ -43,6 +44,8 @@ const serializeNode = (element: ElementRef, recorder: OpcodeRecorder): void => {
     recorder.attr('class', classes.join(' '));
   }
 
+  // __GetInlineStyles was added in a newer Lynx build — fall back to the
+  // DOM-style `.style.cssText` property on older builds that lack the PAPI.
   const inlineStyles =
     typeof __GetInlineStyles === 'function'
       ? __GetInlineStyles(element)

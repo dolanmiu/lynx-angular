@@ -19,10 +19,12 @@ export class LynxRendererFactory2 implements RendererFactory2 {
   #defaultRenderer: LynxRenderer | null = null;
   #emulatedRenderers = new Map<string, EmulatedLynxRenderer>();
 
-  // Angular calls createRenderer once per component type. The renderer is
-  // cached by encapsulation mode + component ID, so each component type gets
-  // at most one renderer instance that's reused across all instances of that
-  // component.
+  /**
+   * Angular calls createRenderer once per component type. The renderer is
+   * cached by encapsulation mode + component ID, so each component type gets
+   * at most one renderer instance that's reused across all instances of that
+   * component.
+   */
   createRenderer(_hostElement: any, type: RendererType2 | null): Renderer2 {
     if (!type || type.encapsulation === ViewEncapsulation.None) {
       if (!this.#defaultRenderer) {
@@ -51,16 +53,18 @@ export class LynxRendererFactory2 implements RendererFactory2 {
     return renderer;
   }
   begin?(): void {}
-  // Called by Angular after every change detection cycle completes.
-  // On the background thread this is a no-op — there's no native tree to flush.
-  // On the main thread, the flush order is critical:
-  //   1. __FlushElementTree() — commits all pending element mutations to native
-  //   2. processPendingListUpdates() — sends update-list-info for lists that
-  //      gained/lost children during this CD cycle, then does a targeted flush
-  //      per list. This MUST run after the bare flush so list children's subtrees
-  //      are already committed when componentAtIndex appends them.
-  // Reversing this order causes list items to appear empty (subtree not committed)
-  // or crashes from re-entrant __FlushElementTree.
+  /**
+   * Called by Angular after every change detection cycle completes.
+   * On the background thread this is a no-op — there's no native tree to flush.
+   * On the main thread, the flush order is critical:
+   *   1. __FlushElementTree() — commits all pending element mutations to native
+   *   2. processPendingListUpdates() — sends update-list-info for lists that
+   *      gained/lost children during this CD cycle, then does a targeted flush
+   *      per list. This MUST run after the bare flush so list children's subtrees
+   *      are already committed when componentAtIndex appends them.
+   * Reversing this order causes list items to appear empty (subtree not committed)
+   * or crashes from re-entrant __FlushElementTree.
+   */
   end?(): void {
     if (__MAIN_THREAD__) {
       // During SSR hydration the native tree already exists from the snapshot

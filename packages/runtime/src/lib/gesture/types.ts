@@ -1,4 +1,6 @@
-// Gesture type IDs matching the Lynx native engine (from @lynx-js/react gesture-runtime).
+/**
+ * Gesture type IDs matching the Lynx native engine (from @lynx-js/react gesture-runtime).
+ */
 export enum GestureType {
   PAN = 0,
   FLING = 1,
@@ -58,8 +60,10 @@ export type LongPressGestureEvent = {
   duration: number;
 } & GestureEvent;
 
-// Bitmask values — combine with bitwise OR for multi-direction fling:
-// e.g. FlingDirection.LEFT | FlingDirection.RIGHT for horizontal fling.
+/**
+ * Bitmask values — combine with bitwise OR for multi-direction fling:
+ * e.g. FlingDirection.LEFT | FlingDirection.RIGHT for horizontal fling.
+ */
 export enum FlingDirection {
   RIGHT = 1,
   LEFT = 2,

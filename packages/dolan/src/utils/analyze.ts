@@ -36,6 +36,17 @@ export const STATUS_LABELS: Record<FileStatus, string> = {
   'new-upstream': pc.blue('new file from upstream'),
 };
 
+/**
+ * Three-way merge status detection. The lockfile stores the hash of each
+ * file at install time (the "base"). Comparing current (user's file),
+ * upstream (bundled source), and base (lockfile hash) lets us determine
+ * who changed what:
+ *   base == current, base != upstream → upstream changed → safe auto-upgrade
+ *   base != current, base == upstream → user changed → keep theirs
+ *   base != current, base != upstream → both changed → conflict
+ * When no base exists (missing lockfile entry), we can't tell who diverged,
+ * so any difference is flagged as a conflict to be safe.
+ */
 export const analyzeFile = (
   currentContent: string | null,
   newContent: string,

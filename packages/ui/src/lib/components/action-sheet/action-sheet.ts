@@ -44,6 +44,9 @@ import { cn } from '../../utils/cn';
           <view class="flex flex-col rounded-lg bg-card overflow-hidden">
             <ng-content />
           </view>
+          <!-- Cancel button is slotted separately so it renders outside the
+               rounded card — matching the iOS action sheet visual convention
+               where cancel is a distinct tile below the action group. -->
           <ng-content select="ui-action-sheet-cancel" />
         </view>
       </view>
@@ -70,6 +73,10 @@ export class UiActionSheet {
   #hasBeenOpen = false;
 
   constructor() {
+    // `#hasBeenOpen` prevents the close animation from running on the initial
+    // effect evaluation when `open` starts as false. Without this guard, the
+    // first run would call #doClose() and emit `closed` before the action
+    // sheet has ever been opened.
     effect(() => {
       const isOpen = this.open();
       if (isOpen) {
@@ -97,6 +104,11 @@ export class UiActionSheet {
     this.open.set(false);
   }
 
+  /**
+   * Two-phase open: make overlay visible first (so native elements exist in
+   * the tree), then animate on the next frame. See nav-drawer for the same
+   * pattern — Lynx animate() requires elements to be mounted before use.
+   */
   #doOpen(): void {
     setTimeout(() => {
       this.overlayVisible.set(true);
@@ -104,6 +116,10 @@ export class UiActionSheet {
     }, 0);
   }
 
+  /**
+   * Animate out before hiding; +20ms guards against Lynx timer imprecision
+   * causing elements to disappear before the animation finishes.
+   */
   #doClose(): void {
     setTimeout(() => {
       this.#animateOut();

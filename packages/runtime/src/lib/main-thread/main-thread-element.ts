@@ -4,11 +4,13 @@ import {
   type LynxAnimationOptions,
 } from '../animation/animation';
 
-// Batched flush — coalesces multiple style/attribute mutations into a single
-// native render pass, matching React Lynx's Element.flushElementTree() behavior.
-// Without batching, each setAttribute/setStyleProperty would trigger a separate
-// layout pass. With batching, a handler that sets 5 properties produces 1 flush
-// (on the next microtask) instead of 5, preventing visible frame drops.
+/**
+ * Batched flush — coalesces multiple style/attribute mutations into a single
+ * native render pass, matching React Lynx's Element.flushElementTree() behavior.
+ * Without batching, each setAttribute/setStyleProperty would trigger a separate
+ * layout pass. With batching, a handler that sets 5 properties produces 1 flush
+ * (on the next microtask) instead of 5, preventing visible frame drops.
+ */
 let willFlush = false;
 
 const scheduleFlush = (): void => {
@@ -71,10 +73,12 @@ export class MainThreadElement {
     );
   }
 
-  // Invokes a native UI method on this element (e.g. scrollTo, autoPlay).
-  // __InvokeUIMethod is asynchronous — the result arrives in the callback.
-  // scheduleFlush() must be called AFTER __InvokeUIMethod so the method
-  // invocation is included in the next native render pass.
+  /**
+   * Invokes a native UI method on this element (e.g. scrollTo, autoPlay).
+   * __InvokeUIMethod is asynchronous — the result arrives in the callback.
+   * scheduleFlush() must be called AFTER __InvokeUIMethod so the method
+   * invocation is included in the next native render pass.
+   */
   invoke(
     methodName: string,
     params?: Record<string, unknown>,
@@ -105,8 +109,10 @@ export class MainThreadElement {
     return new LynxAnimation(this.#element, keyframes, normalizedOptions);
   }
 
-  // Not part of the official @lynx-js/types Element interface, but useful for
-  // touch-tracking calculations. Uses __GetComputedStyleByKey when available.
+  /**
+   * Not part of the official @lynx-js/types Element interface, but useful for
+   * touch-tracking calculations. Uses __GetComputedStyleByKey when available.
+   */
   getBoundingClientRect(): {
     left: number;
     top: number;

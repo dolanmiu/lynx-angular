@@ -16,7 +16,9 @@ import { UiLabel } from '../components/ui/label';
         <!-- Normal label -->
         <view class="flex flex-col gap-2">
           <ui-label>Email Address</ui-label>
-          <view class="h-10 rounded-md border border-input bg-background px-3 py-2">
+          <view
+            class="h-10 rounded-md border border-input bg-background px-3 py-2"
+          >
             <text class="text-sm text-muted-foreground">you@example.com</text>
           </view>
         </view>
@@ -24,7 +26,9 @@ import { UiLabel } from '../components/ui/label';
         <!-- Label with custom styling -->
         <view class="flex flex-col gap-2">
           <ui-label class="text-base">Full Name</ui-label>
-          <view class="h-10 rounded-md border border-input bg-background px-3 py-2">
+          <view
+            class="h-10 rounded-md border border-input bg-background px-3 py-2"
+          >
             <text class="text-sm text-muted-foreground">John Doe</text>
           </view>
         </view>
@@ -32,7 +36,9 @@ import { UiLabel } from '../components/ui/label';
         <!-- Disabled label -->
         <view class="flex flex-col gap-2">
           <ui-label [disabled]="true">Account ID (read-only)</ui-label>
-          <view class="h-10 rounded-md border border-input bg-background px-3 py-2 opacity-50">
+          <view
+            class="h-10 rounded-md border border-input bg-background px-3 py-2 opacity-50"
+          >
             <text class="text-sm text-muted-foreground">ACC-12345</text>
           </view>
         </view>

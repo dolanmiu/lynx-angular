@@ -22,17 +22,29 @@ export type PrefetchCacheTarget = 'disk' | 'bitmap';
  * Describes a single resource to prefetch.
  */
 export type PrefetchRequest = {
-  /** URL of the resource to prefetch. */
+  /**
+   * URL of the resource to prefetch.
+   */
   uri: string;
-  /** Resource type — determines the native prefetch pipeline. */
+  /**
+   * Resource type — determines the native prefetch pipeline.
+   */
   type: 'image' | 'video';
-  /** Optional priority hint (default determined by native engine). */
+  /**
+   * Optional priority hint (default determined by native engine).
+   */
   priority?: PrefetchPriority;
-  /** Where to cache the prefetched resource. */
+  /**
+   * Where to cache the prefetched resource.
+   */
   cacheTarget?: PrefetchCacheTarget;
-  /** Custom cache key for manual cache management. */
+  /**
+   * Custom cache key for manual cache management.
+   */
   preloadKey?: string;
-  /** Expected resource size in bytes (helps native allocate buffers). */
+  /**
+   * Expected resource size in bytes (helps native allocate buffers).
+   */
   size?: number;
 };
 

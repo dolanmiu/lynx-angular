@@ -1,7 +1,9 @@
 import type { ElementRef } from '../../types/lynx';
 
-// XElements — use generic __CreateElement (no dedicated creation functions).
-// Require native-side input plugin to be registered by the app host.
+/**
+ * XElements — use generic __CreateElement (no dedicated creation functions).
+ * Require native-side input plugin to be registered by the app host.
+ */
 export const createInputElement = (
   tag: 'input' | 'textarea',
   pageId: number,

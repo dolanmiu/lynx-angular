@@ -41,9 +41,13 @@ export type RenderOptions<Q extends Queries = typeof domQueries> = {
 };
 
 export type RenderResult<Q extends Queries = typeof domQueries> = {
-  /** The JSDOM root element (page element) containing all rendered children. */
+  /**
+   * The JSDOM root element (page element) containing all rendered children.
+   */
   container: Element;
-  /** Unmount the current Angular app. */
+  /**
+   * Unmount the current Angular app.
+   */
   unmount: () => void;
   /**
    * Re-render a (possibly different) component into the same body position,
@@ -53,7 +57,9 @@ export type RenderResult<Q extends Queries = typeof domQueries> = {
     component: Type<unknown>,
     options?: RenderOptions<R>,
   ) => Promise<RenderResult<R>>;
-  /** Returns a DocumentFragment snapshot of the container — use for snapshot testing. */
+  /**
+   * Returns a DocumentFragment snapshot of the container — use for snapshot testing.
+   */
   asFragment: () => DocumentFragment;
   /**
    * The Angular ComponentRef for the bootstrapped root component.

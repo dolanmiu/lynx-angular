@@ -38,27 +38,24 @@ const CHECK_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" f
       <text [class]="valueTextClass()">{{ displayText() }}</text>
       <svg [attr.content]="chevronSvg" style="width: 16px; height: 16px;" />
     </view>
-    <overlay
-      [attr.visible]="overlayVisible()"
-      [style]="overlayStyle()"
-    >
-        <view #backdrop class="w-full h-full" (bindtap)="close()">
-          <view
-            #panel
-            [class]="panelClass()"
-            style="position: absolute; bottom: 0; left: 0; right: 0;"
-            (catchtap)="$event.stopPropagation()"
-          >
-            <view class="flex items-center justify-center pt-2 pb-3">
-              <view class="h-1 w-10 rounded-full bg-muted" />
-            </view>
-            <scroll-view scroll-orientation="vertical" style="max-height: 300px;">
-              <view class="flex flex-col pb-4">
-                <ng-content />
-              </view>
-            </scroll-view>
+    <overlay [attr.visible]="overlayVisible()" [style]="overlayStyle()">
+      <view #backdrop class="w-full h-full" (bindtap)="close()">
+        <view
+          #panel
+          [class]="panelClass()"
+          style="position: absolute; bottom: 0; left: 0; right: 0;"
+          (catchtap)="$event.stopPropagation()"
+        >
+          <view class="flex items-center justify-center pt-2 pb-3">
+            <view class="h-1 w-10 rounded-full bg-muted" />
           </view>
+          <scroll-view scroll-orientation="vertical" style="max-height: 300px;">
+            <view class="flex flex-col pb-4">
+              <ng-content />
+            </view>
+          </scroll-view>
         </view>
+      </view>
     </overlay>
   `,
 })

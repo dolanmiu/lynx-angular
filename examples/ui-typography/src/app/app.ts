@@ -60,7 +60,9 @@ import { UiText } from '../components/ui/typography';
 
           <view class="flex flex-col gap-1">
             <text class="text-xs text-muted-foreground">small</text>
-            <ui-text variant="small">Small text for fine print or labels</ui-text>
+            <ui-text variant="small"
+              >Small text for fine print or labels</ui-text
+            >
           </view>
 
           <view class="flex flex-col gap-1">
@@ -80,7 +82,9 @@ import { UiText } from '../components/ui/typography';
             Use the class input to add additional Tailwind styles.
           </text>
           <view class="flex flex-col gap-2">
-            <ui-text variant="p" class="text-primary">Primary colored text</ui-text>
+            <ui-text variant="p" class="text-primary"
+              >Primary colored text</ui-text
+            >
             <ui-text variant="p" class="text-destructive">
               Destructive colored text
             </ui-text>

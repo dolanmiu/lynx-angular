@@ -47,12 +47,16 @@ export class LynxPerformance {
     this.#perf?.profileStart?.(name, options);
   }
 
-  /** End the current trace (top of the trace stack). */
+  /**
+   * End the current trace (top of the trace stack).
+   */
   profileEnd(): void {
     this.#perf?.profileEnd?.();
   }
 
-  /** Emit a discrete mark event in the trace timeline. */
+  /**
+   * Emit a discrete mark event in the trace timeline.
+   */
   profileMark(
     name: string,
     options?: { args?: Record<string, unknown> },
@@ -60,7 +64,9 @@ export class LynxPerformance {
     this.#perf?.profileMark?.(name, options);
   }
 
-  /** Generate a unique flow ID for correlating multi-threaded traces. */
+  /**
+   * Generate a unique flow ID for correlating multi-threaded traces.
+   */
   profileFlowId(): number {
     return this.#perf?.profileFlowId?.() ?? 0;
   }

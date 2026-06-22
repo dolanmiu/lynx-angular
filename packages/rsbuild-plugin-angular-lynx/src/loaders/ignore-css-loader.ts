@@ -3,8 +3,10 @@
 // LICENSE file in the root directory of this source tree.
 import type { Rspack } from '@rsbuild/core';
 
-// Must be a regular function expression (not arrow) — webpack invokes loaders
-// via .call(loaderContext, source), which arrow functions cannot receive.
+/**
+ * Must be a regular function expression (not arrow) — webpack invokes loaders
+ * via .call(loaderContext, source), which arrow functions cannot receive.
+ */
 const ignoreCssLoader = function (
   this: Rspack.LoaderContext,
   source: string,

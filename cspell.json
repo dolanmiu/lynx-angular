@@ -36,11 +36,11 @@
     "Bindanimationstart",
     "bindbgerror",
     "bindbgload",
-    "binderror",
     "bindblur",
     "bindchange",
     "bindconfirm",
     "bindcontentsizechanged",
+    "binderror",
     "bindfocus",
     "bindheaderoffset",
     "bindinput",
@@ -95,6 +95,7 @@
     "cspell",
     "cssid",
     "datetimeformat",
+    "dedup",
     "Disexposed",
     "disexposure",
     "disexposures",
@@ -127,6 +128,7 @@
     "mousemove",
     "mouseup",
     "Navigations",
+    "neighbours",
     "ngcontent",
     "nghost",
     "ngscope",
@@ -135,10 +137,10 @@
     "overscroll",
     "oxlint",
     "packagr",
-    "pressable",
     "PAPI",
     "pluginAngularLynx",
     "pluralrules",
+    "pressable",
     "provideRenderer",
     "qrcode",
     "quickjs",
@@ -187,5 +189,14 @@
     "wvid",
     "yalc",
     "zoneless"
+  ],
+  "patterns": [
+    {
+      "name": "angular-internal-symbols",
+      "pattern": "/ɵ\\w+/g"
+    }
+  ],
+  "ignoreRegExpList": [
+    "angular-internal-symbols"
   ]
 }

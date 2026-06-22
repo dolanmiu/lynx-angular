@@ -43,6 +43,16 @@ export default (options: Schema): Rule =>
     ]);
   };
 
+/**
+ * Vitest config requires careful alignment with the AngularLynx build pipeline:
+ * - `define.__MAIN_THREAD__: true` — tests run on the "main thread" path because
+ *   PAPI functions (__CreateView, etc.) are available via the testing environment
+ * - `define.__DEV__: true` — enables development-mode warnings and diagnostics
+ * - `experimentalDecorators: true` — Angular's JIT compiler in tests still uses
+ *   legacy TypeScript decorators (@Component, @Injectable)
+ * - `useDefineForClassFields: false` — prevents class fields from being emitted
+ *   as Object.defineProperty calls, which breaks Angular's metadata reflection
+ */
 const addVitestConfig = (projectRoot: string): Rule => {
   return (tree: Tree) => {
     const configPath = `${projectRoot ? projectRoot + '/' : ''}vitest.config.ts`;

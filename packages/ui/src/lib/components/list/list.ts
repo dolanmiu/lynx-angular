@@ -14,6 +14,9 @@ import { cn } from '../../utils/cn';
   standalone: true,
   imports: [LYNX_ELEMENTS],
   encapsulation: ViewEncapsulation.None,
+  // `|| undefined` on boolean attributes removes the attribute entirely when
+  // false. Passing the string "false" is treated as truthy by Lynx's native
+  // attribute parser, so absence is the only way to truly turn these off.
   template: `
     <list
       [attr.list-type]="listType()"

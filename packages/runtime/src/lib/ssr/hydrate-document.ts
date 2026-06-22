@@ -1,13 +1,14 @@
-// Hydration-aware document that reconnects Angular's element tree to
-// pre-existing native elements (created by the Lynx engine from a snapshot)
-// instead of creating new ones. Once the hydration queue is exhausted,
-// falls through to a normal LynxDocument for subsequent dynamic mutations.
-
 import { LynxElement } from '../lynx-element';
 import { LynxDocument } from '../lynx-document';
 import type { LynxDocumentBase } from '../lynx-document';
 import type { ElementRef } from '../types/lynx';
 
+/**
+ * Hydration-aware document that reconnects Angular's element tree to
+ * pre-existing native elements (created by the Lynx engine from a snapshot)
+ * instead of creating new ones. Once the hydration queue is exhausted,
+ * falls through to a normal LynxDocument for subsequent dynamic mutations.
+ */
 export class LynxHydrateDocument implements LynxDocumentBase {
   readonly #queue: ElementRef[];
   #cursor = 0;
@@ -24,8 +25,10 @@ export class LynxHydrateDocument implements LynxDocumentBase {
     return this.#cursor < this.#queue.length;
   }
 
-  // Lazily create the fallback document for post-hydration mutations.
-  // Reuses the same page element so Angular's root stays consistent.
+  /**
+   * Lazily create the fallback document for post-hydration mutations.
+   * Reuses the same page element so Angular's root stays consistent.
+   */
   #getFallback(): LynxDocument {
     if (!this.#fallback) {
       this.#fallback = new LynxDocument();
@@ -50,6 +53,7 @@ export class LynxHydrateDocument implements LynxDocumentBase {
     // Reuse the page element the engine reconstructed from the snapshot
     // instead of calling __CreatePage which would create a duplicate.
     const page = new LynxElement(this.#pageElementRef);
+    page.tagName = 'page';
     page.isRootPageElement = true;
     this.#page = page;
     return page;
@@ -66,21 +70,27 @@ export class LynxHydrateDocument implements LynxDocumentBase {
     if (tag === 'page') {
       return this.#page!;
     }
-    return this.#nextElement();
+    const el = this.#nextElement();
+    el.tagName = tag;
+    return el;
   }
 
   createText(value: string): LynxElement {
     if (!this.#isHydrating()) {
       return this.#getFallback().createText(value);
     }
-    return this.#nextElement();
+    const el = this.#nextElement();
+    el.tagName = 'raw-text';
+    return el;
   }
 
   createComment(): LynxElement {
     if (!this.#isHydrating()) {
       return this.#getFallback().createComment();
     }
-    return this.#nextElement();
+    const el = this.#nextElement();
+    el.tagName = 'comment';
+    return el;
   }
 
   appendChild(newChild: LynxElement): void {

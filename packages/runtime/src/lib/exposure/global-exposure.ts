@@ -37,9 +37,11 @@ export class LynxGlobalExposure {
     );
   }
 
-  // Pauses global exposure detection. Elements with exposure-id stop generating
-  // exposure/disexposure GlobalEventEmitter events. Element-level
-  // binduiappear/binduidisappear events continue to fire.
+  /**
+   * Pauses global exposure detection. Elements with exposure-id stop generating
+   * exposure/disexposure GlobalEventEmitter events. Element-level
+   * binduiappear/binduidisappear events continue to fire.
+   */
   stopExposure(options?: { sendEvent: boolean }): void {
     if (typeof lynx === 'undefined') return;
     lynx.stopExposure(options);

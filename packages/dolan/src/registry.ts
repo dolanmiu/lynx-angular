@@ -46,6 +46,12 @@ export const getEntry = (name: string): RegistryEntry | undefined => {
   return registry.find((entry) => entry.name === name);
 };
 
+/**
+ * Depth-first topological sort: dependencies are added to the Set before
+ * the component that depends on them. So if `button` depends on `spinner`,
+ * the output is [..., spinner, button] — correct installation order.
+ * The Set deduplicates components shared by multiple selections.
+ */
 export const resolveDependencies = (names: string[]): string[] => {
   const resolved = new Set<string>();
 

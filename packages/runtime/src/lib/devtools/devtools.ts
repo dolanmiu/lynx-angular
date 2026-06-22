@@ -26,6 +26,11 @@ import { devStats } from './stats';
  */
 @Injectable({ providedIn: 'root' })
 export class LynxDevTools {
+  // `#tick` is a "refresh trigger" signal. Reading it inside the `stats`
+  // computed creates a reactive dependency: when `refresh()` increments it,
+  // Angular invalidates the computed and re-runs it, picking up fresh values
+  // from the plain `devStats` object. Without this, `stats` would be computed
+  // once and never update (plain objects aren't reactive).
   readonly #tick = signal(0);
 
   /**
@@ -43,7 +48,9 @@ export class LynxDevTools {
     };
   });
 
-  /** Take a non-reactive snapshot of current counters. */
+  /**
+   * Take a non-reactive snapshot of current counters.
+   */
   snapshot(): DevToolsStats {
     return {
       cdCycles: devStats.cdCycles,
@@ -54,12 +61,16 @@ export class LynxDevTools {
     };
   }
 
-  /** Bump the signal so `stats()` re-evaluates with latest counter values. */
+  /**
+   * Bump the signal so `stats()` re-evaluates with latest counter values.
+   */
   refresh(): void {
     this.#tick.update((n) => n + 1);
   }
 
-  /** Zero all counters and update the reactive signal. */
+  /**
+   * Zero all counters and update the reactive signal.
+   */
   reset(): void {
     devStats.reset();
     this.#tick.update((n) => n + 1);

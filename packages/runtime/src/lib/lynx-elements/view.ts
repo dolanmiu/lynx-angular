@@ -1,7 +1,9 @@
 import { Directive } from '@angular/core';
 import { LynxElementBase } from './base';
 
-/** General-purpose container element, equivalent to HTML `<div>`. */
+/**
+ * General-purpose container element, equivalent to HTML `<div>`.
+ */
 @Directive({
   selector: 'view',
   standalone: true,

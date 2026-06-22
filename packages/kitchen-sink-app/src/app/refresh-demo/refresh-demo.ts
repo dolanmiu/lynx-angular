@@ -88,6 +88,9 @@ export class RefreshDemo {
 
   onRefresh(): void {
     this.refreshing.set(true);
+    // Simulate a 1.5s network request. Signal updates here are safe: the
+    // `bindstartrefresh` handler fires on the background thread, not the
+    // main-thread event path, so no synchronous flush concern.
     setTimeout(() => {
       this.items.set(this.#generateItems());
       this.refreshCount.update((c) => c + 1);

@@ -8,17 +8,25 @@
 
 import { join, resolve } from 'node:path';
 
-/** Version placeholder is replaced during the build process with actual package version */
+/**
+ * Version placeholder is replaced during the build process with actual package version
+ */
 const VERSION = '0.0.0-PLACEHOLDER';
 
 export type NormalizedCachedOptions = {
-  /** Whether disk cache is enabled. */
+  /**
+   * Whether disk cache is enabled.
+   */
   enabled: boolean;
 
-  /** Disk cache path. Example: `/.angular/cache/v12.0.0`. */
+  /**
+   * Disk cache path. Example: `/.angular/cache/v12.0.0`.
+   */
   path: string;
 
-  /** Disk cache base path. Example: `/.angular/cache`. */
+  /**
+   * Disk cache base path. Example: `/.angular/cache`.
+   */
   basePath: string;
 };
 

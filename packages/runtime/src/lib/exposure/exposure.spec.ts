@@ -2,7 +2,9 @@ import { ElementRef, Injector, runInInjectionContext } from '@angular/core';
 import { describe, expect, it, vi } from 'vitest';
 import { LynxExposure } from './exposure';
 
-// Builds a directive instance with a fake element injected via DI.
+/**
+ * Builds a directive instance with a fake element injected via DI.
+ */
 const createDirective = (nativeElement: object): LynxExposure => {
   const injector = Injector.create({
     providers: [
@@ -12,7 +14,9 @@ const createDirective = (nativeElement: object): LynxExposure => {
   return runInInjectionContext(injector, () => new LynxExposure());
 };
 
-// Creates a mock BaseLynxElement with an addEventListener that captures callbacks.
+/**
+ * Creates a mock BaseLynxElement with an addEventListener that captures callbacks.
+ */
 const createMockElement = () => {
   const listeners: Record<string, (...args: unknown[]) => void> = {};
   const removers: Record<string, ReturnType<typeof vi.fn>> = {};

@@ -100,10 +100,7 @@ export class UiAccordionTrigger {
   readonly userClass = input<string>('', { alias: 'class' });
 
   protected readonly triggerClass = computed(() =>
-    cn(
-      'flex flex-row items-center justify-between py-4',
-      this.userClass(),
-    ),
+    cn('flex flex-row items-center justify-between py-4', this.userClass()),
   );
 
   protected readonly textClass = computed(() =>

@@ -39,12 +39,8 @@ import { UiButton } from '../components/ui/button';
             <text class="text-sm text-foreground">
               Notifications: Enabled
             </text>
-            <text class="text-sm text-foreground">
-              Dark mode: Off
-            </text>
-            <text class="text-sm text-foreground">
-              Language: English
-            </text>
+            <text class="text-sm text-foreground"> Dark mode: Off </text>
+            <text class="text-sm text-foreground"> Language: English </text>
           </view>
           <ui-sheet-footer>
             <ui-button (pressed)="showSheet.set(false)">Save changes</ui-button>

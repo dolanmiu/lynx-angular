@@ -30,10 +30,7 @@ import { cn } from '@blotch/dolan/utils/cn';
   imports: [LYNX_ELEMENTS],
   encapsulation: ViewEncapsulation.None,
   template: `
-    <overlay
-      [attr.visible]="overlayVisible()"
-      [style]="overlayStyle()"
-    >
+    <overlay [attr.visible]="overlayVisible()" [style]="overlayStyle()">
       <view #backdrop [class]="backdropClass()" (bindtap)="onBackdropTap()">
         <view
           #panel
@@ -72,7 +69,9 @@ export class UiDialog {
     });
   }
 
-  /** Hide the overlay with `display:none` on web where `visible` attr has no effect. */
+  /**
+   * Hide the overlay with `display:none` on web where `visible` attr has no effect.
+   */
   protected readonly overlayStyle = computed(() =>
     this.overlayVisible()
       ? 'position: fixed; overflow: visible;'

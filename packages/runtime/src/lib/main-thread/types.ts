@@ -1,3 +1,7 @@
+// Re-exports `@lynx-js/types/main-thread` under a stable `MainThread` namespace.
+// Users write `MainThread.TouchEvent` instead of importing from the internal
+// package path directly — insulating them from package renames and tree-shaking
+// on the individual type imports.
 import type {
   Element as MtElement,
   TouchEvent as MtTouchEvent,

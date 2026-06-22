@@ -1,3 +1,4 @@
+// cspell:words Notif
 import { Component, signal } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 import { UiCheckbox } from '../components/ui/checkbox';

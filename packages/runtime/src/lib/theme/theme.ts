@@ -22,7 +22,9 @@ import { LynxGlobalData } from '../data-flow/global-data';
 export class LynxTheme {
   readonly #globalData = inject(LynxGlobalData);
 
-  /** The current theme: `'Dark'` or `'Light'`. Reactive — updates when global props change. */
+  /**
+   * The current theme: `'Dark'` or `'Light'`. Reactive — updates when global props change.
+   */
   readonly theme = computed(() => {
     const value = (this.#globalData.globalData() as Record<string, unknown>)[
       'theme'
@@ -30,6 +32,8 @@ export class LynxTheme {
     return (value as 'Dark' | 'Light') ?? 'Light';
   });
 
-  /** Whether the current theme is dark mode. Reactive. */
+  /**
+   * Whether the current theme is dark mode. Reactive.
+   */
   readonly isDarkMode = computed(() => this.theme() === 'Dark');
 }
