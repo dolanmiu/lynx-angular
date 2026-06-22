@@ -33,32 +33,41 @@ jobs:
           npm version ${{ steps.version.outputs.VERSION }} --no-git-tag-version -w packages/runtime
           npm version ${{ steps.version.outputs.VERSION }} --no-git-tag-version -w packages/rsbuild-plugin-angular-lynx
           npm version ${{ steps.version.outputs.VERSION }} --no-git-tag-version -w packages/testing-library
+          npm version ${{ steps.version.outputs.VERSION }} --no-git-tag-version -w packages/dolan
 
-      - name: Build rsbuild-plugin
+      - name: Build @blotch/rsbuild-plugin-angular-lynx
         run: npm run build -w packages/rsbuild-plugin-angular-lynx
 
-      - name: Build runtime
+      - name: Build @blotch/angular-lynx
         run: npm run build -w packages/runtime
 
       - name: Set version in runtime dist
         working-directory: packages/runtime/dist
         run: npm version ${{ steps.version.outputs.VERSION }} --no-git-tag-version
 
-      - name: Build testing-library
+      - name: Build @blotch/angular-lynx-testing-library
         run: npm run build -w packages/testing-library
 
-      - name: Publish rsbuild-plugin
+      - name: Build @blotch/dolan
+        run: npm run build -w packages/dolan
+
+      - name: Publish @blotch/rsbuild-plugin-angular-lynx
         run: npm publish -w packages/rsbuild-plugin-angular-lynx --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Publish runtime
+      - name: Publish @blotch/angular-lynx
         working-directory: packages/runtime/dist
         run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Publish testing-library
+      - name: Publish @blotch/angular-lynx-testing-library
         run: npm publish -w packages/testing-library --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish @blotch/dolan
+        run: npm publish -w packages/dolan --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

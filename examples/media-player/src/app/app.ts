@@ -2,7 +2,6 @@ import { Component, computed, signal } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 import { UiProgress } from '../components/ui/progress';
 import { UiToggle } from '../components/ui/toggle';
-import { UiCard, UiCardContent } from '../components/ui/card';
 import {
   UiCollapsible,
   UiCollapsibleTrigger,
@@ -20,15 +19,13 @@ type Track = { title: string; artist: string; duration: string };
     LYNX_ELEMENTS,
     UiProgress,
     UiToggle,
-    UiCard,
-    UiCardContent,
     UiCollapsible,
     UiCollapsibleTrigger,
     UiCollapsibleContent,
     UiButton,
     UiAvatar,
-    UiSeparator,
-  ],
+    UiSeparator
+],
   template: `
     <scroll-view scroll-orientation="vertical" class="page">
       <view class="container">

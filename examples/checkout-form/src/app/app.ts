@@ -90,7 +90,7 @@ import { UiSeparator } from '../components/ui/separator';
                         [value]="opt.value"
                         [id]="opt.value"
                       />
-                      <ui-label [for]="opt.value">{{ opt.label }}</ui-label>
+                      <ui-label>{{ opt.label }}</ui-label>
                     </view>
                   }
                 </view>
