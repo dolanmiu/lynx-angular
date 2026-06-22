@@ -21,7 +21,7 @@ import {
 
 const STATUS_SHORT_LABELS: Record<FileStatus, string> = {
   'up-to-date': pc.dim('up to date'),
-  'auto-upgrade': pc.blue('outdated'),
+  'auto-update': pc.blue('outdated'),
   'user-modified': pc.yellow('modified'),
   conflict: pc.red('conflict'),
   'new-upstream': pc.blue('new upstream'),
@@ -36,7 +36,7 @@ const STATUS_SHORT_LABELS: Record<FileStatus, string> = {
  *   - Without arguments: summarize all components that have any divergence
  *     from upstream and prompt to pick which one's diff to display.
  *
- * Uses the same analyzeFile + summarizeComponent pipeline as `list`/`upgrade`
+ * Uses the same analyzeFile + summarizeComponent pipeline as `list`/`update`
  * so what you see here matches what those commands will report.
  */
 export const diffCommand = async (component?: string) => {

@@ -53,6 +53,10 @@
       "dependsOn": ["build"],
       "outputs": [],
       "cache": false
+    },
+    "dolan:update:force": {
+      "dependsOn": ["^build"],
+      "cache": false
     }
   }
 }

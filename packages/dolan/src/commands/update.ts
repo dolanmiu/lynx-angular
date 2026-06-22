@@ -69,7 +69,7 @@ const resolveConflict = async (
     });
 
     if (p.isCancel(choice)) {
-      p.cancel('Upgrade cancelled.');
+      p.cancel('Update cancelled.');
       process.exit(0);
     }
 
@@ -86,16 +86,16 @@ const resolveConflict = async (
 };
 
 /**
- * Three-way merge upgrade for installed components, modeled on the same flow
+ * Three-way merge update for installed components, modeled on the same flow
  * git/Mercurial use when applying upstream changes to a fork:
  *
- *   - **base** (lockfile hash) — what the file was at last add/upgrade.
+ *   - **base** (lockfile hash) — what the file was at last add/update.
  *   - **current** (disk content) — what the user has now.
  *   - **upstream** (registry source, re-rewritten) — what we'd install fresh.
  *
  * For each file, `analyzeFile` produces a status:
  *   - **up-to-date**       — base == current == upstream (no work needed).
- *   - **auto-upgrade**     — current matches base, upstream differs (safe to
+ *   - **auto-update**      — current matches base, upstream differs (safe to
  *                            overwrite — user hasn't touched the file).
  *   - **new-upstream**     — file didn't exist locally (new dependency file).
  *   - **user-modified**    — current differs from base, upstream matches base
@@ -109,13 +109,13 @@ const resolveConflict = async (
  * After the apply phase, the lockfile is updated to record the new upstream
  * hash for every file — even ones the user chose to keep. This intentionally
  * "advances the base" so the user only sees the same conflict once: next
- * upgrade compares against the (now-advanced) base and surfaces only changes
- * introduced since this upgrade.
+ * update compares against the (now-advanced) base and surfaces only changes
+ * introduced since this update.
  */
-export const upgradeCommand = async (options: { force?: boolean }) => {
+export const updateCommand = async (options: { force?: boolean }) => {
   const cwd = process.cwd();
 
-  p.intro(pc.bold('dolan upgrade'));
+  p.intro(pc.bold('dolan update'));
 
   if (!configExists(cwd)) {
     p.log.error(
@@ -128,7 +128,7 @@ export const upgradeCommand = async (options: { force?: boolean }) => {
   const componentsDir = resolve(cwd, config.aliases.components);
 
   if (!existsSync(componentsDir)) {
-    p.log.warn('No components directory found. Nothing to upgrade.');
+    p.log.warn('No components directory found. Nothing to update.');
     p.outro('Done.');
     return;
   }
@@ -140,7 +140,7 @@ export const upgradeCommand = async (options: { force?: boolean }) => {
     .sort();
 
   if (installed.length === 0) {
-    p.log.warn('No installed components found. Nothing to upgrade.');
+    p.log.warn('No installed components found. Nothing to update.');
     p.outro('Done.');
     return;
   }
@@ -243,8 +243,8 @@ export const upgradeCommand = async (options: { force?: boolean }) => {
     ...componentAnalyses.flatMap((c) => c.files),
     ...sharedAnalyses,
   ];
-  const autoUpgradeCount = allFiles.filter(
-    (f) => f.status === 'auto-upgrade' || f.status === 'new-upstream',
+  const autoUpdateCount = allFiles.filter(
+    (f) => f.status === 'auto-update' || f.status === 'new-upstream',
   ).length;
   const userModifiedCount = allFiles.filter(
     (f) => f.status === 'user-modified',
@@ -258,8 +258,8 @@ export const upgradeCommand = async (options: { force?: boolean }) => {
   p.log.info(
     [
       upToDateCount > 0 ? `${pc.green(String(upToDateCount))} up to date` : '',
-      autoUpgradeCount > 0
-        ? `${pc.blue(String(autoUpgradeCount))} auto-upgrade`
+      autoUpdateCount > 0
+        ? `${pc.blue(String(autoUpdateCount))} auto-update`
         : '',
       userModifiedCount > 0
         ? `${pc.yellow(String(userModifiedCount))} kept (user-modified)`
@@ -272,7 +272,7 @@ export const upgradeCommand = async (options: { force?: boolean }) => {
 
   // Nothing to do
   if (
-    autoUpgradeCount === 0 &&
+    autoUpdateCount === 0 &&
     conflictCount === 0 &&
     userModifiedCount === 0
   ) {
@@ -291,7 +291,7 @@ export const upgradeCommand = async (options: { force?: boolean }) => {
   }
 
   // Nothing actionable without force
-  if (!options.force && autoUpgradeCount === 0 && conflictCount === 0) {
+  if (!options.force && autoUpdateCount === 0 && conflictCount === 0) {
     p.outro('Everything is up to date.');
     writeLockfile(
       cwd,
@@ -302,13 +302,13 @@ export const upgradeCommand = async (options: { force?: boolean }) => {
 
   if (!options.force) {
     // Confirm before proceeding
-    if (autoUpgradeCount > 0 && conflictCount === 0) {
+    if (autoUpdateCount > 0 && conflictCount === 0) {
       const confirm = await p.confirm({
-        message: `Apply ${autoUpgradeCount} auto-upgrade(s)?`,
+        message: `Apply ${autoUpdateCount} auto-update(s)?`,
         initialValue: true,
       });
       if (p.isCancel(confirm) || !confirm) {
-        p.cancel('Upgrade cancelled.');
+        p.cancel('Update cancelled.');
         process.exit(0);
       }
     } else if (conflictCount > 0) {
@@ -316,11 +316,11 @@ export const upgradeCommand = async (options: { force?: boolean }) => {
         `${conflictCount} file(s) have conflicts that need manual resolution.`,
       );
       const proceed = await p.confirm({
-        message: 'Continue with upgrade and resolve conflicts?',
+        message: 'Continue with update and resolve conflicts?',
         initialValue: true,
       });
       if (p.isCancel(proceed) || !proceed) {
-        p.cancel('Upgrade cancelled.');
+        p.cancel('Update cancelled.');
         process.exit(0);
       }
     }
@@ -350,7 +350,7 @@ export const upgradeCommand = async (options: { force?: boolean }) => {
 
   // --- Apply changes ---
   const applySpinner = p.spinner();
-  applySpinner.start('Applying upgrades...');
+  applySpinner.start('Applying updates...');
 
   let appliedCount = 0;
   let skippedCount = 0;
@@ -369,12 +369,12 @@ export const upgradeCommand = async (options: { force?: boolean }) => {
       const key = `${comp.name}/${file.file}`;
 
       // Overwrite when ANY of these are true:
-      //   1. auto-upgrade  — user hasn't touched it, safe to update
+      //   1. auto-update  — user hasn't touched it, safe to overwrite
       //   2. new-upstream  — file is new (didn't exist locally), no risk
       //   3. force + user-modified — explicit reset of user's edits
       //   4. conflict resolved as 'upstream' (or force) — user said take theirs
       const shouldOverwrite =
-        file.status === 'auto-upgrade' ||
+        file.status === 'auto-update' ||
         file.status === 'new-upstream' ||
         (options.force && file.status === 'user-modified') ||
         (file.status === 'conflict' &&
@@ -388,7 +388,7 @@ export const upgradeCommand = async (options: { force?: boolean }) => {
         appliedCount++;
       } else if (file.status === 'conflict') {
         // User chose to keep their version. We still advance the lockfile base
-        // to the current upstream hash. This means on the next upgrade:
+        // to the current upstream hash. This means on the next update:
         //   - If upstream hasn't changed again: base==upstream but base!=current
         //     → shows as "user-modified" (not a conflict). Correct.
         //   - If upstream changes again: base=old-upstream ≠ new-upstream AND
@@ -420,7 +420,7 @@ export const upgradeCommand = async (options: { force?: boolean }) => {
     const destPath = join(themeDir, fileName);
 
     const shouldOverwrite =
-      file.status === 'auto-upgrade' ||
+      file.status === 'auto-update' ||
       file.status === 'new-upstream' ||
       (options.force && file.status === 'user-modified') ||
       (file.status === 'conflict' &&
@@ -446,13 +446,13 @@ export const upgradeCommand = async (options: { force?: boolean }) => {
 
   // --- Final summary ---
   if (appliedCount > 0) {
-    p.log.success(`${pc.bold(String(appliedCount))} file(s) upgraded.`);
+    p.log.success(`${pc.bold(String(appliedCount))} file(s) updated.`);
   }
   if (skippedCount > 0) {
     p.log.info(`${pc.bold(String(skippedCount))} file(s) kept as-is.`);
   }
 
-  p.outro('Upgrade complete.');
+  p.outro('Update complete.');
 };
 
 /**

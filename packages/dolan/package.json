@@ -4,7 +4,7 @@
   "description": "CLI for adding @blotch/ui components to your project",
   "license": "MIT",
   "bin": {
-    "blotch": "./dist/index.js"
+    "dolan": "./dist/index.js"
   },
   "files": [
     "dist"

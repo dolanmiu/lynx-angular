@@ -21,7 +21,7 @@ import {
 
 const STATUS_SHORT_LABELS: Record<FileStatus, string> = {
   'up-to-date': pc.dim('up to date'),
-  'auto-upgrade': pc.blue('outdated'),
+  'auto-update': pc.blue('outdated'),
   'user-modified': pc.yellow('modified'),
   conflict: pc.red('conflict'),
   'new-upstream': pc.blue('new upstream'),
@@ -133,7 +133,7 @@ export const outdatedCommand = async (options: { json?: boolean }) => {
   if (options.json) {
     console.log(JSON.stringify({ components: outdated }, null, 2));
     // Exit 1 when outdated so CI pipelines can detect "updates available"
-    // without parsing stdout (e.g., `dolan outdated --json || echo "Run dolan upgrade"`).
+    // without parsing stdout (e.g., `dolan outdated --json || echo "Run dolan update"`).
     process.exit(outdated.length > 0 ? 1 : 0);
   }
 
@@ -154,7 +154,7 @@ export const outdatedCommand = async (options: { json?: boolean }) => {
   }
 
   p.outro(
-    `${outdated.length} component(s) need attention. Run ${pc.bold('dolan upgrade')} to apply.`,
+    `${outdated.length} component(s) need attention. Run ${pc.bold('dolan update')} to apply.`,
   );
   process.exit(1);
 };

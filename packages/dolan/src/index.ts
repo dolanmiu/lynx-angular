@@ -3,7 +3,7 @@ import { Command } from 'commander';
 import { initCommand } from './commands/init.js';
 import { addCommand } from './commands/add.js';
 import { doctorCommand } from './commands/doctor.js';
-import { upgradeCommand } from './commands/upgrade.js';
+import { updateCommand } from './commands/update.js';
 import { listCommand } from './commands/list.js';
 import { removeCommand } from './commands/remove.js';
 import { diffCommand } from './commands/diff.js';
@@ -17,7 +17,7 @@ const program = new Command();
 
 program
   .name('dolan')
-  .description('Add @blotch/ui components to your AngularLynx project')
+  .description('Add ui components to your AngularLynx project')
   .version('0.0.1')
   .action(() => {
     printBanner();
@@ -41,13 +41,13 @@ program
   .action(doctorCommand);
 
 program
-  .command('upgrade')
-  .description('Upgrade installed components to latest versions')
+  .command('update')
+  .description('Update installed components to latest versions')
   .option(
     '-f, --force',
     'overwrite all files with upstream, discarding local changes',
   )
-  .action(upgradeCommand);
+  .action(updateCommand);
 
 program
   .command('list')
@@ -85,7 +85,7 @@ program
 
 program
   .command('outdated')
-  .description('Show components that need upgrading')
+  .description('Show components that need updating')
   .option('--json', 'output as JSON')
   .action(outdatedCommand);
 

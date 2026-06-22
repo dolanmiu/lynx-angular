@@ -29,10 +29,10 @@ describe('analyzeFile', () => {
     expect(analyzeFile('updated', 'updated', stored, hash)).toBe('up-to-date');
   });
 
-  it('returns auto-upgrade when only upstream changed', () => {
+  it('returns auto-update when only upstream changed', () => {
     const stored = hash('original');
     expect(analyzeFile('original', 'new-upstream', stored, hash)).toBe(
-      'auto-upgrade',
+      'auto-update',
     );
   });
 
@@ -79,7 +79,7 @@ describe('summarizeComponent', () => {
       files: [
         {
           file: 'a.ts',
-          status: 'auto-upgrade',
+          status: 'auto-update',
           currentContent: '',
           newContent: '',
         },
@@ -94,7 +94,7 @@ describe('summarizeComponent', () => {
     expect(result).toBe('conflict');
   });
 
-  it('returns auto-upgrade when any file needs upgrade (no conflicts)', () => {
+  it('returns auto-update when any file needs update (no conflicts)', () => {
     const result = summarizeComponent({
       name: 'test',
       files: [
@@ -106,16 +106,16 @@ describe('summarizeComponent', () => {
         },
         {
           file: 'b.ts',
-          status: 'auto-upgrade',
+          status: 'auto-update',
           currentContent: '',
           newContent: '',
         },
       ],
     });
-    expect(result).toBe('auto-upgrade');
+    expect(result).toBe('auto-update');
   });
 
-  it('returns auto-upgrade for new-upstream files', () => {
+  it('returns auto-update for new-upstream files', () => {
     const result = summarizeComponent({
       name: 'test',
       files: [
@@ -127,7 +127,7 @@ describe('summarizeComponent', () => {
         },
       ],
     });
-    expect(result).toBe('auto-upgrade');
+    expect(result).toBe('auto-update');
   });
 
   it('returns user-modified when only user changes exist', () => {

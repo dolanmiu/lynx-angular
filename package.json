@@ -20,7 +20,8 @@
     "format": "turbo run format",
     "format:check": "turbo run format:check",
     "cspell": "turbo run cspell",
-    "publish:local": "turbo run publish:local"
+    "publish:local": "turbo run publish:local",
+    "dolan:update:force": "turbo run dolan:update:force"
   },
   "devDependencies": {
     "cspell": "^9.7.0",

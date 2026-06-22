@@ -26,7 +26,7 @@ import {
  *
  * The shadcn-style philosophy: components are *copied*, not installed as a
  * runtime dependency. Users own and edit the code in their repo. The lockfile
- * lets later commands (upgrade, diff, doctor) detect local modifications by
+ * lets later commands (update, diff, doctor) detect local modifications by
  * comparing on-disk hashes against the recorded ones, so we know whether an
  * update would clobber user edits.
  *
@@ -150,7 +150,7 @@ export const addCommand = async (components: string[]) => {
       const rewritten = rewriteImports(content);
       writeFileSync(join(destDir, file), rewritten);
       // Hash the *rewritten* content (not the source) so subsequent
-      // dolan-diff/dolan-upgrade compare apples to apples — they re-rewrite
+      // dolan-diff/dolan-update compare apples to apples — they re-rewrite
       // the registry source and hash the result the same way.
       lockfile.components[name][file] = { hash: hashContent(rewritten) };
     }

@@ -3,7 +3,7 @@ import { diffLines } from 'diff';
 
 export type FileStatus =
   | 'up-to-date'
-  | 'auto-upgrade'
+  | 'auto-update'
   | 'user-modified'
   | 'conflict'
   | 'new-upstream';
@@ -22,7 +22,7 @@ export type ComponentAnalysis = {
 
 export const STATUS_ICONS: Record<FileStatus, string> = {
   'up-to-date': pc.green('✓'),
-  'auto-upgrade': pc.blue('↑'),
+  'auto-update': pc.blue('↑'),
   'user-modified': pc.yellow('~'),
   conflict: pc.red('⚠'),
   'new-upstream': pc.blue('+'),
@@ -30,7 +30,7 @@ export const STATUS_ICONS: Record<FileStatus, string> = {
 
 export const STATUS_LABELS: Record<FileStatus, string> = {
   'up-to-date': pc.dim('up to date'),
-  'auto-upgrade': pc.blue('upstream updated → auto-upgrade'),
+  'auto-update': pc.blue('upstream updated → auto-update'),
   'user-modified': pc.yellow('you modified → keeping yours'),
   conflict: pc.red('conflict — both modified'),
   'new-upstream': pc.blue('new file from upstream'),
@@ -41,7 +41,7 @@ export const STATUS_LABELS: Record<FileStatus, string> = {
  * file at install time (the "base"). Comparing current (user's file),
  * upstream (bundled source), and base (lockfile hash) lets us determine
  * who changed what:
- *   base == current, base != upstream → upstream changed → safe auto-upgrade
+ *   base == current, base != upstream → upstream changed → safe auto-update
  *   base != current, base == upstream → user changed → keep theirs
  *   base != current, base != upstream → both changed → conflict
  * When no base exists (missing lockfile entry), we can't tell who diverged,
@@ -68,7 +68,7 @@ export const analyzeFile = (
   if (storedHash === currentHash && storedHash === newHash) return 'up-to-date';
   if (currentHash === newHash) return 'up-to-date';
   if (storedHash === currentHash && storedHash !== newHash)
-    return 'auto-upgrade';
+    return 'auto-update';
   if (storedHash !== currentHash && storedHash === newHash)
     return 'user-modified';
   return 'conflict';
@@ -102,8 +102,8 @@ export const formatDiff = (
 export const summarizeComponent = (analysis: ComponentAnalysis): FileStatus => {
   const statuses = analysis.files.map((f) => f.status);
   if (statuses.includes('conflict')) return 'conflict';
-  if (statuses.includes('auto-upgrade') || statuses.includes('new-upstream'))
-    return 'auto-upgrade';
+  if (statuses.includes('auto-update') || statuses.includes('new-upstream'))
+    return 'auto-update';
   if (statuses.includes('user-modified')) return 'user-modified';
   return 'up-to-date';
 };

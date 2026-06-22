@@ -7,11 +7,11 @@ import { getEntry, getComponentNames } from '../registry.js';
 import { getOrCreateLockfile, writeLockfile } from '../lockfile.js';
 
 /**
- * "Eject" removes a component from dolan's upgrade tracking (the lockfile)
- * without deleting the component's files. After ejecting, `dolan upgrade`
+ * "Eject" removes a component from dolan's update tracking (the lockfile)
+ * without deleting the component's files. After ejecting, `dolan update`
  * will no longer detect or apply upstream changes to this component.
  * This is useful when a user has heavily customized a component and wants
- * to own it entirely — they keep the files but opt out of the diff/upgrade
+ * to own it entirely — they keep the files but opt out of the diff/update
  * workflow. The files remain in the components directory for continued use.
  */
 export const ejectCommand = async (
@@ -55,7 +55,7 @@ export const ejectCommand = async (
 
   if (!options.force) {
     const confirm = await p.confirm({
-      message: `Stop tracking ${pc.bold(component)}? Upgrades will no longer detect changes. Files will remain untouched.`,
+      message: `Stop tracking ${pc.bold(component)}? Updates will no longer detect changes. Files will remain untouched.`,
       initialValue: false,
     });
 

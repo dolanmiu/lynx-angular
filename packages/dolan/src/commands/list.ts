@@ -20,17 +20,17 @@ import {
 
 const STATUS_SHORT_LABELS: Record<FileStatus, string> = {
   'up-to-date': pc.dim('up to date'),
-  'auto-upgrade': pc.blue('outdated'),
+  'auto-update': pc.blue('outdated'),
   'user-modified': pc.yellow('modified'),
   conflict: pc.red('conflict'),
   'new-upstream': pc.blue('outdated'),
 };
 
 /**
- * Lists every installed component along with its overall upgrade status.
+ * Lists every installed component along with its overall update status.
  *
  * For each component, every file is analyzed via the same three-way merge
- * function used by `dolan upgrade` (lockfile-base / current / upstream), then
+ * function used by `dolan update` (lockfile-base / current / upstream), then
  * `summarizeComponent` rolls the per-file statuses up into a single component-
  * level status using a priority order (conflict > user-modified > outdated >
  * up-to-date) — so a component is flagged "modified" even if only one of its
@@ -150,7 +150,7 @@ export const listCommand = async (options: { json?: boolean }) => {
 
   const upToDate = results.filter((r) => r.status === 'up-to-date').length;
   const outdated = results.filter(
-    (r) => r.status === 'auto-upgrade' || r.status === 'new-upstream',
+    (r) => r.status === 'auto-update' || r.status === 'new-upstream',
   ).length;
   const modified = results.filter((r) => r.status === 'user-modified').length;
   const conflicts = results.filter((r) => r.status === 'conflict').length;

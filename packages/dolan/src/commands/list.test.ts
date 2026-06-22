@@ -89,7 +89,7 @@ describe('listCommand', () => {
     await listCommand({ json: true });
 
     const output = JSON.parse(consoleSpy.mock.calls[0][0]);
-    expect(output.components[0].status).toBe('auto-upgrade');
+    expect(output.components[0].status).toBe('auto-update');
   });
 
   it('detects user-modified components', async () => {

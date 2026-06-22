@@ -91,7 +91,7 @@ describe('outdatedCommand', () => {
     const output = JSON.parse(consoleSpy.mock.calls[0][0]);
     expect(output.components).toHaveLength(1);
     expect(output.components[0].name).toBe('card');
-    expect(output.components[0].status).toBe('auto-upgrade');
+    expect(output.components[0].status).toBe('auto-update');
   });
 
   it('returns empty JSON when all up-to-date and exits 0', async () => {
