@@ -3,19 +3,22 @@
   "components": {
     "skeleton": {
       "index.ts": {
-        "hash": "ba103d0f7f4bd0e71b9c15f5a1d3c350a80875c578c34866a886746bff08cef5"
+        "hash": "ba103d0f7f4bd0e7"
       },
       "skeleton.ts": {
-        "hash": "f018a9543ff578030d2efcea3268bac8d76352060074d3b388c8af903a2362a9"
+        "hash": "97d5352a4260b5b0"
       }
     }
   },
   "theme": {
     "default.css": {
-      "hash": "1de0af3e74d0ec13de113e6a50347b3ba66d583c84d86ac46b3ccb1d2b3fb998"
+      "hash": "1de0af3e74d0ec13"
     },
     "tailwind-plugin.ts": {
-      "hash": "1884f9902ca4245b933854847ebaaf88b522ae955bf5176b98e11e042bed0434"
+      "hash": "1884f9902ca4245b"
+    },
+    "dark.css": {
+      "hash": "c7a38ea61a8a2ad3"
     }
   }
 }

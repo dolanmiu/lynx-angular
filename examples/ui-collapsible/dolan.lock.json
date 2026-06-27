@@ -3,19 +3,22 @@
   "components": {
     "collapsible": {
       "collapsible.ts": {
-        "hash": "c1350aa78a780d410bca32a958be97bd48bd986e12aafbe76400a70965bf2b31"
+        "hash": "f3cedb04fe86917e"
       },
       "index.ts": {
-        "hash": "2ff1aa9a6b200d2639ca48a6ec4ad2a680371841c9b215f5b961c21132da00e0"
+        "hash": "2ff1aa9a6b200d26"
       }
     }
   },
   "theme": {
     "default.css": {
-      "hash": "1de0af3e74d0ec13de113e6a50347b3ba66d583c84d86ac46b3ccb1d2b3fb998"
+      "hash": "1de0af3e74d0ec13"
     },
     "tailwind-plugin.ts": {
-      "hash": "1884f9902ca4245b933854847ebaaf88b522ae955bf5176b98e11e042bed0434"
+      "hash": "1884f9902ca4245b"
+    },
+    "dark.css": {
+      "hash": "c7a38ea61a8a2ad3"
     }
   }
 }

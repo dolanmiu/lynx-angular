@@ -1,17 +1,26 @@
 import plugin from 'tailwindcss/plugin';
 
-/**
- * Tailwind plugin that maps @blotch/ui CSS variables to semantic color utilities.
- *
- * Usage in tailwind.config.ts:
- *   import { blotchPlugin } from '@blotch/ui/theme/tailwind-plugin';
- *   export default { plugins: [blotchPlugin] };
- */
+// Colors reference CSS variables DIRECTLY (var(--xxx)) instead of the shadcn/ui
+// pattern of wrapping in hsl() (e.g., 'hsl(var(--primary) / <alpha-value>)').
+//
+// The shadcn/ui pattern stores raw HSL components in variables (--primary: 240 5.9% 10%)
+// and wraps them in hsl() at usage time. This enables Tailwind's opacity modifier
+// syntax (bg-primary/50), but Lynx's native CSS engine doesn't support hsl() —
+// it only understands #hex, rgb(), and rgba(). After CSS variable resolution,
+// Lynx would see 'hsl(240 5.9% 10% / 1)' which it can't parse, producing
+// invisible colors on iOS while working fine in the web preview (browsers support hsl).
+//
+// Instead, CSS variables store COMPLETE rgba() values (--primary: rgba(24, 24, 27, 1))
+// and Tailwind references them directly. This matches the official React Lynx
+// Tailwind example (references/lynx-stack-main/examples/tailwindcss/).
+//
+// Tradeoff: Tailwind opacity modifiers (bg-primary/50) won't work since colors
+// aren't decomposed. Use explicit opacity utilities (opacity-50) instead.
 export const blotchPlugin = plugin(
   ({ addBase }) => {
     addBase({
       '*': {
-        'border-color': 'hsl(var(--border))',
+        'border-color': 'var(--border)',
       },
     });
   },
@@ -19,34 +28,34 @@ export const blotchPlugin = plugin(
     theme: {
       extend: {
         colors: {
-          background: 'hsl(var(--background) / <alpha-value>)',
-          foreground: 'hsl(var(--foreground) / <alpha-value>)',
+          background: 'var(--background)',
+          foreground: 'var(--foreground)',
           primary: {
-            DEFAULT: 'hsl(var(--primary) / <alpha-value>)',
-            foreground: 'hsl(var(--primary-foreground) / <alpha-value>)',
+            DEFAULT: 'var(--primary)',
+            foreground: 'var(--primary-foreground)',
           },
           secondary: {
-            DEFAULT: 'hsl(var(--secondary) / <alpha-value>)',
-            foreground: 'hsl(var(--secondary-foreground) / <alpha-value>)',
+            DEFAULT: 'var(--secondary)',
+            foreground: 'var(--secondary-foreground)',
           },
           muted: {
-            DEFAULT: 'hsl(var(--muted) / <alpha-value>)',
-            foreground: 'hsl(var(--muted-foreground) / <alpha-value>)',
+            DEFAULT: 'var(--muted)',
+            foreground: 'var(--muted-foreground)',
           },
           accent: {
-            DEFAULT: 'hsl(var(--accent) / <alpha-value>)',
-            foreground: 'hsl(var(--accent-foreground) / <alpha-value>)',
+            DEFAULT: 'var(--accent)',
+            foreground: 'var(--accent-foreground)',
           },
           destructive: {
-            DEFAULT: 'hsl(var(--destructive) / <alpha-value>)',
-            foreground: 'hsl(var(--destructive-foreground) / <alpha-value>)',
+            DEFAULT: 'var(--destructive)',
+            foreground: 'var(--destructive-foreground)',
           },
-          border: 'hsl(var(--border) / <alpha-value>)',
-          input: 'hsl(var(--input) / <alpha-value>)',
-          ring: 'hsl(var(--ring) / <alpha-value>)',
+          border: 'var(--border)',
+          input: 'var(--input)',
+          ring: 'var(--ring)',
           card: {
-            DEFAULT: 'hsl(var(--card) / <alpha-value>)',
-            foreground: 'hsl(var(--card-foreground) / <alpha-value>)',
+            DEFAULT: 'var(--card)',
+            foreground: 'var(--card-foreground)',
           },
         },
         borderRadius: {

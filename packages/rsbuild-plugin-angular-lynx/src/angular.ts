@@ -157,12 +157,25 @@ export const applyAngularRules = async (
     string,
     { className: string; scopeId: string }
   >();
-  api.onBeforeEnvironmentCompile(async () => {
-    // Initialize the Angular compilation for the current build.
-    // In watch mode, previous build state will be reused.
-    // let referencedFiles;
-    // let externalStylesheets;
+  // Fix: onBeforeEnvironmentCompile fires once per environment (web + lynx), and
+  // rsbuild's callBatch runs them concurrently. Without deduplication, both calls
+  // race on the same `compilation` instance. The first to finish calls close(),
+  // destroying piscina's worker pool, which crashes the second with
+  // "Terminating worker thread" — a fatal error that kills `rspeedy dev`.
+  //
+  // The Angular compilation output is environment-independent (same AOT transform
+  // regardless of target layer), so we gate it behind a single promise. The second
+  // environment awaits the same result without re-running the compilation.
+  let compilationPromise: Promise<void> | null = null;
+  const isDevMode = process.env['NODE_ENV'] !== 'production';
 
+  api.onBeforeEnvironmentCompile(async () => {
+    if (compilationPromise) {
+      await compilationPromise;
+      return;
+    }
+
+    compilationPromise = (async () => {
     // Pre-populate Angular's sourceFileCache with schema-injected TypeScript source
     // so that Angular's template type-checker never errors on Lynx native elements
     // (<view>, <text>, <scroll-view>, etc.) — users don't need CUSTOM_ELEMENTS_SCHEMA
@@ -354,7 +367,17 @@ export const applyAngularRules = async (
     if (actionableErrors?.length || actionableWarnings?.length) {
       console.log({ errors: actionableErrors, warnings: actionableWarnings });
     }
-    await compilation.close?.();
+    // Fix: calling close() in dev mode destroyed the piscina worker pool, making
+    // incremental rebuilds impossible and crashing when a second environment's hook
+    // tried to use the compilation. In production, close is safe because each
+    // environment runs in a separate process (rspeedy build --environment X) and
+    // no rebuild cycle follows.
+    if (!isDevMode) {
+      await compilation.close?.();
+    }
+    })();
+
+    await compilationPromise;
   });
 
   api.transform(

@@ -93,6 +93,10 @@ export class UiCollapsibleContent {
     effect(() => {
       const el = this.contentRef()?.nativeElement;
       if (el && this.collapsible.open()) {
+        // fromY: -8 makes content slide DOWN into view (starting 8px above its
+        // final position), which matches the visual expectation of an accordion
+        // opening downward. The animation only plays on open — on close, the
+        // @if block removes the element from the tree, so no exit animation needed.
         this.#anim?.cancel();
         this.#anim = revealIn(el, { fromY: -8 });
       }

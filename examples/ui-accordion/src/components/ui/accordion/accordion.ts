@@ -36,6 +36,10 @@ export class UiAccordion {
   );
 
   toggle(value: string): void {
+    // `new Set(current)` creates a fresh Set on every toggle. Angular signals
+    // use reference equality — mutating the existing Set in-place wouldn't
+    // trigger change detection since the signal value (the Set reference) stays
+    // the same. A new Set forces the signal to see a changed reference.
     const current = new Set(this.expandedItems());
     if (current.has(value)) {
       current.delete(value);

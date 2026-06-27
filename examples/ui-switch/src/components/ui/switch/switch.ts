@@ -10,12 +10,14 @@ import {
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
-import {
-  type AnimationHandle,
-  springTranslateX,
-} from '@blotch/dolan/utils/animate';
+import { type AnimationHandle, springTranslateX } from '@blotch/dolan/utils/animate';
 import { cn } from '@blotch/dolan/utils/cn';
 
+/**
+ * Pixel offsets for the thumb within the 44px track (w-11).
+ * Track is h-6 (24px), thumb is w-5 h-5 (20px).
+ * OFF: 2px from left edge; ON: 2px from right edge (24 - 20 - 2 = 2).
+ */
 const THUMB_OFFSET_OFF = 2;
 const THUMB_OFFSET_ON = 22;
 

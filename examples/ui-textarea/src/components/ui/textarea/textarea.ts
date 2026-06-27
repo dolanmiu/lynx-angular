@@ -10,6 +10,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { type FormValueControl } from '@angular/forms/signals';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
 import { type AnimationHandle, shake } from '@blotch/dolan/utils/animate';
@@ -25,15 +26,21 @@ import { cn } from '@blotch/dolan/utils/cn';
       @if (label()) {
         <text [class]="labelClass()">{{ label() }}</text>
       }
-      <textarea
-        [attr.placeholder]="placeholder()"
-        [attr.value]="value()"
-        [attr.disabled]="disabled() || undefined"
-        [class]="textareaClass()"
-        (bindinput)="onInput($any($event))"
-        (bindfocus)="onFocus()"
-        (bindblur)="onBlur()"
-      ></textarea>
+      <view [class]="textareaWrapperClass()">
+        <!-- [attr.disabled]="disabled() || undefined": passing 'undefined'
+             removes the attribute entirely; passing 'false' would set
+             disabled="false" which Lynx still treats as disabled. -->
+        <textarea
+          [attr.placeholder]="placeholder()"
+          [attr.value]="value()"
+          [attr.disabled]="disabled() || undefined"
+          class="text-sm text-foreground"
+          style="border: none; background: transparent; height: 100%; width: 100%;"
+          (bindinput)="onInput($any($event))"
+          (bindfocus)="onFocus()"
+          (bindblur)="onBlur()"
+        ></textarea>
+      </view>
       @if (error()) {
         <text [class]="errorClass()">{{ error() }}</text>
       } @else if (helperText()) {
@@ -42,7 +49,7 @@ import { cn } from '@blotch/dolan/utils/cn';
     </view>
   `,
 })
-export class UiTextarea {
+export class UiTextarea implements FormValueControl<string> {
   readonly value = model<string>('');
   readonly label = input<string>('');
   readonly placeholder = input<string>('');
@@ -81,14 +88,14 @@ export class UiTextarea {
     cn('text-sm font-medium text-foreground'),
   );
 
-  protected readonly textareaClass = computed(() =>
+  protected readonly textareaWrapperClass = computed(() =>
     cn(
-      'min-h-20 w-full rounded-lg border bg-background px-3.5 py-2.5 text-sm text-foreground',
+      'min-h-20 rounded-xl bg-muted px-3.5 py-2.5',
       this.error()
-        ? 'border-destructive'
+        ? 'ring-2 ring-destructive'
         : this.#isFocused()
-          ? 'border-ring border-2'
-          : 'border-input',
+          ? 'ring-2 ring-ring'
+          : '',
       this.disabled() && 'opacity-50',
     ),
   );
@@ -111,6 +118,10 @@ export class UiTextarea {
     this.blurred.emit();
   }
 
+  /**
+   * Lynx input events carry the updated value in `event.detail.value`,
+   * not in `event.target.value` as on the web — hence the custom type.
+   */
   protected onInput(event: { detail: { value: string } }): void {
     if (this.disabled()) return;
     this.value.set(event.detail.value);

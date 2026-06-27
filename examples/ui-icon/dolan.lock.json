@@ -3,30 +3,33 @@
   "components": {
     "icon": {
       "icon.ts": {
-        "hash": "e150ab32349c40b29329bb6391534238cbaceb124340abf0deb94147bb632c3f"
+        "hash": "32dbe99103f50317"
       },
       "icons.ts": {
-        "hash": "68cb2edf0bfcb40bc9614dc79355bc41a9d55f1b07f9c7449d6dac07de5f6c60"
+        "hash": "b4ce3296ff755adc"
       },
       "index.ts": {
-        "hash": "d175df85291c8009ba7ebfafdd3b9a7cbff30216478ff70160d2525db72ca75d"
+        "hash": "d175df85291c8009"
       }
     },
     "typography": {
       "index.ts": {
-        "hash": "060283f48f64ac0ea411bd59a16ce222b54142a8d421f99691f5578c11b1cdc0"
+        "hash": "060283f48f64ac0e"
       },
       "typography.ts": {
-        "hash": "a8111204891b9370c9481985cbad0a3f1ca7670ad1b6f50edd0bd6c7cef64861"
+        "hash": "59ba74625e7712f7"
       }
     }
   },
   "theme": {
     "default.css": {
-      "hash": "1de0af3e74d0ec13de113e6a50347b3ba66d583c84d86ac46b3ccb1d2b3fb998"
+      "hash": "1de0af3e74d0ec13"
     },
     "tailwind-plugin.ts": {
-      "hash": "1884f9902ca4245b933854847ebaaf88b522ae955bf5176b98e11e042bed0434"
+      "hash": "1884f9902ca4245b"
+    },
+    "dark.css": {
+      "hash": "c7a38ea61a8a2ad3"
     }
   }
 }

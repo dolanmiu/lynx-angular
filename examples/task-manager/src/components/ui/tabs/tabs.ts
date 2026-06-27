@@ -39,7 +39,12 @@ export class UiTabs {
 
   readonly changed = output<string>();
 
-  // Direction tracking: determines whether content slides left or right
+  // Direction tracking for content slide animations. Each UiTabsTrigger
+  // registers itself in order via registerTab(), building an ordered list.
+  // When the active tab changes, we compare the old and new index in this
+  // list to determine slide direction (1 = right, -1 = left). This creates
+  // a spatial relationship: tabs feel like they're arranged left-to-right,
+  // with content sliding in from the direction of the selected tab.
   readonly #tabOrder: string[] = [];
   #previousValue: string | undefined;
   readonly direction = signal<1 | -1>(1);

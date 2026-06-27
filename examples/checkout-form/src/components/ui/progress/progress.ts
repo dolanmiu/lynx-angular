@@ -9,11 +9,7 @@ import {
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
-import {
-  type AnimationHandle,
-  DURATION,
-  EASING,
-} from '@blotch/dolan/utils/animate';
+import { type AnimationHandle, DURATION, EASING } from '@blotch/dolan/utils/animate';
 import { cn } from '@blotch/dolan/utils/cn';
 
 @Component({
@@ -46,7 +42,12 @@ export class UiProgress {
       const el = this.fillRef()?.nativeElement;
       if (!el) return;
 
-      // Handle indeterminate mode with infinite sliding animation
+      // Handle indeterminate mode with infinite sliding animation.
+      // The fill element is 40% of the track width. `translateX` percentages
+      // are relative to the element's OWN width, so:
+      //   translateX(-100%) = left edge at -40% of track = starts off-screen left
+      //   translateX(250%)  = left edge at +100% of track = exits off-screen right
+      // 250% is the minimum that pushes the 40%-wide fill fully past the right edge.
       if (this.indeterminate()) {
         this.#fillAnim?.cancel();
         this.#indeterminateAnim?.cancel();
@@ -64,7 +65,11 @@ export class UiProgress {
         return;
       }
 
-      // Determinate mode — animate width changes smoothly
+      // Determinate mode — animate width changes smoothly.
+      // `#previousPercent === null` skips the very first effect run so
+      // the bar doesn't animate from 0% → initial value on mount.
+      // The equality guard prevents redundant animations if the effect
+      // re-runs without an actual percent change.
       this.#indeterminateAnim?.cancel();
       const percent = this.percent();
       if (this.#previousPercent === null) {

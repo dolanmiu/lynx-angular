@@ -136,6 +136,8 @@ export class UiButton {
   }
 
   protected onPressCancel(): void {
+    // Also restore scale on cancel — without this, a cancelled touch (e.g. scroll
+    // gesture taking over) leaves the button stuck in its pressed-down state.
     this.#pressAnim?.cancel();
     this.#pressAnim = pressRelease(this.containerRef()?.nativeElement);
   }

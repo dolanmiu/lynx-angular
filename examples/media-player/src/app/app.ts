@@ -24,8 +24,8 @@ type Track = { title: string; artist: string; duration: string };
     UiCollapsibleContent,
     UiButton,
     UiAvatar,
-    UiSeparator
-],
+    UiSeparator,
+  ],
   template: `
     <scroll-view scroll-orientation="vertical" class="page">
       <view class="container">

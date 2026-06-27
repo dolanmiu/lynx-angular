@@ -25,6 +25,9 @@ import {
 import {
   analyzeFile,
   formatDiff,
+  formatHunk,
+  getHunks,
+  applySelectedHunks,
   summarizeComponent,
   STATUS_ICONS,
   STATUS_LABELS,
@@ -32,40 +35,183 @@ import {
   type ComponentAnalysis,
 } from '../utils/analyze.js';
 
+type ReviewResult = {
+  decision: 'keep' | 'upstream' | 'partial';
+  content?: string;
+};
+
 /**
- * Interactively presents a three-way merge conflict (user has edits + upstream
- * has changes) and asks the user to resolve it. The "Show diff" option loops
- * back into the same prompt so the user can inspect before committing — only
- * "keep mine" or "take upstream" finalizes.
+ * Walks through each hunk in a diff and asks the user to accept or reject it.
+ * "Show more context" re-computes the hunk with doubled context lines so the
+ * user can see more surrounding code before deciding.
  */
-const resolveConflict = async (
+const reviewHunks = async (
+  componentName: string,
+  fileName: string,
+  currentContent: string,
+  newContent: string,
+): Promise<ReviewResult> => {
+  let contextLines = 3;
+  const hunks = getHunks(currentContent, newContent, contextLines);
+  const accepted: boolean[] = Array.from({ length: hunks.length }, () => false);
+
+  for (let i = 0; i < hunks.length; i++) {
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      // Re-fetch hunks if context was expanded — the current hunk may
+      // have merged with neighbors, so we find the hunk that still covers
+      // the original line range.
+      const currentHunks = getHunks(currentContent, newContent, contextLines);
+      const hunk =
+        currentHunks.length === hunks.length
+          ? currentHunks[i]
+          : (currentHunks.find(
+              (h) =>
+                h.oldStart <= hunks[i].oldStart &&
+                h.oldStart + h.oldLines >=
+                  hunks[i].oldStart + hunks[i].oldLines,
+            ) ??
+            currentHunks[i] ??
+            hunks[i]);
+
+      const lineEnd = hunk.oldStart + hunk.oldLines - 1;
+      p.log.message(`\n${formatHunk(hunk)}\n`);
+
+      const choice = await p.select({
+        message: `${pc.bold(componentName)}/${pc.bold(fileName)} — hunk ${i + 1}/${hunks.length} (lines ${hunk.oldStart}–${lineEnd})`,
+        options: [
+          {
+            value: 'accept' as const,
+            label: 'Accept',
+            hint: 'apply this change',
+          },
+          {
+            value: 'reject' as const,
+            label: 'Reject',
+            hint: 'skip this change',
+          },
+          {
+            value: 'context' as const,
+            label: 'Show more context',
+            hint: 'expand surrounding lines',
+          },
+        ],
+      });
+
+      if (p.isCancel(choice)) {
+        p.cancel('Update cancelled.');
+        process.exit(0);
+      }
+
+      if (choice === 'context') {
+        contextLines *= 2;
+        continue;
+      }
+
+      accepted[i] = choice === 'accept';
+      break;
+    }
+  }
+
+  const acceptedCount = accepted.filter(Boolean).length;
+  if (acceptedCount === 0) return { decision: 'keep' };
+  if (acceptedCount === hunks.length) return { decision: 'upstream' };
+
+  const acceptedIndices = accepted
+    .map((v, i) => (v ? i : -1))
+    .filter((i) => i !== -1);
+  const result = applySelectedHunks(
+    currentContent,
+    newContent,
+    acceptedIndices,
+  );
+
+  if (result === false) {
+    p.log.warn('Could not apply selected hunks — keeping your version.');
+    return { decision: 'keep' };
+  }
+
+  return { decision: 'partial', content: result };
+};
+
+/**
+ * Interactively presents a file change and asks the user to resolve it. Prompt
+ * wording adapts to the file status — conflicts get "keep mine / take
+ * upstream", while auto-updates and new files in selective mode get "apply /
+ * skip for now". The "Show diff" option loops back into the same prompt so the
+ * user can inspect before committing. "Review by hunk" lets the user
+ * accept/reject individual changes within the file.
+ */
+const reviewFile = async (
   componentName: string,
   analysis: FileAnalysis,
-): Promise<'keep' | 'upstream'> => {
-  // Infinite loop so the user can view the diff and then choose. "Show diff"
-  // loops back to the same prompt rather than terminating — the loop only
-  // exits when the user picks a final action (keep or upstream).
+): Promise<ReviewResult> => {
+  const isNewFile = analysis.status === 'new-upstream';
+  const isConflict = analysis.status === 'conflict';
+  const isUserModified = analysis.status === 'user-modified';
+
+  const suffix = isConflict
+    ? '— how to resolve?'
+    : isNewFile
+      ? '— new file from upstream'
+      : isUserModified
+        ? '— you modified this file'
+        : '— upstream changed';
+
+  const applyOption = isConflict || isUserModified
+    ? {
+        value: 'upstream' as const,
+        label: 'Take upstream version',
+        hint: isUserModified ? 'revert to upstream' : 'discard my changes for this file',
+      }
+    : isNewFile
+      ? {
+          value: 'upstream' as const,
+          label: 'Add this file',
+          hint: 'create the file',
+        }
+      : {
+          value: 'upstream' as const,
+          label: 'Apply update',
+          hint: 'overwrite with upstream',
+        };
+
+  const skipOption = isConflict || isUserModified
+    ? {
+        value: 'keep' as const,
+        label: 'Keep my version',
+        hint: 'skip upstream changes for this file',
+      }
+    : {
+        value: 'keep' as const,
+        label: 'Skip for now',
+        hint: 'keep current, ask again next time',
+      };
+
+  const options: { value: string; label: string; hint: string }[] = [
+    {
+      value: 'diff',
+      label: isNewFile ? 'Show new file' : 'Show diff',
+      hint: 'see what changed',
+    },
+    skipOption,
+    applyOption,
+  ];
+
+  // New files have nothing to compare hunk-by-hunk — it's all new content
+  if (!isNewFile) {
+    options.push({
+      value: 'hunk-review',
+      label: 'Review by hunk',
+      hint: 'accept/reject individual changes',
+    });
+  }
+
   // eslint-disable-next-line no-constant-condition
   while (true) {
     const choice = await p.select({
-      message: `${pc.bold(componentName)}/${pc.bold(analysis.file)} — how to resolve?`,
-      options: [
-        {
-          value: 'diff',
-          label: 'Show diff',
-          hint: 'see what changed',
-        },
-        {
-          value: 'keep',
-          label: 'Keep my version',
-          hint: 'skip upstream changes for this file',
-        },
-        {
-          value: 'upstream',
-          label: 'Take upstream version',
-          hint: 'discard my changes for this file',
-        },
-      ],
+      message: `${pc.bold(componentName)}/${pc.bold(analysis.file)} ${suffix}`,
+      options,
     });
 
     if (p.isCancel(choice)) {
@@ -74,14 +220,31 @@ const resolveConflict = async (
     }
 
     if (choice === 'diff') {
-      const diff = formatDiff(analysis.currentContent, analysis.newContent);
-      p.log.message(
-        `\n${pc.bold('Diff')} (${pc.red('- yours')} / ${pc.green('+ upstream')}):\n\n${diff}\n`,
-      );
+      if (isNewFile) {
+        const lines = analysis.newContent
+          .split('\n')
+          .map((line) => pc.green(`+ ${line}`))
+          .join('\n');
+        p.log.message(`\n${pc.bold('New file')} (full content):\n\n${lines}\n`);
+      } else {
+        const diff = formatDiff(analysis.currentContent, analysis.newContent);
+        p.log.message(
+          `\n${pc.bold('Diff')} (${pc.red('- yours')} / ${pc.green('+ upstream')}):\n\n${diff}\n`,
+        );
+      }
       continue;
     }
 
-    return choice as 'keep' | 'upstream';
+    if (choice === 'hunk-review') {
+      return reviewHunks(
+        componentName,
+        analysis.file,
+        analysis.currentContent,
+        analysis.newContent,
+      );
+    }
+
+    return { decision: choice as 'keep' | 'upstream' };
   }
 };
 
@@ -112,7 +275,10 @@ const resolveConflict = async (
  * update compares against the (now-advanced) base and surfaces only changes
  * introduced since this update.
  */
-export const updateCommand = async (options: { force?: boolean }) => {
+export const updateCommand = async (options: {
+  force?: boolean;
+  selective?: boolean;
+}) => {
   const cwd = process.cwd();
 
   p.intro(pc.bold('dolan update'));
@@ -271,10 +437,29 @@ export const updateCommand = async (options: { force?: boolean }) => {
   );
 
   // Nothing to do
+  if (autoUpdateCount === 0 && conflictCount === 0 && userModifiedCount === 0) {
+    p.outro('Everything is up to date.');
+    writeLockfile(
+      cwd,
+      buildLockfile(componentAnalyses, sharedAnalyses, lockfile),
+    );
+    return;
+  }
+
+  const isSelective = !!options.selective && !options.force;
+
+  if (options.force) {
+    p.log.warn(
+      'Force mode — all files will be overwritten with upstream versions.',
+    );
+  }
+
+  // Nothing actionable without force or selective
   if (
+    !options.force &&
+    !isSelective &&
     autoUpdateCount === 0 &&
-    conflictCount === 0 &&
-    userModifiedCount === 0
+    conflictCount === 0
   ) {
     p.outro('Everything is up to date.');
     writeLockfile(
@@ -284,66 +469,83 @@ export const updateCommand = async (options: { force?: boolean }) => {
     return;
   }
 
-  if (options.force) {
-    p.log.warn(
-      'Force mode — all files will be overwritten with upstream versions.',
-    );
-  }
-
-  // Nothing actionable without force
-  if (!options.force && autoUpdateCount === 0 && conflictCount === 0) {
-    p.outro('Everything is up to date.');
-    writeLockfile(
-      cwd,
-      buildLockfile(componentAnalyses, sharedAnalyses, lockfile),
-    );
-    return;
-  }
-
-  if (!options.force) {
-    // Confirm before proceeding
-    if (autoUpdateCount > 0 && conflictCount === 0) {
-      const confirm = await p.confirm({
-        message: `Apply ${autoUpdateCount} auto-update(s)?`,
-        initialValue: true,
-      });
-      if (p.isCancel(confirm) || !confirm) {
-        p.cancel('Update cancelled.');
-        process.exit(0);
-      }
-    } else if (conflictCount > 0) {
-      p.log.warn(
-        `${conflictCount} file(s) have conflicts that need manual resolution.`,
-      );
-      const proceed = await p.confirm({
-        message: 'Continue with update and resolve conflicts?',
-        initialValue: true,
-      });
-      if (p.isCancel(proceed) || !proceed) {
-        p.cancel('Update cancelled.');
-        process.exit(0);
-      }
+  if (!options.force && !isSelective && autoUpdateCount > 0) {
+    const confirm = await p.confirm({
+      message: `Apply ${autoUpdateCount} auto-update(s)?`,
+      initialValue: true,
+    });
+    if (p.isCancel(confirm) || !confirm) {
+      p.cancel('Update cancelled.');
+      process.exit(0);
     }
   }
 
+  const reviewableCount = autoUpdateCount + userModifiedCount;
+  if (isSelective && reviewableCount > 0) {
+    p.log.info(
+      `Selective mode — reviewing ${pc.bold(String(reviewableCount))} file(s) individually.`,
+    );
+  }
+
   // --- Resolve conflicts ---
-  const resolutions = new Map<string, 'keep' | 'upstream'>();
+  const resolutions = new Map<string, ReviewResult>();
+  const partialContents = new Map<string, string>();
 
   if (!options.force) {
     for (const comp of componentAnalyses) {
       for (const file of comp.files) {
         if (file.status === 'conflict') {
           const key = `${comp.name}/${file.file}`;
-          const resolution = await resolveConflict(comp.name, file);
-          resolutions.set(key, resolution);
+          const result = await reviewFile(comp.name, file);
+          resolutions.set(key, result);
+          if (result.decision === 'partial' && result.content) {
+            partialContents.set(key, result.content);
+          }
         }
       }
     }
 
     for (const file of sharedAnalyses) {
       if (file.status === 'conflict') {
-        const resolution = await resolveConflict('shared', file);
-        resolutions.set(file.file, resolution);
+        const result = await reviewFile('shared', file);
+        resolutions.set(file.file, result);
+        if (result.decision === 'partial' && result.content) {
+          partialContents.set(file.file, result.content);
+        }
+      }
+    }
+  }
+
+  // --- Selective review of auto-updates and new files ---
+  if (isSelective) {
+    for (const comp of componentAnalyses) {
+      for (const file of comp.files) {
+        if (
+            file.status === 'auto-update' ||
+            file.status === 'new-upstream' ||
+            file.status === 'user-modified'
+          ) {
+          const key = `${comp.name}/${file.file}`;
+          const result = await reviewFile(comp.name, file);
+          resolutions.set(key, result);
+          if (result.decision === 'partial' && result.content) {
+            partialContents.set(key, result.content);
+          }
+        }
+      }
+    }
+
+    for (const file of sharedAnalyses) {
+      if (
+            file.status === 'auto-update' ||
+            file.status === 'new-upstream' ||
+            file.status === 'user-modified'
+          ) {
+        const result = await reviewFile('shared', file);
+        resolutions.set(file.file, result);
+        if (result.decision === 'partial' && result.content) {
+          partialContents.set(file.file, result.content);
+        }
       }
     }
   }
@@ -368,24 +570,56 @@ export const updateCommand = async (options: { force?: boolean }) => {
       const destPath = join(destDir, file.file);
       const key = `${comp.name}/${file.file}`;
 
-      // Overwrite when ANY of these are true:
-      //   1. auto-update  — user hasn't touched it, safe to overwrite
-      //   2. new-upstream  — file is new (didn't exist locally), no risk
-      //   3. force + user-modified — explicit reset of user's edits
-      //   4. conflict resolved as 'upstream' (or force) — user said take theirs
-      const shouldOverwrite =
-        file.status === 'auto-update' ||
-        file.status === 'new-upstream' ||
-        (options.force && file.status === 'user-modified') ||
-        (file.status === 'conflict' &&
-          (options.force || resolutions.get(key) === 'upstream'));
+      const resolution = resolutions.get(key)?.decision;
 
-      if (shouldOverwrite) {
+      // In selective mode, auto-update/new-upstream files need explicit
+      // approval — "skip for now" means don't touch file OR lockfile hash
+      // so the change surfaces again on the next run.
+      const selectivelySkipped =
+        isSelective &&
+        (file.status === 'auto-update' || file.status === 'new-upstream') &&
+        resolution === 'keep';
+
+      // Overwrite when ANY of these are true:
+      //   1. auto-update (not selectively skipped, not partial)
+      //   2. new-upstream (not selectively skipped, not partial)
+      //   3. user-modified resolved as 'upstream' (selective review or force)
+      //   4. conflict resolved as 'upstream' (or force)
+      const shouldOverwrite =
+        !selectivelySkipped &&
+        resolution !== 'partial' &&
+        (file.status === 'auto-update' ||
+          file.status === 'new-upstream' ||
+          (file.status === 'user-modified' &&
+            (options.force || resolution === 'upstream')) ||
+          (file.status === 'conflict' &&
+            (options.force || resolution === 'upstream')));
+
+      if (resolution === 'partial') {
+        // User accepted some hunks but not all — write reconstructed
+        // content and advance lockfile to upstream hash. On next update
+        // the file shows as "user-modified" (the user's partial is their
+        // version now).
+        const content = partialContents.get(key)!;
+        writeFileSync(destPath, content);
+        newLockfile.components[comp.name][file.file] = {
+          hash: hashContent(file.newContent),
+        };
+        appliedCount++;
+      } else if (shouldOverwrite) {
         writeFileSync(destPath, file.newContent);
         newLockfile.components[comp.name][file.file] = {
           hash: hashContent(file.newContent),
         };
         appliedCount++;
+      } else if (selectivelySkipped) {
+        // "Not now" — preserve the existing lockfile entry so this file
+        // appears as auto-update/new-upstream again on the next run.
+        const existingEntry = lockfile.components[comp.name]?.[file.file];
+        if (existingEntry) {
+          newLockfile.components[comp.name][file.file] = existingEntry;
+        }
+        skippedCount++;
       } else if (file.status === 'conflict') {
         // User chose to keep their version. We still advance the lockfile base
         // to the current upstream hash. This means on the next update:
@@ -419,19 +653,40 @@ export const updateCommand = async (options: { force?: boolean }) => {
     mkdirSync(themeDir, { recursive: true });
     const destPath = join(themeDir, fileName);
 
+    const sharedResolution = resolutions.get(file.file)?.decision;
+
+    const selectivelySkippedShared =
+      isSelective &&
+      (file.status === 'auto-update' || file.status === 'new-upstream') &&
+      sharedResolution === 'keep';
+
     const shouldOverwrite =
-      file.status === 'auto-update' ||
-      file.status === 'new-upstream' ||
-      (options.force && file.status === 'user-modified') ||
-      (file.status === 'conflict' &&
-        (options.force || resolutions.get(file.file) === 'upstream'));
+      !selectivelySkippedShared &&
+      sharedResolution !== 'partial' &&
+      (file.status === 'auto-update' ||
+        file.status === 'new-upstream' ||
+        (file.status === 'user-modified' &&
+          (options.force || sharedResolution === 'upstream')) ||
+        (file.status === 'conflict' &&
+          (options.force || sharedResolution === 'upstream')));
 
     const entry = { hash: hashContent(file.newContent) };
 
-    if (shouldOverwrite) {
+    if (sharedResolution === 'partial') {
+      const content = partialContents.get(file.file)!;
+      writeFileSync(destPath, content);
+      newLockfile.theme[fileName] = entry;
+      appliedCount++;
+    } else if (shouldOverwrite) {
       writeFileSync(destPath, file.newContent);
       newLockfile.theme[fileName] = entry;
       appliedCount++;
+    } else if (selectivelySkippedShared) {
+      const existingEntry = lockfile.theme[fileName];
+      if (existingEntry) {
+        newLockfile.theme[fileName] = existingEntry;
+      }
+      skippedCount++;
     } else if (file.status === 'conflict') {
       newLockfile.theme[fileName] = entry;
       skippedCount++;
@@ -448,7 +703,11 @@ export const updateCommand = async (options: { force?: boolean }) => {
   if (appliedCount > 0) {
     p.log.success(`${pc.bold(String(appliedCount))} file(s) updated.`);
   }
-  if (skippedCount > 0) {
+  if (skippedCount > 0 && isSelective) {
+    p.log.info(
+      `${pc.bold(String(skippedCount))} file(s) skipped — they'll appear again on next update.`,
+    );
+  } else if (skippedCount > 0) {
     p.log.info(`${pc.bold(String(skippedCount))} file(s) kept as-is.`);
   }
 

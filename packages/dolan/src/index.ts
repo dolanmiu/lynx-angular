@@ -47,6 +47,7 @@ program
     '-f, --force',
     'overwrite all files with upstream, discarding local changes',
   )
+  .option('-s, --selective', 'review and individually accept/skip each change')
   .action(updateCommand);
 
 program

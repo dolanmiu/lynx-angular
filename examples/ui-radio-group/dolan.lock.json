@@ -3,27 +3,30 @@
   "components": {
     "radio-group": {
       "index.ts": {
-        "hash": "f9f7111ca1ef47023dd930850c856e8224529dc7a85b3a1cb025672bdbf9ab04"
+        "hash": "f9f7111ca1ef4702"
       },
       "radio-group.ts": {
-        "hash": "d63c15e7f119b5167f6a531510fa691e46af2f80f41907f5abb87e576461654b"
+        "hash": "b1c8d6c43886eb8e"
       }
     },
     "label": {
       "index.ts": {
-        "hash": "85cf48114b14edc8adc7413797684c8c5127f8ceed3a98aa57bd7a09a36319dd"
+        "hash": "85cf48114b14edc8"
       },
       "label.ts": {
-        "hash": "b46043b92054137d634dda5a6baf4fafb14d00f04a3a7b05c65428c1fb390ea3"
+        "hash": "c62bec8145e47621"
       }
     }
   },
   "theme": {
     "default.css": {
-      "hash": "1de0af3e74d0ec13de113e6a50347b3ba66d583c84d86ac46b3ccb1d2b3fb998"
+      "hash": "1de0af3e74d0ec13"
     },
     "tailwind-plugin.ts": {
-      "hash": "1884f9902ca4245b933854847ebaaf88b522ae955bf5176b98e11e042bed0434"
+      "hash": "1884f9902ca4245b"
+    },
+    "dark.css": {
+      "hash": "c7a38ea61a8a2ad3"
     }
   }
 }

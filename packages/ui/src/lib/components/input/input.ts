@@ -10,6 +10,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { type FormValueControl } from '@angular/forms/signals';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
 import { type AnimationHandle, shake } from '../../utils/animate';
@@ -25,19 +26,22 @@ import { cn } from '../../utils/cn';
       @if (label()) {
         <text [class]="labelClass()">{{ label() }}</text>
       }
-      <!-- [attr.disabled]="disabled() || undefined": passing 'undefined'
-           removes the attribute entirely; passing 'false' would set
-           disabled="false" which Lynx still treats as disabled. -->
-      <input
-        [attr.placeholder]="placeholder()"
-        [attr.type]="type()"
-        [attr.value]="value()"
-        [attr.disabled]="disabled() || undefined"
-        [class]="inputClass()"
-        (bindinput)="onInput($any($event))"
-        (bindfocus)="onFocus()"
-        (bindblur)="onBlur()"
-      />
+      <view [class]="inputWrapperClass()">
+        <!-- [attr.disabled]="disabled() || undefined": passing 'undefined'
+             removes the attribute entirely; passing 'false' would set
+             disabled="false" which Lynx still treats as disabled. -->
+        <input
+          [attr.placeholder]="placeholder()"
+          [attr.type]="type()"
+          [attr.value]="value()"
+          [attr.disabled]="disabled() || undefined"
+          class="text-sm text-foreground"
+          style="border: none; background: transparent; height: 100%; width: 100%;"
+          (bindinput)="onInput($any($event))"
+          (bindfocus)="onFocus()"
+          (bindblur)="onBlur()"
+        />
+      </view>
       @if (error()) {
         <text [class]="errorClass()">{{ error() }}</text>
       } @else if (helperText()) {
@@ -46,7 +50,7 @@ import { cn } from '../../utils/cn';
     </view>
   `,
 })
-export class UiInput {
+export class UiInput implements FormValueControl<string> {
   readonly value = model<string>('');
   readonly label = input<string>('');
   readonly placeholder = input<string>('');
@@ -86,14 +90,14 @@ export class UiInput {
     cn('text-sm font-medium text-foreground'),
   );
 
-  protected readonly inputClass = computed(() =>
+  protected readonly inputWrapperClass = computed(() =>
     cn(
-      'h-10 w-full rounded-lg border bg-background px-3.5 py-2 text-sm text-foreground',
+      'h-10 rounded-xl bg-muted px-3.5 py-2',
       this.error()
-        ? 'border-destructive'
+        ? 'ring-2 ring-destructive'
         : this.#isFocused()
-          ? 'border-ring border-2'
-          : 'border-input',
+          ? 'ring-2 ring-ring'
+          : '',
       this.disabled() && 'opacity-50',
     ),
   );

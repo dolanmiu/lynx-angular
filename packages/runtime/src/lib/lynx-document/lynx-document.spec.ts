@@ -159,19 +159,28 @@ describe('LynxDocument', () => {
       );
     });
 
-    it('creates a block element', () => {
+    it('creates a block element via __CreateElement', () => {
       doc.createElement('block');
-      expect(asMock(globalThis.__CreateBlock)).toHaveBeenCalled();
+      expect(asMock(globalThis.__CreateElement)).toHaveBeenCalledWith(
+        'block',
+        expect.any(Number),
+      );
     });
 
-    it('creates an if element', () => {
+    it('creates an if element via __CreateElement', () => {
       doc.createElement('if');
-      expect(asMock(globalThis.__CreateIf)).toHaveBeenCalled();
+      expect(asMock(globalThis.__CreateElement)).toHaveBeenCalledWith(
+        'if',
+        expect.any(Number),
+      );
     });
 
-    it('creates a for element', () => {
+    it('creates a for element via __CreateElement', () => {
       doc.createElement('for');
-      expect(asMock(globalThis.__CreateFor)).toHaveBeenCalled();
+      expect(asMock(globalThis.__CreateElement)).toHaveBeenCalledWith(
+        'for',
+        expect.any(Number),
+      );
     });
 
     it('creates a frame element', () => {

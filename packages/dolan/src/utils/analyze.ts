@@ -1,5 +1,6 @@
 import pc from 'picocolors';
-import { diffLines } from 'diff';
+import { diffLines, structuredPatch, applyPatch } from 'diff';
+import type { Hunk, ParsedDiff } from 'diff';
 
 export type FileStatus =
   | 'up-to-date'
@@ -106,4 +107,53 @@ export const summarizeComponent = (analysis: ComponentAnalysis): FileStatus => {
     return 'auto-update';
   if (statuses.includes('user-modified')) return 'user-modified';
   return 'up-to-date';
+};
+
+export { type Hunk } from 'diff';
+
+export const getHunks = (
+  currentContent: string,
+  newContent: string,
+  context = 3,
+): Hunk[] => {
+  const patch = structuredPatch(
+    'file',
+    'file',
+    currentContent,
+    newContent,
+    '',
+    '',
+    {
+      context,
+    },
+  );
+  return patch.hunks;
+};
+
+export const formatHunk = (hunk: Hunk): string => {
+  const lines: string[] = [];
+  for (const line of hunk.lines) {
+    const prefix = line[0];
+    if (prefix === '+') {
+      lines.push(pc.green(line));
+    } else if (prefix === '-') {
+      lines.push(pc.red(line));
+    } else {
+      lines.push(pc.dim(line));
+    }
+  }
+  return lines.join('\n');
+};
+
+export const applySelectedHunks = (
+  currentContent: string,
+  newContent: string,
+  acceptedIndices: number[],
+): string | false => {
+  const patch = structuredPatch('file', 'file', currentContent, newContent);
+  const partial: ParsedDiff = {
+    ...patch,
+    hunks: patch.hunks.filter((_, i) => acceptedIndices.includes(i)),
+  };
+  return applyPatch(currentContent, partial);
 };

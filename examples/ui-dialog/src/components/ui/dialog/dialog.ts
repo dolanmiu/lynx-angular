@@ -58,6 +58,10 @@ export class UiDialog {
   #hasBeenOpen = false;
 
   constructor() {
+    // `#hasBeenOpen` prevents the close animation from running on the initial
+    // effect evaluation when `open` starts as false. Without this guard, the
+    // very first run would call #doClose() immediately, resulting in a no-op
+    // animation that still hides the overlay and emits `closed` unexpectedly.
     effect(() => {
       const isOpen = this.open();
       if (isOpen) {
@@ -93,6 +97,11 @@ export class UiDialog {
     this.open.set(false);
   }
 
+  /**
+   * Two-phase open: make overlay visible first (so native elements exist in
+   * the tree), then animate on the next frame. See nav-drawer for the same
+   * pattern — Lynx animate() requires elements to be mounted before use.
+   */
   #doOpen(): void {
     setTimeout(() => {
       this.overlayVisible.set(true);
@@ -100,6 +109,10 @@ export class UiDialog {
     }, 0);
   }
 
+  /**
+   * Animate out before hiding; +20ms guards against Lynx timer imprecision
+   * causing elements to disappear before the animation finishes.
+   */
   #doClose(): void {
     setTimeout(() => {
       this.#animateOut();

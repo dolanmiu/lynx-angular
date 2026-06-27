@@ -53,6 +53,16 @@ if (typeof AbortController === 'undefined') {
   };
 }
 
+// Angular 22's getSimpleChangesStore (ngOnChanges lifecycle machinery) uses
+// Object.hasOwn() to check if a SimpleChanges store is already attached to
+// the directive instance. Lynx's PrimJS engine is ES2015-era and lacks this
+// ES2022 static method. Without it, any component/directive that implements
+// ngOnChanges (including FormField from @angular/forms/signals) crashes at
+// instantiation with "Object.hasOwn is not a function".
+if (typeof Object.hasOwn !== 'function') {
+  Object.hasOwn = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
+}
+
 if (typeof performance === 'undefined') {
   globalThis.performance = undefined;
 }

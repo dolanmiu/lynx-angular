@@ -323,6 +323,19 @@ class AngularWebpackPlugin {
       hooks.beforeEncode.tap(this.constructor.name, (args) => {
         const { encodeData } = args;
 
+        // Enable CSS custom property resolution (var(--xxx) / {{--xxx}}) in the
+        // Lynx native runtime. Without this, Lynx's CSS engine can't resolve
+        // variable references like hsl({{--background}}/1) — every Tailwind
+        // theme color, border-radius, etc. that uses CSS variables silently
+        // evaluates to nothing, producing a page with no visible styles.
+        // React Lynx enables this via pluginLynxConfig({ enableCSSInlineVariables: true }).
+        // This is a Config option (sourceContent.config), NOT a CompilerOptions
+        // option — the Lynx engine reads it from the config section at runtime.
+        encodeData.sourceContent.config = {
+          ...encodeData.sourceContent.config,
+          enableCSSInlineVariables: true,
+        };
+
         if (!encodeData.lepusCode.root) {
           return args;
         }

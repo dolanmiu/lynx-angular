@@ -1,0 +1,78 @@
+# Icon
+
+SVG icons rendered natively via Lynx's `<svg>` element. Includes 23 commonly used icons from the Lucide icon set.
+
+<Go example="ui-icon" defaultFile="src/app/app.ts" />
+
+## Installation
+
+```bash
+npx @blotch/dolan add icon
+```
+
+```typescript
+import { UiIcon } from '@/components/ui/icon';
+```
+
+## Usage
+
+```angular-html
+<ui-icon name="check" />
+```
+
+## Available icons
+
+`check`, `x`, `plus`, `minus`, `chevron-down`, `chevron-up`, `chevron-left`, `chevron-right`, `arrow-left`, `arrow-right`, `search`, `menu`, `info`, `alert-triangle`, `loader`, `circle`, `ellipsis`, `eye`, `eye-off`, `settings`, `trash`, `heart`, `star`
+
+## Sizes
+
+Use the `size` input to control the icon dimensions.
+
+```angular-html
+<ui-icon name="heart" size="xs" />
+<!-- 16px -->
+<ui-icon name="heart" size="sm" />
+<!-- 20px -->
+<ui-icon name="heart" size="md" />
+<!-- 24px (default) -->
+<ui-icon name="heart" size="lg" />
+<!-- 32px -->
+```
+
+## Custom colors
+
+By default the icon uses `currentColor`. Pass a `color` to override.
+
+```angular-html
+<ui-icon name="heart" color="#ef4444" />
+<ui-icon name="star" color="#eab308" />
+<ui-icon name="check" color="#22c55e" />
+```
+
+## Using with Button
+
+Pair icons with buttons using the `icon` size variant.
+
+```angular-html
+<ui-button size="icon">
+  <ui-icon name="plus" size="sm" color="white" />
+</ui-button>
+```
+
+## Type safety
+
+Import `IconName` for type-safe icon names in your component class.
+
+```typescript
+import { type IconName } from '@/components/ui/icon';
+
+readonly currentIcon = signal<IconName>('check');
+```
+
+## API
+
+| Input   | Type                           | Default      | Description                                             |
+| ------- | ------------------------------ | ------------ | ------------------------------------------------------- |
+| `name`  | `IconName`                     | _(required)_ | Name of the icon to render                              |
+| `size`  | `'xs' \| 'sm' \| 'md' \| 'lg'` | `'md'`       | Size of the icon (16/20/24/32 px)                       |
+| `color` | `string \| undefined`          | `undefined`  | Overrides the stroke color (defaults to `currentColor`) |

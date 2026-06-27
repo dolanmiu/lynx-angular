@@ -20,6 +20,11 @@ export type ToastOptions = Partial<Omit<ToastData, 'id'>> & {
 
 let nextId = 0;
 
+/**
+ * Module-level signal (not in an injectable service) so toast() can be called
+ * from anywhere — including plain functions and router guards — without requiring
+ * a DI context. UiToastContainer reads this signal reactively to render the queue.
+ */
 export const toasts = signal<readonly ToastData[]>([]);
 
 export const toast = (options: ToastOptions): string => {

@@ -11,11 +11,7 @@ import {
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
-import {
-  type AnimationHandle,
-  popIn,
-  popOut,
-} from '@blotch/dolan/utils/animate';
+import { type AnimationHandle, popIn, popOut } from '@blotch/dolan/utils/animate';
 import { cn } from '@blotch/dolan/utils/cn';
 
 @Component({
@@ -51,7 +47,11 @@ export class UiCheckbox {
   #previousChecked?: boolean;
 
   constructor() {
-    // Animate the checkmark on state transitions (skip initial render)
+    // Animate the checkmark on state transitions (skip initial render).
+    // `#previousChecked === undefined` guards the first run — we don't want to
+    // pop-in the checkmark when the component mounts already-checked.
+    // The `isChecked === this.#previousChecked` guard prevents a second animation
+    // from firing if the effect re-runs without an actual state change.
     effect(() => {
       const isChecked = this.checked();
       const el = this.checkmarkRef()?.nativeElement;
