@@ -6,15 +6,13 @@ export default defineConfig({
     __DEV__: JSON.stringify(true),
     __MAIN_THREAD__: JSON.stringify(true),
   },
-  // Angular's @ViewChild / @Input field decorators require the legacy decorator
-  // semantics. Tell esbuild to use experimentalDecorators + no class-field define
-  // so that Angular's JIT compiler can read the decorator metadata at runtime.
-  esbuild: {
-    tsconfigRaw: {
-      compilerOptions: {
-        experimentalDecorators: true,
-        useDefineForClassFields: false,
-      },
+  // Vite 8 switched from esbuild to OXC as the TypeScript transformer. Angular's
+  // @Component / @Directive / @Injectable decorators need the legacy decorator
+  // transform so Angular's JIT compiler can read the metadata at runtime.
+  // (The old esbuild.tsconfigRaw.experimentalDecorators approach no longer applies.)
+  oxc: {
+    decorator: {
+      legacy: true,
     },
   },
   test: {

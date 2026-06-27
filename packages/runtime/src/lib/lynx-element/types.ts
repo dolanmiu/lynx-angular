@@ -52,7 +52,12 @@ export type BaseLynxElement = Pick<LynxJsElement, 'setAttribute'> & {
   ): BaseLynxAnimation;
   /**
    * Invokes a native UI method on this element (e.g. setValue, scrollTo).
-   * Only available on the main thread — undefined on the background thread.
+   *
+   * Marked optional because it only exists on the main thread: LynxElement
+   * implements it via __InvokeUIMethod, while LynxBackgroundElement (used in
+   * tests and the background-thread context) does not — UIMethod calls have no
+   * meaning outside the native render thread. Callers should use invoke?.() so
+   * they become no-ops in test/background environments rather than crashing.
    */
   invoke?(
     methodName: string,
