@@ -60,7 +60,8 @@ if (typeof AbortController === 'undefined') {
 // ngOnChanges (including FormField from @angular/forms/signals) crashes at
 // instantiation with "Object.hasOwn is not a function".
 if (typeof Object.hasOwn !== 'function') {
-  Object.hasOwn = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
+  Object.hasOwn = (obj, prop) =>
+    Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
 if (typeof performance === 'undefined') {

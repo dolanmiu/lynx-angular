@@ -30,23 +30,23 @@ page.dark {
 
 ## Color Tokens
 
-| Token | Purpose | Used by |
-|-------|---------|---------|
-| `background` / `foreground` | Default app background and text | Page shell, sections, body text |
-| `card` / `card-foreground` | Elevated surfaces | Card, panels, settings sections |
-| `primary` / `primary-foreground` | High-emphasis actions, brand color | Default Button, badges, active accents |
-| `secondary` / `secondary-foreground` | Lower-emphasis actions | Secondary buttons, supporting UI |
-| `muted` / `muted-foreground` | Subtle surfaces, low-emphasis text | Placeholders, helper text, Input, Textarea |
-| `accent` / `accent-foreground` | Interactive highlights | Ghost buttons, hover states |
-| `destructive` / `destructive-foreground` | Error and danger emphasis | Destructive buttons, invalid states |
-| `border` | Borders and separators | Cards, menus, dividers |
-| `input` | Form control borders | Input, Textarea, Select |
-| `ring` | Focus rings | Buttons, inputs, focusable controls |
+| Token                                    | Purpose                            | Used by                                    |
+| ---------------------------------------- | ---------------------------------- | ------------------------------------------ |
+| `background` / `foreground`              | Default app background and text    | Page shell, sections, body text            |
+| `card` / `card-foreground`               | Elevated surfaces                  | Card, panels, settings sections            |
+| `primary` / `primary-foreground`         | High-emphasis actions, brand color | Default Button, badges, active accents     |
+| `secondary` / `secondary-foreground`     | Lower-emphasis actions             | Secondary buttons, supporting UI           |
+| `muted` / `muted-foreground`             | Subtle surfaces, low-emphasis text | Placeholders, helper text, Input, Textarea |
+| `accent` / `accent-foreground`           | Interactive highlights             | Ghost buttons, hover states                |
+| `destructive` / `destructive-foreground` | Error and danger emphasis          | Destructive buttons, invalid states        |
+| `border`                                 | Borders and separators             | Cards, menus, dividers                     |
+| `input`                                  | Form control borders               | Input, Textarea, Select                    |
+| `ring`                                   | Focus rings                        | Buttons, inputs, focusable controls        |
 
 ## Border Radius
 
-| Token | Purpose |
-|-------|---------|
+| Token    | Purpose                             |
+| -------- | ----------------------------------- |
 | `radius` | Base corner radius (default: `8px`) |
 
 Tailwind maps this to three utilities:
@@ -107,6 +107,7 @@ See the [Dark Mode guide](/guide/dark-mode) for toggling the `.dark` class at ru
 ## Full Variable Reference
 
 :::details Default theme (light)
+
 ```css
 page {
   --background: 0 0% 100%;
@@ -137,9 +138,11 @@ page {
   --radius: 8px;
 }
 ```
+
 :::
 
 :::details Dark theme
+
 ```css
 page.dark {
   --background: 240 10% 3.9%;
@@ -170,4 +173,5 @@ page.dark {
   --radius: 8px;
 }
 ```
+
 :::

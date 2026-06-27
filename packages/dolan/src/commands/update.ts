@@ -158,35 +158,39 @@ const reviewFile = async (
         ? '— you modified this file'
         : '— upstream changed';
 
-  const applyOption = isConflict || isUserModified
-    ? {
-        value: 'upstream' as const,
-        label: 'Take upstream version',
-        hint: isUserModified ? 'revert to upstream' : 'discard my changes for this file',
-      }
-    : isNewFile
+  const applyOption =
+    isConflict || isUserModified
       ? {
           value: 'upstream' as const,
-          label: 'Add this file',
-          hint: 'create the file',
+          label: 'Take upstream version',
+          hint: isUserModified
+            ? 'revert to upstream'
+            : 'discard my changes for this file',
+        }
+      : isNewFile
+        ? {
+            value: 'upstream' as const,
+            label: 'Add this file',
+            hint: 'create the file',
+          }
+        : {
+            value: 'upstream' as const,
+            label: 'Apply update',
+            hint: 'overwrite with upstream',
+          };
+
+  const skipOption =
+    isConflict || isUserModified
+      ? {
+          value: 'keep' as const,
+          label: 'Keep my version',
+          hint: 'skip upstream changes for this file',
         }
       : {
-          value: 'upstream' as const,
-          label: 'Apply update',
-          hint: 'overwrite with upstream',
+          value: 'keep' as const,
+          label: 'Skip for now',
+          hint: 'keep current, ask again next time',
         };
-
-  const skipOption = isConflict || isUserModified
-    ? {
-        value: 'keep' as const,
-        label: 'Keep my version',
-        hint: 'skip upstream changes for this file',
-      }
-    : {
-        value: 'keep' as const,
-        label: 'Skip for now',
-        hint: 'keep current, ask again next time',
-      };
 
   const options: { value: string; label: string; hint: string }[] = [
     {
@@ -521,10 +525,10 @@ export const updateCommand = async (options: {
     for (const comp of componentAnalyses) {
       for (const file of comp.files) {
         if (
-            file.status === 'auto-update' ||
-            file.status === 'new-upstream' ||
-            file.status === 'user-modified'
-          ) {
+          file.status === 'auto-update' ||
+          file.status === 'new-upstream' ||
+          file.status === 'user-modified'
+        ) {
           const key = `${comp.name}/${file.file}`;
           const result = await reviewFile(comp.name, file);
           resolutions.set(key, result);
@@ -537,10 +541,10 @@ export const updateCommand = async (options: {
 
     for (const file of sharedAnalyses) {
       if (
-            file.status === 'auto-update' ||
-            file.status === 'new-upstream' ||
-            file.status === 'user-modified'
-          ) {
+        file.status === 'auto-update' ||
+        file.status === 'new-upstream' ||
+        file.status === 'user-modified'
+      ) {
         const result = await reviewFile('shared', file);
         resolutions.set(file.file, result);
         if (result.decision === 'partial' && result.content) {
