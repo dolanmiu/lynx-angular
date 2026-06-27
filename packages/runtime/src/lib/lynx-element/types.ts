@@ -50,4 +50,12 @@ export type BaseLynxElement = Pick<LynxJsElement, 'setAttribute'> & {
     keyframes: Record<string, string | number>[],
     options?: number | LynxAnimationOptions,
   ): BaseLynxAnimation;
+  /**
+   * Invokes a native UI method on this element (e.g. setValue, scrollTo).
+   * Only available on the main thread — undefined on the background thread.
+   */
+  invoke?(
+    methodName: string,
+    params?: Record<string, unknown>,
+  ): void;
 };

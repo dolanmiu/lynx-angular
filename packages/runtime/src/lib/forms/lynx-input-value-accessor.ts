@@ -53,9 +53,15 @@ export class LynxInputValueAccessor implements ControlValueAccessor {
   }
 
   writeValue(value: string): void {
-    // setAttribute routes through BaseLynxElement.setAttribute → __SetAttribute,
-    // same path as LynxInput.ngOnChanges for the [value] binding.
-    this.#renderer.setAttribute(this.#el.nativeElement, 'value', value ?? '');
+    // __SetAttribute("value", ...) is a no-op on Lynx native inputs: the
+    // Android/iOS LynxUIBaseInput class has no @LynxProp handler for "value",
+    // so attribute changes after the user has typed are silently ignored by the
+    // native layer. Without this fix, reactive-form resets (e.g. form.reset())
+    // would update the Angular model but leave the native input showing stale text.
+    // invoke?.() routes to __InvokeUIMethod("setValue", {value}), which is the
+    // only supported path for programmatic text updates. The optional call (?.)
+    // is a no-op on the background thread (testing) where invoke isn't available.
+    this.#el.nativeElement.invoke?.('setValue', { value: value ?? '' });
   }
 
   registerOnChange(fn: (value: string) => void): void {

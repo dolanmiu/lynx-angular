@@ -2908,3 +2908,33 @@ The shadcn-style `hsl(var(--primary))` composition pattern cannot work on Lynx b
 Store theme colors as complete hex values in CSS variables (`--primary: #18181b`) and reference them directly (`var(--primary)`). This avoids the `hsl()` wrapper entirely but loses the ability to apply Tailwind opacity modifiers via `hsl(var() / <alpha-value>)`. Opacity must be handled differently (e.g., separate `--primary-50` variables, or `rgba()` with channel vars).
 
 **Status:** needs validation on device (css-var-validation screen in kitchen-sink-app).
+
+---
+
+## `<input>` and `<textarea>` `value` attribute is write-once — programmatic resets require `setValue` UIMethod
+
+### What you'd expect (web)
+
+Setting `element.value = ''` or `element.setAttribute('value', '')` clears the input's displayed text at any time, even after user interaction.
+
+### What Lynx does
+
+The native `<input>` and `<textarea>` elements (`LynxUIBaseInput` on both Android and iOS) have **no `@LynxProp` handler for the `value` attribute**. This means `__SetAttribute(element, 'value', '')` is effectively a **no-op** once the user has interacted with the field — it updates the attribute metadata but does not clear the displayed text.
+
+To programmatically set the displayed text, use the `setValue` UIMethod:
+
+```ts
+// Wrong — __SetAttribute("value") is ignored after user interaction
+__SetAttribute(element, 'value', '');
+
+// Correct — routes through __InvokeUIMethod("setValue", {value: ''})
+element.invoke('setValue', { value: '' });
+```
+
+### Impact on Angular forms
+
+When using Angular Signal Forms with `[formField]` on a component that implements `FormValueControl`, the form field reset resets the component's `model()` signal, which triggers a template binding update via `[attr.value]="value()"`. But since this calls `renderer.setAttribute(el, 'value', '')` → `__SetAttribute` → no-op, the native input is NOT cleared visually.
+
+### The fix in AngularLynx
+
+The `LynxInput` and `LynxTextarea` directives override `ngOnChanges` to call `this.#el.invoke?.('setValue', {value})` when the `value` input changes, bypassing `__SetAttribute`. UI components should use `[value]="value()"` (an Angular input binding that routes through `ngOnChanges`) rather than `[attr.value]="value()"` (an attribute binding that calls `renderer.setAttribute` directly and bypasses the override).

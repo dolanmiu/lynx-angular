@@ -167,6 +167,26 @@ export class LynxElement implements BaseLynxElement {
       (e) => new LynxElement(e),
     );
   }
+  /**
+   * Invokes a native UI method on this element by name.
+   *
+   * This is needed because some Lynx native elements expose behaviour only
+   * through UIMethod calls and have no corresponding @LynxProp handler. The
+   * most common case is input/textarea text updates: the native
+   * LynxUIBaseInput class has no @LynxProp for "value", so __SetAttribute
+   * is a no-op for changing the displayed text after user interaction. The
+   * setValue UIMethod is the only way to programmatically update the live
+   * text.
+   *
+   * The result callback is intentionally empty. Callers that need a result
+   * (e.g. getValue, boundingClientRect) should use MainThreadElement.invoke(),
+   * which returns a Promise. This method covers fire-and-forget cases like
+   * setValue where only the side-effect matters.
+   */
+  invoke(methodName: string, params?: Record<string, unknown>): void {
+    __InvokeUIMethod(this.element, methodName, params ?? {}, () => {});
+  }
+
   animate(
     keyframes: Record<string, string | number>[],
     options?: number | LynxAnimationOptions,

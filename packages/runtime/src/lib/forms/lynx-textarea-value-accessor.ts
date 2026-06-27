@@ -53,7 +53,12 @@ export class LynxTextareaValueAccessor implements ControlValueAccessor {
   }
 
   writeValue(value: string): void {
-    this.#renderer.setAttribute(this.#el.nativeElement, 'value', value ?? '');
+    // Same root cause as LynxInputValueAccessor: LynxUIBaseInput (the shared
+    // native base class for both input and textarea on Android/iOS) has no
+    // @LynxProp handler for "value", so __SetAttribute is silently ignored
+    // after the user has typed. invoke?.() calls __InvokeUIMethod("setValue")
+    // which is the correct path for programmatic text updates.
+    this.#el.nativeElement.invoke?.('setValue', { value: value ?? '' });
   }
 
   registerOnChange(fn: (value: string) => void): void {
