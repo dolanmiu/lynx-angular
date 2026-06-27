@@ -59,8 +59,5 @@ export type BaseLynxElement = Pick<LynxJsElement, 'setAttribute'> & {
    * meaning outside the native render thread. Callers should use invoke?.() so
    * they become no-ops in test/background environments rather than crashing.
    */
-  invoke?(
-    methodName: string,
-    params?: Record<string, unknown>,
-  ): void;
+  invoke?(methodName: string, params?: Record<string, unknown>): void;
 };

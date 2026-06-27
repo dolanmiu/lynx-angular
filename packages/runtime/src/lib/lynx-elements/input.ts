@@ -1,4 +1,9 @@
-import { Directive, ElementRef, inject, type SimpleChanges } from '@angular/core';
+import {
+  Directive,
+  ElementRef,
+  inject,
+  type SimpleChanges,
+} from '@angular/core';
 import type { BaseLynxElement } from '../lynx-element/types';
 import { LynxElementBase } from './base';
 
