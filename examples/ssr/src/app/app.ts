@@ -4,174 +4,93 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 @Component({
   selector: 'app-root',
   template: `
-    <scroll-view class="page" scroll-orientation="vertical">
-      <view class="container">
-        <text class="title">SSR</text>
-        <text class="subtitle"
+    <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
+      <view class="p-6">
+        <text class="text-[28px] font-bold text-zinc-900 mb-1">SSR</text>
+        <text class="text-[13px] text-zinc-500 mb-5"
           >Instant first-frame rendering with snapshot encoding.</text
         >
 
-        <!-- SSR diagnostic panel -->
         <view
-          class="status-card"
-          [class.status-ok]="ssrStatus().ok"
-          [class.status-err]="!ssrStatus().ok"
+          class="rounded-xl p-4 mb-4 border"
+          [class.bg-green-50]="ssrStatus().ok"
+          [class.border-green-200]="ssrStatus().ok"
+          [class.bg-red-50]="!ssrStatus().ok"
+          [class.border-red-200]="!ssrStatus().ok"
         >
-          <text class="status-title">SSR Status</text>
-          <text class="status-line">
-            ssrEncode registered:
-            {{ ssrStatus().encodeRegistered ? 'YES' : 'NO' }}
-          </text>
-          <text class="status-line">
-            ssrHydrate registered:
-            {{ ssrStatus().hydrateRegistered ? 'YES' : 'NO' }}
-          </text>
-          <text class="status-line">
-            Opcode count: {{ ssrStatus().opcodeCount }}
-          </text>
-          <text class="status-line">
-            Snapshot size: {{ ssrStatus().snapshotSize }} bytes
-          </text>
+          <text class="text-sm font-semibold text-zinc-900 mb-2"
+            >SSR Status</text
+          >
+          <text class="text-[13px] text-zinc-500 mb-0.5"
+            >ssrEncode registered:
+            {{ ssrStatus().encodeRegistered ? 'YES' : 'NO' }}</text
+          >
+          <text class="text-[13px] text-zinc-500 mb-0.5"
+            >ssrHydrate registered:
+            {{ ssrStatus().hydrateRegistered ? 'YES' : 'NO' }}</text
+          >
+          <text class="text-[13px] text-zinc-500 mb-0.5"
+            >Opcode count: {{ ssrStatus().opcodeCount }}</text
+          >
+          <text class="text-[13px] text-zinc-500 mb-0.5"
+            >Snapshot size: {{ ssrStatus().snapshotSize }} bytes</text
+          >
         </view>
 
-        <view class="btn" (bindtap)="runEncode()">
-          <text class="btn-text">Run ssrEncode()</text>
+        <view
+          class="bg-indigo-500 py-3 px-6 rounded-[10px] items-center mb-4"
+          (bindtap)="runEncode()"
+        >
+          <text class="text-white text-[15px] font-semibold"
+            >Run ssrEncode()</text
+          >
         </view>
 
         @if (snapshotPreview()) {
-          <view class="code-card">
-            <text class="code-text">{{ snapshotPreview() }}</text>
+          <view class="bg-zinc-100 rounded-lg p-3 mb-4">
+            <text class="text-[11px] text-zinc-900">{{
+              snapshotPreview()
+            }}</text>
           </view>
         }
 
-        <view class="card">
-          <text class="section-label">Static Content</text>
-          <text class="static-text">
+        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+          <text
+            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-2.5"
+            >Static Content</text
+          >
+          <text class="text-sm text-zinc-500 leading-5">
             This text is part of the first-frame snapshot. It appears instantly
             without waiting for JS to execute on the background thread.
           </text>
         </view>
 
-        <view class="card">
-          <text class="section-label">Dynamic Items</text>
+        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+          <text
+            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-2.5"
+            >Dynamic Items</text
+          >
           @for (item of items(); track item.id) {
-            <view class="item-row">
-              <text class="item-text">{{ item.label }}</text>
+            <view class="py-2.5 border-b border-zinc-200">
+              <text class="text-sm text-zinc-900">{{ item.label }}</text>
             </view>
           }
-          <view class="btn btn-sm" (bindtap)="addItem()">
-            <text class="btn-text">Add item (post-hydration)</text>
+          <view
+            class="bg-indigo-500 py-3 px-6 rounded-[10px] items-center mt-3"
+            (bindtap)="addItem()"
+          >
+            <text class="text-white text-[15px] font-semibold"
+              >Add item (post-hydration)</text
+            >
           </view>
         </view>
 
-        <text class="note">
+        <text class="text-xs text-zinc-400">
           Items added after hydration use normal element creation — the SSR
           snapshot only captures the initial render state.
         </text>
       </view>
     </scroll-view>
-  `,
-  styles: `
-    .page {
-      height: 100%;
-      background-color: #fafafa;
-    }
-    .container {
-      padding: 24px;
-    }
-    .title {
-      font-size: 28px;
-      font-weight: bold;
-      color: #18181b;
-      margin-bottom: 4px;
-    }
-    .subtitle {
-      font-size: 13px;
-      color: #71717a;
-      margin-bottom: 20px;
-    }
-    .status-card {
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-    .status-ok {
-      background-color: #f0fdf4;
-      border: 1px solid #bbf7d0;
-    }
-    .status-err {
-      background-color: #fef2f2;
-      border: 1px solid #fecaca;
-    }
-    .status-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: #18181b;
-      margin-bottom: 8px;
-    }
-    .status-line {
-      font-size: 13px;
-      color: #71717a;
-      margin-bottom: 2px;
-    }
-    .btn {
-      background-color: #6366f1;
-      padding: 12px 24px;
-      border-radius: 10px;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-    .btn-sm {
-      margin-top: 12px;
-      margin-bottom: 0;
-    }
-    .btn-text {
-      color: white;
-      font-size: 15px;
-      font-weight: 600;
-    }
-    .code-card {
-      background-color: #f4f4f5;
-      border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 16px;
-    }
-    .code-text {
-      font-size: 11px;
-      color: #18181b;
-    }
-    .card {
-      background-color: #ffffff;
-      border: 1px solid #e4e4e7;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-    .section-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: #a1a1aa;
-      margin-bottom: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .static-text {
-      font-size: 14px;
-      color: #71717a;
-      line-height: 20px;
-    }
-    .item-row {
-      padding: 10px 0;
-      border-bottom: 1px solid #e4e4e7;
-    }
-    .item-text {
-      font-size: 14px;
-      color: #18181b;
-    }
-    .note {
-      font-size: 12px;
-      color: #a1a1aa;
-    }
   `,
   imports: [LYNX_ELEMENTS],
 })
@@ -214,7 +133,6 @@ export class App {
         snapshotSize: result.length,
       });
 
-      // Show a truncated preview of the snapshot JSON
       const preview =
         result.length > 500 ? `${result.slice(0, 500)}...` : result;
       this.snapshotPreview.set(preview);

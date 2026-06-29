@@ -82,7 +82,7 @@ export class UiNavDrawer {
 
   protected readonly panelClass = computed(() =>
     cn(
-      'flex flex-col bg-background h-full',
+      'flex flex-col h-full',
       this.side() === 'left'
         ? 'border-r border-border'
         : 'border-l border-border',
@@ -92,9 +92,13 @@ export class UiNavDrawer {
 
   protected readonly panelPositionStyle = computed(() => {
     const sideValue = this.side();
-    return sideValue === 'left'
-      ? 'position: absolute; top: 0; bottom: 0; left: 0; width: 80%;'
-      : 'position: absolute; top: 0; bottom: 0; right: 0; width: 80%;';
+    // background-color uses rgba so Lynx's CSS parser accepts it — semantic
+    // Tailwind utilities like bg-background expand to space-separated HSL
+    // (hsl(var(--x) / 1)) which Lynx silently ignores.
+    const base =
+      'background-color: rgba(255, 255, 255, 1);' +
+      ' position: absolute; top: 0; bottom: 0; width: 80%;';
+    return sideValue === 'left' ? base + ' left: 0;' : base + ' right: 0;';
   });
 
   protected onBackdropTap(): void {

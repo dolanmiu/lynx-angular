@@ -1,17 +1,13 @@
-import type { ElementRef } from '@angular/core';
 import {
   Component,
   ViewEncapsulation,
   computed,
-  effect,
   inject,
   input,
   signal,
-  viewChild,
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
-import { type AnimationHandle, revealIn } from '@blotch/dolan/utils/animate';
 import { cn } from '@blotch/dolan/utils/cn';
 
 @Component({
@@ -127,7 +123,7 @@ export class UiAccordionTrigger {
   encapsulation: ViewEncapsulation.None,
   template: `
     @if (item.isExpanded()) {
-      <view #content [class]="contentClass()">
+      <view [class]="contentClass()">
         <ng-content />
       </view>
     }
@@ -136,20 +132,6 @@ export class UiAccordionTrigger {
 export class UiAccordionContent {
   protected readonly item = inject(UiAccordionItem);
   readonly userClass = input<string>('', { alias: 'class' });
-
-  readonly contentRef = viewChild<ElementRef>('content');
-  #anim?: AnimationHandle;
-
-  constructor() {
-    effect(() => {
-      const el = this.contentRef()?.nativeElement;
-      if (el && this.item.isExpanded()) {
-        this.#anim?.cancel();
-        // Content reveals with a slide-down + fade for a polished expand feel
-        this.#anim = revealIn(el, { fromY: -8 });
-      }
-    });
-  }
 
   protected readonly contentClass = computed(() =>
     cn('flex flex-col pb-4', this.userClass()),

@@ -1,4 +1,5 @@
 import { Component, computed, signal } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 import { UiCheckbox } from '../components/ui/checkbox';
 import {
@@ -39,6 +40,7 @@ type Task = {
   selector: 'app-root',
   imports: [
     LYNX_ELEMENTS,
+    NgTemplateOutlet,
     UiCheckbox,
     UiTabs,
     UiTabsList,
@@ -61,9 +63,11 @@ type Task = {
     UiActionSheetCancel,
   ],
   template: `
-    <view class="page">
-      <view class="header">
-        <text class="title">Tasks</text>
+    <view class="flex flex-col h-screen bg-zinc-50">
+      <view
+        class="flex flex-row items-center justify-between px-5 py-4 bg-white border-b border-zinc-200"
+      >
+        <text class="text-[22px] font-bold text-zinc-900">Tasks</text>
         <ui-button size="sm" (pressed)="newSheetOpen.set(true)"
           >+ New</ui-button
         >
@@ -105,8 +109,8 @@ type Task = {
     </view>
 
     <ng-template #taskList let-tasks="tasks">
-      <scroll-view scroll-orientation="vertical" class="task-scroll">
-        <view class="task-list">
+      <scroll-view scroll-orientation="vertical" class="flex-1">
+        <view class="flex flex-col gap-2 p-4">
           @if (tasks.length === 0) {
             <ui-empty-state
               title="No tasks"
@@ -114,14 +118,20 @@ type Task = {
             />
           }
           @for (task of tasks; track task.id) {
-            <view class="task-card" (longpress)="openOptions(task)">
+            <view
+              class="flex flex-row items-center gap-3 px-4 py-3.5 bg-white border border-zinc-200 rounded-xl"
+              (longpress)="openOptions(task)"
+            >
               <ui-checkbox
                 [checked]="task.done"
                 (checkedChange)="toggle(task.id)"
               />
-              <text class="task-title" [class.task-done]="task.done">{{
-                task.title
-              }}</text>
+              <text
+                class="flex-1 text-sm text-zinc-900"
+                [class.text-zinc-400]="task.done"
+                [class.line-through]="task.done"
+                >{{ task.title }}</text
+              >
               <ui-badge [variant]="priorityVariant(task.priority)">{{
                 task.priority
               }}</ui-badge>
@@ -135,12 +145,12 @@ type Task = {
       <ui-sheet-header
         ><ui-sheet-title>New Task</ui-sheet-title></ui-sheet-header
       >
-      <view class="sheet-form">
-        <view class="field">
+      <view class="flex flex-col gap-4 p-4">
+        <view class="flex flex-col gap-1.5">
           <ui-label>Title</ui-label>
           <ui-input [(value)]="newTitle" placeholder="Task title..." />
         </view>
-        <view class="field">
+        <view class="flex flex-col gap-1.5">
           <ui-label>Priority</ui-label>
           <ui-select [(value)]="newPriority">
             <ui-select-item value="high" label="High" />
@@ -167,67 +177,6 @@ type Task = {
         >
         <ui-action-sheet-cancel>Cancel</ui-action-sheet-cancel>
       </ui-action-sheet>
-    }
-  `,
-  styles: `
-    .page {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      background-color: #fafafa;
-    }
-    .header {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 20px;
-      background-color: #ffffff;
-      border-bottom: 1px solid #e4e4e7;
-    }
-    .title {
-      font-size: 22px;
-      font-weight: bold;
-      color: #18181b;
-    }
-    .task-scroll {
-      flex: 1;
-    }
-    .task-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      padding: 16px;
-    }
-    .task-card {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 12px;
-      padding: 14px 16px;
-      background-color: #ffffff;
-      border: 1px solid #e4e4e7;
-      border-radius: 12px;
-    }
-    .task-title {
-      flex: 1;
-      font-size: 14px;
-      color: #18181b;
-    }
-    .task-done {
-      color: #a1a1aa;
-      text-decoration: line-through;
-    }
-    .sheet-form {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      padding: 16px;
-    }
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
     }
   `,
 })

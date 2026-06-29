@@ -20,45 +20,41 @@ const FRENCH_TRANSLATIONS: Record<string, string> = {
   standalone: true,
   imports: [LYNX_ELEMENTS],
   template: `
-    <view style="padding: 16px;">
-      <text style="font-size: 20px; font-weight: bold; margin-bottom: 12px;">
-        i18n Demo
-      </text>
+    <view class="p-4">
+      <text class="text-xl font-bold mb-3"> i18n Demo </text>
 
-      <view
-        style="background-color: #e8f5e9; padding: 12px; border-radius: 8px; margin-bottom: 12px;"
-      >
-        <text style="font-size: 14px; color: #2e7d32;">
+      <view class="bg-green-50 p-3 rounded-lg mb-3">
+        <text class="text-sm text-green-800">
           Current locale: {{ localeService.locale() }}
         </text>
       </view>
 
-      <text style="font-size: 16px; margin-bottom: 8px;">
+      <text class="text-base mb-2">
         {{ greetingMessage }}
       </text>
 
-      <text style="font-size: 16px; margin-bottom: 8px;">
+      <text class="text-base mb-2">
         {{ welcomeMessage }}
       </text>
 
-      <text style="font-size: 16px; margin-bottom: 8px;">
+      <text class="text-base mb-2">
         {{ counterMessage() }}
       </text>
 
       <view
-        style="background-color: #6200ee; padding: 10px 20px; border-radius: 8px; margin-top: 8px;"
+        class="bg-[#6200ee] px-5 py-2.5 rounded-lg mt-2"
         (bindtap)="increment()"
       >
-        <text style="color: white; font-size: 14px;">
+        <text class="text-white text-sm">
           {{ tapMessage }}
         </text>
       </view>
 
       <view
-        style="background-color: #1565c0; padding: 10px 20px; border-radius: 8px; margin-top: 12px;"
+        class="bg-[#1565c0] px-5 py-2.5 rounded-lg mt-3"
         (bindtap)="toggleLocale()"
       >
-        <text style="color: white; font-size: 14px;">
+        <text class="text-white text-sm">
           {{ switchLabel }}
         </text>
       </view>

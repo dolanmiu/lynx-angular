@@ -10,33 +10,49 @@ type Item = { id: number; label: string };
 @Component({
   selector: 'app-root',
   template: `
-    <scroll-view class="page" scroll-orientation="vertical">
-      <view class="container">
-        <text class="title">Transitions</text>
-        <text class="subtitle"
+    <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
+      <view class="p-6">
+        <text class="text-[28px] font-bold text-zinc-900 mb-1"
+          >Transitions</text
+        >
+        <text class="text-[13px] text-zinc-500 mb-5"
           >Animate elements entering and leaving the DOM.</text
         >
 
-        <view class="card">
-          <text class="section-label">LynxTransition — Single Element</text>
-          <view class="btn" (bindtap)="togglePanel()">
-            <text class="btn-text">{{
+        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+          <text
+            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-3"
+            >LynxTransition — Single Element</text
+          >
+          <view
+            class="bg-indigo-500 rounded-lg py-2.5 px-5 items-center justify-center mb-3"
+            (bindtap)="togglePanel()"
+          >
+            <text class="text-white text-sm font-semibold">{{
               showPanel() ? 'Hide Panel' : 'Show Panel'
             }}</text>
           </view>
           <lynx-transition [show]="showPanel()" name="fade" [duration]="300">
-            <view class="panel">
-              <text class="panel-text">I fade and slide in/out!</text>
+            <view class="bg-indigo-50 rounded-lg p-4 mb-2">
+              <text class="text-sm text-indigo-700"
+                >I fade and slide in/out!</text
+              >
             </view>
           </lynx-transition>
         </view>
 
-        <view class="card">
-          <text class="section-label">LynxTransitionGroup — Dynamic List</text>
-          <view class="btn" (bindtap)="addItem()">
-            <text class="btn-text">+ Add Item</text>
+        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+          <text
+            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-3"
+            >LynxTransitionGroup — Dynamic List</text
+          >
+          <view
+            class="bg-indigo-500 rounded-lg py-2.5 px-5 items-center justify-center mb-3"
+            (bindtap)="addItem()"
+          >
+            <text class="text-white text-sm font-semibold">+ Add Item</text>
           </view>
-          <view class="list-area">
+          <view class="mt-1">
             <lynx-transition-group
               [each]="items()"
               [trackBy]="trackById"
@@ -44,10 +60,18 @@ type Item = { id: number; label: string };
               [duration]="300"
             >
               <ng-template let-item>
-                <view class="list-item">
-                  <text class="list-item-text">{{ item.label }}</text>
-                  <view class="remove-btn" (bindtap)="removeItem(item)">
-                    <text class="remove-btn-text">×</text>
+                <view
+                  class="bg-indigo-500 rounded-lg px-4 py-3 mb-2 flex-row justify-between items-center"
+                >
+                  <text class="text-sm font-semibold text-white flex-1">{{
+                    item.label
+                  }}</text>
+                  <view
+                    class="w-7 h-7 rounded-[14px] items-center justify-center"
+                    style="background-color: rgba(0,0,0,0.15)"
+                    (bindtap)="removeItem(item)"
+                  >
+                    <text class="text-white text-base font-bold">×</text>
                   </view>
                 </view>
               </ng-template>
@@ -59,65 +83,6 @@ type Item = { id: number; label: string };
   `,
   styles: [
     `
-      .page {
-        height: 100%;
-        background-color: #fafafa;
-      }
-      .container {
-        padding: 24px;
-      }
-      .title {
-        font-size: 28px;
-        font-weight: bold;
-        color: #18181b;
-        margin-bottom: 4px;
-      }
-      .subtitle {
-        font-size: 13px;
-        color: #71717a;
-        margin-bottom: 20px;
-      }
-      .card {
-        background-color: #ffffff;
-        border: 1px solid #e4e4e7;
-        border-radius: 12px;
-        padding: 16px;
-        margin-bottom: 16px;
-      }
-      .section-label {
-        font-size: 11px;
-        font-weight: 700;
-        color: #a1a1aa;
-        margin-bottom: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-
-      .btn {
-        background-color: #6366f1;
-        border-radius: 8px;
-        padding: 10px 20px;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 12px;
-      }
-      .btn-text {
-        color: white;
-        font-size: 14px;
-        font-weight: 600;
-      }
-
-      .panel {
-        background-color: #eef2ff;
-        border-radius: 8px;
-        padding: 16px;
-        margin-bottom: 8px;
-      }
-      .panel-text {
-        color: #4338ca;
-        font-size: 14px;
-      }
-
       .fade-enter-active,
       .fade-leave-active {
         transition:
@@ -131,38 +96,6 @@ type Item = { id: number; label: string };
       .fade-leave-to {
         opacity: 0;
         transform: translateY(-16px);
-      }
-
-      .list-area {
-        margin-top: 4px;
-      }
-      .list-item {
-        background-color: #6366f1;
-        border-radius: 8px;
-        padding: 12px 16px;
-        margin-bottom: 8px;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-      }
-      .list-item-text {
-        color: white;
-        font-size: 14px;
-        font-weight: 600;
-        flex: 1;
-      }
-      .remove-btn {
-        background-color: rgba(0, 0, 0, 0.15);
-        border-radius: 14px;
-        width: 28px;
-        height: 28px;
-        align-items: center;
-        justify-content: center;
-      }
-      .remove-btn-text {
-        color: white;
-        font-size: 16px;
-        font-weight: bold;
       }
 
       .list-enter-active,

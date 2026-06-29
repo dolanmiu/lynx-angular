@@ -48,11 +48,13 @@ type FaqCategory = { title: string; items: FaqItem[] };
     UiLabel,
   ],
   template: `
-    <scroll-view scroll-orientation="vertical" class="page">
-      <view class="container">
-        <view class="hero">
-          <text class="title">Help Center</text>
-          <text class="subtitle">Find answers to common questions</text>
+    <scroll-view scroll-orientation="vertical" class="h-screen bg-zinc-50">
+      <view class="flex flex-col gap-5 p-6">
+        <view class="flex flex-col gap-1">
+          <text class="text-[28px] font-bold text-zinc-900">Help Center</text>
+          <text class="text-sm text-zinc-500"
+            >Find answers to common questions</text
+          >
         </view>
 
         <ui-input
@@ -62,12 +64,14 @@ type FaqCategory = { title: string; items: FaqItem[] };
         />
 
         @for (cat of filtered(); track cat.title) {
-          <view class="category-card">
+          <view class="bg-white border border-zinc-200 rounded-2xl p-4">
             <ui-collapsible [open]="true">
               <ui-collapsible-trigger>
-                <view class="category-header">
-                  <text class="category-title">{{ cat.title }}</text>
-                  <text class="category-count"
+                <view class="flex flex-row items-center justify-between py-2">
+                  <text class="text-base font-semibold text-zinc-900">{{
+                    cat.title
+                  }}</text>
+                  <text class="text-xs text-zinc-400"
                     >{{ cat.items.length }} items</text
                   >
                 </view>
@@ -78,7 +82,9 @@ type FaqCategory = { title: string; items: FaqItem[] };
                     <ui-accordion-item [value]="item.q">
                       <ui-accordion-trigger>{{ item.q }}</ui-accordion-trigger>
                       <ui-accordion-content>
-                        <text class="answer-text">{{ item.a }}</text>
+                        <text class="text-sm text-zinc-500 leading-5">{{
+                          item.a
+                        }}</text>
                       </ui-accordion-content>
                     </ui-accordion-item>
                   }
@@ -87,14 +93,18 @@ type FaqCategory = { title: string; items: FaqItem[] };
             </ui-collapsible>
           </view>
         } @empty {
-          <view class="no-results">
-            <text class="no-results-icon">🔍</text>
-            <text class="no-results-text">No results for "{{ query() }}"</text>
+          <view class="flex flex-col items-center py-10 gap-2">
+            <text class="text-[32px]">🔍</text>
+            <text class="text-sm text-zinc-400"
+              >No results for "{{ query() }}"</text
+            >
           </view>
         }
 
-        <view class="contact-section">
-          <text class="contact-hint">Can't find what you need?</text>
+        <view class="flex flex-col items-center gap-2 py-4">
+          <text class="text-[13px] text-zinc-500"
+            >Can't find what you need?</text
+          >
           <ui-button variant="outline" (pressed)="contactOpen.set(true)"
             >Contact Support</ui-button
           >
@@ -109,15 +119,15 @@ type FaqCategory = { title: string; items: FaqItem[] };
           >We'll get back to you within 24 hours.</ui-dialog-description
         >
       </ui-dialog-header>
-      <view class="dialog-form">
-        <view class="field">
+      <view class="flex flex-col gap-4 p-4">
+        <view class="flex flex-col gap-1.5">
           <ui-label>Subject</ui-label>
           <ui-input
             [(value)]="subject"
             placeholder="Brief description of your issue"
           />
         </view>
-        <view class="field">
+        <view class="flex flex-col gap-1.5">
           <ui-label>Message</ui-label>
           <ui-textarea
             [(value)]="message"
@@ -132,95 +142,6 @@ type FaqCategory = { title: string; items: FaqItem[] };
         <ui-button (pressed)="sendMessage()">Send</ui-button>
       </ui-dialog-footer>
     </ui-dialog>
-  `,
-  styles: `
-    .page {
-      height: 100vh;
-      background-color: #fafafa;
-    }
-    .container {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      padding: 24px;
-    }
-    .hero {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .title {
-      font-size: 28px;
-      font-weight: bold;
-      color: #18181b;
-    }
-    .subtitle {
-      font-size: 14px;
-      color: #71717a;
-    }
-    .category-card {
-      background-color: #ffffff;
-      border: 1px solid #e4e4e7;
-      border-radius: 16px;
-      padding: 16px;
-    }
-    .category-header {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      padding: 8px 0;
-    }
-    .category-title {
-      font-size: 16px;
-      font-weight: 600;
-      color: #18181b;
-    }
-    .category-count {
-      font-size: 12px;
-      color: #a1a1aa;
-    }
-    .answer-text {
-      font-size: 14px;
-      color: #71717a;
-      line-height: 20px;
-    }
-    .no-results {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 40px 0;
-      gap: 8px;
-    }
-    .no-results-icon {
-      font-size: 32px;
-    }
-    .no-results-text {
-      font-size: 14px;
-      color: #a1a1aa;
-    }
-    .contact-section {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      padding: 16px 0;
-    }
-    .contact-hint {
-      font-size: 13px;
-      color: #71717a;
-    }
-    .dialog-form {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      padding: 16px;
-    }
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
   `,
 })
 export class App {

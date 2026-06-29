@@ -8,13 +8,11 @@ import {
 } from '@blotch/angular-lynx';
 import type { MainThread } from '@blotch/angular-lynx';
 
-// --- Main Thread Refs ---
 /**
  * Persist state across main-thread function calls.
  */
 const tapCount = createMainThreadRef(0);
 
-// --- Background Functions ---
 /**
  * Registered on the background thread. Callable from main-thread via runOnBackground().
  */
@@ -22,9 +20,6 @@ let _lastColor = '';
 const notifyColorChange = backgroundFn((color: string) => {
   _lastColor = color;
 });
-
-// --- Main Thread Functions ---
-// Execute synchronously on the main thread — zero cross-thread latency.
 
 const handleTap = mainThreadFn((event: MainThread.TouchEvent) => {
   const el = event.currentTarget;
@@ -34,7 +29,6 @@ const handleTap = mainThreadFn((event: MainThread.TouchEvent) => {
   const color = colors[tapCount.current % colors.length]!;
   el.setStyleProperty('background-color', color);
 
-  // Notify the background thread about the color change
   runOnBackground(notifyColorChange, color);
 });
 
@@ -52,102 +46,69 @@ const handleTouchEnd = mainThreadFn((event: MainThread.TouchEvent) => {
 @Component({
   selector: 'app-root',
   template: `
-    <scroll-view class="page" scroll-orientation="vertical">
-      <view class="container">
-        <text class="title">Main Thread Scripts</text>
-        <text class="subtitle"
+    <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
+      <view class="p-6">
+        <text class="text-[28px] font-bold text-zinc-900 mb-1"
+          >Main Thread Scripts</text
+        >
+        <text class="text-[13px] text-zinc-500 mb-5"
           >Zero-latency UI updates via main-thread execution.</text
         >
 
-        <view class="card">
-          <text class="section-label">Instant Color Change</text>
-          <text class="hint">mainThreadFn + MainThreadRef</text>
-          <view [mainThreadBindtap]="handleTap" class="demo-box color-box">
-            <text class="demo-text">Tap to change color</text>
+        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+          <text
+            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-1"
+            >Instant Color Change</text
+          >
+          <text class="text-xs text-zinc-400 mb-3"
+            >mainThreadFn + MainThreadRef</text
+          >
+          <view
+            [mainThreadBindtap]="handleTap"
+            class="h-[80px] rounded-[10px] justify-center items-center bg-indigo-500"
+          >
+            <text class="text-[15px] font-medium text-white"
+              >Tap to change color</text
+            >
           </view>
         </view>
 
-        <view class="card">
-          <text class="section-label">Touch Tracking</text>
-          <text class="hint">mainThreadFn</text>
+        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+          <text
+            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-1"
+            >Touch Tracking</text
+          >
+          <text class="text-xs text-zinc-400 mb-3">mainThreadFn</text>
           <view
             [mainThreadBindtouchmove]="handleTouchMove"
             [mainThreadBindtouchend]="handleTouchEnd"
-            class="demo-box touch-box"
+            class="h-[80px] rounded-[10px] justify-center items-center bg-blue-500"
           >
-            <text class="demo-text">Drag to change opacity</text>
+            <text class="text-[15px] font-medium text-white"
+              >Drag to change opacity</text
+            >
           </view>
         </view>
 
-        <view class="card">
-          <text class="section-label">Background Thread</text>
-          <text class="hint">For comparison — round-trip latency</text>
-          <view (bindtap)="onBgTap()" class="demo-box bg-box">
-            <text class="demo-text">Background taps: {{ bgTapCount() }}</text>
+        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+          <text
+            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-1"
+            >Background Thread</text
+          >
+          <text class="text-xs text-zinc-400 mb-3"
+            >For comparison — round-trip latency</text
+          >
+          <view
+            (bindtap)="onBgTap()"
+            class="h-[80px] rounded-[10px] justify-center items-center bg-zinc-500"
+          >
+            <text class="text-[15px] font-medium text-white"
+              >Background taps: {{ bgTapCount() }}</text
+            >
           </view>
         </view>
       </view>
     </scroll-view>
-  `,
-  styles: `
-    .page {
-      height: 100%;
-      background-color: #fafafa;
-    }
-    .container {
-      padding: 24px;
-    }
-    .title {
-      font-size: 28px;
-      font-weight: bold;
-      color: #18181b;
-      margin-bottom: 4px;
-    }
-    .subtitle {
-      font-size: 13px;
-      color: #71717a;
-      margin-bottom: 20px;
-    }
-    .card {
-      background-color: #ffffff;
-      border: 1px solid #e4e4e7;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-    .section-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: #a1a1aa;
-      margin-bottom: 4px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .hint {
-      font-size: 12px;
-      color: #a1a1aa;
-      margin-bottom: 12px;
-    }
-    .demo-box {
-      height: 80px;
-      border-radius: 10px;
-      justify-content: center;
-      align-items: center;
-    }
-    .demo-text {
-      color: white;
-      font-size: 15px;
-      font-weight: 500;
-    }
-    .color-box {
-      background-color: #6366f1;
-    }
-    .touch-box {
-      background-color: #3b82f6;
-    }
-    .bg-box {
-      background-color: #71717a;
-    }
   `,
   imports: [LYNX_ELEMENTS, LynxMainThreadEvent],
 })

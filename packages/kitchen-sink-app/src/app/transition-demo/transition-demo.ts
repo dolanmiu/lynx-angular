@@ -26,13 +26,11 @@ type Item = { id: number; label: string };
       </lynx-transition>
 
       <!-- LynxTransitionGroup -->
-      <text class="section-title" style="margin-top: 24px;"
-        >LynxTransitionGroup</text
-      >
+      <text class="section-title mt-6">LynxTransitionGroup</text>
       <view class="btn" (bindtap)="addItem()">
         <text class="btn-text">+ Add Item</text>
       </view>
-      <view style="margin-top: 12px;">
+      <view class="mt-3">
         <lynx-transition-group
           [each]="items()"
           [trackBy]="trackById"

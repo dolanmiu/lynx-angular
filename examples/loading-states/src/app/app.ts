@@ -38,32 +38,34 @@ type UploadFile = {
     UiSeparator,
   ],
   template: `
-    <scroll-view scroll-orientation="vertical" class="page">
-      <view class="container">
-        <text class="title">File Manager</text>
+    <scroll-view scroll-orientation="vertical" class="h-screen bg-zinc-50">
+      <view class="flex flex-col gap-6 p-6">
+        <text class="text-[28px] font-bold text-zinc-900">File Manager</text>
 
         <ui-card>
           <ui-card-header>
-            <view class="card-header-row">
+            <view class="flex flex-row items-center justify-between">
               <ui-card-title>Uploads</ui-card-title>
               @if (syncing()) {
-                <view class="sync-indicator">
+                <view class="flex flex-row items-center gap-2">
                   <ui-spinner size="sm" />
-                  <text class="sync-text">Syncing...</text>
+                  <text class="text-xs text-zinc-400">Syncing...</text>
                 </view>
               }
             </view>
           </ui-card-header>
           <ui-card-content>
-            <view class="upload-list">
+            <view class="flex flex-col gap-4">
               @for (file of files(); track file.id) {
-                <view class="upload-item">
-                  <view class="upload-info">
-                    <text class="file-name">{{ file.name }}</text>
+                <view class="flex flex-col gap-1.5">
+                  <view class="flex flex-row items-center justify-between">
+                    <text class="text-sm text-zinc-900">{{ file.name }}</text>
                     @if (file.done) {
                       <ui-badge variant="secondary">Done</ui-badge>
                     } @else {
-                      <text class="file-progress">{{ file.progress }}%</text>
+                      <text class="text-xs text-zinc-400"
+                        >{{ file.progress }}%</text
+                      >
                     }
                   </view>
                   <ui-progress [value]="file.progress" />
@@ -75,7 +77,7 @@ type UploadFile = {
                 [disabled]="uploading()"
               >
                 @if (uploading()) {
-                  <view class="btn-loading">
+                  <view class="flex flex-row items-center gap-2">
                     <ui-spinner size="sm" />
                     <text>Uploading...</text>
                   </view>
@@ -89,27 +91,33 @@ type UploadFile = {
 
         <ui-separator />
 
-        <view class="recent-section">
-          <text class="section-title">Recent Files</text>
+        <view class="flex flex-col gap-3">
+          <text class="text-sm font-medium text-zinc-900">Recent Files</text>
           @if (loading()) {
             @for (i of [1, 2, 3]; track i) {
-              <view class="skeleton-row">
-                <ui-skeleton class="skeleton-icon" />
-                <view class="skeleton-text-group">
-                  <ui-skeleton class="skeleton-line" />
-                  <ui-skeleton class="skeleton-line-short" />
+              <view class="flex flex-row items-center gap-3">
+                <ui-skeleton class="w-10 h-10 rounded-lg" />
+                <view class="flex flex-col gap-2 flex-1">
+                  <ui-skeleton class="h-3.5 w-3/4 rounded" />
+                  <ui-skeleton class="h-3 w-1/2 rounded" />
                 </view>
               </view>
             }
           } @else {
             @for (file of recentFiles; track file.name) {
-              <view class="file-row">
-                <view class="file-icon">
-                  <text class="file-icon-text">{{ file.icon }}</text>
+              <view
+                class="flex flex-row items-center gap-3 px-3.5 py-2.5 bg-white border border-zinc-200 rounded-xl"
+              >
+                <view
+                  class="w-10 h-10 rounded-lg bg-zinc-100 items-center justify-center"
+                >
+                  <text class="text-[18px]">{{ file.icon }}</text>
                 </view>
-                <view class="file-details">
-                  <text class="file-detail-name">{{ file.name }}</text>
-                  <text class="file-detail-meta"
+                <view class="flex flex-col gap-0.5 flex-1">
+                  <text class="text-sm font-medium text-zinc-900">{{
+                    file.name
+                  }}</text>
+                  <text class="text-xs text-zinc-400"
                     >{{ file.size }} · {{ file.date }}</text
                   >
                 </view>
@@ -122,142 +130,6 @@ type UploadFile = {
       </view>
     </scroll-view>
     <ui-toaster />
-  `,
-  styles: `
-    .page {
-      height: 100vh;
-      background-color: #fafafa;
-    }
-    .container {
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-      padding: 24px;
-    }
-    .title {
-      font-size: 28px;
-      font-weight: bold;
-      color: #18181b;
-    }
-    .card-header-row {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .sync-indicator {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 8px;
-    }
-    .sync-text {
-      font-size: 12px;
-      color: #a1a1aa;
-    }
-    .upload-list {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .upload-item {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .upload-info {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .file-name {
-      font-size: 14px;
-      color: #18181b;
-    }
-    .file-progress {
-      font-size: 12px;
-      color: #a1a1aa;
-    }
-    .btn-loading {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 8px;
-    }
-    .recent-section {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .section-title {
-      font-size: 14px;
-      font-weight: 500;
-      color: #18181b;
-    }
-    .skeleton-row {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 12px;
-    }
-    .skeleton-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 8px;
-    }
-    .skeleton-text-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      flex: 1;
-    }
-    .skeleton-line {
-      height: 14px;
-      width: 75%;
-      border-radius: 4px;
-    }
-    .skeleton-line-short {
-      height: 12px;
-      width: 50%;
-      border-radius: 4px;
-    }
-    .file-row {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 14px;
-      background-color: #ffffff;
-      border: 1px solid #e4e4e7;
-      border-radius: 12px;
-    }
-    .file-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 8px;
-      background-color: #f4f4f5;
-      align-items: center;
-      justify-content: center;
-    }
-    .file-icon-text {
-      font-size: 18px;
-    }
-    .file-details {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      flex: 1;
-    }
-    .file-detail-name {
-      font-size: 14px;
-      font-weight: 500;
-      color: #18181b;
-    }
-    .file-detail-meta {
-      font-size: 12px;
-      color: #a1a1aa;
-    }
   `,
 })
 export class App {

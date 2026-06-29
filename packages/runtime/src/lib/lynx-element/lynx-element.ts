@@ -3,6 +3,7 @@ import {
   type LynxAnimationOptions,
 } from '../animation/animation';
 import { devStats } from '../devtools/stats';
+import { __pageElementRef } from '../lynx-document/page-ref';
 import type { ElementRef } from '../types/lynx';
 import {
   type BaseLynxElement,
@@ -131,6 +132,16 @@ export class LynxElement implements BaseLynxElement {
     const parent = this.parentNode();
     if (!parent) {
       return;
+    }
+    // Park children at the page root before removing this element. On Lynx,
+    // elements trapped inside a removed subtree become permanently dead and
+    // can never be re-attached to a new parent. By moving children to the
+    // page root first, they stay alive in the native tree and can be moved
+    // to a new parent later (e.g. projected content re-projected by @if).
+    if (__pageElementRef) {
+      for (const child of __GetChildren(this.element)) {
+        __AppendElement(__pageElementRef, child);
+      }
     }
     __RemoveElement((parent as LynxElement).element, this.element);
   }

@@ -4,85 +4,44 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 @Component({
   selector: 'app-root',
   template: `
-    <scroll-view class="page" scroll-orientation="vertical">
-      <view class="container">
-        <text class="title">Image Element</text>
-        <text class="subtitle">
-          Display images with different scaling modes.
-        </text>
+    <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
+      <view class="p-6">
+        <text class="text-[28px] font-bold text-zinc-900 mb-1"
+          >Image Element</text
+        >
+        <text class="text-[13px] text-zinc-500 mb-5"
+          >Display images with different scaling modes.</text
+        >
 
-        <view class="card">
-          <text class="section-label">aspectFit (default)</text>
-          <view class="image-frame">
+        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+          <text
+            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-3"
+            >aspectFit (default)</text
+          >
+          <view class="bg-zinc-100 rounded-lg p-4 items-center">
             <image
               src="https://angular.dev/assets/images/press-kit/angular_icon_gradient.gif"
               mode="aspectFit"
-              class="image-fit"
+              class="w-[120px] h-[120px]"
             />
           </view>
         </view>
 
-        <view class="card">
-          <text class="section-label">aspectFill</text>
-          <view class="image-frame">
+        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+          <text
+            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-3"
+            >aspectFill</text
+          >
+          <view class="bg-zinc-100 rounded-lg p-4 items-center">
             <image
               src="https://angular.dev/assets/images/press-kit/angular_icon_gradient.gif"
               mode="aspectFill"
-              class="image-fill"
+              class="w-[120px] h-[80px]"
             />
           </view>
         </view>
       </view>
     </scroll-view>
-  `,
-  styles: `
-    .page {
-      height: 100%;
-      background-color: #fafafa;
-    }
-    .container {
-      padding: 24px;
-    }
-    .title {
-      font-size: 28px;
-      font-weight: bold;
-      color: #18181b;
-      margin-bottom: 4px;
-    }
-    .subtitle {
-      font-size: 13px;
-      color: #71717a;
-      margin-bottom: 20px;
-    }
-    .card {
-      background-color: #ffffff;
-      border: 1px solid #e4e4e7;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-    .section-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: #a1a1aa;
-      margin-bottom: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .image-frame {
-      background-color: #f4f4f5;
-      border-radius: 8px;
-      padding: 16px;
-      align-items: center;
-    }
-    .image-fit {
-      width: 120px;
-      height: 120px;
-    }
-    .image-fill {
-      width: 120px;
-      height: 80px;
-    }
   `,
   imports: [LYNX_ELEMENTS],
 })

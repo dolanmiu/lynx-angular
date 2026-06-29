@@ -4,81 +4,44 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 @Component({
   selector: 'app-root',
   template: `
-    <scroll-view class="page" scroll-orientation="vertical">
-      <view class="container">
-        <text class="title">Block Element</text>
-        <text class="subtitle">
-          A non-visual container for conditional rendering.
-        </text>
+    <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
+      <view class="p-6">
+        <text class="text-[28px] font-bold text-zinc-900 mb-1"
+          >Block Element</text
+        >
+        <text class="text-[13px] text-zinc-500 mb-5"
+          >A non-visual container for conditional rendering.</text
+        >
 
-        <view class="btn" (bindtap)="toggle()">
-          <text class="btn-text">Toggle Details</text>
+        <view
+          class="bg-indigo-500 py-3 px-6 rounded-[10px] items-center mb-4"
+          (bindtap)="toggle()"
+        >
+          <text class="text-white text-[15px] font-semibold"
+            >Toggle Details</text
+          >
         </view>
 
-        <view class="card">
-          <text class="section-label">Properties</text>
-          <text class="prop">Name: Angular</text>
+        <view class="bg-white border border-zinc-200 rounded-xl p-4">
+          <text
+            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-2.5"
+            >Properties</text
+          >
+          <text class="text-[15px] text-zinc-900 mb-1.5">Name: Angular</text>
 
           @if (showDetails()) {
             <block>
-              <text class="prop">Type: Framework</text>
-              <text class="prop">Language: TypeScript</text>
+              <text class="text-[15px] text-zinc-900 mb-1.5"
+                >Type: Framework</text
+              >
+              <text class="text-[15px] text-zinc-900 mb-1.5"
+                >Language: TypeScript</text
+              >
             </block>
           }
         </view>
       </view>
     </scroll-view>
-  `,
-  styles: `
-    .page {
-      height: 100%;
-      background-color: #fafafa;
-    }
-    .container {
-      padding: 24px;
-    }
-    .title {
-      font-size: 28px;
-      font-weight: bold;
-      color: #18181b;
-      margin-bottom: 4px;
-    }
-    .subtitle {
-      font-size: 13px;
-      color: #71717a;
-      margin-bottom: 20px;
-    }
-    .card {
-      background-color: #ffffff;
-      border: 1px solid #e4e4e7;
-      border-radius: 12px;
-      padding: 16px;
-    }
-    .section-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: #a1a1aa;
-      margin-bottom: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .prop {
-      font-size: 15px;
-      color: #18181b;
-      margin-bottom: 6px;
-    }
-    .btn {
-      background-color: #6366f1;
-      padding: 12px 24px;
-      border-radius: 10px;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-    .btn-text {
-      color: white;
-      font-size: 15px;
-      font-weight: 600;
-    }
   `,
   imports: [LYNX_ELEMENTS],
 })

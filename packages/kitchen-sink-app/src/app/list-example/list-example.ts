@@ -7,100 +7,51 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   standalone: true,
   imports: [LYNX_ELEMENTS],
   template: `
-    <scroll-view class="list-container" scroll-orientation="vertical">
-      <text class="title">List Example</text>
+    <scroll-view
+      class="flex flex-col p-4 h-screen bg-gray-100"
+      scroll-orientation="vertical"
+    >
+      <text class="text-[24px] mb-4 text-center font-bold">List Example</text>
       <!-- Simple list example -->
-      <view class="button-container">
-        <view class="button" (bindtap)="toggleItems()">
-          <text class="button-text">Toggle Items ({{ showItems() }})</text>
+      <view class="flex justify-center">
+        <view
+          class="bg-blue-500 rounded-lg px-6 py-3"
+          (bindtap)="toggleItems()"
+        >
+          <text class="text-white text-base text-center"
+            >Toggle Items ({{ showItems() }})</text
+          >
         </view>
-        <view class="button" (bindtap)="addItem()">
-          <text class="button-text">Add Item</text>
+        <view class="bg-blue-500 rounded-lg px-6 py-3" (bindtap)="addItem()">
+          <text class="text-white text-base text-center">Add Item</text>
         </view>
       </view>
-      <text style="font-size: 10px; color: #333; white-space: pre-wrap">{{
-        dbg
-      }}</text>
+      <text class="text-[10px] text-gray-800">{{ dbg }}</text>
       <list
-        class="list"
+        class="w-full h-[400px] bg-red-500 rounded-lg overflow-hidden mb-4"
         list-type="single"
         [span-count]="1"
         scroll-orientation="vertical"
       >
         <!-- @if (showItems()) {
           @for (item of items(); track item.id) {
-          <list-item class="list-item" item-key="{{ item.id }}">
-            <text class="item-text">{{ item.text }}</text>
+          <list-item class="p-4 border-b border-gray-300" item-key="{{ item.id }}">
+            <text class="text-base bg-blue-500 text-black">{{ item.text }}</text>
           </list-item>
           }
         } -->
-        <!-- <list-item class="list-item" item-key="1">
-          <text class="item-text">Test 1</text>
+        <!-- <list-item class="p-4 border-b border-gray-300" item-key="1">
+          <text class="text-base bg-blue-500 text-black">Test 1</text>
         </list-item>
-        <list-item class="list-item" item-key="2">
-          <text class="item-text">Test 2</text>
+        <list-item class="p-4 border-b border-gray-300" item-key="2">
+          <text class="text-base bg-blue-500 text-black">Test 2</text>
         </list-item>
-        <list-item class="list-item" item-key="3">
-          <text class="item-text">Test 3</text>
+        <list-item class="p-4 border-b border-gray-300" item-key="3">
+          <text class="text-base bg-blue-500 text-black">Test 3</text>
         </list-item> -->
       </list>
     </scroll-view>
   `,
-  styles: [
-    `
-      .list-container {
-        display: flex;
-        flex-direction: column;
-        padding: 16px;
-        height: 100vh;
-        background-color: #f5f5f5;
-      }
-
-      .title {
-        font-size: 24px;
-        margin-bottom: 16px;
-        text-align: center;
-        font-weight: bold;
-      }
-
-      .list {
-        width: 100%;
-        height: 400px;
-        background-color: red;
-        border-radius: 8px;
-        overflow: hidden;
-        margin-bottom: 16px;
-      }
-
-      .list-item {
-        padding: 16px;
-        border-bottom: 1px solid #e0e0e0;
-      }
-
-      .item-text {
-        font-size: 16px;
-        background-color: #007bff;
-        color: black;
-      }
-
-      .button-container {
-        display: flex;
-        justify-content: center;
-      }
-
-      .button {
-        background-color: #007bff;
-        border-radius: 8px;
-        padding: 12px 24px;
-      }
-
-      .button-text {
-        color: white;
-        font-size: 16px;
-        text-align: center;
-      }
-    `,
-  ],
 })
 export class ListExample {
   showItems = signal(false);

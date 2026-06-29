@@ -12,121 +12,98 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   standalone: true,
   imports: [LYNX_ELEMENTS, ReactiveFormsModule],
   template: `
-    <scroll-view scroll-orientation="vertical" style="flex: 1;">
-      <view style="padding: 16px;">
-        <text style="font-size: 20px; font-weight: bold; margin-bottom: 4px;">
-          Angular Forms
-        </text>
-        <text style="font-size: 13px; color: #666; margin-bottom: 20px;">
+    <scroll-view scroll-orientation="vertical" class="flex-1">
+      <view class="p-4">
+        <text class="text-xl font-bold mb-1"> Angular Forms </text>
+        <text class="text-[13px] text-gray-500 mb-5">
           Reactive forms via ControlValueAccessor.
         </text>
 
         <!-- Name -->
-        <text style="font-size: 13px; color: #555; margin-bottom: 4px;"
-          >Name *</text
-        >
+        <text class="text-[13px] text-gray-600 mb-1">Name *</text>
         <input
           type="text"
           placeholder="Your name"
-          style="border: 1px solid #ccc; padding: 10px; border-radius: 6px; font-size: 15px; margin-bottom: 4px;"
+          class="border border-gray-300 p-2.5 rounded-md text-[15px] mb-1"
           [formControl]="form.controls.name"
         />
         @if (form.controls.name.invalid && form.controls.name.touched) {
-          <text style="font-size: 12px; color: #e53e3e; margin-bottom: 8px;">
-            Name is required
-          </text>
+          <text class="text-xs text-red-500 mb-2"> Name is required </text>
         } @else {
-          <view style="height: 12px; margin-bottom: 8px;" />
+          <view class="h-3 mb-2" />
         }
 
         <!-- Email -->
-        <text style="font-size: 13px; color: #555; margin-bottom: 4px;"
-          >Email *</text
-        >
+        <text class="text-[13px] text-gray-600 mb-1">Email *</text>
         <input
           type="email"
           placeholder="you@example.com"
-          style="border: 1px solid #ccc; padding: 10px; border-radius: 6px; font-size: 15px; margin-bottom: 4px;"
+          class="border border-gray-300 p-2.5 rounded-md text-[15px] mb-1"
           [formControl]="form.controls.email"
         />
         @if (form.controls.email.touched) {
           @if (form.controls.email.hasError('required')) {
-            <text style="font-size: 12px; color: #e53e3e; margin-bottom: 8px;">
-              Email is required
-            </text>
+            <text class="text-xs text-red-500 mb-2"> Email is required </text>
           } @else if (form.controls.email.hasError('email')) {
-            <text style="font-size: 12px; color: #e53e3e; margin-bottom: 8px;">
+            <text class="text-xs text-red-500 mb-2">
               Enter a valid email address
             </text>
           } @else {
-            <view style="height: 12px; margin-bottom: 8px;" />
+            <view class="h-3 mb-2" />
           }
         } @else {
-          <view style="height: 12px; margin-bottom: 8px;" />
+          <view class="h-3 mb-2" />
         }
 
         <!-- Message -->
-        <text style="font-size: 13px; color: #555; margin-bottom: 4px;"
-          >Message</text
-        >
+        <text class="text-[13px] text-gray-600 mb-1">Message</text>
         <textarea
           placeholder="Write a message..."
-          style="border: 1px solid #ccc; padding: 10px; border-radius: 6px; font-size: 15px; height: 80px; margin-bottom: 16px;"
+          class="border border-gray-300 p-2.5 rounded-md text-[15px] h-[80px] mb-4"
           [formControl]="form.controls.message"
         ></textarea>
 
         <!-- Form state badges -->
-        <view
-          style="flex-direction: row; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;"
-        >
+        <view class="flex-row gap-2 mb-4 flex-wrap">
           <view
-            style="padding: 4px 8px; border-radius: 4px;"
-            [style]="
-              form.valid ? 'background: #dcfce7;' : 'background: #fee2e2;'
-            "
+            class="py-1 px-2 rounded"
+            [class.bg-green-100]="form.valid"
+            [class.bg-red-100]="!form.valid"
           >
-            <text style="font-size: 12px;">
+            <text class="text-xs">
               {{ form.valid ? '✓ Valid' : '✗ Invalid' }}
             </text>
           </view>
           @if (form.dirty) {
-            <view
-              style="padding: 4px 8px; border-radius: 4px; background: #fef9c3;"
-            >
-              <text style="font-size: 12px;">Dirty</text>
+            <view class="py-1 px-2 rounded bg-yellow-100">
+              <text class="text-xs">Dirty</text>
             </view>
           }
           @if (form.touched) {
-            <view
-              style="padding: 4px 8px; border-radius: 4px; background: #f3e8ff;"
-            >
-              <text style="font-size: 12px;">Touched</text>
+            <view class="py-1 px-2 rounded bg-purple-100">
+              <text class="text-xs">Touched</text>
             </view>
           }
           @if (disabled()) {
-            <view
-              style="padding: 4px 8px; border-radius: 4px; background: #f1f5f9;"
-            >
-              <text style="font-size: 12px;">Disabled</text>
+            <view class="py-1 px-2 rounded bg-slate-100">
+              <text class="text-xs">Disabled</text>
             </view>
           }
         </view>
 
         <!-- Action buttons -->
-        <view style="flex-direction: row; gap: 8px; margin-bottom: 16px;">
+        <view class="flex-row gap-2 mb-4">
           <view
-            style="flex: 1; background: #4f46e5; padding: 12px; border-radius: 6px; align-items: center;"
+            class="flex-1 bg-indigo-600 p-3 rounded-md items-center"
             (bindtap)="submit()"
           >
-            <text style="color: white; font-size: 15px; font-weight: 600;">
-              Submit
-            </text>
+            <text class="text-white text-[15px] font-semibold"> Submit </text>
           </view>
           <view
-            style="flex: 1; background: #f1f5f9; padding: 12px; border-radius: 6px; align-items: center; border: 1px solid #e2e8f0;"
+            class="flex-1 bg-slate-100 p-3 rounded-md items-center border border-slate-200"
             (bindtap)="toggleDisable()"
           >
-            <text style="font-size: 15px;">
+            <text class="text-[15px]">
               {{ disabled() ? 'Enable' : 'Disable' }}
             </text>
           </view>
@@ -134,15 +111,11 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
         <!-- Result -->
         @if (result()) {
-          <view
-            style="background: #f0fdf4; border: 1px solid #86efac; padding: 12px; border-radius: 6px;"
-          >
-            <text
-              style="font-size: 13px; color: #166534; margin-bottom: 2px; font-weight: 600;"
-            >
+          <view class="bg-green-50 border border-green-300 p-3 rounded-md">
+            <text class="text-[13px] text-green-800 mb-0.5 font-semibold">
               Submitted!
             </text>
-            <text style="font-size: 13px; color: #166534;">
+            <text class="text-[13px] text-green-800">
               {{ result() }}
             </text>
           </view>

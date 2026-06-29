@@ -4,99 +4,53 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 @Component({
   selector: 'app-root',
   template: `
-    <scroll-view class="page" scroll-orientation="vertical">
-      <view class="container">
-        <text class="title">Event Handling</text>
-        <text class="subtitle">
-          Tap the outer or inner box to see how events propagate.
-        </text>
+    <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
+      <view class="p-6">
+        <text class="text-[28px] font-bold text-zinc-900 mb-1"
+          >Event Handling</text
+        >
+        <text class="text-[13px] text-zinc-500 mb-5"
+          >Tap the outer or inner box to see how events propagate.</text
+        >
 
-        <view class="card">
-          <text class="section-label">Propagation Demo</text>
-          <view class="outer-box" (bindtap)="onOuterTap()">
-            <text class="outer-label">Outer (bindtap — bubbles)</text>
-            <view class="inner-box" (catchtap)="onInnerTap()">
-              <text class="inner-label">
-                Inner (catchtap — stops propagation)
-              </text>
+        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+          <text
+            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-3"
+            >Propagation Demo</text
+          >
+          <view
+            class="bg-indigo-50 p-5 rounded-[10px] items-center"
+            (bindtap)="onOuterTap()"
+          >
+            <text class="text-[13px] text-indigo-700 mb-3"
+              >Outer (bindtap — bubbles)</text
+            >
+            <view
+              class="bg-indigo-500 py-3.5 px-6 rounded-lg"
+              (catchtap)="onInnerTap()"
+            >
+              <text class="text-white text-[13px]"
+                >Inner (catchtap — stops propagation)</text
+              >
             </view>
           </view>
         </view>
 
-        <view class="card">
-          <text class="section-label">Event Log</text>
+        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+          <text
+            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-3"
+            >Event Log</text
+          >
           @for (entry of log(); track $index) {
-            <text class="log-entry">{{ entry }}</text>
+            <text class="text-[13px] text-zinc-900 mb-1">{{ entry }}</text>
           } @empty {
-            <text class="log-empty">Tap a box to see events</text>
+            <text class="text-[13px] text-zinc-400"
+              >Tap a box to see events</text
+            >
           }
         </view>
       </view>
     </scroll-view>
-  `,
-  styles: `
-    .page {
-      height: 100%;
-      background-color: #fafafa;
-    }
-    .container {
-      padding: 24px;
-    }
-    .title {
-      font-size: 28px;
-      font-weight: bold;
-      color: #18181b;
-      margin-bottom: 4px;
-    }
-    .subtitle {
-      font-size: 13px;
-      color: #71717a;
-      margin-bottom: 20px;
-    }
-    .card {
-      background-color: #ffffff;
-      border: 1px solid #e4e4e7;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-    .section-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: #a1a1aa;
-      margin-bottom: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .outer-box {
-      background-color: #eef2ff;
-      padding: 20px;
-      border-radius: 10px;
-      align-items: center;
-    }
-    .outer-label {
-      font-size: 13px;
-      color: #4338ca;
-      margin-bottom: 12px;
-    }
-    .inner-box {
-      background-color: #6366f1;
-      padding: 14px 24px;
-      border-radius: 8px;
-    }
-    .inner-label {
-      color: white;
-      font-size: 13px;
-    }
-    .log-entry {
-      font-size: 13px;
-      color: #18181b;
-      margin-bottom: 4px;
-    }
-    .log-empty {
-      font-size: 13px;
-      color: #a1a1aa;
-    }
   `,
   imports: [LYNX_ELEMENTS],
 })

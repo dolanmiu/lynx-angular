@@ -4,75 +4,34 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 @Component({
   selector: 'app-root',
   template: `
-    <scroll-view class="page" scroll-orientation="vertical">
-      <view class="container">
-        <text class="title">Main Page</text>
-        <text class="subtitle"
+    <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
+      <view class="p-6 items-center">
+        <text class="text-[28px] font-bold text-zinc-900 mb-1">Main Page</text>
+        <text class="text-[13px] text-zinc-500 mb-6"
           >The primary entry point for multi-page apps.</text
         >
 
-        <view class="card">
-          <text class="count">{{ count() }}</text>
-          <text class="label">taps</text>
+        <view
+          class="bg-white border border-zinc-200 rounded-2xl px-10 py-6 items-center mb-5"
+        >
+          <text class="text-[48px] font-bold text-indigo-500">{{
+            count()
+          }}</text>
+          <text class="text-[13px] text-zinc-400 mt-1 uppercase tracking-[1px]"
+            >taps</text
+          >
         </view>
 
-        <view class="btn" (bindtap)="increment()">
-          <text class="btn-text">Tap to increment</text>
+        <view
+          class="bg-indigo-500 py-3.5 px-8 rounded-[10px] items-center"
+          (bindtap)="increment()"
+        >
+          <text class="text-white text-base font-semibold"
+            >Tap to increment</text
+          >
         </view>
       </view>
     </scroll-view>
-  `,
-  styles: `
-    .page {
-      height: 100%;
-      background-color: #fafafa;
-    }
-    .container {
-      padding: 24px;
-      align-items: center;
-    }
-    .title {
-      font-size: 28px;
-      font-weight: bold;
-      color: #18181b;
-      margin-bottom: 4px;
-    }
-    .subtitle {
-      font-size: 13px;
-      color: #71717a;
-      margin-bottom: 24px;
-    }
-    .card {
-      background-color: #ffffff;
-      border: 1px solid #e4e4e7;
-      border-radius: 16px;
-      padding: 24px 40px;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    .count {
-      font-size: 48px;
-      font-weight: bold;
-      color: #6366f1;
-    }
-    .label {
-      font-size: 13px;
-      color: #a1a1aa;
-      margin-top: 4px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    .btn {
-      background-color: #6366f1;
-      padding: 14px 32px;
-      border-radius: 10px;
-      align-items: center;
-    }
-    .btn-text {
-      color: white;
-      font-size: 16px;
-      font-weight: 600;
-    }
   `,
   imports: [LYNX_ELEMENTS],
 })

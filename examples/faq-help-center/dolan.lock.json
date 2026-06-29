@@ -3,7 +3,7 @@
   "components": {
     "accordion": {
       "accordion.ts": {
-        "hash": "4e80f4a101a35601"
+        "hash": "b6fb7a09dc40ae48"
       },
       "index.ts": {
         "hash": "8751913a8ed8016e"
@@ -11,7 +11,7 @@
     },
     "collapsible": {
       "collapsible.ts": {
-        "hash": "f3cedb04fe86917e"
+        "hash": "f557dbacacfeff84"
       },
       "index.ts": {
         "hash": "2ff1aa9a6b200d26"
@@ -27,7 +27,7 @@
     },
     "dialog": {
       "dialog.ts": {
-        "hash": "a7a88499800f1253"
+        "hash": "cbbdbd32d189998b"
       },
       "index.ts": {
         "hash": "53b2b4aec4019c08"

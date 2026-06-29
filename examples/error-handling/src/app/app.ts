@@ -4,87 +4,42 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 @Component({
   selector: 'app-root',
   template: `
-    <scroll-view class="page" scroll-orientation="vertical">
-      <view class="container">
-        <text class="title">Error Handling</text>
-        <text class="subtitle"
+    <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
+      <view class="p-6">
+        <text class="text-[28px] font-bold text-zinc-900 mb-1"
+          >Error Handling</text
+        >
+        <text class="text-[13px] text-zinc-500 mb-5"
           >Catch and display runtime errors via __lynxLastError.</text
         >
 
-        <view class="btn" (bindtap)="throwError()">
-          <text class="btn-text">Throw an Error</text>
+        <view
+          class="bg-indigo-500 py-3 px-6 rounded-[10px] items-center mb-4"
+          (bindtap)="throwError()"
+        >
+          <text class="text-white text-[15px] font-semibold"
+            >Throw an Error</text
+          >
         </view>
 
-        <view class="card">
-          <text class="section-label">__lynxLastError</text>
-          <view class="error-block" [class.error-active]="!!lastError()">
-            <text class="error-text">{{ lastError() || '(none)' }}</text>
+        <view class="bg-white border border-zinc-200 rounded-xl p-4">
+          <text
+            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-2.5"
+            >__lynxLastError</text
+          >
+          <view
+            class="bg-zinc-100 rounded-lg p-3.5"
+            [class.bg-red-50]="!!lastError()"
+          >
+            <text
+              class="text-xs text-zinc-500 break-all"
+              [class.text-red-800]="!!lastError()"
+              >{{ lastError() || '(none)' }}</text
+            >
           </view>
         </view>
       </view>
     </scroll-view>
-  `,
-  styles: `
-    .page {
-      height: 100%;
-      background-color: #fafafa;
-    }
-    .container {
-      padding: 24px;
-    }
-    .title {
-      font-size: 28px;
-      font-weight: bold;
-      color: #18181b;
-      margin-bottom: 4px;
-    }
-    .subtitle {
-      font-size: 13px;
-      color: #71717a;
-      margin-bottom: 20px;
-    }
-    .btn {
-      background-color: #6366f1;
-      padding: 12px 24px;
-      border-radius: 10px;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-    .btn-text {
-      color: white;
-      font-size: 15px;
-      font-weight: 600;
-    }
-    .card {
-      background-color: #ffffff;
-      border: 1px solid #e4e4e7;
-      border-radius: 12px;
-      padding: 16px;
-    }
-    .section-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: #a1a1aa;
-      margin-bottom: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .error-block {
-      background-color: #f4f4f5;
-      border-radius: 8px;
-      padding: 14px;
-    }
-    .error-active {
-      background-color: #fef2f2;
-    }
-    .error-text {
-      font-size: 12px;
-      color: #71717a;
-      word-break: break-all;
-    }
-    .error-active .error-text {
-      color: #991b1b;
-    }
   `,
   imports: [LYNX_ELEMENTS],
 })

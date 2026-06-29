@@ -32,11 +32,7 @@ import { cn } from '../../utils/cn';
   template: `
     <overlay [attr.visible]="overlayVisible()" [style]="overlayStyle()">
       <view #backdrop [class]="backdropClass()" (bindtap)="onBackdropTap()">
-        <view
-          #panel
-          [class]="panelClass()"
-          (catchtap)="$event.stopPropagation()"
-        >
+        <view #panel [class]="panelClass()" (catchtap)="onPanelTap()">
           <ng-content />
         </view>
       </view>
@@ -83,12 +79,20 @@ export class UiDialog {
   );
 
   protected readonly backdropClass = computed(() =>
-    cn('flex items-center justify-center', 'w-full h-full'),
+    // bg-black/50 dims the backdrop; backdrop-blur-sm applies frosted-glass blur
+    // on web. Lynx does not support backdrop-filter, so the blur is web-only.
+    cn(
+      'flex items-center justify-center w-full h-full',
+      'bg-black/50 backdrop-blur-sm',
+    ),
   );
 
   protected readonly panelClass = computed(() =>
     cn(
-      'flex flex-col bg-background rounded-lg border border-border p-6 w-4/5',
+      // bg-white instead of bg-background: Lynx rejects space-separated HSL
+      // syntax produced by hsl(var(--background)), so CSS-variable-based colors
+      // silently render as transparent. Use an explicit colour value instead.
+      'flex flex-col bg-white rounded-lg border border-border p-6 w-4/5',
       this.userClass(),
     ),
   );
@@ -96,6 +100,14 @@ export class UiDialog {
   protected onBackdropTap(): void {
     this.open.set(false);
   }
+
+  /**
+   * No-op tap handler for the panel. `catchtap` (vs `bindtap`) already stops
+   * the event from bubbling to the backdrop — Lynx handles propagation via the
+   * event prefix, not via `event.stopPropagation()` (which doesn't exist on
+   * Lynx event objects and would throw at runtime).
+   */
+  protected onPanelTap(): void {}
 
   /**
    * Two-phase open: make overlay visible first (so native elements exist in

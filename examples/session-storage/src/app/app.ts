@@ -4,106 +4,60 @@ import { LYNX_ELEMENTS, LynxSessionStorage } from '@blotch/angular-lynx';
 @Component({
   selector: 'app-root',
   template: `
-    <scroll-view class="page" scroll-orientation="vertical">
-      <view class="container">
-        <text class="title">Session Storage</text>
-        <text class="subtitle"
+    <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
+      <view class="p-6">
+        <text class="text-[28px] font-bold text-zinc-900 mb-1"
+          >Session Storage</text
+        >
+        <text class="text-[13px] text-zinc-500 mb-5"
           >Persist state across Lynx pages with reactive watching.</text
         >
 
-        <view class="card">
-          <text class="section-label">Counter</text>
-          <text class="counter-value">{{ counter() ?? 'not set' }}</text>
-          <view class="btn-row">
-            <view class="btn" (bindtap)="increment()">
-              <text class="btn-text">Increment</text>
+        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+          <text
+            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-2.5"
+            >Counter</text
+          >
+          <text class="text-[24px] font-bold text-zinc-900 mb-3">{{
+            counter() ?? 'not set'
+          }}</text>
+          <view class="flex flex-row gap-3">
+            <view
+              class="bg-indigo-500 py-3 px-6 rounded-[10px] items-center"
+              (bindtap)="increment()"
+            >
+              <text class="text-white text-[15px] font-semibold"
+                >Increment</text
+              >
             </view>
-            <view class="btn btn-destructive" (bindtap)="reset()">
-              <text class="btn-text">Reset</text>
+            <view
+              class="bg-red-500 py-3 px-6 rounded-[10px] items-center"
+              (bindtap)="reset()"
+            >
+              <text class="text-white text-[15px] font-semibold">Reset</text>
             </view>
           </view>
         </view>
 
-        <view class="card">
-          <text class="section-label">One-time Read</text>
-          <text class="read-value">Last read: {{ lastRead() }}</text>
-          <view class="btn btn-secondary" (bindtap)="readOnce()">
-            <text class="btn-text btn-secondary-text">Read Once</text>
+        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+          <text
+            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-2.5"
+            >One-time Read</text
+          >
+          <text class="text-[15px] text-zinc-900 mb-3"
+            >Last read: {{ lastRead() }}</text
+          >
+          <view
+            class="bg-zinc-100 border border-zinc-200 py-3 px-6 rounded-[10px] items-center"
+            (bindtap)="readOnce()"
+          >
+            <text class="text-zinc-900 text-[15px] font-semibold"
+              >Read Once</text
+            >
           </view>
         </view>
       </view>
     </scroll-view>
-  `,
-  styles: `
-    .page {
-      height: 100%;
-      background-color: #fafafa;
-    }
-    .container {
-      padding: 24px;
-    }
-    .title {
-      font-size: 28px;
-      font-weight: bold;
-      color: #18181b;
-      margin-bottom: 4px;
-    }
-    .subtitle {
-      font-size: 13px;
-      color: #71717a;
-      margin-bottom: 20px;
-    }
-    .card {
-      background-color: #ffffff;
-      border: 1px solid #e4e4e7;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-    .section-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: #a1a1aa;
-      margin-bottom: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .counter-value {
-      font-size: 24px;
-      font-weight: bold;
-      color: #18181b;
-      margin-bottom: 12px;
-    }
-    .btn-row {
-      flex-direction: row;
-      gap: 12px;
-    }
-    .btn {
-      background-color: #6366f1;
-      padding: 12px 24px;
-      border-radius: 10px;
-      align-items: center;
-    }
-    .btn-text {
-      color: white;
-      font-size: 15px;
-      font-weight: 600;
-    }
-    .btn-destructive {
-      background-color: #ef4444;
-    }
-    .btn-secondary {
-      background-color: #f4f4f5;
-      border: 1px solid #e4e4e7;
-    }
-    .btn-secondary-text {
-      color: #18181b;
-    }
-    .read-value {
-      font-size: 15px;
-      color: #18181b;
-      margin-bottom: 12px;
-    }
   `,
   imports: [LYNX_ELEMENTS],
 })

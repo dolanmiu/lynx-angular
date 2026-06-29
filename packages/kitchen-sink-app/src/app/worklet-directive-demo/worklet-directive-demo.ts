@@ -48,89 +48,68 @@ const handleScaleTap = (event: MainThread.TouchEvent) => {
   selector: 'app-worklet-directive-demo',
   standalone: true,
   imports: [LYNX_ELEMENTS, LynxMainThreadEvent],
-  styles: [
-    `
-      .demo-container {
-        padding: 16px;
-      }
-      .title {
-        font-size: 20px;
-        font-weight: bold;
-        margin-bottom: 16px;
-        color: #1a1a2e;
-      }
-      .section-label {
-        font-size: 14px;
-        color: #666;
-        margin-bottom: 8px;
-        margin-top: 16px;
-      }
-      .demo-box {
-        padding: 20px;
-        border-radius: 12px;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 12px;
-      }
-      .demo-text {
-        color: white;
-        font-size: 16px;
-        font-weight: 500;
-      }
-      .code-hint {
-        font-size: 12px;
-        color: #999;
-        margin-top: 4px;
-        font-style: italic;
-      }
-    `,
-  ],
   template: `
-    <scroll-view scroll-orientation="vertical" class="demo-container">
-      <text class="title">Worklet Directive Demo</text>
-      <text class="section-label">
+    <scroll-view scroll-orientation="vertical" class="p-4">
+      <text class="text-xl font-bold mb-4 text-[#1a1a2e]"
+        >Worklet Directive Demo</text
+      >
+      <text class="text-sm text-gray-500 mb-2 mt-4">
         Uses "main thread" directive instead of mainThreadFn()
       </text>
 
-      <text class="section-label">Tap — cycles background color</text>
+      <text class="text-sm text-gray-500 mb-2 mt-4"
+        >Tap — cycles background color</text
+      >
       <view
-        class="demo-box"
-        style="background-color: #6200ee;"
+        class="p-5 rounded-xl items-center justify-center mb-3 bg-[#6200ee]"
         [mainThreadBindtap]="handleColorTap"
       >
-        <text class="demo-text">Tap me</text>
-        <text class="code-hint">"main thread" directive</text>
+        <text class="text-white text-base font-medium">Tap me</text>
+        <text class="text-xs text-gray-400 mt-1 italic"
+          >"main thread" directive</text
+        >
       </view>
 
-      <text class="section-label">Touch move — adjusts opacity</text>
+      <text class="text-sm text-gray-500 mb-2 mt-4"
+        >Touch move — adjusts opacity</text
+      >
       <view
-        class="demo-box"
-        style="background-color: #0077b6;"
+        class="p-5 rounded-xl items-center justify-center mb-3 bg-[#0077b6]"
         [mainThreadBindtouchmove]="handleOpacityMove"
         [mainThreadBindtouchend]="handleOpacityEnd"
       >
-        <text class="demo-text">Slide finger left/right</text>
-        <text class="code-hint">Opacity tracks finger position</text>
+        <text class="text-white text-base font-medium"
+          >Slide finger left/right</text
+        >
+        <text class="text-xs text-gray-400 mt-1 italic"
+          >Opacity tracks finger position</text
+        >
       </view>
 
-      <text class="section-label">Tap — scale bounce</text>
+      <text class="text-sm text-gray-500 mb-2 mt-4">Tap — scale bounce</text>
       <view
-        class="demo-box"
-        style="background-color: #2d6a4f;"
+        class="p-5 rounded-xl items-center justify-center mb-3 bg-[#2d6a4f]"
         [mainThreadBindtap]="handleScaleTap"
       >
-        <text class="demo-text">Tap for bounce</text>
-        <text class="code-hint">transform: scale() on main thread</text>
+        <text class="text-white text-base font-medium">Tap for bounce</text>
+        <text class="text-xs text-gray-400 mt-1 italic"
+          >transform: scale() on main thread</text
+        >
       </view>
 
-      <text class="section-label">Background thread tap (for comparison)</text>
+      <text class="text-sm text-gray-500 mb-2 mt-4"
+        >Background thread tap (for comparison)</text
+      >
       <view
-        class="demo-box"
-        style="background-color: #555;"
+        class="p-5 rounded-xl items-center justify-center mb-3 bg-[#555]"
         (bindtap)="onBgTap()"
       >
-        <text class="demo-text">BG taps: {{ bgTapCount() }}</text>
-        <text class="code-hint">Standard Angular event (cross-thread)</text>
+        <text class="text-white text-base font-medium"
+          >BG taps: {{ bgTapCount() }}</text
+        >
+        <text class="text-xs text-gray-400 mt-1 italic"
+          >Standard Angular event (cross-thread)</text
+        >
       </view>
     </scroll-view>
   `,

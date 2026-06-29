@@ -4,39 +4,41 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 @Component({
   selector: 'app-settings',
   template: `
-    <scroll-view class="page" scroll-orientation="vertical">
-      <view class="container">
-        <text class="title">Settings Page</text>
-        <text class="subtitle">
-          This page is the "settings" project in angular.json.
-        </text>
+    <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
+      <view class="p-6">
+        <text class="text-[28px] font-bold text-zinc-900 mb-1"
+          >Settings Page</text
+        >
+        <text class="text-[13px] text-zinc-500 mb-5"
+          >A separate Lynx page with its own entry point.</text
+        >
 
-        <view class="card">
-          <view class="setting-row">
-            <text class="setting-label">Dark Mode</text>
+        <view class="bg-white border border-zinc-200 rounded-xl p-4">
+          <view class="flex-row items-center justify-between py-1">
+            <text class="text-[15px] text-zinc-900">Dark Mode</text>
             <view
-              class="toggle"
+              class="w-12 h-7 rounded-[14px] p-0.5"
               [style.background-color]="darkMode() ? '#22c55e' : '#d4d4d8'"
               (bindtap)="toggleDarkMode()"
             >
               <view
-                class="toggle-knob"
+                class="w-6 h-6 rounded-xl bg-white"
                 [style.margin-left]="darkMode() ? '20px' : '0px'"
               />
             </view>
           </view>
 
-          <view class="divider" />
+          <view class="h-px bg-zinc-200 my-3" />
 
-          <view class="setting-row">
-            <text class="setting-label">Notifications</text>
+          <view class="flex-row items-center justify-between py-1">
+            <text class="text-[15px] text-zinc-900">Notifications</text>
             <view
-              class="toggle"
+              class="w-12 h-7 rounded-[14px] p-0.5"
               [style.background-color]="notifications() ? '#22c55e' : '#d4d4d8'"
               (bindtap)="toggleNotifications()"
             >
               <view
-                class="toggle-knob"
+                class="w-6 h-6 rounded-xl bg-white"
                 [style.margin-left]="notifications() ? '20px' : '0px'"
               />
             </view>
@@ -44,59 +46,6 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
         </view>
       </view>
     </scroll-view>
-  `,
-  styles: `
-    .page {
-      height: 100%;
-      background-color: #fafafa;
-    }
-    .container {
-      padding: 24px;
-    }
-    .title {
-      font-size: 28px;
-      font-weight: bold;
-      color: #18181b;
-      margin-bottom: 4px;
-    }
-    .subtitle {
-      font-size: 13px;
-      color: #71717a;
-      margin-bottom: 20px;
-    }
-    .card {
-      background-color: #ffffff;
-      border: 1px solid #e4e4e7;
-      border-radius: 12px;
-      padding: 16px;
-    }
-    .setting-row {
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      padding: 4px 0;
-    }
-    .setting-label {
-      font-size: 15px;
-      color: #18181b;
-    }
-    .divider {
-      height: 1px;
-      background-color: #e4e4e7;
-      margin: 12px 0;
-    }
-    .toggle {
-      width: 48px;
-      height: 28px;
-      border-radius: 14px;
-      padding: 2px;
-    }
-    .toggle-knob {
-      width: 24px;
-      height: 24px;
-      border-radius: 12px;
-      background-color: white;
-    }
   `,
   imports: [LYNX_ELEMENTS],
 })

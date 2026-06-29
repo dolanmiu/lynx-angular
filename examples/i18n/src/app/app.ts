@@ -4,120 +4,61 @@ import { LYNX_ELEMENTS, LynxLocale } from '@blotch/angular-lynx';
 @Component({
   selector: 'app-root',
   template: `
-    <scroll-view class="page" scroll-orientation="vertical">
-      <view class="container">
-        <text class="title">i18n</text>
-        <text class="subtitle"
+    <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
+      <view class="p-6">
+        <text class="text-[28px] font-bold text-zinc-900 mb-1">i18n</text>
+        <text class="text-[13px] text-zinc-500 mb-5"
           >Internationalization with Angular and Lynx.</text
         >
 
-        <view class="locale-badge">
-          <text class="locale-text">
-            Locale: {{ localeService.locale() }}
-          </text>
+        <view class="bg-indigo-50 py-2.5 px-3.5 rounded-lg mb-4">
+          <text class="text-[13px] font-semibold text-indigo-700"
+            >Locale: {{ localeService.locale() }}</text
+          >
         </view>
 
-        <view class="card">
-          <text class="section-label">Translated Strings</text>
-          <text i18n="@@app.greeting" class="greeting"> Hello, world! </text>
-          <text class="welcome">{{ welcomeMessage }}</text>
+        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+          <text
+            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-2.5"
+            >Translated Strings</text
+          >
+          <text i18n="@@app.greeting" class="text-[18px] text-zinc-900 mb-2">
+            Hello, world!
+          </text>
+          <text class="text-[15px] text-zinc-900 mb-2">{{
+            welcomeMessage
+          }}</text>
           <text
             i18n="
               app description|A brief description of the i18n
               example@@app.description"
-            class="description"
+            class="text-[13px] text-zinc-500"
           >
             This is an internationalization example with Angular on Lynx.
           </text>
         </view>
 
-        <view class="card">
-          <text class="section-label">Counter</text>
-          <text class="counter">{{ counterMessage() }}</text>
-          <view class="btn" (bindtap)="increment()">
-            <text i18n="@@app.tap_button" class="btn-text">
-              Tap to increment
-            </text>
+        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+          <text
+            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-2.5"
+            >Counter</text
+          >
+          <text class="text-[18px] text-zinc-900 mb-3">{{
+            counterMessage()
+          }}</text>
+          <view
+            class="bg-indigo-500 py-3 px-6 rounded-[10px] items-center"
+            (bindtap)="increment()"
+          >
+            <text
+              i18n="@@app.tap_button"
+              class="text-white text-[15px] font-semibold"
+              >Tap to increment</text
+            >
           </view>
         </view>
       </view>
     </scroll-view>
-  `,
-  styles: `
-    .page {
-      height: 100%;
-      background-color: #fafafa;
-    }
-    .container {
-      padding: 24px;
-    }
-    .title {
-      font-size: 28px;
-      font-weight: bold;
-      color: #18181b;
-      margin-bottom: 4px;
-    }
-    .subtitle {
-      font-size: 13px;
-      color: #71717a;
-      margin-bottom: 20px;
-    }
-    .locale-badge {
-      background-color: #eef2ff;
-      padding: 10px 14px;
-      border-radius: 8px;
-      margin-bottom: 16px;
-    }
-    .locale-text {
-      font-size: 13px;
-      font-weight: 600;
-      color: #4338ca;
-    }
-    .card {
-      background-color: #ffffff;
-      border: 1px solid #e4e4e7;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-    .section-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: #a1a1aa;
-      margin-bottom: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .greeting {
-      font-size: 18px;
-      color: #18181b;
-      margin-bottom: 8px;
-    }
-    .welcome {
-      font-size: 15px;
-      color: #18181b;
-      margin-bottom: 8px;
-    }
-    .description {
-      font-size: 13px;
-      color: #71717a;
-    }
-    .counter {
-      font-size: 18px;
-      color: #18181b;
-      margin-bottom: 12px;
-    }
-    .btn {
-      background-color: #6366f1;
-      padding: 12px 24px;
-      border-radius: 10px;
-      align-items: center;
-    }
-    .btn-text {
-      color: white;
-      font-size: 15px;
-      font-weight: 600;
-    }
   `,
   imports: [LYNX_ELEMENTS],
 })

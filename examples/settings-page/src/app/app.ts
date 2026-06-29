@@ -34,24 +34,35 @@ import { UiButton } from '../components/ui/button';
     UiButton,
   ],
   template: `
-    <scroll-view scroll-orientation="vertical" class="page">
-      <view class="container">
-        <text class="title">Settings</text>
+    <scroll-view scroll-orientation="vertical" class="h-screen bg-zinc-50">
+      <view class="flex flex-col gap-6 p-6">
+        <text class="text-[28px] font-bold text-zinc-900">Settings</text>
 
-        <view class="section">
-          <text class="section-header">Notifications</text>
-          <view class="setting-row">
-            <view class="setting-info">
+        <view class="flex flex-col gap-3.5">
+          <text
+            class="text-[11px] font-semibold uppercase tracking-[1px] text-zinc-400"
+            >Notifications</text
+          >
+          <view
+            class="flex flex-row items-center justify-between px-4 py-3 bg-white border border-zinc-200 rounded-xl"
+          >
+            <view class="flex flex-col gap-0.5">
               <ui-label>Push Notifications</ui-label>
-              <text class="setting-desc">Receive alerts on your device</text>
+              <text class="text-xs text-zinc-400"
+                >Receive alerts on your device</text
+              >
             </view>
             <ui-switch [(checked)]="pushNotifications" />
           </view>
-          <view class="setting-row">
+          <view
+            class="flex flex-row items-center justify-between px-4 py-3 bg-white border border-zinc-200 rounded-xl"
+          >
             <ui-label>Sound</ui-label>
             <ui-switch [(checked)]="sound" />
           </view>
-          <view class="setting-row">
+          <view
+            class="flex flex-row items-center justify-between px-4 py-3 bg-white border border-zinc-200 rounded-xl"
+          >
             <ui-label>Email Digest</ui-label>
             <ui-switch [(checked)]="emailDigest" />
           </view>
@@ -59,9 +70,12 @@ import { UiButton } from '../components/ui/button';
 
         <ui-separator />
 
-        <view class="section">
-          <text class="section-header">Appearance</text>
-          <view class="field">
+        <view class="flex flex-col gap-3.5">
+          <text
+            class="text-[11px] font-semibold uppercase tracking-[1px] text-zinc-400"
+            >Appearance</text
+          >
+          <view class="flex flex-col gap-1.5">
             <ui-label>Language</ui-label>
             <ui-select [(value)]="language">
               <ui-select-item value="en" label="English" />
@@ -70,12 +84,14 @@ import { UiButton } from '../components/ui/button';
               <ui-select-item value="de" label="Deutsch" />
             </ui-select>
           </view>
-          <view class="field-lg">
+          <view class="flex flex-col gap-2.5">
             <ui-label>Theme</ui-label>
             <ui-radio-group [(value)]="theme">
-              <view class="radio-list">
+              <view class="flex flex-col gap-2.5">
                 @for (opt of themeOptions; track opt.value) {
-                  <view class="radio-row">
+                  <view
+                    class="flex flex-row items-center gap-2.5 px-4 py-3 bg-white border border-zinc-200 rounded-xl"
+                  >
                     <ui-radio-group-item [value]="opt.value" [id]="opt.value" />
                     <ui-label [for]="opt.value">{{ opt.label }}</ui-label>
                   </view>
@@ -87,8 +103,11 @@ import { UiButton } from '../components/ui/button';
 
         <ui-separator />
 
-        <view class="section">
-          <text class="section-header-danger">Danger Zone</text>
+        <view class="flex flex-col gap-3.5">
+          <text
+            class="text-[11px] font-semibold uppercase tracking-[1px] text-red-500"
+            >Danger Zone</text
+          >
           <ui-button
             variant="destructive"
             (pressed)="deleteDialogOpen.set(true)"
@@ -115,86 +134,6 @@ import { UiButton } from '../components/ui/button';
         >
       </ui-alert-dialog-footer>
     </ui-alert-dialog>
-  `,
-  styles: `
-    .page {
-      height: 100vh;
-      background-color: #fafafa;
-    }
-    .container {
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-      padding: 24px;
-    }
-    .title {
-      font-size: 28px;
-      font-weight: bold;
-      color: #18181b;
-    }
-    .section {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-    .section-header {
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: #a1a1aa;
-    }
-    .section-header-danger {
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: #ef4444;
-    }
-    .setting-row {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 16px;
-      background-color: #ffffff;
-      border: 1px solid #e4e4e7;
-      border-radius: 12px;
-    }
-    .setting-info {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    .setting-desc {
-      font-size: 12px;
-      color: #a1a1aa;
-    }
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .field-lg {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .radio-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .radio-row {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 16px;
-      background-color: #ffffff;
-      border: 1px solid #e4e4e7;
-      border-radius: 12px;
-    }
   `,
 })
 export class App {

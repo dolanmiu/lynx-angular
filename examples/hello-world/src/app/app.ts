@@ -4,95 +4,42 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 @Component({
   selector: 'app-root',
   template: `
-    <scroll-view class="page" scroll-orientation="vertical">
-      <view class="container">
-        <view class="hero">
-          <text class="badge">AngularLynx</text>
-          <text class="title">Hello, Lynx!</text>
-          <text class="subtitle">
-            Tap the button to see signals in action.
-          </text>
+    <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
+      <view class="p-6 items-center justify-center min-h-full">
+        <view class="items-center mb-8">
+          <text
+            class="text-[11px] font-bold text-indigo-500 bg-indigo-50 py-1 px-3 rounded-[20px] tracking-[0.5px] uppercase mb-4"
+            >AngularLynx</text
+          >
+          <text class="text-[32px] font-bold text-zinc-900 mb-1.5"
+            >Hello, Lynx!</text
+          >
+          <text class="text-[15px] text-zinc-500 text-center"
+            >Tap the button to see signals in action.</text
+          >
         </view>
 
-        <view class="card">
-          <text class="count">{{ count() }}</text>
-          <text class="label">taps</text>
+        <view
+          class="bg-white border border-zinc-200 rounded-2xl px-12 py-8 items-center mb-6"
+        >
+          <text class="text-[64px] font-bold text-indigo-500">{{
+            count()
+          }}</text>
+          <text class="text-sm text-zinc-400 mt-1 uppercase tracking-[1px]"
+            >taps</text
+          >
         </view>
 
-        <view class="btn" (bindtap)="increment()">
-          <text class="btn-text">Tap to increment</text>
+        <view
+          class="bg-indigo-500 py-3.5 px-8 rounded-[10px] items-center"
+          (bindtap)="increment()"
+        >
+          <text class="text-white text-base font-semibold"
+            >Tap to increment</text
+          >
         </view>
       </view>
     </scroll-view>
-  `,
-  styles: `
-    .page {
-      height: 100%;
-      background-color: #fafafa;
-    }
-    .container {
-      padding: 24px;
-      align-items: center;
-      justify-content: center;
-      min-height: 100%;
-    }
-    .hero {
-      align-items: center;
-      margin-bottom: 32px;
-    }
-    .badge {
-      font-size: 11px;
-      font-weight: 700;
-      color: #6366f1;
-      background-color: #eef2ff;
-      padding: 4px 12px;
-      border-radius: 20px;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      margin-bottom: 16px;
-    }
-    .title {
-      font-size: 32px;
-      font-weight: bold;
-      color: #18181b;
-      margin-bottom: 6px;
-    }
-    .subtitle {
-      font-size: 15px;
-      color: #71717a;
-      text-align: center;
-    }
-    .card {
-      background-color: #ffffff;
-      border: 1px solid #e4e4e7;
-      border-radius: 16px;
-      padding: 32px 48px;
-      align-items: center;
-      margin-bottom: 24px;
-    }
-    .count {
-      font-size: 64px;
-      font-weight: bold;
-      color: #6366f1;
-    }
-    .label {
-      font-size: 14px;
-      color: #a1a1aa;
-      margin-top: 4px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    .btn {
-      background-color: #6366f1;
-      padding: 14px 32px;
-      border-radius: 10px;
-      align-items: center;
-    }
-    .btn-text {
-      color: white;
-      font-size: 16px;
-      font-weight: 600;
-    }
   `,
   imports: [LYNX_ELEMENTS],
 })

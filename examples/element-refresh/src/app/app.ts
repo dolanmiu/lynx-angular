@@ -6,72 +6,36 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   template: `
     <refresh (bindstartrefresh)="onRefresh()">
       <refresh-header>
-        <view class="refresh-header">
-          <text class="refresh-text">
+        <view class="h-[60px] items-center justify-center">
+          <text class="text-[13px] text-zinc-400">
             {{ refreshing() ? 'Refreshing...' : 'Pull down to refresh' }}
           </text>
         </view>
       </refresh-header>
-      <scroll-view class="page" scroll-orientation="vertical">
-        <view class="container">
-          <text class="title">Refresh Element</text>
-          <text class="subtitle">Pull down to reload the list.</text>
+      <scroll-view class="h-screen bg-zinc-50" scroll-orientation="vertical">
+        <view class="p-6">
+          <text class="text-[28px] font-bold text-zinc-900 mb-1"
+            >Refresh Element</text
+          >
+          <text class="text-[13px] text-zinc-500 mb-5"
+            >Pull down to reload the list.</text
+          >
 
           @for (item of items(); track item.id) {
-            <view class="item-card">
-              <text class="item-name">{{ item.name }}</text>
-              <text class="item-time">Added {{ item.time }}</text>
+            <view
+              class="px-4 py-3.5 bg-white border border-zinc-200 rounded-xl mb-2"
+            >
+              <text class="text-[15px] text-zinc-900 font-medium">{{
+                item.name
+              }}</text>
+              <text class="text-xs text-zinc-400 mt-1"
+                >Added {{ item.time }}</text
+              >
             </view>
           }
         </view>
       </scroll-view>
     </refresh>
-  `,
-  styles: `
-    .page {
-      height: 100vh;
-      background-color: #fafafa;
-    }
-    .container {
-      padding: 24px;
-    }
-    .title {
-      font-size: 28px;
-      font-weight: bold;
-      color: #18181b;
-      margin-bottom: 4px;
-    }
-    .subtitle {
-      font-size: 13px;
-      color: #71717a;
-      margin-bottom: 20px;
-    }
-    .refresh-header {
-      height: 60px;
-      align-items: center;
-      justify-content: center;
-    }
-    .refresh-text {
-      font-size: 13px;
-      color: #a1a1aa;
-    }
-    .item-card {
-      padding: 14px 16px;
-      background-color: #ffffff;
-      border: 1px solid #e4e4e7;
-      border-radius: 12px;
-      margin-bottom: 8px;
-    }
-    .item-name {
-      font-size: 15px;
-      color: #18181b;
-      font-weight: 500;
-    }
-    .item-time {
-      font-size: 12px;
-      color: #a1a1aa;
-      margin-top: 4px;
-    }
   `,
   imports: [LYNX_ELEMENTS],
 })

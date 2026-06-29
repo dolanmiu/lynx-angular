@@ -10,104 +10,58 @@ import {
 @Component({
   selector: 'app-root',
   template: `
-    <scroll-view class="page" scroll-orientation="vertical">
-      <view class="container">
-        <text class="title">Gestures</text>
-        <text class="subtitle"
+    <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
+      <view class="p-6">
+        <text class="text-[28px] font-bold text-zinc-900 mb-1">Gestures</text>
+        <text class="text-[13px] text-zinc-500 mb-5"
           >Pan, tap, and exclusive gesture recognition.</text
         >
 
-        <view class="card">
-          <text class="section-label">Pan Gesture</text>
-          <view [lynxGesture]="panGesture" class="gesture-box pan-box">
-            <text class="gesture-text">Drag me</text>
+        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+          <text
+            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-3"
+            >Pan Gesture</text
+          >
+          <view
+            [lynxGesture]="panGesture"
+            class="w-[100px] h-[100px] bg-indigo-500 rounded-[10px] items-center justify-content mb-2"
+          >
+            <text class="text-sm font-medium text-white">Drag me</text>
           </view>
-          <text class="coords">X: {{ panX() }} Y: {{ panY() }}</text>
+          <text class="text-xs text-zinc-500"
+            >X: {{ panX() }} Y: {{ panY() }}</text
+          >
         </view>
 
-        <view class="card">
-          <text class="section-label">Tap Gesture</text>
-          <view [lynxGesture]="tapGesture" class="gesture-box tap-box">
-            <text class="tap-text">Taps: {{ tapCount() }}</text>
+        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+          <text
+            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-3"
+            >Tap Gesture</text
+          >
+          <view
+            [lynxGesture]="tapGesture"
+            class="py-3.5 px-6 bg-green-500 rounded-[10px] items-center justify-center"
+          >
+            <text class="text-[15px] text-white font-semibold"
+              >Taps: {{ tapCount() }}</text
+            >
           </view>
         </view>
 
-        <view class="card">
-          <text class="section-label">Exclusive (Pan vs Tap)</text>
-          <view [lynxGesture]="exclusive" class="gesture-box exclusive-box">
-            <text class="gesture-text">{{ action() }}</text>
+        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+          <text
+            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-3"
+            >Exclusive (Pan vs Tap)</text
+          >
+          <view
+            [lynxGesture]="exclusive"
+            class="p-4 bg-orange-500 rounded-[10px] items-center justify-center"
+          >
+            <text class="text-sm font-medium text-white">{{ action() }}</text>
           </view>
         </view>
       </view>
     </scroll-view>
-  `,
-  styles: `
-    .page {
-      height: 100%;
-      background-color: #fafafa;
-    }
-    .container {
-      padding: 24px;
-    }
-    .title {
-      font-size: 28px;
-      font-weight: bold;
-      color: #18181b;
-      margin-bottom: 4px;
-    }
-    .subtitle {
-      font-size: 13px;
-      color: #71717a;
-      margin-bottom: 20px;
-    }
-    .card {
-      background-color: #ffffff;
-      border: 1px solid #e4e4e7;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-    .section-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: #a1a1aa;
-      margin-bottom: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .gesture-box {
-      align-items: center;
-      justify-content: center;
-      border-radius: 10px;
-    }
-    .gesture-text {
-      color: white;
-      font-size: 14px;
-      font-weight: 500;
-    }
-    .pan-box {
-      width: 100px;
-      height: 100px;
-      background-color: #6366f1;
-      margin-bottom: 8px;
-    }
-    .tap-box {
-      padding: 14px 24px;
-      background-color: #22c55e;
-    }
-    .tap-text {
-      font-size: 15px;
-      color: white;
-      font-weight: 600;
-    }
-    .exclusive-box {
-      padding: 16px;
-      background-color: #f97316;
-    }
-    .coords {
-      font-size: 12px;
-      color: #71717a;
-    }
   `,
   imports: [LYNX_ELEMENTS, LynxGestureDetector],
 })

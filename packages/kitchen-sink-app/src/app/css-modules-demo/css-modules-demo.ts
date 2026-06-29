@@ -7,8 +7,8 @@ import styles from './demo.module.css';
   standalone: true,
   imports: [LYNX_ELEMENTS],
   template: `
-    <view class="container">
-      <text class="page-title">CSS Modules Demo</text>
+    <view class="p-4">
+      <text class="text-xl font-bold mb-4">CSS Modules Demo</text>
 
       <!-- Styled via CSS Modules hashed class names -->
       <view [class]="styles['card']">
@@ -24,55 +24,31 @@ import styles from './demo.module.css';
 
       <view [class]="styles['card']">
         <view [class]="styles['badge']">
-          <text style="color: white; font-size: 12px">Badge</text>
+          <text class="text-white text-xs">Badge</text>
         </view>
         <text>Card with a badge element</text>
       </view>
 
       <!-- Debug: show the raw hashed class names -->
-      <view class="debug-section">
-        <text class="debug-title">Debug: Hashed Class Names</text>
-        <text class="debug-text">card → {{ styles['card'] }}</text>
-        <text class="debug-text">title → {{ styles['title'] }}</text>
-        <text class="debug-text">highlight → {{ styles['highlight'] }}</text>
-        <text class="debug-text">badge → {{ styles['badge'] }}</text>
+      <view class="mt-6 p-3 bg-gray-100 rounded-lg">
+        <text class="text-sm font-bold text-gray-500 mb-2"
+          >Debug: Hashed Class Names</text
+        >
+        <text class="text-xs text-gray-400 font-[monospace] mb-1"
+          >card → {{ styles['card'] }}</text
+        >
+        <text class="text-xs text-gray-400 font-[monospace] mb-1"
+          >title → {{ styles['title'] }}</text
+        >
+        <text class="text-xs text-gray-400 font-[monospace] mb-1"
+          >highlight → {{ styles['highlight'] }}</text
+        >
+        <text class="text-xs text-gray-400 font-[monospace] mb-1"
+          >badge → {{ styles['badge'] }}</text
+        >
       </view>
     </view>
   `,
-  styles: [
-    `
-      .container {
-        padding: 16px;
-      }
-
-      .page-title {
-        font-size: 20px;
-        font-weight: bold;
-        margin-bottom: 16px;
-      }
-
-      .debug-section {
-        margin-top: 24px;
-        padding: 12px;
-        background-color: #f5f5f5;
-        border-radius: 8px;
-      }
-
-      .debug-title {
-        font-size: 14px;
-        font-weight: bold;
-        color: #666;
-        margin-bottom: 8px;
-      }
-
-      .debug-text {
-        font-size: 12px;
-        color: #999;
-        font-family: monospace;
-        margin-bottom: 4px;
-      }
-    `,
-  ],
 })
 export class CssModulesDemo {
   // Expose the CSS Modules map as a class field so the template can access

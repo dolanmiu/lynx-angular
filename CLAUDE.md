@@ -32,6 +32,22 @@ Near-1:1 Angular parity — partial support isn't acceptable. Every Angular API 
 - Always write comments explaining **why** something is done, not just what. Future developers need to understand the reasoning and intent behind decisions.
 - Use ES private fields (`#myVar`) instead of the TypeScript `private` keyword. Test private state through the public API. **Exception:** Angular signal props must be public `readonly` (see below).
 
+## CSS Colors in Lynx
+
+Tailwind semantic color utilities (`bg-background`, `bg-foreground`, `bg-primary`, `text-muted-foreground`, `border-border`, etc.) expand to `hsl(var(--color) / 1)` — space-separated HSL — which Lynx's CSS parser **silently ignores**, rendering the element transparent/colorless with no error or warning.
+
+Lynx only accepts comma-separated HSL: `hsl(240, 5.9%, 10%)`.
+
+**Prefer semantic utilities when CSS variables are defined** (e.g. in apps with a full theme setup). They are semantically superior and support dark mode automatically. Avoid them only in contexts where CSS variables are not defined — such as the standalone `examples/` apps, which have no theme variables.
+
+| Context | Use | Avoid |
+|---------|-----|-------|
+| App with CSS variables (preferred) | `bg-background`, `text-foreground` | hardcoded colors |
+| `examples/` (no CSS variables) | `bg-white`, `text-gray-900` | `bg-background`, `text-foreground` |
+| Inline custom color (any context) | `style="background-color: rgba(0,0,0,0.5)"` | `style="background-color: hsl(0 0% 0% / 0.5)"` |
+
+Tailwind named colors (`bg-white`, `bg-black`, `bg-gray-*`, `bg-red-*`, etc.) are always safe — they compile to hex or RGB, not HSL variables. Opacity modifiers on named colors (`bg-black/50`) are also safe; they compile to `rgb(0 0 0 / 0.5)`, and Lynx accepts space-separated RGB.
+
 ## Angular
 
 - Standalone components only; do NOT set `standalone: true` (it's the default)

@@ -41,32 +41,34 @@ import { UiSeparator } from '../components/ui/separator';
     UiSeparator,
   ],
   template: `
-    <scroll-view scroll-orientation="vertical" class="page">
-      <view class="container">
-        <view class="profile-header">
+    <scroll-view scroll-orientation="vertical" class="h-screen bg-zinc-50">
+      <view class="flex flex-col items-center gap-5 px-6 py-8">
+        <view class="flex flex-col items-center gap-2">
           <ui-avatar size="xl" src="" fallback="AJ" />
-          <text class="name">Alex Johnson</text>
-          <view class="username-row">
+          <text class="text-[24px] font-bold text-zinc-900">Alex Johnson</text>
+          <view class="flex flex-row items-center gap-2">
             <!-- cspell:disable-next-line -->
-            <text class="username">@alexj</text>
+            <text class="text-sm text-zinc-500">@alexj</text>
             <ui-badge variant="secondary">Pro</ui-badge>
           </view>
         </view>
 
-        <view class="stats-row">
-          <view class="stat">
-            <text class="stat-value">248</text>
-            <text class="stat-label">Posts</text>
+        <view
+          class="flex flex-row gap-7 px-6 py-5 bg-white border border-zinc-200 rounded-2xl"
+        >
+          <view class="flex flex-col items-center gap-0.5">
+            <text class="text-[20px] font-bold text-zinc-900">248</text>
+            <text class="text-xs text-zinc-400">Posts</text>
           </view>
           <ui-separator orientation="vertical" />
-          <view class="stat">
-            <text class="stat-value">4.2k</text>
-            <text class="stat-label">Followers</text>
+          <view class="flex flex-col items-center gap-0.5">
+            <text class="text-[20px] font-bold text-zinc-900">4.2k</text>
+            <text class="text-xs text-zinc-400">Followers</text>
           </view>
           <ui-separator orientation="vertical" />
-          <view class="stat">
-            <text class="stat-value">312</text>
-            <text class="stat-label">Following</text>
+          <view class="flex flex-col items-center gap-0.5">
+            <text class="text-[20px] font-bold text-zinc-900">312</text>
+            <text class="text-xs text-zinc-400">Following</text>
           </view>
         </view>
 
@@ -77,7 +79,7 @@ import { UiSeparator } from '../components/ui/separator';
         <ui-card class="w-full">
           <ui-card-header><ui-card-title>About</ui-card-title></ui-card-header>
           <ui-card-content>
-            <text class="bio-text">{{ bio() }}</text>
+            <text class="text-sm text-zinc-500 leading-5">{{ bio() }}</text>
           </ui-card-content>
         </ui-card>
       </view>
@@ -87,8 +89,8 @@ import { UiSeparator } from '../components/ui/separator';
       <ui-sheet-header
         ><ui-sheet-title>Edit Profile</ui-sheet-title></ui-sheet-header
       >
-      <view class="sheet-form">
-        <view class="field">
+      <view class="flex flex-col gap-4 p-4">
+        <view class="flex flex-col gap-1.5">
           <ui-label>Display Name</ui-label>
           <ui-input
             [value]="editName()"
@@ -96,7 +98,7 @@ import { UiSeparator } from '../components/ui/separator';
             placeholder="Your name"
           />
         </view>
-        <view class="field">
+        <view class="flex flex-col gap-1.5">
           <ui-label>Bio</ui-label>
           <ui-textarea
             [value]="editBio()"
@@ -112,80 +114,6 @@ import { UiSeparator } from '../components/ui/separator';
         <ui-button (pressed)="saveEdit()">Save</ui-button>
       </ui-sheet-footer>
     </ui-sheet>
-  `,
-  styles: `
-    .page {
-      height: 100vh;
-      background-color: #fafafa;
-    }
-    .container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-      padding: 32px 24px;
-    }
-    .profile-header {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-    }
-    .name {
-      font-size: 24px;
-      font-weight: bold;
-      color: #18181b;
-    }
-    .username-row {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 8px;
-    }
-    .username {
-      font-size: 14px;
-      color: #71717a;
-    }
-    .stats-row {
-      display: flex;
-      flex-direction: row;
-      gap: 28px;
-      padding: 20px 24px;
-      background-color: #ffffff;
-      border: 1px solid #e4e4e7;
-      border-radius: 16px;
-    }
-    .stat {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-    }
-    .stat-value {
-      font-size: 20px;
-      font-weight: bold;
-      color: #18181b;
-    }
-    .stat-label {
-      font-size: 12px;
-      color: #a1a1aa;
-    }
-    .bio-text {
-      font-size: 14px;
-      color: #71717a;
-      line-height: 20px;
-    }
-    .sheet-form {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      padding: 16px;
-    }
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
   `,
 })
 export class App {

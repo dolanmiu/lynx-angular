@@ -6,92 +6,40 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   standalone: true,
   imports: [LYNX_ELEMENTS],
   template: `
-    <view class="container">
-      <text class="title">Scroll View Example</text>
+    <view class="flex flex-col p-4 h-screen bg-gray-100">
+      <text class="text-[24px] mb-4 text-center font-bold"
+        >Scroll View Example</text
+      >
       <!-- Horizontal scroll example -->
-      <text class="subtitle">Horizontal Scroll</text>
-      <scroll-view class="horizontal-scroll" scroll-orientation="horizontal">
+      <text class="text-[18px] my-3 font-bold">Horizontal Scroll</text>
+      <scroll-view
+        class="h-[120px] bg-white rounded-lg mb-6"
+        scroll-orientation="horizontal"
+      >
         @for (item of horizontalItems; track item) {
-          <view class="horizontal-item">
-            <text class="item-text">{{ item }}</text>
+          <view
+            class="w-[150px] h-[80px] bg-blue-500 rounded-lg m-4 flex justify-center items-center"
+          >
+            <text class="text-white text-base font-bold">{{ item }}</text>
           </view>
         }
       </scroll-view>
       <!-- Vertical scroll example -->
-      <text class="subtitle">Vertical Scroll</text>
-      <scroll-view class="vertical-scroll" scroll-orientation="vertical">
+      <text class="text-[18px] my-3 font-bold">Vertical Scroll</text>
+      <scroll-view
+        class="flex-1 bg-white rounded-lg"
+        scroll-orientation="vertical"
+      >
         @for (item of verticalItems; track item) {
-          <view class="vertical-item">
-            <text class="item-text">{{ item }}</text>
+          <view
+            class="h-[80px] bg-[#17a2b8] rounded-lg m-4 flex justify-center items-center"
+          >
+            <text class="text-white text-base font-bold">{{ item }}</text>
           </view>
         }
       </scroll-view>
     </view>
   `,
-  styles: [
-    `
-      .container {
-        display: flex;
-        flex-direction: column;
-        padding: 16px;
-        height: 100vh;
-        background-color: #f5f5f5;
-      }
-
-      .title {
-        font-size: 24px;
-        margin-bottom: 16px;
-        text-align: center;
-        font-weight: bold;
-      }
-
-      .subtitle {
-        font-size: 18px;
-        margin: 12px 0;
-        font-weight: bold;
-      }
-
-      .horizontal-scroll {
-        height: 120px;
-        background-color: white;
-        border-radius: 8px;
-        margin-bottom: 24px;
-      }
-
-      .horizontal-item {
-        width: 150px;
-        height: 80px;
-        background-color: #007bff;
-        border-radius: 8px;
-        margin: 16px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-
-      .vertical-scroll {
-        flex: 1;
-        background-color: white;
-        border-radius: 8px;
-      }
-
-      .vertical-item {
-        height: 80px;
-        background-color: #17a2b8;
-        border-radius: 8px;
-        margin: 16px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-
-      .item-text {
-        color: white;
-        font-size: 16px;
-        font-weight: bold;
-      }
-    `,
-  ],
 })
 export class ScrollExample {
   horizontalItems = [

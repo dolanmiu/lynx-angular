@@ -27,40 +27,49 @@ type Track = { title: string; artist: string; duration: string };
     UiSeparator,
   ],
   template: `
-    <scroll-view scroll-orientation="vertical" class="page">
-      <view class="container">
-        <view class="album-art">
+    <scroll-view scroll-orientation="vertical" class="h-screen bg-zinc-50">
+      <view class="flex flex-col items-center gap-6 px-6 py-8">
+        <view class="p-2 bg-white border border-zinc-200 rounded-[20px]">
           <ui-avatar size="2xl" src="" fallback="♪" />
         </view>
 
-        <view class="track-info">
-          <text class="track-title">{{ currentTrack().title }}</text>
-          <text class="track-artist">{{ currentTrack().artist }}</text>
+        <view class="flex flex-col items-center gap-1">
+          <text class="text-[22px] font-bold text-zinc-900">{{
+            currentTrack().title
+          }}</text>
+          <text class="text-sm text-zinc-500">{{ currentTrack().artist }}</text>
         </view>
 
-        <view class="progress-section">
+        <view class="flex flex-col gap-1.5 w-full">
           <ui-progress [value]="position()" />
-          <view class="time-row">
-            <text class="time-text">{{ elapsed() }}</text>
-            <text class="time-text">{{ currentTrack().duration }}</text>
+          <view class="flex flex-row justify-between">
+            <text class="text-xs text-zinc-400">{{ elapsed() }}</text>
+            <text class="text-xs text-zinc-400">{{
+              currentTrack().duration
+            }}</text>
           </view>
         </view>
 
-        <view class="controls">
+        <view class="flex flex-row items-center gap-5">
           <ui-toggle [(pressed)]="shuffle" aria-label="Shuffle">
-            <text class="control-icon">⇌</text>
+            <text class="text-base">⇌</text>
           </ui-toggle>
           <ui-button variant="ghost" size="icon" (pressed)="prev()">
-            <text class="control-icon-lg">⏮</text>
+            <text class="text-[24px]">⏮</text>
           </ui-button>
-          <view class="play-btn" (bindtap)="togglePlay()">
-            <text class="play-icon">{{ playing() ? '⏸' : '▶' }}</text>
+          <view
+            class="w-16 h-16 rounded-[50%] bg-indigo-500 items-center justify-center"
+            (bindtap)="togglePlay()"
+          >
+            <text class="text-[24px] text-white">{{
+              playing() ? '⏸' : '▶'
+            }}</text>
           </view>
           <ui-button variant="ghost" size="icon" (pressed)="next()">
-            <text class="control-icon-lg">⏭</text>
+            <text class="text-[24px]">⏭</text>
           </ui-button>
           <ui-toggle [(pressed)]="repeat" aria-label="Repeat">
-            <text class="control-icon">↺</text>
+            <text class="text-base">↺</text>
           </ui-toggle>
         </view>
 
@@ -68,25 +77,33 @@ type Track = { title: string; artist: string; duration: string };
 
         <ui-collapsible class="w-full">
           <ui-collapsible-trigger>
-            <view class="queue-header">
-              <text class="queue-title">Up Next</text>
-              <text class="queue-count">{{ queue.length }} tracks</text>
+            <view class="flex flex-row justify-between items-center py-2">
+              <text class="text-sm font-semibold text-zinc-900">Up Next</text>
+              <text class="text-xs text-zinc-400"
+                >{{ queue.length }} tracks</text
+              >
             </view>
           </ui-collapsible-trigger>
           <ui-collapsible-content>
-            <view class="queue-list">
+            <view class="flex flex-col gap-1.5 mt-2">
               @for (track of queue; track track.title; let i = $index) {
                 <view
-                  class="queue-item"
-                  [class.queue-item-active]="i === trackIndex()"
+                  class="flex flex-row items-center gap-3 px-3 py-2.5 rounded-[10px]"
+                  [class.bg-indigo-50]="i === trackIndex()"
                   (bindtap)="jumpTo(i)"
                 >
                   <ui-avatar size="sm" src="" [fallback]="String(i + 1)" />
-                  <view class="queue-item-info">
-                    <text class="queue-item-title">{{ track.title }}</text>
-                    <text class="queue-item-artist">{{ track.artist }}</text>
+                  <view class="flex flex-col gap-0.5 flex-1">
+                    <text class="text-sm font-medium text-zinc-900">{{
+                      track.title
+                    }}</text>
+                    <text class="text-xs text-zinc-400">{{
+                      track.artist
+                    }}</text>
                   </view>
-                  <text class="queue-item-duration">{{ track.duration }}</text>
+                  <text class="text-xs text-zinc-400">{{
+                    track.duration
+                  }}</text>
                 </view>
               }
             </view>
@@ -94,131 +111,6 @@ type Track = { title: string; artist: string; duration: string };
         </ui-collapsible>
       </view>
     </scroll-view>
-  `,
-  styles: `
-    .page {
-      height: 100vh;
-      background-color: #fafafa;
-    }
-    .container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 24px;
-      padding: 32px 24px;
-    }
-    .album-art {
-      padding: 8px;
-      background-color: #ffffff;
-      border: 1px solid #e4e4e7;
-      border-radius: 20px;
-    }
-    .track-info {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-    }
-    .track-title {
-      font-size: 22px;
-      font-weight: bold;
-      color: #18181b;
-    }
-    .track-artist {
-      font-size: 14px;
-      color: #71717a;
-    }
-    .progress-section {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      width: 100%;
-    }
-    .time-row {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-    }
-    .time-text {
-      font-size: 12px;
-      color: #a1a1aa;
-    }
-    .controls {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 20px;
-    }
-    .control-icon {
-      font-size: 16px;
-    }
-    .control-icon-lg {
-      font-size: 24px;
-    }
-    .play-btn {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      background-color: #6366f1;
-      align-items: center;
-      justify-content: center;
-    }
-    .play-icon {
-      font-size: 24px;
-      color: #ffffff;
-    }
-    .queue-header {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 0;
-    }
-    .queue-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: #18181b;
-    }
-    .queue-count {
-      font-size: 12px;
-      color: #a1a1aa;
-    }
-    .queue-list {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      margin-top: 8px;
-    }
-    .queue-item {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 12px;
-      border-radius: 10px;
-    }
-    .queue-item-active {
-      background-color: #eef2ff;
-    }
-    .queue-item-info {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      flex: 1;
-    }
-    .queue-item-title {
-      font-size: 14px;
-      font-weight: 500;
-      color: #18181b;
-    }
-    .queue-item-artist {
-      font-size: 12px;
-      color: #a1a1aa;
-    }
-    .queue-item-duration {
-      font-size: 12px;
-      color: #a1a1aa;
-    }
   `,
 })
 export class App {

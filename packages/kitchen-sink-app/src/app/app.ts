@@ -41,59 +41,45 @@ import lynxLogo from '../assets/lynx-logo.png';
           <image [src]="arrow" class="arrow" />
           <text class="description">Tap the logo and have fun!</text>
           <text class="hint">
-            Edit<text style="font-style: italic"> src/app/app.ts</text>
+            Edit<text class="italic"> src/app/app.ts</text>
           </text>
         </view>
 
-        <view style="height: 300px; overflow: hidden;">
+        <view class="h-[300px] overflow-hidden">
           <router-outlet />
         </view>
 
-        <overlay
-          [attr.visible]="showOverlay()"
-          style="position: fixed; overflow: visible;"
-        >
+        <overlay [attr.visible]="showOverlay()" class="fixed overflow-visible">
           <view
-            style="width: 100%; height: 100%; z-index: 0; justify-content: center; align-items: center; background-color: rgba(0,0,0,0.5);"
+            class="w-full h-full z-0 justify-center items-center bg-black/50"
             (bindtap)="closeOverlay()"
           >
-            <view
-              style="background-color: white; padding: 24px; border-radius: 12px; width: 80%;"
-            >
-              <text
-                style="font-size: 18px; font-weight: bold; margin-bottom: 12px;"
-                >Overlay Demo</text
-              >
-              <text style="font-size: 14px; margin-bottom: 16px;"
+            <view class="bg-white p-6 rounded-xl w-[80%]">
+              <text class="text-[18px] font-bold mb-3">Overlay Demo</text>
+              <text class="text-sm mb-4"
                 >This modal is rendered outside the Lynx document flow using the
                 native overlay element.</text
               >
               <view
-                style="background-color: #6200ee; padding: 12px; border-radius: 8px; align-items: center;"
+                class="bg-[#6200ee] p-3 rounded-lg items-center"
                 (catchtap)="closeOverlay()"
               >
-                <text style="color: white; font-size: 14px;">Close</text>
+                <text class="text-white text-sm">Close</text>
               </view>
             </view>
           </view>
         </overlay>
 
-        <!-- <svg [attr.content]="svgContent" style="width: 80px; height: 80px; margin: 16px 0;" /> -->
+        <!-- <svg [attr.content]="svgContent" class="w-[80px] h-[80px] my-4" /> -->
 
         <!-- frame element: set src to a .lynx.bundle URL to embed a nested Lynx page -->
         <frame
-          style="width: 100%; height: 200px; border: 2px solid #6200ee; margin: 8px 0;"
+          class="w-full h-[200px] border-2 border-[#6200ee] my-2"
           (bindload)="onFrameLoad($any($event))"
         ></frame>
 
-        <view
-          class="nav-button"
-          style="margin-bottom: 12px; background-color: #6200ee;"
-          (bindtap)="openOverlay()"
-        >
-          <text class="nav-button-text" style="color: white;"
-            >Open Overlay</text
-          >
+        <view class="nav-button bg-[#6200ee] mb-3" (bindtap)="openOverlay()">
+          <text class="nav-button-text">Open Overlay</text>
         </view>
 
         <view class="navigation">

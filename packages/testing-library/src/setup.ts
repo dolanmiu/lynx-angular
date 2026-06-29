@@ -148,6 +148,17 @@ for (const tag of ['block', 'for', 'frame', 'if']) {
 };
 
 /**
+ * Returns the direct element children of a JSDOM element.
+ * __CreateRawText returns a DOM TextNode (not HTMLElement), so text content
+ * inside <text> elements is excluded here — matching Lynx PAPI semantics where
+ * __GetChildren returns Lynx elements only, not raw-text nodes. This means
+ * LynxElement.remove()'s child-parking loop becomes a no-op for <text>
+ * elements, letting __RemoveElement proceed and correctly detach the element.
+ */
+(globalThis as any).__GetChildren = (e: Element): Element[] =>
+  Array.from(e.children);
+
+/**
  * __SetConfig is called during bootstrap to pass Lynx config; no-op in tests.
  */
 (globalThis as any).__SetConfig = () => {};

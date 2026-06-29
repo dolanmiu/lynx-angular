@@ -15,178 +15,164 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   template: `
     <scroll-view class="w-full" scroll-orientation="vertical">
       <view class="p-4 flex flex-col">
-        <text
-          style="font-size: 20px; font-weight: bold; color: #1a1a1a; margin-bottom: 4px;"
-        >
+        <text class="text-xl font-bold text-zinc-900 mb-1">
           CSS Validation
         </text>
-        <text style="font-size: 12px; color: #888; margin-bottom: 16px;">
+        <text class="text-xs text-gray-400 mb-4">
           Each swatch should show a dark charcoal color unless the format is
           unsupported
         </text>
 
         <!-- Section A: Color Formats -->
-        <text
-          style="font-size: 15px; font-weight: bold; color: #333; margin-bottom: 10px;"
-        >
+        <text class="text-[15px] font-bold text-gray-700 mb-2.5">
           A. Color Formats
         </text>
 
-        <text style="font-size: 11px; color: #666; margin-bottom: 4px;"
-          >A1: hex — #18181b</text
-        >
+        <text class="text-[11px] text-gray-500 mb-1">A1: hex — #18181b</text>
         <view
           class="w-full h-12 rounded-lg mb-4 items-center justify-center"
           style="background-color: #18181b;"
         >
-          <text style="color: white; font-size: 11px;">#18181b</text>
+          <text class="text-white text-[11px]">#18181b</text>
         </view>
 
-        <text style="font-size: 11px; color: #666; margin-bottom: 4px;"
+        <text class="text-[11px] text-gray-500 mb-1"
           >A2: rgb comma — rgb(24, 24, 27)</text
         >
         <view
           class="w-full h-12 rounded-lg mb-4 items-center justify-center"
           style="background-color: rgb(24, 24, 27);"
         >
-          <text style="color: white; font-size: 11px;">rgb(24, 24, 27)</text>
+          <text class="text-white text-[11px]">rgb(24, 24, 27)</text>
         </view>
 
-        <text style="font-size: 11px; color: #666; margin-bottom: 4px;"
+        <text class="text-[11px] text-gray-500 mb-1"
           >A3: rgba comma — rgba(24, 24, 27, 0.5)</text
         >
         <view
           class="w-full h-12 rounded-lg mb-4 items-center justify-center"
           style="background-color: rgba(24, 24, 27, 0.5);"
         >
-          <text style="color: white; font-size: 11px;">rgba 50%</text>
+          <text class="text-white text-[11px]">rgba 50%</text>
         </view>
 
-        <text style="font-size: 11px; color: #666; margin-bottom: 4px;"
+        <text class="text-[11px] text-gray-500 mb-1"
           >A4: hsl comma — hsl(240, 5.9%, 10%)</text
         >
         <view
           class="w-full h-12 rounded-lg mb-4 items-center justify-center"
           style="background-color: hsl(240, 5.9%, 10%);"
         >
-          <text style="color: white; font-size: 11px;"
-            >hsl(240, 5.9%, 10%)</text
-          >
+          <text class="text-white text-[11px]">hsl(240, 5.9%, 10%)</text>
         </view>
 
-        <text style="font-size: 11px; color: #666; margin-bottom: 4px;"
+        <text class="text-[11px] text-gray-500 mb-1"
           >A5: hsl space — hsl(240 5.9% 10%) ⚠️ expected to fail</text
         >
         <view
           class="w-full h-12 rounded-lg mb-4 items-center justify-center"
           style="background-color: hsl(240 5.9% 10%);"
         >
-          <text style="color: white; font-size: 11px;">hsl(240 5.9% 10%)</text>
+          <text class="text-white text-[11px]">hsl(240 5.9% 10%)</text>
         </view>
 
-        <text style="font-size: 11px; color: #666; margin-bottom: 4px;"
+        <text class="text-[11px] text-gray-500 mb-1"
           >A6: hsla comma — hsla(240, 5.9%, 10%, 0.5)</text
         >
         <view
           class="w-full h-12 rounded-lg mb-4 items-center justify-center"
           style="background-color: hsla(240, 5.9%, 10%, 0.5);"
         >
-          <text style="color: white; font-size: 11px;">hsla 50%</text>
+          <text class="text-white text-[11px]">hsla 50%</text>
         </view>
 
-        <text style="font-size: 11px; color: #666; margin-bottom: 4px;"
+        <text class="text-[11px] text-gray-500 mb-1"
           >A7: named color — red</text
         >
         <view
           class="w-full h-12 rounded-lg mb-4 items-center justify-center"
           style="background-color: red;"
         >
-          <text style="color: white; font-size: 11px;">red</text>
+          <text class="text-white text-[11px]">red</text>
         </view>
 
-        <text style="font-size: 11px; color: #666; margin-bottom: 4px;"
+        <text class="text-[11px] text-gray-500 mb-1"
           >A8: rgb space — rgb(24 24 27)</text
         >
         <view
           class="w-full h-12 rounded-lg mb-6 items-center justify-center"
           style="background-color: rgb(24 24 27);"
         >
-          <text style="color: white; font-size: 11px;">rgb(24 24 27)</text>
+          <text class="text-white text-[11px]">rgb(24 24 27)</text>
         </view>
 
         <!-- Section B: CSS Variables -->
-        <text
-          style="font-size: 15px; font-weight: bold; color: #333; margin-bottom: 10px;"
-        >
+        <text class="text-[15px] font-bold text-gray-700 mb-2.5">
           B. CSS Variables
         </text>
 
-        <text style="font-size: 11px; color: #666; margin-bottom: 4px;"
+        <text class="text-[11px] text-gray-500 mb-1"
           >B1: var(--test-hex) → #18181b</text
         >
         <view
           class="w-full h-12 rounded-lg mb-4 items-center justify-center"
           style="background-color: var(--test-hex);"
         >
-          <text style="color: white; font-size: 11px;">var(--test-hex)</text>
+          <text class="text-white text-[11px]">var(--test-hex)</text>
         </view>
 
-        <text style="font-size: 11px; color: #666; margin-bottom: 4px;"
+        <text class="text-[11px] text-gray-500 mb-1"
           >B2: var(--primary) — raw HSL string without hsl() wrapper</text
         >
         <view
           class="w-full h-12 rounded-lg mb-4 items-center justify-center"
           style="background-color: var(--primary);"
         >
-          <text style="color: white; font-size: 11px;">var(--primary)</text>
+          <text class="text-white text-[11px]">var(--primary)</text>
         </view>
 
-        <text style="font-size: 11px; color: #666; margin-bottom: 4px;"
+        <text class="text-[11px] text-gray-500 mb-1"
           >B3: hsl(var(--primary)) — shadcn composition pattern</text
         >
         <view
           class="w-full h-12 rounded-lg mb-4 items-center justify-center"
           style="background-color: hsl(var(--primary));"
         >
-          <text style="color: white; font-size: 11px;"
-            >hsl(var(--primary))</text
-          >
+          <text class="text-white text-[11px]">hsl(var(--primary))</text>
         </view>
 
-        <text style="font-size: 11px; color: #666; margin-bottom: 4px;"
+        <text class="text-[11px] text-gray-500 mb-1"
           >B4: var(--nonexistent, #18181b) — fallback value</text
         >
         <view
           class="w-full h-12 rounded-lg mb-6 items-center justify-center"
           style="background-color: var(--nonexistent, #18181b);"
         >
-          <text style="color: white; font-size: 11px;">var fallback</text>
+          <text class="text-white text-[11px]">var fallback</text>
         </view>
 
         <!-- Section C: Composition -->
-        <text
-          style="font-size: 15px; font-weight: bold; color: #333; margin-bottom: 10px;"
-        >
+        <text class="text-[15px] font-bold text-gray-700 mb-2.5">
           C. Variable Composition
         </text>
 
-        <text style="font-size: 11px; color: #666; margin-bottom: 4px;"
+        <text class="text-[11px] text-gray-500 mb-1"
           >C1: rgb(var(--r), var(--g), var(--b)) — channel vars</text
         >
         <view
           class="w-full h-12 rounded-lg mb-4 items-center justify-center"
           style="background-color: rgb(var(--test-rgb-r), var(--test-rgb-g), var(--test-rgb-b));"
         >
-          <text style="color: white; font-size: 11px;">rgb(var, var, var)</text>
+          <text class="text-white text-[11px]">rgb(var, var, var)</text>
         </view>
 
-        <text style="font-size: 11px; color: #666; margin-bottom: 4px;"
+        <text class="text-[11px] text-gray-500 mb-1"
           >C2: Tailwind bg-primary — generates hsl(var(--primary) / 1)</text
         >
         <view
           class="w-full h-12 rounded-lg mb-6 items-center justify-center bg-primary"
         >
-          <text style="color: white; font-size: 11px;">bg-primary</text>
+          <text class="text-white text-[11px]">bg-primary</text>
         </view>
       </view>
     </scroll-view>

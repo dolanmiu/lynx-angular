@@ -1,12 +1,7 @@
 import { devStats } from '../devtools/stats';
 import { LynxElement, type LynxListElement } from '../lynx-element';
 import type { ElementRef } from '../types/lynx';
-
-/**
- * Exposed for SSR encode — ssrEncode() needs the raw page ElementRef to walk
- * the native tree. Only set on the main thread after createRootElement().
- */
-export let __pageElementRef: ElementRef | null = null;
+import { setPageElementRef } from './page-ref';
 
 import {
   createBlockElement,
@@ -64,7 +59,7 @@ export class LynxDocument implements LynxDocumentBase {
     // during normal component lifecycle (appendChild/remove calls).
     this.page.isRootPageElement = true;
     this.#pageId = __GetElementUniqueID(pageElement);
-    __pageElementRef = pageElement;
+    setPageElementRef(pageElement);
     return this.page;
   }
   createElement(tag: string, value?: string): LynxElement | LynxListElement {

@@ -6,35 +6,13 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   standalone: true,
   imports: [LYNX_ELEMENTS],
   template: `
-    <view class="heavy-container">
-      <text class="heavy-title">Heavy Component Loaded!</text>
-      <text class="heavy-body"
+    <view class="p-4 bg-green-50 rounded-lg border-2 border-green-500">
+      <text class="text-base font-bold text-green-800 mb-2">Heavy Component Loaded!</text>
+      <text class="text-[13px] text-green-700"
         >This component was loaded via @defer. It lives in a separate file so
         Angular generates a dynamic import() for it.</text
       >
     </view>
   `,
-  styles: [
-    `
-      .heavy-container {
-        padding: 16px;
-        background-color: #e8f5e9;
-        border-radius: 8px;
-        border: 2px solid #4caf50;
-      }
-
-      .heavy-title {
-        font-size: 16px;
-        font-weight: bold;
-        color: #2e7d32;
-        margin-bottom: 8px;
-      }
-
-      .heavy-body {
-        font-size: 13px;
-        color: #388e3c;
-      }
-    `,
-  ],
 })
 export class Heavy {}

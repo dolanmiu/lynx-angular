@@ -1,160 +1,68 @@
 import { Component, computed, signal } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
-type Todo = {
-  id: number;
-  text: string;
-  done: boolean;
-};
+type Todo = { id: number; text: string; done: boolean };
 
 @Component({
   selector: 'app-root',
   imports: [LYNX_ELEMENTS],
   template: `
-    <scroll-view class="page" scroll-orientation="vertical">
-      <view class="container">
-        <text class="title">Todos</text>
-        <text class="subtitle">{{ remaining() }} remaining</text>
+    <scroll-view class="h-screen bg-zinc-50" scroll-orientation="vertical">
+      <view class="p-6">
+        <text class="text-[28px] font-bold text-zinc-900 mb-1">Todos</text>
+        <text class="text-[13px] text-zinc-500 mb-5"
+          >{{ remaining() }} remaining</text
+        >
 
-        <view class="input-row">
+        <view class="flex flex-row gap-2 mb-4">
           <input
-            class="input"
+            class="flex-1 px-3.5 py-3 text-[15px] bg-white border border-zinc-200 rounded-[10px]"
             placeholder="What needs to be done?"
             [value]="draft()"
             (bindinput)="onInput($event)"
           />
-          <view class="add-btn" (bindtap)="addTodo()">
-            <text class="add-btn-text">Add</text>
+          <view
+            class="bg-indigo-500 rounded-[10px] py-3 px-5 justify-center items-center"
+            (bindtap)="addTodo()"
+          >
+            <text class="text-white text-[15px] font-semibold">Add</text>
           </view>
         </view>
 
         @for (todo of todos(); track todo.id) {
-          <view class="todo-card" (bindtap)="toggle(todo.id)">
-            <view class="checkbox" [class.checkbox-done]="todo.done">
+          <view
+            class="flex flex-row items-center px-4 py-3.5 bg-white border border-zinc-200 rounded-xl mb-2"
+            (bindtap)="toggle(todo.id)"
+          >
+            <view
+              class="w-[22px] h-[22px] rounded-[6px] border-2 border-zinc-200 mr-3 items-center justify-center"
+              [class.bg-indigo-500]="todo.done"
+              [class.border-indigo-500]="todo.done"
+            >
               @if (todo.done) {
-                <text class="check-icon">✓</text>
+                <text class="text-[13px] text-white font-bold">✓</text>
               }
             </view>
-            <text class="todo-text" [class.todo-done]="todo.done">{{
-              todo.text
-            }}</text>
-            <view class="delete-btn" (catchtap)="remove(todo.id)">
-              <text class="delete-text">✕</text>
+            <text
+              class="flex-1 text-[15px] text-zinc-900"
+              [class.text-zinc-400]="todo.done"
+              [class.line-through]="todo.done"
+              >{{ todo.text }}</text
+            >
+            <view class="py-1 px-2" (catchtap)="remove(todo.id)">
+              <text class="text-base text-red-500">✕</text>
             </view>
           </view>
         } @empty {
-          <view class="empty-card">
-            <text class="empty-icon">🎉</text>
-            <text class="empty-text">All done!</text>
+          <view
+            class="bg-white border border-zinc-200 rounded-xl p-10 items-center"
+          >
+            <text class="text-[32px] mb-2">🎉</text>
+            <text class="text-base text-zinc-400">All done!</text>
           </view>
         }
       </view>
     </scroll-view>
-  `,
-  styles: `
-    .page {
-      height: 100vh;
-      background-color: #fafafa;
-    }
-    .container {
-      padding: 24px;
-    }
-    .title {
-      font-size: 28px;
-      font-weight: bold;
-      color: #18181b;
-      margin-bottom: 4px;
-    }
-    .subtitle {
-      font-size: 13px;
-      color: #71717a;
-      margin-bottom: 20px;
-    }
-    .input-row {
-      display: flex;
-      flex-direction: row;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-    .input {
-      flex: 1;
-      padding: 12px 14px;
-      font-size: 15px;
-      background-color: #ffffff;
-      border: 1px solid #e4e4e7;
-      border-radius: 10px;
-    }
-    .add-btn {
-      background-color: #6366f1;
-      border-radius: 10px;
-      padding: 12px 20px;
-      justify-content: center;
-      align-items: center;
-    }
-    .add-btn-text {
-      color: white;
-      font-size: 15px;
-      font-weight: 600;
-    }
-    .todo-card {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      padding: 14px 16px;
-      background-color: #ffffff;
-      border: 1px solid #e4e4e7;
-      border-radius: 12px;
-      margin-bottom: 8px;
-    }
-    .checkbox {
-      width: 22px;
-      height: 22px;
-      border-radius: 6px;
-      border: 2px solid #e4e4e7;
-      margin-right: 12px;
-      align-items: center;
-      justify-content: center;
-    }
-    .checkbox-done {
-      background-color: #6366f1;
-      border-color: #6366f1;
-    }
-    .check-icon {
-      font-size: 13px;
-      color: white;
-      font-weight: bold;
-    }
-    .todo-text {
-      flex: 1;
-      font-size: 15px;
-      color: #18181b;
-    }
-    .todo-done {
-      color: #a1a1aa;
-      text-decoration: line-through;
-    }
-    .delete-btn {
-      padding: 4px 8px;
-    }
-    .delete-text {
-      font-size: 16px;
-      color: #ef4444;
-    }
-    .empty-card {
-      background-color: #ffffff;
-      border: 1px solid #e4e4e7;
-      border-radius: 12px;
-      padding: 40px;
-      align-items: center;
-    }
-    .empty-icon {
-      font-size: 32px;
-      margin-bottom: 8px;
-    }
-    .empty-text {
-      font-size: 16px;
-      color: #a1a1aa;
-    }
   `,
 })
 export class App {

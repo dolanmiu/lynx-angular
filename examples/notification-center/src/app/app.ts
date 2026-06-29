@@ -36,10 +36,12 @@ type Notification = {
     UiButton,
   ],
   template: `
-    <view class="page">
-      <view class="header">
-        <view class="header-left">
-          <text class="title">Notifications</text>
+    <view class="flex flex-col h-screen bg-zinc-50">
+      <view
+        class="flex flex-row items-center justify-between px-5 py-4 bg-white border-b border-zinc-200"
+      >
+        <view class="flex flex-row items-center gap-2.5">
+          <text class="text-[22px] font-bold text-zinc-900">Notifications</text>
           @if (unreadCount() > 0) {
             <ui-badge>{{ unreadCount() }}</ui-badge>
           }
@@ -51,9 +53,9 @@ type Notification = {
         }
       </view>
 
-      <scroll-view scroll-orientation="vertical" class="list">
+      <scroll-view scroll-orientation="vertical" class="flex-1">
         @if (notifications().length === 0) {
-          <view class="empty-container">
+          <view class="p-6">
             <ui-empty-state
               icon="bell"
               title="All caught up"
@@ -61,23 +63,29 @@ type Notification = {
             />
           </view>
         } @else {
-          <view class="notification-list">
+          <view class="flex flex-col gap-2 p-4">
             @for (n of notifications(); track n.id) {
               <ui-card
-                [class.notification-read]="n.read"
+                [class.opacity-[0.55]]="n.read"
                 (longpress)="openActionSheet(n)"
               >
                 <ui-card-content class="p-3">
-                  <view class="notification-row">
+                  <view class="flex flex-row items-start gap-3">
                     @if (!n.read) {
-                      <view class="unread-dot" />
+                      <view
+                        class="w-2 h-2 rounded-[50%] bg-indigo-500 mt-1.5 shrink-0"
+                      />
                     } @else {
-                      <view class="dot-spacer" />
+                      <view class="w-2 h-2 mt-1.5 shrink-0" />
                     }
-                    <view class="notification-content">
-                      <text class="notification-title">{{ n.title }}</text>
-                      <text class="notification-message">{{ n.message }}</text>
-                      <text class="notification-time">{{ n.time }}</text>
+                    <view class="flex flex-col gap-0.5 flex-1">
+                      <text class="text-sm font-semibold text-zinc-900">{{
+                        n.title
+                      }}</text>
+                      <text class="text-xs text-zinc-500">{{ n.message }}</text>
+                      <text class="text-xs text-zinc-400 mt-1">{{
+                        n.time
+                      }}</text>
                     </view>
                   </view>
                 </ui-card-content>
@@ -104,89 +112,6 @@ type Notification = {
     }
 
     <ui-toaster />
-  `,
-  styles: `
-    .page {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      background-color: #fafafa;
-    }
-    .header {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 20px;
-      background-color: #ffffff;
-      border-bottom: 1px solid #e4e4e7;
-    }
-    .header-left {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 10px;
-    }
-    .title {
-      font-size: 22px;
-      font-weight: bold;
-      color: #18181b;
-    }
-    .list {
-      flex: 1;
-    }
-    .empty-container {
-      padding: 24px;
-    }
-    .notification-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      padding: 16px;
-    }
-    .notification-read {
-      opacity: 0.55;
-    }
-    .notification-row {
-      display: flex;
-      flex-direction: row;
-      align-items: flex-start;
-      gap: 12px;
-    }
-    .unread-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background-color: #6366f1;
-      margin-top: 6px;
-      flex-shrink: 0;
-    }
-    .dot-spacer {
-      width: 8px;
-      height: 8px;
-      margin-top: 6px;
-      flex-shrink: 0;
-    }
-    .notification-content {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      flex: 1;
-    }
-    .notification-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: #18181b;
-    }
-    .notification-message {
-      font-size: 12px;
-      color: #71717a;
-    }
-    .notification-time {
-      font-size: 12px;
-      color: #a1a1aa;
-      margin-top: 4px;
-    }
   `,
 })
 export class App {

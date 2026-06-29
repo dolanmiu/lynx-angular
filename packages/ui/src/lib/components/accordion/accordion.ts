@@ -1,17 +1,13 @@
-import type { ElementRef } from '@angular/core';
 import {
   Component,
   ViewEncapsulation,
   computed,
-  effect,
   inject,
   input,
   signal,
-  viewChild,
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
-import { type AnimationHandle, revealIn } from '../../utils/animate';
 import { cn } from '../../utils/cn';
 
 @Component({
@@ -120,6 +116,17 @@ export class UiAccordionTrigger {
   }
 }
 
+/**
+ * Animation removed due to two stacked Lynx iOS bugs:
+ * 1. <ng-content> inside @if: elements trapped in a removed subtree become
+ *    permanently dead on Lynx (fixed in the renderer's remove() — children
+ *    are now parked at the page root before removal).
+ * 2. element.animate() on the @if container view: even with the renderer fix,
+ *    calling animate() on a view that gets destroyed/recreated by @if leaves
+ *    the new view's opacity stuck at 0 (the animation's initial keyframe).
+ *    This is a separate Lynx bug where animation state leaks across element
+ *    lifecycle boundaries. Without animation, content projection works reliably.
+ */
 @Component({
   selector: 'ui-accordion-content',
   standalone: true,
@@ -127,7 +134,7 @@ export class UiAccordionTrigger {
   encapsulation: ViewEncapsulation.None,
   template: `
     @if (item.isExpanded()) {
-      <view #content [class]="contentClass()">
+      <view [class]="contentClass()">
         <ng-content />
       </view>
     }
@@ -136,20 +143,6 @@ export class UiAccordionTrigger {
 export class UiAccordionContent {
   protected readonly item = inject(UiAccordionItem);
   readonly userClass = input<string>('', { alias: 'class' });
-
-  readonly contentRef = viewChild<ElementRef>('content');
-  #anim?: AnimationHandle;
-
-  constructor() {
-    effect(() => {
-      const el = this.contentRef()?.nativeElement;
-      if (el && this.item.isExpanded()) {
-        this.#anim?.cancel();
-        // Content reveals with a slide-down + fade for a polished expand feel
-        this.#anim = revealIn(el, { fromY: -8 });
-      }
-    });
-  }
 
   protected readonly contentClass = computed(() =>
     cn('flex flex-col pb-4', this.userClass()),

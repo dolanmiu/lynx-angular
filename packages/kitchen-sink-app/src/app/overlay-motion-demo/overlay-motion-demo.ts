@@ -15,10 +15,7 @@ import { LYNX_ELEMENTS, type LynxAnimation } from '@blotch/angular-lynx';
         <text class="open-button-text">Open Dialog</text>
       </view>
 
-      <overlay
-        [attr.visible]="overlayVisible()"
-        style="position: fixed; overflow: visible;"
-      >
+      <overlay [attr.visible]="overlayVisible()" class="fixed overflow-visible">
         <view #backdrop class="backdrop" (bindtap)="close()">
           <view #dialog class="dialog" (catchtap)="$event.stopPropagation()">
             <text class="dialog-title">Animated Dialog</text>

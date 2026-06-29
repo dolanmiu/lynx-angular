@@ -48,13 +48,15 @@ type Contact = {
     UiLabel,
   ],
   template: `
-    <view class="page">
-      <view class="header">
-        <text class="title">Contacts</text>
+    <view class="flex flex-col h-screen bg-zinc-50">
+      <view
+        class="flex flex-row items-center justify-between px-5 py-4 bg-white border-b border-zinc-200"
+      >
+        <text class="text-[22px] font-bold text-zinc-900">Contacts</text>
         <ui-button size="sm" (pressed)="openAdd()">+ Add</ui-button>
       </view>
 
-      <view class="search-bar">
+      <view class="px-4 pt-3 pb-2">
         <ui-input
           [value]="query()"
           (valueChange)="query.set($event)"
@@ -62,9 +64,9 @@ type Contact = {
         />
       </view>
 
-      <scroll-view scroll-orientation="vertical" class="list">
+      <scroll-view scroll-orientation="vertical" class="flex-1">
         @if (grouped().length === 0) {
-          <view class="empty-container">
+          <view class="p-6">
             <ui-empty-state
               title="No contacts"
               description="Add your first contact above."
@@ -72,24 +74,31 @@ type Contact = {
           </view>
         }
         @for (group of grouped(); track group.letter) {
-          <view class="group">
-            <view class="section-header">
-              <text class="section-letter">{{ group.letter }}</text>
+          <view class="flex flex-col">
+            <view class="px-4 py-1.5 bg-zinc-100">
+              <text class="text-xs font-bold text-zinc-400">{{
+                group.letter
+              }}</text>
             </view>
             @for (
               contact of group.contacts;
               track contact.id;
               let last = $last
             ) {
-              <view class="contact-row" (bindtap)="viewContact(contact)">
+              <view
+                class="flex flex-row items-center gap-3 px-4 py-3"
+                (bindtap)="viewContact(contact)"
+              >
                 <ui-avatar
                   size="sm"
                   src=""
                   [fallback]="initials(contact.name)"
                 />
-                <view class="contact-info">
-                  <text class="contact-name">{{ contact.name }}</text>
-                  <text class="contact-phone">{{ contact.phone }}</text>
+                <view class="flex flex-col gap-0.5 flex-1">
+                  <text class="text-[15px] font-medium text-zinc-900">{{
+                    contact.name
+                  }}</text>
+                  <text class="text-xs text-zinc-400">{{ contact.phone }}</text>
                 </view>
               </view>
               @if (!last) {
@@ -104,7 +113,7 @@ type Contact = {
     @if (selected()) {
       <ui-dialog [(open)]="viewOpen">
         <ui-dialog-header>
-          <view class="dialog-profile">
+          <view class="flex flex-col items-center gap-2.5 pb-2">
             <ui-avatar
               size="lg"
               src=""
@@ -113,14 +122,14 @@ type Contact = {
             <ui-dialog-title>{{ selected()!.name }}</ui-dialog-title>
           </view>
         </ui-dialog-header>
-        <view class="dialog-details">
-          <view class="detail-field">
-            <text class="detail-label">Phone</text>
-            <text class="detail-value">{{ selected()!.phone }}</text>
+        <view class="flex flex-col gap-3.5 p-4">
+          <view class="flex flex-col gap-0.5">
+            <text class="text-xs text-zinc-400">Phone</text>
+            <text class="text-sm text-zinc-900">{{ selected()!.phone }}</text>
           </view>
-          <view class="detail-field">
-            <text class="detail-label">Email</text>
-            <text class="detail-value">{{ selected()!.email }}</text>
+          <view class="flex flex-col gap-0.5">
+            <text class="text-xs text-zinc-400">Email</text>
+            <text class="text-sm text-zinc-900">{{ selected()!.email }}</text>
           </view>
         </view>
         <ui-dialog-footer>
@@ -136,16 +145,16 @@ type Contact = {
       <ui-dialog-header
         ><ui-dialog-title>New Contact</ui-dialog-title></ui-dialog-header
       >
-      <view class="dialog-form">
-        <view class="field">
+      <view class="flex flex-col gap-3.5 p-4">
+        <view class="flex flex-col gap-1.5">
           <ui-label>Name</ui-label>
           <ui-input [(value)]="newName" placeholder="Full name" />
         </view>
-        <view class="field">
+        <view class="flex flex-col gap-1.5">
           <ui-label>Phone</ui-label>
           <ui-input [(value)]="newPhone" placeholder="+1 555 0100" />
         </view>
-        <view class="field">
+        <view class="flex flex-col gap-1.5">
           <ui-label>Email</ui-label>
           <ui-input [(value)]="newEmail" placeholder="name@example.com" />
         </view>
@@ -175,109 +184,6 @@ type Contact = {
         >
       </ui-alert-dialog-footer>
     </ui-alert-dialog>
-  `,
-  styles: `
-    .page {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      background-color: #fafafa;
-    }
-    .header {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 20px;
-      background-color: #ffffff;
-      border-bottom: 1px solid #e4e4e7;
-    }
-    .title {
-      font-size: 22px;
-      font-weight: bold;
-      color: #18181b;
-    }
-    .search-bar {
-      padding: 12px 16px 8px 16px;
-    }
-    .list {
-      flex: 1;
-    }
-    .empty-container {
-      padding: 24px;
-    }
-    .group {
-      display: flex;
-      flex-direction: column;
-    }
-    .section-header {
-      padding: 6px 16px;
-      background-color: #f4f4f5;
-    }
-    .section-letter {
-      font-size: 12px;
-      font-weight: bold;
-      color: #a1a1aa;
-    }
-    .contact-row {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 16px;
-    }
-    .contact-info {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      flex: 1;
-    }
-    .contact-name {
-      font-size: 15px;
-      font-weight: 500;
-      color: #18181b;
-    }
-    .contact-phone {
-      font-size: 12px;
-      color: #a1a1aa;
-    }
-    .dialog-profile {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      padding-bottom: 8px;
-    }
-    .dialog-details {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      padding: 16px;
-    }
-    .detail-field {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    .detail-label {
-      font-size: 12px;
-      color: #a1a1aa;
-    }
-    .detail-value {
-      font-size: 14px;
-      color: #18181b;
-    }
-    .dialog-form {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      padding: 16px;
-    }
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
   `,
 })
 export class App {

@@ -32,21 +32,27 @@ type Role = 'developer' | 'designer' | 'manager' | 'founder';
     UiLabel,
   ],
   template: `
-    <scroll-view scroll-orientation="vertical" class="page">
-      <view class="container">
-        <view class="progress-section">
-          <view class="progress-labels">
-            <text class="step-text">Step {{ step() }} of {{ totalSteps }}</text>
-            <text class="step-percent">{{ Math.round(progress()) }}%</text>
+    <scroll-view scroll-orientation="vertical" class="h-screen bg-zinc-50">
+      <view class="flex flex-col gap-6 p-6">
+        <view class="flex flex-col gap-2">
+          <view class="flex flex-row justify-between">
+            <text class="text-sm text-zinc-500"
+              >Step {{ step() }} of {{ totalSteps }}</text
+            >
+            <text class="text-sm text-zinc-500"
+              >{{ Math.round(progress()) }}%</text
+            >
           </view>
           <ui-progress [value]="progress()" />
         </view>
 
         @if (step() === 1) {
-          <view class="welcome">
-            <text class="welcome-emoji">👋</text>
-            <text class="welcome-title">Welcome to AngularLynx</text>
-            <text class="welcome-subtitle"
+          <view class="flex flex-col items-center gap-3 py-8">
+            <text class="text-[48px]">👋</text>
+            <text class="text-[26px] font-bold text-zinc-900 text-center"
+              >Welcome to AngularLynx</text
+            >
+            <text class="text-sm text-zinc-500 text-center leading-5"
               >Let's personalize your experience. This only takes a
               minute.</text
             >
@@ -54,16 +60,20 @@ type Role = 'developer' | 'designer' | 'manager' | 'founder';
         }
 
         @if (step() === 2) {
-          <view class="step-section">
-            <text class="step-title">What's your role?</text>
+          <view class="flex flex-col gap-4">
+            <text class="text-[22px] font-bold text-zinc-900"
+              >What's your role?</text
+            >
             <ui-radio-group [(value)]="role">
-              <view class="option-list">
+              <view class="flex flex-col gap-2.5">
                 @for (opt of roles; track opt.value) {
-                  <view class="option-card">
+                  <view
+                    class="flex flex-row items-center gap-3 px-4 py-3.5 bg-white border border-zinc-200 rounded-xl"
+                  >
                     <ui-radio-group-item [value]="opt.value" [id]="opt.value" />
-                    <view class="option-info">
+                    <view class="flex flex-col gap-0.5 flex-1">
                       <ui-label>{{ opt.label }}</ui-label>
-                      <text class="option-desc">{{ opt.desc }}</text>
+                      <text class="text-xs text-zinc-400">{{ opt.desc }}</text>
                     </view>
                   </view>
                 }
@@ -73,25 +83,30 @@ type Role = 'developer' | 'designer' | 'manager' | 'founder';
         }
 
         @if (step() === 3) {
-          <view class="step-section">
-            <text class="step-title">What are you building?</text>
-            <text class="step-subtitle">Select all that apply.</text>
-            <view class="option-list">
+          <view class="flex flex-col gap-4">
+            <text class="text-[22px] font-bold text-zinc-900"
+              >What are you building?</text
+            >
+            <text class="text-sm text-zinc-500">Select all that apply.</text>
+            <view class="flex flex-col gap-2.5">
               @for (opt of interests; track opt.value) {
                 <view
-                  class="option-card"
-                  [class.option-card-selected]="
+                  class="flex flex-row items-center gap-3 px-4 py-3.5 bg-white border border-zinc-200 rounded-xl"
+                  [class.border-indigo-500]="
                     selectedInterests().includes(opt.value)
                   "
+                  [class.bg-indigo-50]="selectedInterests().includes(opt.value)"
                   (bindtap)="toggleInterest(opt.value)"
                 >
                   <ui-checkbox
                     [checked]="selectedInterests().includes(opt.value)"
                     (checkedChange)="toggleInterest(opt.value)"
                   />
-                  <view class="option-info">
-                    <text class="option-label">{{ opt.label }}</text>
-                    <text class="option-desc">{{ opt.desc }}</text>
+                  <view class="flex flex-col gap-0.5 flex-1">
+                    <text class="text-sm font-medium text-zinc-900">{{
+                      opt.label
+                    }}</text>
+                    <text class="text-xs text-zinc-400">{{ opt.desc }}</text>
                   </view>
                 </view>
               }
@@ -100,22 +115,28 @@ type Role = 'developer' | 'designer' | 'manager' | 'founder';
         }
 
         @if (step() === 4) {
-          <view class="step-section">
-            <text class="step-title">You're all set! 🎉</text>
+          <view class="flex flex-col gap-4">
+            <text class="text-[22px] font-bold text-zinc-900"
+              >You're all set! 🎉</text
+            >
             <ui-card>
               <ui-card-header
                 ><ui-card-title>Your Profile</ui-card-title></ui-card-header
               >
               <ui-card-content>
-                <view class="profile-rows">
-                  <view class="profile-row">
-                    <text class="profile-label">Role</text>
-                    <text class="profile-value">{{ roleName() }}</text>
+                <view class="flex flex-col gap-3">
+                  <view class="flex flex-row justify-between">
+                    <text class="text-sm text-zinc-500">Role</text>
+                    <text class="text-sm font-medium text-zinc-900">{{
+                      roleName()
+                    }}</text>
                   </view>
                   <ui-separator />
-                  <view class="profile-col">
-                    <text class="profile-label">Interests</text>
-                    <text class="profile-value">{{ interestNames() }}</text>
+                  <view class="flex flex-col gap-1">
+                    <text class="text-sm text-zinc-500">Interests</text>
+                    <text class="text-sm font-medium text-zinc-900">{{
+                      interestNames()
+                    }}</text>
                   </view>
                 </view>
               </ui-card-content>
@@ -123,7 +144,7 @@ type Role = 'developer' | 'designer' | 'manager' | 'founder';
           </view>
         }
 
-        <view class="button-row">
+        <view class="flex flex-row gap-3">
           @if (step() > 1) {
             <ui-button variant="outline" class="flex-1" (pressed)="back()"
               >Back</ui-button
@@ -139,135 +160,6 @@ type Role = 'developer' | 'designer' | 'manager' | 'founder';
         </view>
       </view>
     </scroll-view>
-  `,
-  styles: `
-    .page {
-      height: 100vh;
-      background-color: #fafafa;
-    }
-    .container {
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-      padding: 24px;
-    }
-    .progress-section {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .progress-labels {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-    }
-    .step-text {
-      font-size: 14px;
-      color: #71717a;
-    }
-    .step-percent {
-      font-size: 14px;
-      color: #71717a;
-    }
-    .welcome {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      padding: 32px 0;
-    }
-    .welcome-emoji {
-      font-size: 48px;
-    }
-    .welcome-title {
-      font-size: 26px;
-      font-weight: bold;
-      color: #18181b;
-      text-align: center;
-    }
-    .welcome-subtitle {
-      font-size: 14px;
-      color: #71717a;
-      text-align: center;
-      line-height: 20px;
-    }
-    .step-section {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .step-title {
-      font-size: 22px;
-      font-weight: bold;
-      color: #18181b;
-    }
-    .step-subtitle {
-      font-size: 14px;
-      color: #71717a;
-    }
-    .option-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .option-card {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 12px;
-      padding: 14px 16px;
-      background-color: #ffffff;
-      border: 1px solid #e4e4e7;
-      border-radius: 12px;
-    }
-    .option-card-selected {
-      border-color: #6366f1;
-      background-color: #eef2ff;
-    }
-    .option-info {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      flex: 1;
-    }
-    .option-label {
-      font-size: 14px;
-      font-weight: 500;
-      color: #18181b;
-    }
-    .option-desc {
-      font-size: 12px;
-      color: #a1a1aa;
-    }
-    .profile-rows {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .profile-row {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-    }
-    .profile-col {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .profile-label {
-      font-size: 14px;
-      color: #71717a;
-    }
-    .profile-value {
-      font-size: 14px;
-      font-weight: 500;
-      color: #18181b;
-    }
-    .button-row {
-      display: flex;
-      flex-direction: row;
-      gap: 12px;
-    }
   `,
 })
 export class App {

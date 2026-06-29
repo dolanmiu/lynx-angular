@@ -4,43 +4,52 @@ import { LYNX_ELEMENTS, type LynxAnimation } from '@blotch/angular-lynx';
 @Component({
   selector: 'app-root',
   template: `
-    <scroll-view class="page" scroll-orientation="vertical">
-      <view class="container">
-        <text class="title">Animations</text>
-        <text class="subtitle"
+    <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
+      <view class="p-6">
+        <text class="text-[28px] font-bold text-zinc-900 mb-1">Animations</text>
+        <text class="text-[13px] text-zinc-500 mb-5"
           >CSS transitions, keyframes, and the JS animate() API.</text
         >
 
-        <view class="card">
-          <text class="section-label">CSS Transition</text>
+        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+          <text
+            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-3"
+            >CSS Transition</text
+          >
           <view
             class="demo-box transition-box"
             [class.transition-active]="transitionOn()"
             (bindtap)="toggleTransition()"
           >
-            <text class="demo-text">Tap to toggle</text>
+            <text class="text-sm font-medium text-white">Tap to toggle</text>
           </view>
         </view>
 
-        <view class="card">
-          <text class="section-label">CSS Keyframes</text>
+        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+          <text
+            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-3"
+            >CSS Keyframes</text
+          >
           <view
             class="demo-box keyframe-box"
             [class.spinning]="spinOn()"
             (bindtap)="toggleSpin()"
           >
-            <text class="demo-text">Tap to spin</text>
+            <text class="text-sm font-medium text-white">Tap to spin</text>
           </view>
         </view>
 
-        <view class="card">
-          <text class="section-label">JS animate() API</text>
+        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+          <text
+            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-3"
+            >JS animate() API</text
+          >
           <view
             #animBox
             class="demo-box animate-box"
             (bindtap)="runAnimation()"
           >
-            <text class="demo-text">Tap to pulse</text>
+            <text class="text-sm font-medium text-white">Tap to pulse</text>
           </view>
         </view>
       </view>
@@ -48,48 +57,10 @@ import { LYNX_ELEMENTS, type LynxAnimation } from '@blotch/angular-lynx';
   `,
   styles: [
     `
-      .page {
-        height: 100%;
-        background-color: #fafafa;
-      }
-      .container {
-        padding: 24px;
-      }
-      .title {
-        font-size: 28px;
-        font-weight: bold;
-        color: #18181b;
-        margin-bottom: 4px;
-      }
-      .subtitle {
-        font-size: 13px;
-        color: #71717a;
-        margin-bottom: 20px;
-      }
-      .card {
-        background-color: #ffffff;
-        border: 1px solid #e4e4e7;
-        border-radius: 12px;
-        padding: 16px;
-        margin-bottom: 16px;
-      }
-      .section-label {
-        font-size: 11px;
-        font-weight: 700;
-        color: #a1a1aa;
-        margin-bottom: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
       .demo-box {
         align-items: center;
         justify-content: center;
         border-radius: 10px;
-      }
-      .demo-text {
-        color: white;
-        font-size: 14px;
-        font-weight: 500;
       }
 
       .transition-box {

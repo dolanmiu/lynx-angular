@@ -69,6 +69,13 @@ export class UiCollapsibleTrigger {
   }
 }
 
+/**
+ * TODO: Remove animation — same two-bug interaction as UiAccordionContent.
+ * The renderer's remove() fix (parking children at page root) solves the
+ * <ng-content> + @if projection issue, but element.animate() on the @if
+ * container still leaves opacity stuck at 0 on the second expand cycle.
+ * The inline style + fill:'none' workaround is insufficient.
+ */
 @Component({
   selector: 'ui-collapsible-content',
   standalone: true,
@@ -76,7 +83,11 @@ export class UiCollapsibleTrigger {
   encapsulation: ViewEncapsulation.None,
   template: `
     @if (collapsible.open()) {
-      <view #content [class]="contentClass()">
+      <view
+        #content
+        [class]="contentClass()"
+        style="opacity: 1; transform: translateY(0);"
+      >
         <ng-content />
       </view>
     }
@@ -92,13 +103,13 @@ export class UiCollapsibleContent {
   constructor() {
     effect(() => {
       const el = this.contentRef()?.nativeElement;
-      if (el && this.collapsible.open()) {
-        // fromY: -8 makes content slide DOWN into view (starting 8px above its
-        // final position), which matches the visual expectation of an accordion
-        // opening downward. The animation only plays on open — on close, the
-        // @if block removes the element from the tree, so no exit animation needed.
+      if (!el) {
+        this.#anim = undefined;
+        return;
+      }
+      if (this.collapsible.open()) {
         this.#anim?.cancel();
-        this.#anim = revealIn(el, { fromY: -8 });
+        this.#anim = revealIn(el, { fromY: -8, fill: 'none' });
       }
     });
   }

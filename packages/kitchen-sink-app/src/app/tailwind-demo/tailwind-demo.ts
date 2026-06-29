@@ -25,7 +25,7 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
             <text class="text-white font-bold">bg-rose-500</text>
           </view>
           <view class="bg-amber-400 p-4 rounded-lg mb-2">
-            <text class="font-bold" style="color: #1a1a1a;">bg-amber-400</text>
+            <text class="font-bold text-zinc-900">bg-amber-400</text>
           </view>
         </view>
 

@@ -5,90 +5,44 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   selector: 'app-root',
   imports: [LYNX_ELEMENTS],
   template: `
-    <view class="page">
-      <text class="title">Counter</text>
-      <text class="subtitle">Signal-based reactivity with computed state.</text>
+    <view
+      class="flex flex-col items-center justify-center h-screen bg-zinc-50 p-6"
+    >
+      <text class="text-[28px] font-bold text-zinc-900 mb-1">Counter</text>
+      <text class="text-[13px] text-zinc-500 mb-8"
+        >Signal-based reactivity with computed state.</text
+      >
 
-      <view class="card">
-        <text class="count">{{ count() }}</text>
-        <text class="label">{{ label() }}</text>
+      <view
+        class="bg-white border border-zinc-200 rounded-2xl px-12 py-8 items-center mb-8"
+      >
+        <text class="text-[72px] font-bold text-indigo-500 mb-1">{{
+          count()
+        }}</text>
+        <text class="text-sm text-zinc-400">{{ label() }}</text>
       </view>
 
-      <view class="row">
-        <view class="btn" (bindtap)="decrement()">
-          <text class="btn-text">−</text>
+      <view class="flex flex-row gap-3">
+        <view
+          class="bg-indigo-500 rounded-[10px] px-7 py-4"
+          (bindtap)="decrement()"
+        >
+          <text class="text-white text-2xl font-bold">-</text>
         </view>
-        <view class="btn btn-secondary" (bindtap)="reset()">
-          <text class="btn-text btn-secondary-text">Reset</text>
+        <view
+          class="bg-zinc-100 border border-zinc-200 rounded-[10px] px-7 py-4"
+          (bindtap)="reset()"
+        >
+          <text class="text-zinc-900 text-base font-bold">Reset</text>
         </view>
-        <view class="btn" (bindtap)="increment()">
-          <text class="btn-text">+</text>
+        <view
+          class="bg-indigo-500 rounded-[10px] px-7 py-4"
+          (bindtap)="increment()"
+        >
+          <text class="text-white text-2xl font-bold">+</text>
         </view>
       </view>
     </view>
-  `,
-  styles: `
-    .page {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      background-color: #fafafa;
-      padding: 24px;
-    }
-    .title {
-      font-size: 28px;
-      font-weight: bold;
-      color: #18181b;
-      margin-bottom: 4px;
-    }
-    .subtitle {
-      font-size: 13px;
-      color: #71717a;
-      margin-bottom: 32px;
-    }
-    .card {
-      background-color: #ffffff;
-      border: 1px solid #e4e4e7;
-      border-radius: 16px;
-      padding: 32px 48px;
-      align-items: center;
-      margin-bottom: 32px;
-    }
-    .count {
-      font-size: 72px;
-      font-weight: bold;
-      color: #6366f1;
-      margin-bottom: 4px;
-    }
-    .label {
-      font-size: 14px;
-      color: #a1a1aa;
-    }
-    .row {
-      display: flex;
-      flex-direction: row;
-      gap: 12px;
-    }
-    .btn {
-      background-color: #6366f1;
-      border-radius: 10px;
-      padding: 16px 28px;
-    }
-    .btn-text {
-      color: white;
-      font-size: 24px;
-      font-weight: bold;
-    }
-    .btn-secondary {
-      background-color: #f4f4f5;
-      border: 1px solid #e4e4e7;
-    }
-    .btn-secondary-text {
-      color: #18181b;
-      font-size: 16px;
-    }
   `,
 })
 export class App {

@@ -21,7 +21,7 @@ import { UiButton } from '../components/ui/button';
     UiButton,
   ],
   template: `
-    <scroll-view scroll-orientation="vertical" class="h-full">
+    <scroll-view scroll-orientation="vertical" class="h-full bg-red-500">
       <view class="flex flex-col gap-4 p-6">
         <text class="text-2xl font-bold text-foreground">Dialog</text>
 

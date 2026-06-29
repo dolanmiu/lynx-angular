@@ -4,80 +4,37 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 @Component({
   selector: 'app-root',
   template: `
-    <scroll-view class="page" scroll-orientation="vertical">
-      <view class="container">
-        <text class="title">Input Element</text>
-        <text class="subtitle"> Text input with reactive signal binding. </text>
+    <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
+      <view class="p-6">
+        <text class="text-[28px] font-bold text-zinc-900 mb-1"
+          >Input Element</text
+        >
+        <text class="text-[13px] text-zinc-500 mb-5"
+          >Text input with reactive signal binding.</text
+        >
 
-        <view class="card">
-          <text class="section-label">Try it</text>
+        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+          <text
+            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-2.5"
+            >Try it</text
+          >
           <input
             type="text"
-            class="input"
+            class="px-3.5 py-3 text-[15px] bg-white border border-zinc-200 rounded-lg"
             placeholder="Type your name..."
             (bindinput)="onInput($event)"
           />
         </view>
 
-        <view class="result-card">
-          <text class="greeting">Hello, {{ name() || 'stranger' }}!</text>
+        <view
+          class="bg-indigo-50 border border-indigo-200 rounded-xl p-4 items-center"
+        >
+          <text class="text-[18px] font-semibold text-indigo-700"
+            >Hello, {{ name() || 'stranger' }}!</text
+          >
         </view>
       </view>
     </scroll-view>
-  `,
-  styles: `
-    .page {
-      height: 100%;
-      background-color: #fafafa;
-    }
-    .container {
-      padding: 24px;
-    }
-    .title {
-      font-size: 28px;
-      font-weight: bold;
-      color: #18181b;
-      margin-bottom: 4px;
-    }
-    .subtitle {
-      font-size: 13px;
-      color: #71717a;
-      margin-bottom: 20px;
-    }
-    .card {
-      background-color: #ffffff;
-      border: 1px solid #e4e4e7;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-    .section-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: #a1a1aa;
-      margin-bottom: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .input {
-      padding: 12px 14px;
-      font-size: 15px;
-      border: 1px solid #e4e4e7;
-      border-radius: 8px;
-      background-color: #ffffff;
-    }
-    .result-card {
-      background-color: #eef2ff;
-      border: 1px solid #c7d2fe;
-      border-radius: 12px;
-      padding: 16px;
-      align-items: center;
-    }
-    .greeting {
-      font-size: 18px;
-      font-weight: 600;
-      color: #4338ca;
-    }
   `,
   imports: [LYNX_ELEMENTS],
 })

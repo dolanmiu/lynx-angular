@@ -4,89 +4,49 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 @Component({
   selector: 'app-root',
   template: `
-    <scroll-view class="page" scroll-orientation="vertical">
-      <view class="container">
-        <text class="title">Custom Fonts</text>
-        <text class="subtitle"
+    <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
+      <view class="p-6">
+        <text class="text-[28px] font-bold text-zinc-900 mb-1"
+          >Custom Fonts</text
+        >
+        <text class="text-[13px] text-zinc-500 mb-5"
           >Load and display custom fonts via @font-face.</text
         >
 
-        <view class="card">
-          <text class="section-label">Custom Font (Roboto)</text>
-          <text class="sample-custom">
+        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+          <text
+            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-2.5"
+            >Custom Font (Roboto)</text
+          >
+          <text class="text-[18px] text-zinc-900 font-[Roboto]">
             The quick brown fox jumps over the lazy dog
           </text>
         </view>
 
-        <view class="card">
-          <text class="section-label">System Font</text>
-          <text class="sample-system">
+        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+          <text
+            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-2.5"
+            >System Font</text
+          >
+          <text class="text-[18px] text-zinc-900">
             The quick brown fox jumps over the lazy dog
           </text>
         </view>
 
-        <view class="card">
-          <text class="section-label">Size Scale</text>
-          <text class="scale-sm">14px — ABCDEFGHIJKLMNOPQRSTUVWXYZ</text>
-          <text class="scale-lg">28px — Hello, Lynx!</text>
+        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+          <text
+            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-2.5"
+            >Size Scale</text
+          >
+          <text class="text-sm text-zinc-500 font-[Roboto] mb-2"
+            >14px — ABCDEFGHIJKLMNOPQRSTUVWXYZ</text
+          >
+          <text class="text-[28px] text-zinc-900 font-[Roboto]"
+            >28px — Hello, Lynx!</text
+          >
         </view>
       </view>
     </scroll-view>
-  `,
-  styles: `
-    .page {
-      height: 100%;
-      background-color: #fafafa;
-    }
-    .container {
-      padding: 24px;
-    }
-    .title {
-      font-size: 28px;
-      font-weight: bold;
-      color: #18181b;
-      margin-bottom: 4px;
-    }
-    .subtitle {
-      font-size: 13px;
-      color: #71717a;
-      margin-bottom: 20px;
-    }
-    .card {
-      background-color: #ffffff;
-      border: 1px solid #e4e4e7;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-    .section-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: #a1a1aa;
-      margin-bottom: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .sample-custom {
-      font-family: Roboto;
-      font-size: 18px;
-      color: #18181b;
-    }
-    .sample-system {
-      font-size: 18px;
-      color: #18181b;
-    }
-    .scale-sm {
-      font-family: Roboto;
-      font-size: 14px;
-      color: #71717a;
-      margin-bottom: 8px;
-    }
-    .scale-lg {
-      font-family: Roboto;
-      font-size: 28px;
-      color: #18181b;
-    }
   `,
   imports: [LYNX_ELEMENTS],
 })

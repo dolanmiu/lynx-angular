@@ -7,16 +7,18 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   standalone: true,
   imports: [LYNX_ELEMENTS],
   template: `
-    <view class="container">
-      <text class="title">querySelector Demo</text>
+    <view class="flex flex-col p-4 bg-gray-100 min-h-screen">
+      <text class="text-[24px] font-bold text-center mb-4"
+        >querySelector Demo</text
+      >
 
-      <view class="explainer">
-        <text class="explainer-text">
+      <view class="mb-4">
+        <text class="text-[13px] text-gray-700 mb-2">
           Lynx runs Angular on a background JS thread with no real DOM. This
           demo verifies that querySelector and querySelectorAll work on the
           background thread's virtual element tree.
         </text>
-        <text class="explainer-text">
+        <text class="text-[13px] text-gray-700 mb-2">
           The box below is the element tree being queried. Results are evaluated
           in ngAfterViewInit via ElementRef.nativeElement and displayed below.
         </text>
@@ -25,43 +27,59 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
       <!-- These are the elements being queried — three .qs-item views, one with
            an extra .qs-active class, one with id="qs-first", plus a text with
            class .qs-label for testing compound tag+class selectors. -->
-      <text class="subject-label">Element tree being queried:</text>
-      <view #subject class="subject">
-        <view class="qs-item" id="qs-first"><text>Item A</text></view>
-        <view class="qs-item qs-active"><text>Item B (active)</text></view>
-        <view class="qs-item"><text>Item C</text></view>
-        <text class="qs-label">Label</text>
+      <text class="text-xs text-gray-400 mb-1.5 italic"
+        >Element tree being queried:</text
+      >
+      <view #subject class="bg-white rounded-lg p-3 mb-4">
+        <view class="qs-item p-2 bg-gray-200 rounded mb-1.5" id="qs-first"
+          ><text>Item A</text></view
+        >
+        <view class="qs-item qs-active p-2 bg-blue-100 rounded mb-1.5"
+          ><text>Item B (active)</text></view
+        >
+        <view class="qs-item p-2 bg-gray-200 rounded mb-1.5"
+          ><text>Item C</text></view
+        >
+        <text class="qs-label italic text-gray-500 mt-1">Label</text>
       </view>
 
-      <view class="section">
-        <text class="section-title">Results</text>
+      <view class="bg-white rounded-lg p-3">
+        <text class="text-[18px] font-bold mb-3">Results</text>
 
-        <view class="result-row">
-          <text class="result-label">querySelector('.qs-active')</text>
+        <view class="mb-2.5 pb-2.5 border-b border-gray-200">
+          <text class="text-xs text-gray-600 mb-1 font-[monospace]"
+            >querySelector('.qs-active')</text
+          >
           <text [style.color]="resultColor(qsActive())">{{ qsActive() }}</text>
         </view>
 
-        <view class="result-row">
-          <text class="result-label">querySelectorAll('.qs-item').length</text>
+        <view class="mb-2.5 pb-2.5 border-b border-gray-200">
+          <text class="text-xs text-gray-600 mb-1 font-[monospace]"
+            >querySelectorAll('.qs-item').length</text
+          >
           <text [style.color]="resultColor(qsAllCount())">{{
             qsAllCount()
           }}</text>
         </view>
 
-        <view class="result-row">
-          <text class="result-label">querySelector('#qs-first')</text>
+        <view class="mb-2.5 pb-2.5 border-b border-gray-200">
+          <text class="text-xs text-gray-600 mb-1 font-[monospace]"
+            >querySelector('#qs-first')</text
+          >
           <text [style.color]="resultColor(qsById())">{{ qsById() }}</text>
         </view>
 
-        <view class="result-row">
-          <text class="result-label">querySelector('text.qs-label')</text>
+        <view class="mb-2.5 pb-2.5 border-b border-gray-200">
+          <text class="text-xs text-gray-600 mb-1 font-[monospace]"
+            >querySelector('text.qs-label')</text
+          >
           <text [style.color]="resultColor(qsCompound())">{{
             qsCompound()
           }}</text>
         </view>
 
-        <view class="result-row">
-          <text class="result-label"
+        <view class="mb-2.5 pb-2.5 border-b border-gray-200">
+          <text class="text-xs text-gray-600 mb-1 font-[monospace]"
             >querySelector('view view') — combinator (unsupported)</text
           >
           <text [style.color]="resultColor(qsCombinator())">{{
@@ -71,93 +89,6 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
       </view>
     </view>
   `,
-  styles: [
-    `
-      .container {
-        display: flex;
-        flex-direction: column;
-        padding: 16px;
-        background-color: #f5f5f5;
-        min-height: 100vh;
-      }
-
-      .title {
-        font-size: 24px;
-        font-weight: bold;
-        text-align: center;
-        margin-bottom: 16px;
-      }
-
-      .explainer {
-        margin-bottom: 16px;
-      }
-
-      .explainer-text {
-        font-size: 13px;
-        color: #444;
-        margin-bottom: 8px;
-        line-height: 1.4;
-      }
-
-      .subject-label {
-        font-size: 12px;
-        color: #888;
-        margin-bottom: 6px;
-        font-style: italic;
-      }
-
-      .subject {
-        background-color: white;
-        border-radius: 8px;
-        padding: 12px;
-        margin-bottom: 16px;
-      }
-
-      .qs-item {
-        padding: 8px;
-        background-color: #e9ecef;
-        border-radius: 4px;
-        margin-bottom: 6px;
-      }
-
-      .qs-active {
-        background-color: #cce5ff;
-      }
-
-      .qs-label {
-        font-style: italic;
-        color: #666;
-        margin-top: 4px;
-      }
-
-      .section {
-        background-color: white;
-        border-radius: 8px;
-        padding: 12px;
-      }
-
-      .section-title {
-        font-size: 18px;
-        font-weight: bold;
-        margin-bottom: 12px;
-      }
-
-      .result-row {
-        margin-bottom: 10px;
-        padding-bottom: 10px;
-        border-bottom-width: 1px;
-        border-bottom-color: #eee;
-        border-bottom-style: solid;
-      }
-
-      .result-label {
-        font-size: 12px;
-        color: #555;
-        margin-bottom: 4px;
-        font-family: monospace;
-      }
-    `,
-  ],
 })
 export class QuerySelectorDemo implements AfterViewInit {
   @ViewChild('subject', { read: ElementRef }) subject!: ElementRef;

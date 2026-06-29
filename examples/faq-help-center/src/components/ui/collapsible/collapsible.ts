@@ -69,6 +69,18 @@ export class UiCollapsibleTrigger {
   }
 }
 
+/**
+ * TODO: This animation still causes content to permanently disappear on the
+ * second expand on Lynx iOS — the same bug that was fixed in UiAccordionContent
+ * by removing the animation entirely. element.animate() on views inside @if
+ * breaks Lynx's native element lifecycle on destroy/recreate cycles. Remove the
+ * animation here too (see UiAccordionContent for the working pattern).
+ *
+ * The inline style="opacity: 1" and fill: 'none' were an earlier attempt to
+ * make the animation non-destructive, but the root cause is that ANY call to
+ * element.animate() on a conditionally-rendered view poisons subsequent
+ * recreations of that view on Lynx iOS.
+ */
 @Component({
   selector: 'ui-collapsible-content',
   standalone: true,
@@ -76,7 +88,11 @@ export class UiCollapsibleTrigger {
   encapsulation: ViewEncapsulation.None,
   template: `
     @if (collapsible.open()) {
-      <view #content [class]="contentClass()">
+      <view
+        #content
+        [class]="contentClass()"
+        style="opacity: 1; transform: translateY(0);"
+      >
         <ng-content />
       </view>
     }
@@ -92,13 +108,13 @@ export class UiCollapsibleContent {
   constructor() {
     effect(() => {
       const el = this.contentRef()?.nativeElement;
-      if (el && this.collapsible.open()) {
-        // fromY: -8 makes content slide DOWN into view (starting 8px above its
-        // final position), which matches the visual expectation of an accordion
-        // opening downward. The animation only plays on open — on close, the
-        // @if block removes the element from the tree, so no exit animation needed.
+      if (!el) {
+        this.#anim = undefined;
+        return;
+      }
+      if (this.collapsible.open()) {
         this.#anim?.cancel();
-        this.#anim = revealIn(el, { fromY: -8 });
+        this.#anim = revealIn(el, { fromY: -8, fill: 'none' });
       }
     });
   }
