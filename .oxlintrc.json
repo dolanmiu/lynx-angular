@@ -10,6 +10,7 @@
     "@blotch/oxlint-plugin/no-function-declaration": "error",
     "@blotch/oxlint-plugin/comment-decorator-order": "error",
     "@blotch/oxlint-plugin/multiline-comment-style": "error",
+    "@blotch/oxlint-plugin/no-legacy-decorators": "error",
     "@blotch/oxlint-plugin/no-private-keyword": "error",
     "typescript/no-non-null-assertion": "off",
     "eslint/no-param-reassign": "off",

@@ -69,18 +69,6 @@ export class UiCollapsibleTrigger {
   }
 }
 
-/**
- * TODO: This animation still causes content to permanently disappear on the
- * second expand on Lynx iOS — the same bug that was fixed in UiAccordionContent
- * by removing the animation entirely. element.animate() on views inside @if
- * breaks Lynx's native element lifecycle on destroy/recreate cycles. Remove the
- * animation here too (see UiAccordionContent for the working pattern).
- *
- * The inline style="opacity: 1" and fill: 'none' were an earlier attempt to
- * make the animation non-destructive, but the root cause is that ANY call to
- * element.animate() on a conditionally-rendered view poisons subsequent
- * recreations of that view on Lynx iOS.
- */
 @Component({
   selector: 'ui-collapsible-content',
   standalone: true,

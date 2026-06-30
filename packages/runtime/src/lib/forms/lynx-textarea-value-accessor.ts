@@ -1,7 +1,6 @@
 import {
   Directive,
   ElementRef,
-  HostListener,
   Renderer2,
   forwardRef,
   inject,
@@ -28,6 +27,12 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
       multi: true,
     },
   ],
+  host: {
+    // host bindings call renderer.listen() — the correct Lynx event path.
+    // @Output() would break delivery (template compiler intercepts it).
+    '(bindinput)': 'onInput($event)',
+    '(bindblur)': 'onBlur()',
+  },
 })
 export class LynxTextareaValueAccessor implements ControlValueAccessor {
   readonly #renderer = inject(Renderer2);
@@ -35,11 +40,6 @@ export class LynxTextareaValueAccessor implements ControlValueAccessor {
   #onChange: (value: string) => void = () => {};
   #onTouched: () => void = () => {};
 
-  /**
-   * @HostListener ultimately calls renderer.listen(), which is the correct Lynx
-   * event path. Using @Output() would break delivery (template compiler intercepts it).
-   */
-  @HostListener('bindinput', ['$event'])
   onInput(event: Event): void {
     // Lynx bindinput carries the typed value in event.detail.value, not event.target.value.
     this.#onChange(
@@ -47,7 +47,6 @@ export class LynxTextareaValueAccessor implements ControlValueAccessor {
     );
   }
 
-  @HostListener('bindblur')
   onBlur(): void {
     this.#onTouched();
   }

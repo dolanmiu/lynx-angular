@@ -19,6 +19,7 @@ import {
 } from './utils/angular/read-workspace.js';
 import { resolvePages } from './utils/angular/resolve-pages.js';
 import { injectLynxSchema } from './utils/inject-lynx-schema.js';
+import { stripTemplateWhitespace } from './utils/strip-template-whitespace.js';
 import {
   reportLynxDiagnostics,
   scanCompiledOutputForHtmlElements,
@@ -522,9 +523,19 @@ const buildLynxSchemaSourceFileCache = (
     // Quick bail-out: files without @Component don't need transformation.
     if (!source.includes('@Component')) continue;
 
-    const transformed = injectLynxSchema(source);
-    // Even if injectLynxSchema returned the source unchanged (already has a schema),
-    // we still cache it so Angular uses a consistent file view during the build.
+    // stripTemplateWhitespace runs here — before Angular's compiler — because this
+    // is the only point where we still have the original template structure, with
+    // newlines that tell us "this whitespace is indentation" vs "this space is
+    // inter-word spacing next to an inline child element". By the time Angular emits
+    // ɵɵtext instructions the structural information is gone and trimming blindly
+    // would break inline text like <text>Hello <text>world</text> again</text> by
+    // eating the spaces between words. Running injectLynxSchema first means the
+    // schema import is already prepended, but stripTemplateWhitespace only matches
+    // the >\n..content..\n< pattern inside template strings, so the two transforms
+    // are order-independent in practice.
+    const transformed = stripTemplateWhitespace(injectLynxSchema(source));
+    // Even if the transforms returned the source unchanged, we still cache it
+    // so Angular uses a consistent file view during the build.
     sourceFileCache.set(
       filePath,
       ts.createSourceFile(filePath, transformed, ts.ScriptTarget.Latest, true),

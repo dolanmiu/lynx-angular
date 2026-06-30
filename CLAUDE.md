@@ -52,7 +52,7 @@ Tailwind named colors (`bg-white`, `bg-black`, `bg-gray-*`, `bg-red-*`, etc.) ar
 
 - Standalone components only; do NOT set `standalone: true` (it's the default)
 - Signals for state; `computed()` for derived state; no `mutate` (use `update`/`set`)
-- `input()`/`output()` functions, not decorators
+- **Never use legacy Angular decorators** — always use their modern signal-based/metadata replacements. This is enforced by the `no-legacy-decorators` lint rule (`oxlint --fix` auto-migrates). Specifically: `@Input()` → `input()`/`input.required()`, `@Output()` → `output()`, `@ViewChild()` → `viewChild()`/`viewChild.required()`, `@ViewChildren()` → `viewChildren()`, `@ContentChild()` → `contentChild()`/`contentChild.required()`, `@ContentChildren()` → `contentChildren()`, `@HostBinding()`/`@HostListener()` → `host` metadata property.
 - Angular signal props (`input`, `output`, `viewChild`, `viewChildren`, `contentChild`, `contentChildren`, `model`) must be public `readonly` — no ES private (`#`) or TypeScript `private`/`protected`
 - `changeDetection: ChangeDetectionStrategy.OnPush`
 - `inject()` instead of constructor injection

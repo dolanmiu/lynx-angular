@@ -33,6 +33,12 @@ export class LynxElement implements BaseLynxElement {
   _virtualPrev: LynxElement | null = null;
   _virtualNext: LynxElement | null = null;
 
+  // Tracks IDs of animations started on this element via animate().
+  // Canceled in remove() to clear stale animation state from Lynx's native
+  // element pool — without this, pooled elements retain animation values
+  // (e.g. opacity: 0) that poison newly-created elements reusing the slot.
+  #activeAnimationIds: string[] = [];
+
   constructor(element: ElementRef) {
     this.element = element;
   }
@@ -133,6 +139,25 @@ export class LynxElement implements BaseLynxElement {
     if (!parent) {
       return;
     }
+    // Cancel all active animations and reset animated properties before removal.
+    // Lynx's native element pool reuses elements — if an animation is still
+    // running (or fill:'forwards' persists the final frame), the stale animation
+    // state transfers to whatever new element reuses this pool slot.
+    // Canceling + resetting inline styles ensures the pooled element returns clean.
+    // Wire protocol constant 3 = ANIMATION_CANCEL (from animation.ts).
+    // Canceling a completed animation is harmless — a no-op at the native level.
+    for (const id of this.#activeAnimationIds) {
+      __ElementAnimate(this.element, [3, id]);
+    }
+    if (this.#activeAnimationIds.length > 0) {
+      // Cancel clears the animation's active effect, but Lynx may leave
+      // residual computed values on the element (observed: opacity stays at
+      // the initial keyframe value 0 after cancel). Nulling the inline styles
+      // forces a full reset so the pooled element has no lingering overrides.
+      __AddInlineStyle(this.element, 'opacity', null);
+      __AddInlineStyle(this.element, 'transform', null);
+      this.#activeAnimationIds.length = 0;
+    }
     // Park children at the page root before removing this element. On Lynx,
     // elements trapped inside a removed subtree become permanently dead and
     // can never be re-attached to a new parent. By moving children to the
@@ -204,7 +229,12 @@ export class LynxElement implements BaseLynxElement {
   ): LynxAnimation {
     const normalizedOptions =
       typeof options === 'number' ? { duration: options } : (options ?? {});
-    return new LynxAnimation(this.element, keyframes, normalizedOptions);
+    const anim = new LynxAnimation(this.element, keyframes, normalizedOptions);
+    // Track the animation so remove() can cancel it before the element
+    // returns to the native pool. Without this, the pool slot retains
+    // stale animation state (e.g. opacity stuck at the FROM keyframe).
+    this.#activeAnimationIds.push(anim.id);
+    return anim;
   }
 
   /**

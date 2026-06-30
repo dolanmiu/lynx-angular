@@ -69,13 +69,6 @@ export class UiCollapsibleTrigger {
   }
 }
 
-/**
- * TODO: Remove animation — same two-bug interaction as UiAccordionContent.
- * The renderer's remove() fix (parking children at page root) solves the
- * <ng-content> + @if projection issue, but element.animate() on the @if
- * container still leaves opacity stuck at 0 on the second expand cycle.
- * The inline style + fill:'none' workaround is insufficient.
- */
 @Component({
   selector: 'ui-collapsible-content',
   standalone: true,

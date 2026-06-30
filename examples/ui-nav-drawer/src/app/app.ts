@@ -83,7 +83,7 @@ import { UiSeparator } from '../components/ui/separator';
         </ui-nav-drawer-content>
         <ui-nav-drawer-footer>
           <ui-nav-drawer-item variant="destructive" (pressed)="onLogout()">
-            <ui-icon name="x" size="sm" color="hsl(var(--destructive))" />
+            <ui-icon name="x" size="sm" color="rgba(220, 38, 38, 1)" />
             <text class="text-sm text-destructive">Log out</text>
           </ui-nav-drawer-item>
         </ui-nav-drawer-footer>
