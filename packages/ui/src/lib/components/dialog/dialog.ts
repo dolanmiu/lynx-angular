@@ -78,10 +78,7 @@ export class UiDialog {
 
   protected readonly panelClass = computed(() =>
     cn(
-      // bg-white instead of bg-background: Lynx rejects space-separated HSL
-      // syntax produced by hsl(var(--background)), so CSS-variable-based colors
-      // silently render as transparent. Use an explicit colour value instead.
-      'flex flex-col bg-white rounded-lg border border-border p-6 w-4/5',
+      'flex flex-col bg-background rounded-lg border border-border p-6 w-4/5',
       this.userClass(),
     ),
   );

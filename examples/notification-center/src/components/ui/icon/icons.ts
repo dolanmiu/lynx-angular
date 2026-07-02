@@ -1,6 +1,17 @@
 const svg = (paths: string) =>
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
 
+// All icons must be built from <path>/<circle>/etc. — never <line>.
+//
+// Lynx renders the <svg content="..."> string on the native thread via the
+// ServalSVG engine. Its <line> handler (SrSVGLine::onDraw) guards drawing on a
+// stroke set DIRECTLY on the <line>, whereas <path>/<circle>/<rect> draw
+// unconditionally and let the canvas layer resolve stroke/fill. We set
+// stroke="currentColor" once on the root <svg> and let children inherit it, so
+// a <line>'s own stroke is null and the guard skips it entirely — the line
+// silently never paints on device (web renders it fine, so it looks correct in
+// a browser preview but disappears on iOS/Android). <path> equivalents avoid
+// the bug: e.g. a horizontal <line x1=4 x2=20 y=12> becomes <path d="M4 12h16"/>.
 export const ICONS = {
   check: svg('<path d="M20 6 9 17l-5-5"/>'),
   x: svg('<path d="M18 6 6 18"/><path d="m6 6 12 12"/>'),
@@ -13,9 +24,7 @@ export const ICONS = {
   'arrow-left': svg('<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>'),
   'arrow-right': svg('<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>'),
   search: svg('<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>'),
-  menu: svg(
-    '<line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>',
-  ),
+  menu: svg('<path d="M4 12h16"/><path d="M4 6h16"/><path d="M4 18h16"/>'),
   info: svg(
     '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
   ),
@@ -39,7 +48,7 @@ export const ICONS = {
     '<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
   ),
   trash: svg(
-    '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>',
+    '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/>',
   ),
   heart: svg(
     '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',

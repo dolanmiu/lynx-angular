@@ -979,9 +979,24 @@ SVG works both as an `<img src="icon.svg">` source and as inline `<svg>` markup 
 ### What Lynx does
 
 - **SVG as image source** (e.g., `<x-image src="icon.svg">`) — **not supported** (as noted in the earlier entry).
-- **Inline `<svg>` element** — **partially supported** via a dedicated `<svg>` element. Lynx supports 17 common SVG tags: `svg`, `g`, `path`, `rect`, `circle`, `ellipse`, `polygon`, `polyline`, `line`, `text`, `image`, `linearGradient`, `radialGradient`, `stop`, `defs`, `use`, `clipPath`.
+- **Inline `<svg>` element** — **partially supported** via a dedicated `<svg>` element. Lynx supports 17 common SVG tags: `svg`, `g`, `path`, `rect`, `circle`, `ellipse`, `polygon`, `polyline`, `line`, `text`, `image`, `linearGradient`, `radialGradient`, `stop`, `defs`, `use`, `clipPath`. **`line` is listed but does not render reliably — see below.**
 
 The `<svg>` element is parsed on the **background thread** and rendered as a single native view — the entire SVG is composited as a flat image, so you cannot animate individual SVG child elements or apply CSS to them as you would on web.
+
+### `<line>` does not render — use `<path>` instead
+
+`<line>` elements vanish on device. Build every icon from `<path>` (and `<circle>`), never `<line>`.
+
+Lynx's native SVG engine (ServalSVG) only paints a `<line>` when its stroke is set *directly on the line*. `SrSVGLine::onDraw` guards on the line's own stroke, whereas `<path>`, `<circle>`, and `<rect>` paint unconditionally and resolve stroke/fill later. Icons set `stroke="currentColor"` once on the root `<svg>` and let children inherit it — so each `<line>` has no direct stroke and is skipped.
+
+This is native-only. On web the `content` string renders as an `<img>`, so the browser's SVG engine draws `<line>` correctly. The icon looks fine in a browser preview but disappears on iOS/Android.
+
+**Fix:** replace each `<line>` with an equivalent `<path>`:
+
+```
+<line x1="4" x2="20" y1="12" y2="12"/>   →   <path d="M4 12h16"/>   (horizontal)
+<line x1="10" x2="10" y1="11" y2="17"/>  →   <path d="M10 11v6"/>   (vertical)
+```
 
 ---
 

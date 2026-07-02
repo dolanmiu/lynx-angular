@@ -11,42 +11,47 @@ export const blotchPlugin = plugin(
   ({ addBase }) => {
     addBase({
       '*': {
-        'border-color': 'hsl(var(--border))',
+        'border-color': 'rgb(var(--border))',
       },
     });
   },
   {
     theme: {
       extend: {
+        // Colors compose the RGB channel variables (see theme/default.css) as
+        // `rgb(var(--x) / <alpha-value>)`. Lynx's native parser accepts this
+        // space + slash-alpha rgb() form (same shape as Tailwind's default
+        // palette) but silently drops the equivalent hsl() form, so rgb() is
+        // what makes semantic color utilities render on Lynx.
         colors: {
-          background: 'hsl(var(--background) / <alpha-value>)',
-          foreground: 'hsl(var(--foreground) / <alpha-value>)',
+          background: 'rgb(var(--background) / <alpha-value>)',
+          foreground: 'rgb(var(--foreground) / <alpha-value>)',
           primary: {
-            DEFAULT: 'hsl(var(--primary) / <alpha-value>)',
-            foreground: 'hsl(var(--primary-foreground) / <alpha-value>)',
+            DEFAULT: 'rgb(var(--primary) / <alpha-value>)',
+            foreground: 'rgb(var(--primary-foreground) / <alpha-value>)',
           },
           secondary: {
-            DEFAULT: 'hsl(var(--secondary) / <alpha-value>)',
-            foreground: 'hsl(var(--secondary-foreground) / <alpha-value>)',
+            DEFAULT: 'rgb(var(--secondary) / <alpha-value>)',
+            foreground: 'rgb(var(--secondary-foreground) / <alpha-value>)',
           },
           muted: {
-            DEFAULT: 'hsl(var(--muted) / <alpha-value>)',
-            foreground: 'hsl(var(--muted-foreground) / <alpha-value>)',
+            DEFAULT: 'rgb(var(--muted) / <alpha-value>)',
+            foreground: 'rgb(var(--muted-foreground) / <alpha-value>)',
           },
           accent: {
-            DEFAULT: 'hsl(var(--accent) / <alpha-value>)',
-            foreground: 'hsl(var(--accent-foreground) / <alpha-value>)',
+            DEFAULT: 'rgb(var(--accent) / <alpha-value>)',
+            foreground: 'rgb(var(--accent-foreground) / <alpha-value>)',
           },
           destructive: {
-            DEFAULT: 'hsl(var(--destructive) / <alpha-value>)',
-            foreground: 'hsl(var(--destructive-foreground) / <alpha-value>)',
+            DEFAULT: 'rgb(var(--destructive) / <alpha-value>)',
+            foreground: 'rgb(var(--destructive-foreground) / <alpha-value>)',
           },
-          border: 'hsl(var(--border) / <alpha-value>)',
-          input: 'hsl(var(--input) / <alpha-value>)',
-          ring: 'hsl(var(--ring) / <alpha-value>)',
+          border: 'rgb(var(--border) / <alpha-value>)',
+          input: 'rgb(var(--input) / <alpha-value>)',
+          ring: 'rgb(var(--ring) / <alpha-value>)',
           card: {
-            DEFAULT: 'hsl(var(--card) / <alpha-value>)',
-            foreground: 'hsl(var(--card-foreground) / <alpha-value>)',
+            DEFAULT: 'rgb(var(--card) / <alpha-value>)',
+            foreground: 'rgb(var(--card-foreground) / <alpha-value>)',
           },
         },
         borderRadius: {

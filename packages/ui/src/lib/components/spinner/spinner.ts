@@ -54,14 +54,19 @@ export class UiSpinner {
     const c = this.color();
     if (c) {
       // Lynx SVG elements don't inherit the CSS `color` property into their
-      // stroke attributes, so we must substitute directly in the SVG string
-      // rather than relying on `currentColor` propagation via CSS.
+      // stroke attributes, so we substitute the literal `currentColor` in the
+      // SVG string rather than relying on `currentColor` propagation via CSS.
       //
-      // split().join() rather than String.prototype.replaceAll(): replaceAll is
-      // ES2021, but Lynx's main thread runs on PrimJS (ES2019) which lacks it.
-      // Calling it there throws "main-thread.js exception: not a function"
-      // during change detection, aborting the render before the element tree is
-      // flushed — so nothing paints. split/join is ES2019-safe.
+      // Uses split().join() instead of String.prototype.replaceAll(). replaceAll
+      // is ES2021, but Lynx's main thread runs on PrimJS at an ES2019 target;
+      // because it's a runtime method (not syntax) the build's down-leveling does
+      // not polyfill it, so it simply doesn't exist there. Calling it throws
+      // "main-thread.js exception: not a function" from inside Angular change
+      // detection, which aborts the whole tick before Lynx flushes the element
+      // tree — so the spinner never paints, and the error count climbs on every
+      // render as each tick re-runs and re-throws. split/join is ES2019-safe and
+      // is preferred over `replace(/.../g)` here because the search term is a
+      // plain literal and needs no regex escaping.
       return LOADER_SVG.split('currentColor').join(c);
     }
     return LOADER_SVG;

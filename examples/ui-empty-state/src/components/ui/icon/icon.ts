@@ -29,14 +29,19 @@ export class UiIcon {
     const c = this.color();
     if (c) {
       // Lynx SVG elements don't propagate the CSS `color` property into SVG
-      // stroke attributes, so we substitute directly in the markup string
-      // rather than relying on `currentColor` CSS propagation.
+      // stroke attributes, so we substitute the literal `currentColor` in the
+      // markup string rather than relying on `currentColor` CSS propagation.
       //
-      // split().join() rather than String.prototype.replaceAll(): replaceAll is
-      // ES2021, but Lynx's main thread runs on PrimJS (ES2019) which lacks it.
-      // Calling it there throws "main-thread.js exception: not a function"
-      // during change detection, aborting the render before the element tree is
-      // flushed — so nothing paints. split/join is ES2019-safe.
+      // Uses split().join() instead of String.prototype.replaceAll(). replaceAll
+      // is ES2021, but Lynx's main thread runs on PrimJS at an ES2019 target;
+      // because it's a runtime method (not syntax) the build's down-leveling does
+      // not polyfill it, so it simply doesn't exist there. Calling it throws
+      // "main-thread.js exception: not a function" from inside Angular change
+      // detection, which aborts the whole tick before Lynx flushes the element
+      // tree — so NO icon paints (not just a colored one), and the error count
+      // climbs on every render/interaction as each tick re-runs and re-throws.
+      // split/join is ES2019-safe and is preferred over `replace(/.../g)` here
+      // because the search term is a plain literal and needs no regex escaping.
       svg = svg.split('currentColor').join(c);
     }
     return svg;

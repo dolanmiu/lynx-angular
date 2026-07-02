@@ -1,35 +1,38 @@
 /*
  * @blotch/ui dark theme
  *
+ * RGB channel values (space-separated, no rgb() wrapper) — see default.css for
+ * why RGB channels are used instead of HSL on Lynx.
+ *
  * Apply via a `.dark` class on the page element, or import as an
  * alternative to default.css.
  */
 
 page.dark {
-  --background: 240 10% 3.9%;
-  --foreground: 0 0% 98%;
+  --background: 9 9 11;
+  --foreground: 250 250 250;
 
-  --card: 240 10% 3.9%;
-  --card-foreground: 0 0% 98%;
+  --card: 9 9 11;
+  --card-foreground: 250 250 250;
 
-  --primary: 0 0% 98%;
-  --primary-foreground: 240 5.9% 10%;
+  --primary: 250 250 250;
+  --primary-foreground: 24 24 27;
 
-  --secondary: 240 3.7% 15.9%;
-  --secondary-foreground: 0 0% 98%;
+  --secondary: 39 39 42;
+  --secondary-foreground: 250 250 250;
 
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
+  --muted: 39 39 42;
+  --muted-foreground: 161 161 170;
 
-  --accent: 240 3.7% 15.9%;
-  --accent-foreground: 0 0% 98%;
+  --accent: 39 39 42;
+  --accent-foreground: 250 250 250;
 
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 0 0% 98%;
+  --destructive: 127 29 29;
+  --destructive-foreground: 250 250 250;
 
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
-  --ring: 240 4.9% 83.9%;
+  --border: 39 39 42;
+  --input: 39 39 42;
+  --ring: 212 212 216;
 
   --radius: 8px;
 }
