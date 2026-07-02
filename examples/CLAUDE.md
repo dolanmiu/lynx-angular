@@ -14,14 +14,16 @@ npm run dolan:update:force
 
 This propagates the upstream changes to all example copies across the monorepo.
 
-## Rebuild after every change
+## Fixing examples via shared packages
 
-After changing any file in an example, rebuild that example to confirm it still compiles. Only rebuild the one you touched — not all examples.
+Examples consume the shared packages under `packages/` — the renderer `@blotch/angular-lynx` (`packages/runtime`) and the build plugin `@blotch/rsbuild-plugin-angular-lynx` (`packages/rsbuild-plugin-angular-lynx`).
 
-Each example is its own workspace named `@angular-lynx-example/<dir>`. Target it by directory name from the repo root:
+When an example is broken because of a bug in one of these packages, fix the package — not the example. Building workarounds in the example is not acceptable (see the "fix the renderer" goal in the root `CLAUDE.md`).
+
+After editing a shared package, rebuild it so the examples pick up the change. Rebuild only the package you touched, by its package name from the repo root:
 
 ```sh
-npx turbo run build --filter=@angular-lynx-example/counter
+npx turbo run build --filter=@blotch/angular-lynx
 ```
 
-The `build` script compiles both Lynx and web environments (`rspeedy build --environment lynx && rspeedy build --environment web`). If it fails, fix the example before moving on.
+Swap the filter for whichever package you changed (e.g. `--filter=@blotch/rsbuild-plugin-angular-lynx`). If the build fails, fix the package before retrying the example.
