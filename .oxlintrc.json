@@ -20,6 +20,7 @@
     "unicorn/no-array-for-each": "off",
     "typescript/no-explicit-any": "off",
     "typescript/no-invalid-void-type": "off",
-    "eslint/func-style": ["error", "expression"]
+    "eslint/func-style": ["error", "expression"],
+    "eslint/no-duplicate-imports": "error"
   }
 }

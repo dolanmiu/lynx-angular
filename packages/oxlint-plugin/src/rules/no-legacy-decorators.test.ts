@@ -75,7 +75,7 @@ describe('no-legacy-decorators', () => {
 
     it('fixes @Input() with default value', () => {
       const result = fix(`
-import { Input, Component } from '@angular/core';
+import { Input, Component, Output, EventEmitter, ViewChild, ElementRef, ViewChildren, QueryList, ContentChild, ContentChildren, HostBinding, HostListener } from '@angular/core';
 @Component({})
 class Foo { @Input() name = 'hello'; }
 `);
@@ -84,7 +84,6 @@ class Foo { @Input() name = 'hello'; }
 
     it('fixes @Input() with required (definite assignment)', () => {
       const result = fix(`
-import { Input, Component } from '@angular/core';
 @Component({})
 class Foo { @Input() name!: string; }
 `);
@@ -93,7 +92,6 @@ class Foo { @Input() name!: string; }
 
     it('fixes @Input({required: true})', () => {
       const result = fix(`
-import { Input, Component } from '@angular/core';
 @Component({})
 class Foo { @Input({required: true}) name!: string; }
 `);
@@ -102,7 +100,6 @@ class Foo { @Input({required: true}) name!: string; }
 
     it('fixes @Input with alias shorthand', () => {
       const result = fix(`
-import { Input, Component } from '@angular/core';
 @Component({})
 class Foo { @Input('myAlias') name = ''; }
 `);
@@ -123,7 +120,6 @@ class Foo { @Input('myAlias') name = ''; }
 
     it('fixes @Output() with EventEmitter', () => {
       const result = fix(`
-import { Output, EventEmitter, Component } from '@angular/core';
 @Component({})
 class Foo { @Output() clicked = new EventEmitter<void>(); }
 `);
@@ -132,7 +128,6 @@ class Foo { @Output() clicked = new EventEmitter<void>(); }
 
     it('fixes @Output() with typed EventEmitter', () => {
       const result = fix(`
-import { Output, EventEmitter, Component } from '@angular/core';
 @Component({})
 class Foo { @Output() selected = new EventEmitter<string>(); }
 `);
@@ -141,7 +136,6 @@ class Foo { @Output() selected = new EventEmitter<string>(); }
 
     it('fixes @Output with alias shorthand', () => {
       const result = fix(`
-import { Output, EventEmitter, Component } from '@angular/core';
 @Component({})
 class Foo { @Output('valueChange') changed = new EventEmitter<number>(); }
 `);
@@ -162,7 +156,6 @@ class Foo { @Output('valueChange') changed = new EventEmitter<number>(); }
 
     it('fixes @ViewChild with string ref (required)', () => {
       const result = fix(`
-import { ViewChild, ElementRef, Component } from '@angular/core';
 @Component({})
 class Foo { @ViewChild('canvas') el!: ElementRef; }
 `);
@@ -171,7 +164,6 @@ class Foo { @ViewChild('canvas') el!: ElementRef; }
 
     it('fixes @ViewChild with component class', () => {
       const result = fix(`
-import { ViewChild, Component } from '@angular/core';
 class ChildComp {}
 @Component({})
 class Foo { @ViewChild(ChildComp) child!: ChildComp; }
@@ -181,7 +173,6 @@ class Foo { @ViewChild(ChildComp) child!: ChildComp; }
 
     it('fixes @ViewChild with read option', () => {
       const result = fix(`
-import { ViewChild, ElementRef, Component } from '@angular/core';
 @Component({})
 class Foo { @ViewChild('canvas', { read: ElementRef }) el!: ElementRef; }
 `);
@@ -203,7 +194,6 @@ class Foo { @ViewChild('canvas', { read: ElementRef }) el!: ElementRef; }
 
     it('fixes @ViewChildren with component class', () => {
       const result = fix(`
-import { ViewChildren, QueryList, Component } from '@angular/core';
 class Item {}
 @Component({})
 class Foo { @ViewChildren(Item) items!: QueryList<Item>; }
@@ -226,7 +216,6 @@ class Foo { @ViewChildren(Item) items!: QueryList<Item>; }
 
     it('fixes @ContentChild with required', () => {
       const result = fix(`
-import { ContentChild, Component } from '@angular/core';
 class Panel {}
 @Component({})
 class Foo { @ContentChild(Panel) panel!: Panel; }
@@ -249,7 +238,6 @@ class Foo { @ContentChild(Panel) panel!: Panel; }
 
     it('fixes @ContentChildren', () => {
       const result = fix(`
-import { ContentChildren, QueryList, Component } from '@angular/core';
 class Tab {}
 @Component({})
 class Foo { @ContentChildren(Tab) tabs!: QueryList<Tab>; }
@@ -271,7 +259,6 @@ class Foo { @ContentChildren(Tab) tabs!: QueryList<Tab>; }
 
     it('does not auto-fix @HostBinding', () => {
       const code = `
-import { HostBinding, Component } from '@angular/core';
 @Component({})
 class Foo { @HostBinding('class.active') isActive = false; }
 `;
@@ -294,7 +281,6 @@ class Foo { @HostBinding('class.active') isActive = false; }
 
     it('does not auto-fix @HostListener', () => {
       const code = `
-import { HostListener, Component } from '@angular/core';
 @Component({})
 class Foo { @HostListener('click') onClick() {} }
 `;

@@ -1,5 +1,4 @@
-import type { LocationChangeListener } from '@angular/common';
-import { LocationStrategy } from '@angular/common';
+import { type LocationChangeListener, LocationStrategy } from '@angular/common';
 import { Injectable } from '@angular/core';
 
 /**

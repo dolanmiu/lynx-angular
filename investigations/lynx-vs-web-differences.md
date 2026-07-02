@@ -358,6 +358,41 @@ Transpilation via the Rsbuild/RSpeedy build pipeline handles most of this automa
 
 ---
 
+## `String.prototype.replaceAll()` is missing on the main thread (ES2021 method, PrimJS is ES2019)
+
+### What you'd expect (web)
+
+`'a-b-a'.replaceAll('a', 'x')` replaces every occurrence — available in all modern browsers and Node 15+.
+
+### What Lynx does
+
+`replaceAll` is an **ES2021** method. The main thread runs on PrimJS at an ES2019 target, and because `replaceAll` is a *runtime method* (not syntax), TypeScript down-leveling does **not** polyfill it. Calling it on the main thread throws:
+
+```
+main-thread.js exception: not a function
+```
+
+This is especially nasty because the throw happens **inside Angular change detection** (e.g., from a template-bound method or `computed()`). The exception aborts the change-detection tick before Lynx flushes the element tree, so **nothing paints** — not just the component that called `replaceAll`. The failure then repeats on every subsequent tick (each render, each interaction), so the error count climbs. The symptom ("element is there but invisible", crash frame deep inside `detectChangesInView`) looks nothing like a missing string method, which makes it easy to misattribute to the signals/reactivity machinery.
+
+### The fix
+
+Use an ES2019-safe equivalent:
+
+```ts
+// WRONG — ES2021, throws "not a function" on the Lynx main thread
+svg = svg.replaceAll('currentColor', color);
+
+// CORRECT — split/join is ES2019-safe (no regex escaping needed for a literal)
+svg = svg.split('currentColor').join(color);
+
+// Also fine — regex with the global flag
+svg = svg.replace(/currentColor/g, color);
+```
+
+This bit the `ui-icon` component (`packages/ui/src/lib/components/icon/icon.ts` and its generated example copies), which substitutes `currentColor` in SVG markup strings. The same caution applies to any other ES2021+ runtime method on the main thread.
+
+---
+
 ## Event attribute naming uses `bind`/`catch` prefixes, not `on*`
 
 ### What you'd expect (web)

@@ -24,21 +24,20 @@ export class UiIcon {
   readonly size = input<'xs' | 'sm' | 'md' | 'lg'>('md');
   readonly color = input<string | undefined>(undefined);
 
-  /**
-   * Plain methods rather than computed() signals. Using computed() can cause a
-   * "not a function" crash in Rspack's dev bundle when the reactive module is
-   * split across import slots, leaving the computed node's prototype without
-   * consumerOnSignalRead. Plain methods are read under the lView consumer
-   * context which is always correct, so this avoids the crash entirely.
-   */
   protected svgContent(): string {
     let svg = ICONS[this.name()];
     const c = this.color();
     if (c) {
-      // Lynx SVG elements don't propagate the CSS `color` property into
-      // SVG stroke attributes, so we substitute directly in the markup string
+      // Lynx SVG elements don't propagate the CSS `color` property into SVG
+      // stroke attributes, so we substitute directly in the markup string
       // rather than relying on `currentColor` CSS propagation.
-      svg = svg.replaceAll('currentColor', c);
+      //
+      // split().join() rather than String.prototype.replaceAll(): replaceAll is
+      // ES2021, but Lynx's main thread runs on PrimJS (ES2019) which lacks it.
+      // Calling it there throws "main-thread.js exception: not a function"
+      // during change detection, aborting the render before the element tree is
+      // flushed — so nothing paints. split/join is ES2019-safe.
+      svg = svg.split('currentColor').join(c);
     }
     return svg;
   }

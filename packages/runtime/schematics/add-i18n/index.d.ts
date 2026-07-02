@@ -1,4 +1,4 @@
-import type { Rule } from '@angular-devkit/schematics';
+import { type Rule } from '@angular-devkit/schematics';
 import type { Schema } from './schema';
 /**
  * Wires Angular's `@angular/localize` package into an AngularLynx app and

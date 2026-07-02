@@ -1,10 +1,5 @@
 import { Component, signal } from '@angular/core';
-import {
-  LYNX_ELEMENTS,
-  LynxMainThreadEvent,
-  createMainThreadRef,
-} from '@blotch/angular-lynx';
-import type { MainThread } from '@blotch/angular-lynx';
+import { LYNX_ELEMENTS, LynxMainThreadEvent, createMainThreadRef, type MainThread } from '@blotch/angular-lynx';
 
 // --- Worklet-transformed functions ---
 // These use the "main thread" directive instead of wrapping with mainThreadFn().

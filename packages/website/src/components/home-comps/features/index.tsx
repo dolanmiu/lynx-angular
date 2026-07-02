@@ -1,9 +1,8 @@
-import type React from 'react';
-import { useState, useEffect } from 'react';
+import { type FC, useState, useEffect } from 'react';
 import styles from './index.module.scss';
 import { BorderBeam } from '../border-beam';
 
-const FeatureIllustration: React.FC = () => {
+const FeatureIllustration: FC = () => {
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
@@ -90,7 +89,7 @@ const featuresConfig = [
   },
 ];
 
-export const Features: React.FC = () => {
+export const Features: FC = () => {
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
 
   return (

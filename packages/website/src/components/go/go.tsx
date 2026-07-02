@@ -1,5 +1,4 @@
-import { Go as GoBase, GoConfigProvider } from '@lynx-js/go-web';
-import type { GoProps } from '@lynx-js/go-web';
+import { Go as GoBase, GoConfigProvider, type GoProps } from '@lynx-js/go-web';
 import { rspressAdapter } from '@lynx-js/go-web/adapters/rspress';
 
 const config = {

@@ -1,6 +1,5 @@
 import { LynxElement } from '../lynx-element';
-import { LynxDocument } from '../lynx-document';
-import type { LynxDocumentBase } from '../lynx-document';
+import { LynxDocument, type LynxDocumentBase } from '../lynx-document';
 import type { ElementRef } from '../types/lynx';
 
 /**

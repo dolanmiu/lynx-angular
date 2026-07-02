@@ -1,5 +1,4 @@
-import type React from 'react';
-import { useEffect, useRef } from 'react';
+import { type FC, useEffect, useRef } from 'react';
 
 type GridBackgroundProps = {
   gridSize?: number;
@@ -141,7 +140,7 @@ class Meteor {
   }
 }
 
-const MeteorsBackground: React.FC<GridBackgroundProps> = ({
+const MeteorsBackground: FC<GridBackgroundProps> = ({
   gridSize = 120,
   meteorCount = 5,
 }) => {

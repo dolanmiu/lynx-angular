@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { BaseGesture, ContinuousGesture } from './base-gesture';
-import { GestureType } from './types';
-import type { GestureEvent } from './types';
+import { GestureType, type GestureEvent } from './types';
 
 /**
  * Minimal concrete subclasses for testing abstract base classes.

@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { readdirSync } from 'node:fs';
 import { createFixture, DEFAULT_CONFIG, type Fixture } from '../test-utils';
 import { hashContent } from '../lockfile';
 

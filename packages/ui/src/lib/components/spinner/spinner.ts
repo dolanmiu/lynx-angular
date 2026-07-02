@@ -1,5 +1,5 @@
-import type { ElementRef } from '@angular/core';
 import {
+  type ElementRef,
   Component,
   ViewEncapsulation,
   computed,
@@ -56,7 +56,13 @@ export class UiSpinner {
       // Lynx SVG elements don't inherit the CSS `color` property into their
       // stroke attributes, so we must substitute directly in the SVG string
       // rather than relying on `currentColor` propagation via CSS.
-      return LOADER_SVG.replaceAll('currentColor', c);
+      //
+      // split().join() rather than String.prototype.replaceAll(): replaceAll is
+      // ES2021, but Lynx's main thread runs on PrimJS (ES2019) which lacks it.
+      // Calling it there throws "main-thread.js exception: not a function"
+      // during change detection, aborting the render before the element tree is
+      // flushed — so nothing paints. split/join is ES2019-safe.
+      return LOADER_SVG.split('currentColor').join(c);
     }
     return LOADER_SVG;
   });

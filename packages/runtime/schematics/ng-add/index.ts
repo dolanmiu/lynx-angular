@@ -1,14 +1,4 @@
-import type { Rule, Tree } from '@angular-devkit/schematics';
-import {
-  chain,
-  MergeStrategy,
-  SchematicsException,
-  apply,
-  applyTemplates,
-  mergeWith,
-  move,
-  url,
-} from '@angular-devkit/schematics';
+import { type Rule, type Tree, chain, MergeStrategy, SchematicsException, apply, applyTemplates, mergeWith, move, url } from '@angular-devkit/schematics';
 import {
   addDependency,
   DependencyType,
@@ -119,7 +109,7 @@ const replaceAppConfig = (sourceRoot: string): Rule => {
   type ApplicationConfig,
   provideZonelessChangeDetection,
 } from '@angular/core';
-import { provideRenderer, provideRouter } from '@blotch/angular-lynx';
+import { provideRenderer, provideRouter, LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
 import { routes } from './app.routes';
 
@@ -158,7 +148,6 @@ const replaceApp = (
     const newPath = `${sourceRoot}/app/app.ts`;
     const content = `import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
 @Component({
   selector: '${prefix}-root',

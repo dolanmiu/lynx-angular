@@ -1,9 +1,4 @@
-import type { RendererType2 } from '@angular/core';
-import {
-  Injector,
-  runInInjectionContext,
-  ViewEncapsulation,
-} from '@angular/core';
+import { type RendererType2, Injector, runInInjectionContext, ViewEncapsulation } from '@angular/core';
 import { describe, expect, it } from 'vitest';
 import { LynxBackgroundDocument } from '../lynx-document';
 import { EmulatedLynxRenderer } from './emulated-lynx-renderer';

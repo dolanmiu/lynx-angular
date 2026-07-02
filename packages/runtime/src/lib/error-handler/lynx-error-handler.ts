@@ -1,5 +1,4 @@
-import type { ErrorHandler } from '@angular/core';
-import { Injectable } from '@angular/core';
+import { type ErrorHandler, Injectable } from '@angular/core';
 
 /**
  * Angular ErrorHandler that routes errors to the native Lynx error reporting API.

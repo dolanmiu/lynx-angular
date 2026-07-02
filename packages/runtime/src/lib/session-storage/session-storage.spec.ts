@@ -1,5 +1,4 @@
-import type { EnvironmentInjector } from '@angular/core';
-import { DestroyRef } from '@angular/core';
+import { type EnvironmentInjector, DestroyRef } from '@angular/core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { LynxSessionStorage } from './session-storage';
 

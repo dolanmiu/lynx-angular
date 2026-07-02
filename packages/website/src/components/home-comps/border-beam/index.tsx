@@ -1,5 +1,4 @@
-import type React from 'react';
-import { useRef, useEffect } from 'react';
+import { type FC, useRef, useEffect } from 'react';
 import styles from './index.module.scss';
 
 type BorderBeamProps = {
@@ -7,7 +6,7 @@ type BorderBeamProps = {
   duration?: number;
 };
 
-const BorderBeam: React.FC<BorderBeamProps> = ({ size = 2, duration = 3 }) => {
+const BorderBeam: FC<BorderBeamProps> = ({ size = 2, duration = 3 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 

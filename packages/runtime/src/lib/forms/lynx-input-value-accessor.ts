@@ -5,8 +5,7 @@ import {
   forwardRef,
   inject,
 } from '@angular/core';
-import type { ControlValueAccessor } from '@angular/forms';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 /**
  * ControlValueAccessor for <input> elements. Bridges Angular's form model
