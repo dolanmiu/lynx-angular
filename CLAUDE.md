@@ -34,19 +34,24 @@ Near-1:1 Angular parity — partial support isn't acceptable. Every Angular API 
 
 ## CSS Colors in Lynx
 
-Tailwind semantic color utilities (`bg-background`, `bg-foreground`, `bg-primary`, `text-muted-foreground`, `border-border`, etc.) expand to `hsl(var(--color) / 1)` — space-separated HSL — which Lynx's CSS parser **silently ignores**, rendering the element transparent/colorless with no error or warning.
+Use Tailwind semantic color utilities (`bg-background`, `text-foreground`, `border-border`, `bg-card`, `text-muted-foreground`, etc.). They work on Lynx and switch with dark mode automatically. The `@blotch/ui` theme stores each color as a complete `rgba()` value (e.g. `--primary: rgba(24, 24, 27, 1)`) and the tailwind plugin references it directly as `var(--primary)`. Examples receive the theme via `dolan`; apps import it from `@blotch/ui/theme`.
 
-Lynx only accepts comma-separated HSL: `hsl(240, 5.9%, 10%)`.
+Never author raw HSL. Lynx's parser accepts only comma-separated `hsl(240, 5.9%, 10%)`, but Tailwind's shadcn-style `hsl(var(--x) / 1)` resolves to space-separated HSL, which Lynx silently drops (the element renders transparent, no warning). The theme uses `rgba()` values specifically to sidestep this.
 
-**Prefer semantic utilities when CSS variables are defined** (e.g. in apps with a full theme setup). They are semantically superior and support dark mode automatically. Avoid them only in contexts where CSS variables are not defined — such as the standalone `examples/` apps, which have no theme variables.
+**Opacity modifiers on semantic colors do not work** (`bg-primary/50`, `border-destructive/50`). The value is an opaque `rgba()` with no separable channels for Tailwind to inject alpha into. Instead:
 
-| Context | Use | Avoid |
-|---------|-----|-------|
-| App with CSS variables (preferred) | `bg-background`, `text-foreground` | hardcoded colors |
-| `examples/` (no CSS variables) | `bg-white`, `text-gray-900` | `bg-background`, `text-foreground` |
-| Inline custom color (any context) | `style="background-color: rgba(0,0,0,0.5)"` | `style="background-color: hsl(0 0% 0% / 0.5)"` |
+- add a dedicated translucent variable (see `--destructive-subtle` → `bg-destructive-subtle` in `packages/ui/src/lib/theme/`), or
+- use a solid semantic token (e.g. `bg-muted` for a subtle track), or
+- apply `opacity-*` to the whole element.
 
-Tailwind named colors (`bg-white`, `bg-black`, `bg-gray-*`, `bg-red-*`, etc.) are always safe — they compile to hex or RGB, not HSL variables. Opacity modifiers on named colors (`bg-black/50`) are also safe; they compile to `rgb(0 0 0 / 0.5)`, and Lynx accepts space-separated RGB.
+Named colors stay safe: `bg-white`, `bg-black`, `bg-gray-*`, `bg-red-*` compile to hex/rgb, and their opacity modifiers (`bg-black/50`) compile to `rgb(0 0 0 / 0.5)`, which Lynx accepts.
+
+| Need | Use |
+|------|-----|
+| Themed color (preferred) | `bg-background`, `text-foreground`, `bg-card` |
+| Translucent semantic color | dedicated var (`bg-destructive-subtle`) or `opacity-*` |
+| One-off custom color | `style="background-color: rgba(0, 0, 0, 0.5)"` |
+| Named color (± opacity) | `bg-white`, `bg-black/50` |
 
 ## Angular
 

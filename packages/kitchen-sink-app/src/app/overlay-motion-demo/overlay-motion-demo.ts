@@ -17,7 +17,7 @@ import { LYNX_ELEMENTS, type LynxAnimation } from '@blotch/angular-lynx';
 
       <overlay [attr.visible]="overlayVisible()" class="fixed overflow-visible">
         <view #backdrop class="backdrop" (bindtap)="close()">
-          <view #dialog class="dialog" (catchtap)="$event.stopPropagation()">
+          <view #dialog class="dialog" (catchtap)="onPanelTap()">
             <text class="dialog-title">Animated Dialog</text>
             <text class="dialog-body">
               This overlay opens with a combined fade + scale animation and
@@ -57,6 +57,13 @@ export class OverlayMotionDemo {
       setTimeout(() => this.#animateIn(), 0);
     }, 0);
   }
+
+  /**
+   * No-op tap handler for the dialog panel. `catchtap` already stops the tap
+   * from bubbling to the backdrop (which would close the dialog) — Lynx
+   * controls propagation via the event prefix, not `event.stopPropagation()`.
+   */
+  onPanelTap(): void {}
 
   close(): void {
     setTimeout(() => {

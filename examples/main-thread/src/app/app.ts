@@ -1,5 +1,12 @@
 import { Component, signal } from '@angular/core';
-import { LYNX_ELEMENTS, LynxMainThreadEvent, mainThreadFn, backgroundFn, createMainThreadRef, type MainThread } from '@blotch/angular-lynx';
+import {
+  LYNX_ELEMENTS,
+  LynxMainThreadEvent,
+  mainThreadFn,
+  backgroundFn,
+  createMainThreadRef,
+  type MainThread,
+} from '@blotch/angular-lynx';
 
 /**
  * Persist state across main-thread function calls.

@@ -1,4 +1,10 @@
-import { type Injector, DestroyRef, inject, Injectable, signal } from '@angular/core';
+import {
+  type Injector,
+  DestroyRef,
+  inject,
+  Injectable,
+  signal,
+} from '@angular/core';
 import type { SessionStorageSubscription } from './session-storage.types';
 
 /**

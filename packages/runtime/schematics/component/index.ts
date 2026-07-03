@@ -1,4 +1,8 @@
-import { type Rule, type Tree, SchematicsException } from '@angular-devkit/schematics';
+import {
+  type Rule,
+  type Tree,
+  SchematicsException,
+} from '@angular-devkit/schematics';
 import { getWorkspace } from '@schematics/angular/utility/workspace';
 
 import type { Schema } from './schema';

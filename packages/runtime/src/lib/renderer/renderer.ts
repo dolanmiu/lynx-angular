@@ -1,4 +1,8 @@
-import { type ListenerOptions, type Renderer2, RendererStyleFlags2 } from '@angular/core';
+import {
+  type ListenerOptions,
+  type Renderer2,
+  RendererStyleFlags2,
+} from '@angular/core';
 import type { LynxDocumentBase } from '../lynx-document';
 import type { BaseLynxElement } from '../lynx-element';
 

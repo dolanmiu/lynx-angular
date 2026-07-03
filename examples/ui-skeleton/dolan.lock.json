@@ -6,19 +6,19 @@
         "hash": "ba103d0f7f4bd0e7"
       },
       "skeleton.ts": {
-        "hash": "bfee58a0bdb6835d"
+        "hash": "5f04e8a1cffafb31"
       }
     }
   },
   "theme": {
     "default.css": {
-      "hash": "729930e14d26ea34"
+      "hash": "c49bb4b16a4407ba"
     },
     "tailwind-plugin.ts": {
-      "hash": "01f8d913d3870673"
+      "hash": "36725f0fb15589ca"
     },
     "dark.css": {
-      "hash": "f135f12897d20a5e"
+      "hash": "1aff1591e516342c"
     }
   }
 }

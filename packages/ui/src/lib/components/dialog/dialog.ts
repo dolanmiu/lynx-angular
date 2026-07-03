@@ -1,4 +1,15 @@
-import { type ElementRef, Component, ViewEncapsulation, computed, effect, input, model, output, signal, viewChild } from '@angular/core';
+import {
+  type ElementRef,
+  Component,
+  ViewEncapsulation,
+  computed,
+  effect,
+  input,
+  model,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
 import {
@@ -89,9 +100,9 @@ export class UiDialog {
 
   /**
    * No-op tap handler for the panel. `catchtap` (vs `bindtap`) already stops
-   * the event from bubbling to the backdrop — Lynx handles propagation via the
-   * event prefix, not via `event.stopPropagation()` (which doesn't exist on
-   * Lynx event objects and would throw at runtime).
+   * the tap from bubbling to the backdrop — Lynx controls propagation via the
+   * event prefix, not at runtime. (The renderer shims `event.stopPropagation()`
+   * as a no-op so DOM-style handlers don't crash, but it has no effect here.)
    */
   protected onPanelTap(): void {}
 

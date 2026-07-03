@@ -103,7 +103,9 @@ class Foo { @Input({required: true}) name!: string; }
 @Component({})
 class Foo { @Input('myAlias') name = ''; }
 `);
-      expect(result).toContain("readonly name = input('', { alias: 'myAlias' })");
+      expect(result).toContain(
+        "readonly name = input('', { alias: 'myAlias' })",
+      );
     });
   });
 
@@ -139,7 +141,9 @@ class Foo { @Output() selected = new EventEmitter<string>(); }
 @Component({})
 class Foo { @Output('valueChange') changed = new EventEmitter<number>(); }
 `);
-      expect(result).toContain("readonly changed = output<number>({ alias: 'valueChange' })");
+      expect(result).toContain(
+        "readonly changed = output<number>({ alias: 'valueChange' })",
+      );
     });
   });
 
@@ -159,7 +163,9 @@ class Foo { @Output('valueChange') changed = new EventEmitter<number>(); }
 @Component({})
 class Foo { @ViewChild('canvas') el!: ElementRef; }
 `);
-      expect(result).toContain("readonly el = viewChild.required<ElementRef>('canvas')");
+      expect(result).toContain(
+        "readonly el = viewChild.required<ElementRef>('canvas')",
+      );
     });
 
     it('fixes @ViewChild with component class', () => {
@@ -168,7 +174,9 @@ class ChildComp {}
 @Component({})
 class Foo { @ViewChild(ChildComp) child!: ChildComp; }
 `);
-      expect(result).toContain('readonly child = viewChild.required<ChildComp>(ChildComp)');
+      expect(result).toContain(
+        'readonly child = viewChild.required<ChildComp>(ChildComp)',
+      );
     });
 
     it('fixes @ViewChild with read option', () => {
@@ -176,7 +184,9 @@ class Foo { @ViewChild(ChildComp) child!: ChildComp; }
 @Component({})
 class Foo { @ViewChild('canvas', { read: ElementRef }) el!: ElementRef; }
 `);
-      expect(result).toContain("readonly el = viewChild.required<ElementRef>('canvas', { read: ElementRef })");
+      expect(result).toContain(
+        "readonly el = viewChild.required<ElementRef>('canvas', { read: ElementRef })",
+      );
     });
   });
 
@@ -220,7 +230,9 @@ class Panel {}
 @Component({})
 class Foo { @ContentChild(Panel) panel!: Panel; }
 `);
-      expect(result).toContain('readonly panel = contentChild.required<Panel>(Panel)');
+      expect(result).toContain(
+        'readonly panel = contentChild.required<Panel>(Panel)',
+      );
     });
   });
 

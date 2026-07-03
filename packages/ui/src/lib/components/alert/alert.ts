@@ -1,4 +1,12 @@
-import { type ElementRef, Component, ViewEncapsulation, computed, effect, input, viewChild } from '@angular/core';
+import {
+  type ElementRef,
+  Component,
+  ViewEncapsulation,
+  computed,
+  effect,
+  input,
+  viewChild,
+} from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 import { cva, type VariantProps } from 'class-variance-authority';
 
@@ -9,7 +17,10 @@ export const alertVariants = cva('flex flex-col rounded-lg border p-4', {
   variants: {
     variant: {
       default: 'bg-background border-border',
-      destructive: 'border-destructive/50 bg-destructive/10',
+      // Opacity modifiers on semantic colors don't work on Lynx (opaque rgba
+      // values with no separable channels): use a solid destructive border and
+      // the pre-composed translucent bg-destructive-subtle for the tint.
+      destructive: 'border-destructive bg-destructive-subtle',
     },
   },
   defaultVariants: {

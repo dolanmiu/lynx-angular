@@ -1,4 +1,12 @@
-import { type ElementRef, Component, ViewEncapsulation, computed, effect, input, viewChild } from '@angular/core';
+import {
+  type ElementRef,
+  Component,
+  ViewEncapsulation,
+  computed,
+  effect,
+  input,
+  viewChild,
+} from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
 import { type AnimationHandle, DURATION, EASING } from '../../utils/animate';
@@ -87,7 +95,10 @@ export class UiProgress {
 
   protected readonly trackClass = computed(() =>
     cn(
-      'w-full h-2 rounded-full bg-primary/20 overflow-hidden',
+      // bg-muted (solid, theme-aware) instead of bg-primary/20: opacity
+      // modifiers on semantic colors don't work on Lynx (colors are opaque
+      // rgba values with no separable channels).
+      'w-full h-2 rounded-full bg-muted overflow-hidden',
       this.userClass(),
     ),
   );

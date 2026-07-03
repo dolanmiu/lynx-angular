@@ -1,4 +1,15 @@
-import { type ElementRef, Component, ViewEncapsulation, computed, effect, input, model, output, signal, viewChild } from '@angular/core';
+import {
+  type ElementRef,
+  Component,
+  ViewEncapsulation,
+  computed,
+  effect,
+  input,
+  model,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
 import {
@@ -21,11 +32,7 @@ import { cn } from '../../utils/cn';
   template: `
     <overlay [attr.visible]="overlayVisible()" [style]="overlayStyle()">
       <view #backdrop [class]="backdropClass()">
-        <view
-          #panel
-          [class]="panelClass()"
-          (catchtap)="$event.stopPropagation()"
-        >
+        <view #panel [class]="panelClass()" (catchtap)="onPanelTap()">
           <ng-content />
         </view>
       </view>
@@ -78,6 +85,14 @@ export class UiAlertDialog {
       this.userClass(),
     ),
   );
+
+  /**
+   * No-op tap handler for the panel. `catchtap` (vs `bindtap`) already stops
+   * the tap from bubbling to the backdrop — Lynx controls propagation via the
+   * event prefix, not at runtime. (The renderer shims `event.stopPropagation()`
+   * as a no-op so DOM-style handlers don't crash, but it has no effect here.)
+   */
+  protected onPanelTap(): void {}
 
   /**
    * Two-phase open: make overlay visible first (so native elements exist in

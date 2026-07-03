@@ -1,4 +1,16 @@
-import { type ElementRef, Component, ViewEncapsulation, computed, effect, inject, input, model, output, signal, viewChild } from '@angular/core';
+import {
+  type ElementRef,
+  Component,
+  ViewEncapsulation,
+  computed,
+  effect,
+  inject,
+  input,
+  model,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
 import {
@@ -28,7 +40,7 @@ import { UiIcon } from '../icon';
           #panel
           [class]="panelClass()"
           [style]="panelPositionStyle()"
-          (catchtap)="$event.stopPropagation()"
+          (catchtap)="onPanelTap()"
         >
           <ng-content />
         </view>
@@ -70,7 +82,7 @@ export class UiNavDrawer {
 
   protected readonly panelClass = computed(() =>
     cn(
-      'flex flex-col h-full',
+      'flex flex-col bg-background h-full',
       this.side() === 'left'
         ? 'border-r border-border'
         : 'border-l border-border',
@@ -80,18 +92,22 @@ export class UiNavDrawer {
 
   protected readonly panelPositionStyle = computed(() => {
     const sideValue = this.side();
-    // background-color uses rgba so Lynx's CSS parser accepts it — semantic
-    // Tailwind utilities like bg-background expand to space-separated HSL
-    // (hsl(var(--x) / 1)) which Lynx silently ignores.
-    const base =
-      'background-color: rgba(255, 255, 255, 1);' +
-      ' position: absolute; top: 0; bottom: 0; width: 80%;';
-    return sideValue === 'left' ? base + ' left: 0;' : base + ' right: 0;';
+    return sideValue === 'left'
+      ? 'position: absolute; top: 0; bottom: 0; left: 0; width: 80%;'
+      : 'position: absolute; top: 0; bottom: 0; right: 0; width: 80%;';
   });
 
   protected onBackdropTap(): void {
     this.open.set(false);
   }
+
+  /**
+   * No-op tap handler for the panel. `catchtap` (vs `bindtap`) already stops
+   * the tap from bubbling to the backdrop — Lynx controls propagation via the
+   * event prefix, not at runtime. (The renderer shims `event.stopPropagation()`
+   * as a no-op so DOM-style handlers don't crash, but it has no effect here.)
+   */
+  protected onPanelTap(): void {}
 
   close(): void {
     this.open.set(false);

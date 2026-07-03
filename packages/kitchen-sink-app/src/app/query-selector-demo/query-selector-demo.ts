@@ -1,4 +1,10 @@
-import { type AfterViewInit, Component, ElementRef, signal } from '@angular/core';
+import {
+  type AfterViewInit,
+  Component,
+  ElementRef,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
 @Component({
@@ -90,7 +96,9 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   `,
 })
 export class QuerySelectorDemo implements AfterViewInit {
-  readonly subject = viewChild.required<ElementRef>('subject', { read: ElementRef })
+  readonly subject = viewChild.required<ElementRef>('subject', {
+    read: ElementRef,
+  });
 
   qsActive = signal('pending');
   qsAllCount = signal('pending');

@@ -136,7 +136,9 @@ describe('LynxElement', () => {
       fakeRef,
       'bindEvent',
       'tap',
-      { type: 'worklet', value: cb },
+      // value is the internal wrapper around cb (see event-method shim), not
+      // cb itself — assert its shape rather than identity.
+      { type: 'worklet', value: expect.any(Function) },
     );
   });
 
@@ -150,7 +152,7 @@ describe('LynxElement', () => {
       fakeRef,
       'catchEvent',
       'tap',
-      { type: 'worklet', value: cb },
+      { type: 'worklet', value: expect.any(Function) },
     );
   });
 
@@ -164,7 +166,7 @@ describe('LynxElement', () => {
       fakeRef,
       'capture-bindEvent',
       'tap',
-      { type: 'worklet', value: cb },
+      { type: 'worklet', value: expect.any(Function) },
     );
   });
 
@@ -178,7 +180,7 @@ describe('LynxElement', () => {
       fakeRef,
       'capture-catchEvent',
       'tap',
-      { type: 'worklet', value: cb },
+      { type: 'worklet', value: expect.any(Function) },
     );
   });
 
@@ -192,7 +194,7 @@ describe('LynxElement', () => {
       fakeRef,
       'global-bindEvent',
       'tap',
-      { type: 'worklet', value: cb },
+      { type: 'worklet', value: expect.any(Function) },
     );
   });
 
@@ -221,5 +223,83 @@ describe('LynxElement', () => {
       'tap',
       undefined,
     );
+  });
+
+  describe('addEventListener event-method shims', () => {
+    /**
+     * Grabs the wrapper function LynxElement registered with __AddEvent — this
+     * is what the native engine invokes when the event fires.
+     */
+    const registeredListener = (): ((event: unknown) => unknown) => {
+      const calls = (globalThis.__AddEvent as ReturnType<typeof vi.fn>).mock
+        .calls;
+      const lastArg = calls[calls.length - 1]![3] as { value: unknown };
+      return lastArg.value as (event: unknown) => unknown;
+    };
+
+    it('does not throw when a handler calls stopPropagation() on a bare Lynx event', () => {
+      // Regression: Lynx background-thread event objects have no
+      // stopPropagation(), so `$event.stopPropagation()` used to throw
+      // "not a function" — the crash reported for the nav-drawer catchtap.
+      element = new LynxElement(fakeRef);
+      const cb = vi.fn((event: any) => event.stopPropagation());
+
+      element.addEventListener('catchtap', cb);
+      const lynxEvent = { type: 'tap' }; // bare native event, no methods
+
+      expect(() => registeredListener()(lynxEvent)).not.toThrow();
+      expect(cb).toHaveBeenCalledWith(lynxEvent);
+    });
+
+    it('injects callable stopPropagation/preventDefault/stopImmediatePropagation shims', () => {
+      element = new LynxElement(fakeRef);
+      let received: any;
+      const cb = vi.fn((event: any) => {
+        received = event;
+      });
+
+      element.addEventListener('bindtap', cb);
+      registeredListener()({ type: 'tap' });
+
+      expect(typeof received.stopPropagation).toBe('function');
+      expect(typeof received.preventDefault).toBe('function');
+      expect(typeof received.stopImmediatePropagation).toBe('function');
+      // Shims are no-ops (Lynx controls propagation via the bind/catch prefix,
+      // not at runtime) — they must not throw.
+      expect(() => received.preventDefault()).not.toThrow();
+      expect(() => received.stopImmediatePropagation()).not.toThrow();
+    });
+
+    it('does not clobber event methods that already exist', () => {
+      // In main-thread-script contexts Lynx provides a real stopPropagation —
+      // we must preserve it rather than replace it with a no-op.
+      element = new LynxElement(fakeRef);
+      const realStop = vi.fn();
+      const cb = vi.fn((event: any) => event.stopPropagation());
+
+      element.addEventListener('catchtap', cb);
+      registeredListener()({ type: 'tap', stopPropagation: realStop });
+
+      expect(realStop).toHaveBeenCalledTimes(1);
+    });
+
+    it('returns the handler return value (Angular return-false path)', () => {
+      element = new LynxElement(fakeRef);
+      const cb = vi.fn(() => false);
+
+      element.addEventListener('bindtap', cb);
+
+      expect(registeredListener()({ type: 'tap' })).toBe(false);
+    });
+
+    it('tolerates non-object event payloads', () => {
+      element = new LynxElement(fakeRef);
+      const cb = vi.fn();
+
+      element.addEventListener('bindtap', cb);
+
+      expect(() => registeredListener()(undefined)).not.toThrow();
+      expect(cb).toHaveBeenCalledWith(undefined);
+    });
   });
 });

@@ -205,7 +205,12 @@ const buildInputFix = (fixer, node, decorator, context) => {
   }
 
   // Also check if the first arg is a plain string (alias shorthand): @Input('aliasName')
-  if (!alias && decoratorArgs.length > 0 && decoratorArgs[0].type === 'Literal' && typeof decoratorArgs[0].value === 'string') {
+  if (
+    !alias &&
+    decoratorArgs.length > 0 &&
+    decoratorArgs[0].type === 'Literal' &&
+    typeof decoratorArgs[0].value === 'string'
+  ) {
     alias = decoratorArgs[0].value;
   }
 
@@ -255,7 +260,11 @@ const buildOutputFix = (fixer, node, decorator, context) => {
 
   // Check for alias: @Output('aliasName') or @Output({ alias: 'name' })
   let alias = null;
-  if (decoratorArgs.length > 0 && decoratorArgs[0].type === 'Literal' && typeof decoratorArgs[0].value === 'string') {
+  if (
+    decoratorArgs.length > 0 &&
+    decoratorArgs[0].type === 'Literal' &&
+    typeof decoratorArgs[0].value === 'string'
+  ) {
     alias = decoratorArgs[0].value;
   }
 

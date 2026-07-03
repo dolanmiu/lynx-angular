@@ -6,52 +6,64 @@ import plugin from 'tailwindcss/plugin';
  * Usage in tailwind.config.ts:
  *   import { blotchPlugin } from '@blotch/ui/theme/tailwind-plugin';
  *   export default { plugins: [blotchPlugin] };
+ *
+ * Colors reference CSS variables DIRECTLY (`var(--x)`) rather than the shadcn/ui
+ * pattern of wrapping raw HSL channels in `hsl(var(--x) / <alpha-value>)`. Lynx's
+ * native CSS engine only parses comma-separated hsl(); Tailwind emits the
+ * space-separated form `hsl(var(--x) / 1)`, which Lynx silently drops (colors
+ * render transparent on device while looking fine in the web preview). Storing
+ * complete rgba() values in the variables (see theme/default.css) and
+ * referencing them directly avoids color-function parsing entirely. This matches
+ * the official React Lynx Tailwind example.
+ *
+ * Tradeoff: Tailwind opacity modifiers on semantic colors (bg-primary/50) don't
+ * work — the value is opaque with no separable channels. For the rare
+ * translucent-semantic need, add a dedicated rgba() variable (see
+ * `--destructive-subtle` → `destructive.subtle`) or use `opacity-*` on the element.
  */
 export const blotchPlugin = plugin(
   ({ addBase }) => {
     addBase({
       '*': {
-        'border-color': 'rgb(var(--border))',
+        'border-color': 'var(--border)',
       },
     });
   },
   {
     theme: {
       extend: {
-        // Colors compose the RGB channel variables (see theme/default.css) as
-        // `rgb(var(--x) / <alpha-value>)`. Lynx's native parser accepts this
-        // space + slash-alpha rgb() form (same shape as Tailwind's default
-        // palette) but silently drops the equivalent hsl() form, so rgb() is
-        // what makes semantic color utilities render on Lynx.
         colors: {
-          background: 'rgb(var(--background) / <alpha-value>)',
-          foreground: 'rgb(var(--foreground) / <alpha-value>)',
+          background: 'var(--background)',
+          foreground: 'var(--foreground)',
           primary: {
-            DEFAULT: 'rgb(var(--primary) / <alpha-value>)',
-            foreground: 'rgb(var(--primary-foreground) / <alpha-value>)',
+            DEFAULT: 'var(--primary)',
+            foreground: 'var(--primary-foreground)',
           },
           secondary: {
-            DEFAULT: 'rgb(var(--secondary) / <alpha-value>)',
-            foreground: 'rgb(var(--secondary-foreground) / <alpha-value>)',
+            DEFAULT: 'var(--secondary)',
+            foreground: 'var(--secondary-foreground)',
           },
           muted: {
-            DEFAULT: 'rgb(var(--muted) / <alpha-value>)',
-            foreground: 'rgb(var(--muted-foreground) / <alpha-value>)',
+            DEFAULT: 'var(--muted)',
+            foreground: 'var(--muted-foreground)',
           },
           accent: {
-            DEFAULT: 'rgb(var(--accent) / <alpha-value>)',
-            foreground: 'rgb(var(--accent-foreground) / <alpha-value>)',
+            DEFAULT: 'var(--accent)',
+            foreground: 'var(--accent-foreground)',
           },
           destructive: {
-            DEFAULT: 'rgb(var(--destructive) / <alpha-value>)',
-            foreground: 'rgb(var(--destructive-foreground) / <alpha-value>)',
+            DEFAULT: 'var(--destructive)',
+            foreground: 'var(--destructive-foreground)',
+            // Pre-composed translucent red for subtle destructive backgrounds,
+            // since bg-destructive/10 (opacity modifier) can't work here.
+            subtle: 'var(--destructive-subtle)',
           },
-          border: 'rgb(var(--border) / <alpha-value>)',
-          input: 'rgb(var(--input) / <alpha-value>)',
-          ring: 'rgb(var(--ring) / <alpha-value>)',
+          border: 'var(--border)',
+          input: 'var(--input)',
+          ring: 'var(--ring)',
           card: {
-            DEFAULT: 'rgb(var(--card) / <alpha-value>)',
-            foreground: 'rgb(var(--card-foreground) / <alpha-value>)',
+            DEFAULT: 'var(--card)',
+            foreground: 'var(--card-foreground)',
           },
         },
         borderRadius: {

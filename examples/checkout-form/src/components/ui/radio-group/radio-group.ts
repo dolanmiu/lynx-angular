@@ -1,4 +1,15 @@
-import { type ElementRef, Component, ViewEncapsulation, computed, effect, inject, input, model, output, viewChild } from '@angular/core';
+import {
+  type ElementRef,
+  Component,
+  ViewEncapsulation,
+  computed,
+  effect,
+  inject,
+  input,
+  model,
+  output,
+  viewChild,
+} from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
 import { type AnimationHandle, popIn, popOut } from '@blotch/dolan/utils/animate';

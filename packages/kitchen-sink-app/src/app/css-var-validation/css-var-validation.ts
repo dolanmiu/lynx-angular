@@ -122,7 +122,7 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
         </view>
 
         <text class="text-[11px] text-gray-500 mb-1"
-          >B2: var(--primary) — raw HSL string without hsl() wrapper</text
+          >B2: var(--primary) — complete rgba() value → should render ✅</text
         >
         <view
           class="w-full h-12 rounded-lg mb-4 items-center justify-center"
@@ -132,7 +132,7 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
         </view>
 
         <text class="text-[11px] text-gray-500 mb-1"
-          >B3: hsl(var(--primary)) — shadcn composition pattern</text
+          >B3: hsl(var(--primary)) — rgba inside hsl(), invalid → blank</text
         >
         <view
           class="w-full h-12 rounded-lg mb-4 items-center justify-center"
@@ -167,7 +167,8 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
         </view>
 
         <text class="text-[11px] text-gray-500 mb-1"
-          >C2: Tailwind bg-primary — generates hsl(var(--primary) / 1)</text
+          >C2: Tailwind bg-primary — generates var(--primary) → should render
+          ✅</text
         >
         <view
           class="w-full h-12 rounded-lg mb-6 items-center justify-center bg-primary"

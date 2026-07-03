@@ -77,7 +77,7 @@ const createTheme = (name: string, themeDir: string) => {
   // the first `/*` to the LAST `*/` in the file, wiping all comments.
   const content = template.replace(
     /\/\*[\s\S]*?\*\//,
-    `/* Custom theme: ${name}\n *\n * Edit the CSS variables below to customize your theme.\n * Values are HSL without the hsl() wrapper (e.g., "240 5.9% 10%").\n */`,
+    `/* Custom theme: ${name}\n *\n * Edit the CSS variables below to customize your theme.\n * Values are complete rgba() colors (e.g., "rgba(24, 24, 27, 1)") referenced\n * directly via var(--x); Lynx drops Tailwind's space-separated hsl(var() / a).\n */`,
   );
 
   writeFileSync(destPath, content);

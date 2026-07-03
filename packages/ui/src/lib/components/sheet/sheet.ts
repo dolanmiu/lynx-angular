@@ -1,4 +1,15 @@
-import { type ElementRef, Component, ViewEncapsulation, computed, effect, input, model, output, signal, viewChild } from '@angular/core';
+import {
+  type ElementRef,
+  Component,
+  ViewEncapsulation,
+  computed,
+  effect,
+  input,
+  model,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
 import {
@@ -24,7 +35,7 @@ import { cn } from '../../utils/cn';
           #panel
           [class]="panelClass()"
           [style]="panelPositionStyle()"
-          (catchtap)="$event.stopPropagation()"
+          (catchtap)="onPanelTap()"
         >
           <view class="flex items-center justify-center pt-2 pb-4">
             <view class="h-1 w-10 rounded-full bg-muted" />
@@ -85,6 +96,14 @@ export class UiSheet {
   protected onBackdropTap(): void {
     this.open.set(false);
   }
+
+  /**
+   * No-op tap handler for the panel. `catchtap` (vs `bindtap`) already stops
+   * the tap from bubbling to the backdrop — Lynx controls propagation via the
+   * event prefix, not at runtime. (The renderer shims `event.stopPropagation()`
+   * as a no-op so DOM-style handlers don't crash, but it has no effect here.)
+   */
+  protected onPanelTap(): void {}
 
   /**
    * Two-phase open: make the overlay visible first so native elements exist

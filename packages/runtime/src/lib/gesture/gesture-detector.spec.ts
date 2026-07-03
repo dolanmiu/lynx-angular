@@ -1,4 +1,9 @@
-import { type SimpleChanges, ElementRef, Injector, runInInjectionContext } from '@angular/core';
+import {
+  type SimpleChanges,
+  ElementRef,
+  Injector,
+  runInInjectionContext,
+} from '@angular/core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { LynxGestureDetector } from './gesture-detector';
 import { Gesture } from './composition';

@@ -1,5 +1,13 @@
 import { Component, inject, signal } from '@angular/core';
-import { LYNX_ELEMENTS, LynxMainThreadEvent, LynxMainThread, mainThreadFn, backgroundFn, createMainThreadRef, type MainThread } from '@blotch/angular-lynx';
+import {
+  LYNX_ELEMENTS,
+  LynxMainThreadEvent,
+  LynxMainThread,
+  mainThreadFn,
+  backgroundFn,
+  createMainThreadRef,
+  type MainThread,
+} from '@blotch/angular-lynx';
 
 // --- Main Thread Functions ---
 // These run on the main thread with direct access to native elements.

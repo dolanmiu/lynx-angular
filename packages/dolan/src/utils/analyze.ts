@@ -1,5 +1,11 @@
 import pc from 'picocolors';
-import { diffLines, structuredPatch, applyPatch, type Hunk, type ParsedDiff } from 'diff';
+import {
+  diffLines,
+  structuredPatch,
+  applyPatch,
+  type Hunk,
+  type ParsedDiff,
+} from 'diff';
 
 export type FileStatus =
   | 'up-to-date'

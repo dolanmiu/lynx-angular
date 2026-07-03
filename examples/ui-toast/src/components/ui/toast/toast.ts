@@ -1,4 +1,12 @@
-import { type ElementRef, Component, ViewEncapsulation, computed, effect, signal, viewChild } from '@angular/core';
+import {
+  type ElementRef,
+  Component,
+  ViewEncapsulation,
+  computed,
+  effect,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
 import { type AnimationHandle, DURATION, EASING } from '@blotch/dolan/utils/animate';

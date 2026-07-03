@@ -1,4 +1,9 @@
-import { type Rule, type Tree, chain, SchematicsException } from '@angular-devkit/schematics';
+import {
+  type Rule,
+  type Tree,
+  chain,
+  SchematicsException,
+} from '@angular-devkit/schematics';
 import {
   addDependency,
   DependencyType,

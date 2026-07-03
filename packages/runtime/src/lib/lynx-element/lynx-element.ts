@@ -261,13 +261,46 @@ export class LynxElement implements BaseLynxElement {
       return () => {};
     }
 
+    /**
+     * Lynx's background-thread event objects don't implement the DOM-style
+     * stopPropagation()/preventDefault() methods. Lynx only exposes them in
+     * main-thread scripts, yet its own .d.ts declares them on every event — so
+     * TypeScript never catches the gap. Angular templates (and Angular's own
+     * listener wrapper, which calls preventDefault() whenever a handler returns
+     * false) assume every event has them, so a handler like
+     * `$event.stopPropagation()` throws "not a function" at runtime.
+     *
+     * Propagation in Lynx is controlled statically by the bind/catch event
+     * prefix, and there is no runtime default to prevent, so we inject no-op
+     * shims — only when missing, to avoid clobbering the real methods that DO
+     * exist in main-thread-script contexts. This gives Angular DOM parity:
+     * handlers that call these methods run without crashing. We augment the
+     * event before invoking cb (Angular's wrapper may call preventDefault()
+     * during that call) and return cb's result (the return-false path relies
+     * on it). Mirrors React Lynx's addEventMethodsIfNeeded.
+     */
+    const listener = (event: any) => {
+      if (event && typeof event === 'object') {
+        if (typeof event.stopPropagation !== 'function') {
+          event.stopPropagation = () => {};
+        }
+        if (typeof event.preventDefault !== 'function') {
+          event.preventDefault = () => {};
+        }
+        if (typeof event.stopImmediatePropagation !== 'function') {
+          event.stopImmediatePropagation = () => {};
+        }
+      }
+      return cb(event);
+    };
+
     // type: 'worklet' routes the callback through Lynx's worklet system
     // (runWorklet), which is the only way to receive events in the JS thread.
     // Direct function callbacks also work here (not just worklet handles) —
     // the native engine checks the value type at runtime.
     __AddEvent(this.element, eventType, eventName, {
       type: 'worklet',
-      value: cb,
+      value: listener,
     });
 
     return () => {

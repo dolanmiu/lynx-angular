@@ -1,4 +1,16 @@
-import { type ElementRef, Component, ViewEncapsulation, computed, effect, inject, input, model, output, signal, viewChild } from '@angular/core';
+import {
+  type ElementRef,
+  Component,
+  ViewEncapsulation,
+  computed,
+  effect,
+  inject,
+  input,
+  model,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
 import {
@@ -28,7 +40,7 @@ import { UiIcon } from '../icon';
           #panel
           [class]="panelClass()"
           [style]="panelPositionStyle()"
-          (catchtap)="$event.stopPropagation()"
+          (catchtap)="onPanelTap()"
         >
           <ng-content />
         </view>
@@ -92,6 +104,14 @@ export class UiNavDrawer {
   protected onBackdropTap(): void {
     this.open.set(false);
   }
+
+  /**
+   * No-op tap handler for the panel. `catchtap` (vs `bindtap`) already stops
+   * the tap from bubbling to the backdrop — Lynx controls propagation via the
+   * event prefix, not at runtime. (The renderer shims `event.stopPropagation()`
+   * as a no-op so DOM-style handlers don't crash, but it has no effect here.)
+   */
+  protected onPanelTap(): void {}
 
   close(): void {
     this.open.set(false);

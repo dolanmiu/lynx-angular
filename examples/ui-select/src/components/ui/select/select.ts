@@ -1,4 +1,17 @@
-import { type ElementRef, Component, ViewEncapsulation, computed, contentChildren, forwardRef, inject, input, model, output, signal, viewChild } from '@angular/core';
+import {
+  type ElementRef,
+  Component,
+  ViewEncapsulation,
+  computed,
+  contentChildren,
+  forwardRef,
+  inject,
+  input,
+  model,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
 import {
@@ -31,7 +44,7 @@ const CHECK_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" f
           #panel
           [class]="panelClass()"
           style="position: absolute; bottom: 0; left: 0; right: 0;"
-          (catchtap)="$event.stopPropagation()"
+          (catchtap)="onPanelTap()"
         >
           <view class="flex items-center justify-center pt-2 pb-3">
             <view class="h-1 w-10 rounded-full bg-muted" />
@@ -104,6 +117,14 @@ export class UiSelect {
     this.changed.emit(value);
     this.close();
   }
+
+  /**
+   * No-op tap handler for the panel. `catchtap` (vs `bindtap`) already stops
+   * the tap from bubbling to the backdrop — Lynx controls propagation via the
+   * event prefix, not at runtime. (The renderer shims `event.stopPropagation()`
+   * as a no-op so DOM-style handlers don't crash, but it has no effect here.)
+   */
+  protected onPanelTap(): void {}
 
   toggle(): void {
     if (this.disabled()) return;

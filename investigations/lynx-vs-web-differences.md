@@ -2953,11 +2953,24 @@ The shadcn-style `hsl(var(--primary))` composition pattern cannot work on Lynx b
 1. The CSS variable stores raw HSL channels: `--primary: 240 5.9% 10%`
 2. `hsl(var(--primary))` expands to `hsl(240 5.9% 10%)` — space-separated — which Lynx rejects
 
-### Workaround
+### Resolution (adopted)
 
-Store theme colors as complete hex values in CSS variables (`--primary: #18181b`) and reference them directly (`var(--primary)`). This avoids the `hsl()` wrapper entirely but loses the ability to apply Tailwind opacity modifiers via `hsl(var() / <alpha-value>)`. Opacity must be handled differently (e.g., separate `--primary-50` variables, or `rgba()` with channel vars).
+The `@blotch/ui` theme stores each color as a complete `rgba()` value and the tailwind plugin references it directly — no `hsl()` wrapper, no color-function parsing on device:
 
-**Status:** needs validation on device (css-var-validation screen in kitchen-sink-app).
+```css
+/* packages/ui/src/lib/theme/default.css */
+page { --primary: rgba(24, 24, 27, 1); }
+```
+```ts
+/* packages/ui/src/lib/theme/tailwind-plugin.ts */
+primary: { DEFAULT: 'var(--primary)', foreground: 'var(--primary-foreground)' }
+```
+
+`bg-primary` then emits `background-color: var(--primary)`, which resolves to the rgba value Lynx accepts. This matches the official React Lynx Tailwind example.
+
+Tradeoff: Tailwind opacity modifiers on semantic colors (`bg-primary/50`) no longer work — the value is opaque with no separable channels. For a translucent semantic color, add a dedicated variable (e.g. `--destructive-subtle: rgba(239, 68, 68, 0.1)` → `bg-destructive-subtle`) or use `opacity-*` on the element. See the "CSS Colors in Lynx" section of the root `CLAUDE.md`.
+
+**Status:** implemented across `packages/ui` + all examples; validate the paint on device via the `css-var-validation` screen in kitchen-sink-app.
 
 ---
 
@@ -2988,3 +3001,33 @@ When using Angular Signal Forms with `[formField]` on a component that implement
 ### The fix in AngularLynx
 
 The `LynxInput` and `LynxTextarea` directives override `ngOnChanges` to call `this.#el.invoke?.('setValue', {value})` when the `value` input changes, bypassing `__SetAttribute`. UI components should use `[value]="value()"` (an Angular input binding that routes through `ngOnChanges`) rather than `[attr.value]="value()"` (an attribute binding that calls `renderer.setAttribute` directly and bypasses the override).
+
+---
+
+## Event objects have no `stopPropagation()` / `preventDefault()` on the background thread
+
+### What you'd expect (web)
+
+Every handler receives a DOM `Event` with `stopPropagation()`, `stopImmediatePropagation()`, and `preventDefault()`. Angular templates call them directly — e.g. `(catchtap)="$event.stopPropagation()"`. Angular's own listener wrapper (`wrapListenerIn_markDirtyAndPreventDefault`) also calls `event.preventDefault()` whenever a handler returns `false`.
+
+### What Lynx does
+
+Lynx's **background-thread** event objects — the ones Angular handlers receive — do **not** implement these methods at runtime. From the Lynx docs:
+
+> "For commonly used Web methods such as `e.stopPropagation()` and `e.preventDefault()`, Lynx only supports `e.stopPropagation()` in Main Thread Scripts."
+
+The trap: Lynx's own type definitions (`@lynx-js/types`) declare these methods on every event, so TypeScript never flags the call. It fails only at runtime — `main-thread.js exception: not a function`.
+
+Propagation is controlled **statically** by the event prefix, not at runtime:
+
+- `bindtap` — listen, allow bubbling
+- `catchtap` — listen **and** stop bubbling (the native equivalent of `stopPropagation()`)
+- `capture-bind` / `capture-catch` — capture-phase variants
+
+There is also no default action to prevent, so `preventDefault()` has no meaning either.
+
+### The fix in AngularLynx
+
+`LynxElement.addEventListener` (`packages/runtime/src/lib/lynx-element/lynx-element.ts`) wraps every handler. Before calling it, the wrapper adds no-op `stopPropagation`/`preventDefault`/`stopImmediatePropagation` shims to the event — but only when absent, so it never clobbers the real methods available in main-thread scripts. This gives Angular DOM parity: `$event.stopPropagation()` and return-`false` handlers no longer crash.
+
+To actually stop propagation, use the `catch` prefix (`(catchtap)="..."`), not a runtime `stopPropagation()` call. Overlay components (`dialog`, `sheet`, `nav-drawer`, `alert-dialog`, `action-sheet`, `select`) use an empty `onPanelTap()` handler on a `catchtap` panel for exactly this reason — the `catch` prefix stops the tap from reaching the backdrop.

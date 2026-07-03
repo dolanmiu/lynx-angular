@@ -1,4 +1,15 @@
-import { type Rule, type Tree, chain, MergeStrategy, SchematicsException, apply, applyTemplates, mergeWith, move, url } from '@angular-devkit/schematics';
+import {
+  type Rule,
+  type Tree,
+  chain,
+  MergeStrategy,
+  SchematicsException,
+  apply,
+  applyTemplates,
+  mergeWith,
+  move,
+  url,
+} from '@angular-devkit/schematics';
 import {
   addDependency,
   DependencyType,
