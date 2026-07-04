@@ -30,10 +30,16 @@ import { cn } from '../../utils/cn';
         <!-- [attr.disabled]="disabled() || undefined": passing 'undefined'
              removes the attribute entirely; passing 'false' would set
              disabled="false" which Lynx still treats as disabled. -->
+        <!-- [value] not [attr.value]: [attr.value] calls renderer.setAttribute()
+             which routes to __SetAttribute — a no-op for live text on Lynx native
+             inputs. [value] is an Angular input binding that triggers
+             LynxInput.ngOnChanges, where the setValue UIMethod override lives.
+             Without this, form model resets would update the signal but the
+             native input would keep showing the user's old typed text. -->
         <input
           [attr.placeholder]="placeholder()"
           [attr.type]="type()"
-          [attr.value]="value()"
+          [value]="value()"
           [attr.disabled]="disabled() || undefined"
           class="text-sm text-foreground"
           style="border: none; background: transparent; height: 100%; width: 100%;"

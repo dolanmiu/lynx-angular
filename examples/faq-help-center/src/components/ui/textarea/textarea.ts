@@ -30,9 +30,12 @@ import { cn } from '@blotch/dolan/utils/cn';
         <!-- [attr.disabled]="disabled() || undefined": passing 'undefined'
              removes the attribute entirely; passing 'false' would set
              disabled="false" which Lynx still treats as disabled. -->
+        <!-- [value] not [attr.value]: same reason as UiInput — routes through
+             LynxTextarea.ngOnChanges so value changes call invoke("setValue")
+             rather than the ineffective __SetAttribute path. -->
         <textarea
           [attr.placeholder]="placeholder()"
-          [attr.value]="value()"
+          [value]="value()"
           [attr.disabled]="disabled() || undefined"
           class="text-sm text-foreground"
           style="border: none; background: transparent; height: 100%; width: 100%;"
