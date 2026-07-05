@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { readFileSync, existsSync, readdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { createFixture, DEFAULT_CONFIG, type Fixture } from '../test-utils';
 import { hashContent } from '../lockfile';
@@ -365,6 +365,473 @@ describe('updateCommand --selective', () => {
     expect(lockfile.components.card['card.ts'].hash).toBe(
       hashContent(upstream),
     );
+  });
+});
+
+/**
+ * `--force` is the destructive path: it must reset every tracked file to the
+ * upstream version and advance the lockfile, no matter how the file drifted,
+ * and it must never prompt. These tests exhaustively pin that contract because
+ * a regression here silently discards user work (or, worse, silently fails to).
+ */
+describe('updateCommand --force', () => {
+  const seedTheme = (fixture: Fixture, fileName: string, content: string) =>
+    writeFileSync(
+      join(fixture.dir, DEFAULT_CONFIG.aliases.theme, fileName),
+      content,
+    );
+  const readTheme = (fixture: Fixture, fileName: string) =>
+    readFileSync(
+      join(fixture.dir, DEFAULT_CONFIG.aliases.theme, fileName),
+      'utf-8',
+    );
+
+  it('overwrites a user-modified file (local drift, upstream unchanged)', async () => {
+    // base == upstream, but the user edited their copy locally → the file
+    // analyzes as "user-modified". Without --force this drift is preserved;
+    // with --force it must be discarded and reset to upstream.
+    const base = 'export const Card = { v: 1 };';
+    const userVersion = 'export const Card = { v: 1, local: true };';
+    const upstream = base;
+    fixture = createFixture({
+      config: DEFAULT_CONFIG,
+      lockfile: {
+        version: 1,
+        components: { card: { 'card.ts': { hash: hashContent(base) } } },
+        utils: {},
+        theme: {},
+      },
+      components: { card: { 'card.ts': userVersion } },
+      uiSource: { card: { 'card.ts': upstream } },
+    });
+
+    vi.spyOn(process, 'cwd').mockReturnValue(fixture.dir);
+
+    const p = await import('@clack/prompts');
+    (p.select as ReturnType<typeof vi.fn>).mockClear();
+    (p.confirm as ReturnType<typeof vi.fn>).mockClear();
+
+    const { updateCommand } = await import('./update');
+    await updateCommand({ force: true });
+
+    // Local edit discarded, file reset to upstream.
+    expect(readInstalledFile(fixture.dir, 'card', 'card.ts')).toBe(upstream);
+    // Force never prompts.
+    expect(p.select).not.toHaveBeenCalled();
+    expect(p.confirm).not.toHaveBeenCalled();
+
+    const lockfile = readLockfile(fixture.dir);
+    expect(lockfile.components.card['card.ts'].hash).toBe(
+      hashContent(upstream),
+    );
+  });
+
+  it('overwrites a conflicted file (both local and upstream changed)', async () => {
+    // current != base AND upstream != base → "conflict". Interactive mode
+    // would prompt; --force resolves every conflict in favor of upstream.
+    const base = 'export const Card = { v: 1 };';
+    const userVersion = 'export const Card = { v: 1, local: true };';
+    const upstream = 'export const Card = { v: 2 };';
+    fixture = createFixture({
+      config: DEFAULT_CONFIG,
+      lockfile: {
+        version: 1,
+        components: { card: { 'card.ts': { hash: hashContent(base) } } },
+        utils: {},
+        theme: {},
+      },
+      components: { card: { 'card.ts': userVersion } },
+      uiSource: { card: { 'card.ts': upstream } },
+    });
+
+    vi.spyOn(process, 'cwd').mockReturnValue(fixture.dir);
+
+    const p = await import('@clack/prompts');
+    (p.select as ReturnType<typeof vi.fn>).mockClear();
+
+    const { updateCommand } = await import('./update');
+    await updateCommand({ force: true });
+
+    expect(readInstalledFile(fixture.dir, 'card', 'card.ts')).toBe(upstream);
+    expect(p.select).not.toHaveBeenCalled();
+
+    const lockfile = readLockfile(fixture.dir);
+    expect(lockfile.components.card['card.ts'].hash).toBe(
+      hashContent(upstream),
+    );
+  });
+
+  it('overwrites a drifted file with no lockfile entry (unknown base → conflict)', async () => {
+    // With no stored hash the base is unknown, so any local difference is
+    // treated as a conflict. --force must still overwrite it.
+    const userVersion = 'export const Card = { v: 1, local: true };';
+    const upstream = 'export const Card = { v: 2 };';
+    fixture = createFixture({
+      config: DEFAULT_CONFIG,
+      lockfile: { version: 1, components: {}, utils: {}, theme: {} },
+      components: { card: { 'card.ts': userVersion } },
+      uiSource: { card: { 'card.ts': upstream } },
+    });
+
+    vi.spyOn(process, 'cwd').mockReturnValue(fixture.dir);
+
+    const { updateCommand } = await import('./update');
+    await updateCommand({ force: true });
+
+    expect(readInstalledFile(fixture.dir, 'card', 'card.ts')).toBe(upstream);
+
+    const lockfile = readLockfile(fixture.dir);
+    expect(lockfile.components.card['card.ts'].hash).toBe(
+      hashContent(upstream),
+    );
+  });
+
+  it('applies a routine auto-update (disk matches base, upstream moved)', async () => {
+    const base = 'export const Card = { v: 1 };';
+    const upstream = 'export const Card = { v: 2 };';
+    fixture = createFixture({
+      config: DEFAULT_CONFIG,
+      lockfile: {
+        version: 1,
+        components: { card: { 'card.ts': { hash: hashContent(base) } } },
+        utils: {},
+        theme: {},
+      },
+      components: { card: { 'card.ts': base } },
+      uiSource: { card: { 'card.ts': upstream } },
+    });
+
+    vi.spyOn(process, 'cwd').mockReturnValue(fixture.dir);
+
+    const { updateCommand } = await import('./update');
+    await updateCommand({ force: true });
+
+    expect(readInstalledFile(fixture.dir, 'card', 'card.ts')).toBe(upstream);
+    const lockfile = readLockfile(fixture.dir);
+    expect(lockfile.components.card['card.ts'].hash).toBe(
+      hashContent(upstream),
+    );
+  });
+
+  it('creates a new-upstream file that is missing on disk', async () => {
+    // Component tracked, but a brand-new file exists upstream that the user
+    // has never had. Force should create it.
+    const existing = 'export const Card = { v: 1 };';
+    const brandNew = 'export const helper = () => 42;';
+    fixture = createFixture({
+      config: DEFAULT_CONFIG,
+      lockfile: {
+        version: 1,
+        components: { card: { 'card.ts': { hash: hashContent(existing) } } },
+        utils: {},
+        theme: {},
+      },
+      components: { card: { 'card.ts': existing } },
+      uiSource: { card: { 'card.ts': existing, 'helper.ts': brandNew } },
+    });
+
+    vi.spyOn(process, 'cwd').mockReturnValue(fixture.dir);
+
+    const { updateCommand } = await import('./update');
+    await updateCommand({ force: true });
+
+    expect(readInstalledFile(fixture.dir, 'card', 'helper.ts')).toBe(brandNew);
+    const lockfile = readLockfile(fixture.dir);
+    expect(lockfile.components.card['helper.ts'].hash).toBe(
+      hashContent(brandNew),
+    );
+  });
+
+  it('leaves an up-to-date file untouched and records its hash', async () => {
+    const content = 'export const Card = { v: 1 };';
+    fixture = createFixture({
+      config: DEFAULT_CONFIG,
+      lockfile: {
+        version: 1,
+        components: { card: { 'card.ts': { hash: hashContent(content) } } },
+        utils: {},
+        theme: {},
+      },
+      components: { card: { 'card.ts': content } },
+      uiSource: { card: { 'card.ts': content } },
+    });
+
+    vi.spyOn(process, 'cwd').mockReturnValue(fixture.dir);
+
+    const { updateCommand } = await import('./update');
+    await updateCommand({ force: true });
+
+    expect(readInstalledFile(fixture.dir, 'card', 'card.ts')).toBe(content);
+    const lockfile = readLockfile(fixture.dir);
+    expect(lockfile.components.card['card.ts'].hash).toBe(hashContent(content));
+  });
+
+  it('resets every file of a multi-file component regardless of per-file status', async () => {
+    // One file conflicts, one is user-modified, one is a clean auto-update —
+    // force must bring all three to upstream in a single pass.
+    fixture = createFixture({
+      config: DEFAULT_CONFIG,
+      lockfile: {
+        version: 1,
+        components: {
+          card: {
+            'a.ts': { hash: hashContent('base-a') },
+            'b.ts': { hash: hashContent('base-b') },
+            'c.ts': { hash: hashContent('base-c') },
+          },
+        },
+        utils: {},
+        theme: {},
+      },
+      components: {
+        card: {
+          'a.ts': 'local-edit-a', // conflict (upstream also moved)
+          'b.ts': 'local-edit-b', // user-modified (upstream unchanged)
+          'c.ts': 'base-c', // auto-update (disk matches base)
+        },
+      },
+      uiSource: {
+        card: {
+          'a.ts': 'upstream-a',
+          'b.ts': 'base-b',
+          'c.ts': 'upstream-c',
+        },
+      },
+    });
+
+    vi.spyOn(process, 'cwd').mockReturnValue(fixture.dir);
+
+    const { updateCommand } = await import('./update');
+    await updateCommand({ force: true });
+
+    expect(readInstalledFile(fixture.dir, 'card', 'a.ts')).toBe('upstream-a');
+    expect(readInstalledFile(fixture.dir, 'card', 'b.ts')).toBe('base-b');
+    expect(readInstalledFile(fixture.dir, 'card', 'c.ts')).toBe('upstream-c');
+
+    const lockfile = readLockfile(fixture.dir);
+    expect(lockfile.components.card['a.ts'].hash).toBe(
+      hashContent('upstream-a'),
+    );
+    expect(lockfile.components.card['b.ts'].hash).toBe(hashContent('base-b'));
+    expect(lockfile.components.card['c.ts'].hash).toBe(
+      hashContent('upstream-c'),
+    );
+  });
+
+  it('resets multiple drifted components in a single run', async () => {
+    fixture = createFixture({
+      config: DEFAULT_CONFIG,
+      lockfile: {
+        version: 1,
+        components: {
+          card: { 'card.ts': { hash: hashContent('card-base') } },
+          spinner: { 'spinner.ts': { hash: hashContent('spinner-base') } },
+        },
+        utils: {},
+        theme: {},
+      },
+      components: {
+        card: { 'card.ts': 'card-local' },
+        spinner: { 'spinner.ts': 'spinner-local' },
+      },
+      uiSource: {
+        card: { 'card.ts': 'card-upstream' },
+        spinner: { 'spinner.ts': 'spinner-upstream' },
+      },
+    });
+
+    vi.spyOn(process, 'cwd').mockReturnValue(fixture.dir);
+
+    const { updateCommand } = await import('./update');
+    await updateCommand({ force: true });
+
+    expect(readInstalledFile(fixture.dir, 'card', 'card.ts')).toBe(
+      'card-upstream',
+    );
+    expect(readInstalledFile(fixture.dir, 'spinner', 'spinner.ts')).toBe(
+      'spinner-upstream',
+    );
+  });
+
+  it('does not delete untracked local files sitting alongside components', async () => {
+    // Force overwrites tracked files but must not touch files the registry
+    // doesn't know about (e.g. a user's own sibling file).
+    const upstream = 'export const Card = { v: 2 };';
+    const userExtra = 'export const mine = true;';
+    fixture = createFixture({
+      config: DEFAULT_CONFIG,
+      lockfile: {
+        version: 1,
+        components: { card: { 'card.ts': { hash: hashContent('base') } } },
+        utils: {},
+        theme: {},
+      },
+      components: {
+        card: { 'card.ts': 'local', 'extra.ts': userExtra },
+      },
+      uiSource: { card: { 'card.ts': upstream } },
+    });
+
+    vi.spyOn(process, 'cwd').mockReturnValue(fixture.dir);
+
+    const { updateCommand } = await import('./update');
+    await updateCommand({ force: true });
+
+    expect(readInstalledFile(fixture.dir, 'card', 'card.ts')).toBe(upstream);
+    // Untracked sibling is left exactly as-is.
+    expect(readInstalledFile(fixture.dir, 'card', 'extra.ts')).toBe(userExtra);
+  });
+
+  it('is idempotent — a second force run reports nothing to do', async () => {
+    const upstream = 'export const Card = { v: 2 };';
+    fixture = createFixture({
+      config: DEFAULT_CONFIG,
+      lockfile: {
+        version: 1,
+        components: { card: { 'card.ts': { hash: hashContent('base') } } },
+        utils: {},
+        theme: {},
+      },
+      components: { card: { 'card.ts': 'local-drift' } },
+      uiSource: { card: { 'card.ts': upstream } },
+    });
+
+    vi.spyOn(process, 'cwd').mockReturnValue(fixture.dir);
+
+    const { updateCommand } = await import('./update');
+    await updateCommand({ force: true });
+    expect(readInstalledFile(fixture.dir, 'card', 'card.ts')).toBe(upstream);
+
+    // Second run: everything now matches upstream, so it must be a no-op that
+    // leaves the file (and lockfile) exactly as the first run left them.
+    await updateCommand({ force: true });
+    expect(readInstalledFile(fixture.dir, 'card', 'card.ts')).toBe(upstream);
+    const lockfile = readLockfile(fixture.dir);
+    expect(lockfile.components.card['card.ts'].hash).toBe(
+      hashContent(upstream),
+    );
+  });
+
+  it('overwrites a user-modified shared theme file', async () => {
+    // Theme files travel through a separate apply path from component files,
+    // so force must overwrite drift there too. upstream == base → user-modified.
+    const base = ':root { --primary: rgba(1, 1, 1, 1); }';
+    const userVersion = ':root { --primary: rgba(9, 9, 9, 1); }';
+    fixture = createFixture({
+      config: DEFAULT_CONFIG,
+      lockfile: {
+        version: 1,
+        components: {},
+        utils: {},
+        theme: { 'default.css': { hash: hashContent(base) } },
+      },
+      themeFiles: { 'default.css': base },
+    });
+    seedTheme(fixture, 'default.css', userVersion);
+
+    vi.spyOn(process, 'cwd').mockReturnValue(fixture.dir);
+
+    const { updateCommand } = await import('./update');
+    await updateCommand({ force: true });
+
+    expect(readTheme(fixture, 'default.css')).toBe(base);
+    const lockfile = readLockfile(fixture.dir);
+    expect(lockfile.theme['default.css'].hash).toBe(hashContent(base));
+  });
+
+  it('overwrites a conflicted shared theme file', async () => {
+    const base = ':root { --primary: rgba(1, 1, 1, 1); }';
+    const userVersion = ':root { --primary: rgba(9, 9, 9, 1); }';
+    const upstream = ':root { --primary: rgba(2, 2, 2, 1); }';
+    fixture = createFixture({
+      config: DEFAULT_CONFIG,
+      lockfile: {
+        version: 1,
+        components: {},
+        utils: {},
+        theme: { 'default.css': { hash: hashContent(base) } },
+      },
+      themeFiles: { 'default.css': upstream },
+    });
+    seedTheme(fixture, 'default.css', userVersion);
+
+    vi.spyOn(process, 'cwd').mockReturnValue(fixture.dir);
+
+    const { updateCommand } = await import('./update');
+    await updateCommand({ force: true });
+
+    expect(readTheme(fixture, 'default.css')).toBe(upstream);
+    const lockfile = readLockfile(fixture.dir);
+    expect(lockfile.theme['default.css'].hash).toBe(hashContent(upstream));
+  });
+
+  it('creates a missing shared theme file from upstream', async () => {
+    const upstream = ':root { --primary: rgba(2, 2, 2, 1); }';
+    fixture = createFixture({
+      config: DEFAULT_CONFIG,
+      lockfile: { version: 1, components: {}, utils: {}, theme: {} },
+      themeFiles: { 'default.css': upstream },
+    });
+    // No default.css seeded on disk → new-upstream.
+
+    vi.spyOn(process, 'cwd').mockReturnValue(fixture.dir);
+
+    const { updateCommand } = await import('./update');
+    await updateCommand({ force: true });
+
+    expect(readTheme(fixture, 'default.css')).toBe(upstream);
+    const lockfile = readLockfile(fixture.dir);
+    expect(lockfile.theme['default.css'].hash).toBe(hashContent(upstream));
+  });
+
+  it('never prompts even when conflicts, user-modifications and new files coexist', async () => {
+    fixture = createFixture({
+      config: DEFAULT_CONFIG,
+      lockfile: {
+        version: 1,
+        components: {
+          card: {
+            'card.ts': { hash: hashContent('card-base') },
+            'util.ts': { hash: hashContent('util-base') },
+          },
+        },
+        utils: {},
+        theme: { 'default.css': { hash: hashContent('theme-base') } },
+      },
+      components: {
+        card: { 'card.ts': 'card-local', 'util.ts': 'util-base' },
+      },
+      uiSource: {
+        card: {
+          'card.ts': 'card-upstream', // conflict
+          'util.ts': 'util-upstream', // auto-update
+          'new.ts': 'new-file', // new-upstream
+        },
+      },
+      themeFiles: { 'default.css': 'theme-upstream' },
+    });
+    seedTheme(fixture, 'default.css', 'theme-local'); // theme conflict
+
+    vi.spyOn(process, 'cwd').mockReturnValue(fixture.dir);
+
+    const p = await import('@clack/prompts');
+    (p.select as ReturnType<typeof vi.fn>).mockClear();
+    (p.confirm as ReturnType<typeof vi.fn>).mockClear();
+
+    const { updateCommand } = await import('./update');
+    await updateCommand({ force: true });
+
+    expect(p.select).not.toHaveBeenCalled();
+    expect(p.confirm).not.toHaveBeenCalled();
+
+    expect(readInstalledFile(fixture.dir, 'card', 'card.ts')).toBe(
+      'card-upstream',
+    );
+    expect(readInstalledFile(fixture.dir, 'card', 'util.ts')).toBe(
+      'util-upstream',
+    );
+    expect(readInstalledFile(fixture.dir, 'card', 'new.ts')).toBe('new-file');
+    expect(readTheme(fixture, 'default.css')).toBe('theme-upstream');
   });
 });
 

@@ -74,6 +74,13 @@ export class UiCollapsibleTrigger {
   standalone: true,
   imports: [LYNX_ELEMENTS],
   encapsulation: ViewEncapsulation.None,
+  // Inline style="opacity: 1; transform: translateY(0);" is the resting state
+  // fallback. The revealIn animation starts from opacity:0 / translateY(-8px)
+  // and animates to the final state. Using fill:'none' means the animation
+  // doesn't persist its values — the inline style takes over once it ends.
+  // This prevents the element from being invisible if the animation fails to
+  // start (which previously happened on the second expand cycle due to stale
+  // pool state in Lynx's native element recycling).
   template: `
     @if (collapsible.open()) {
       <view
@@ -102,7 +109,22 @@ export class UiCollapsibleContent {
       }
       if (this.collapsible.open()) {
         this.#anim?.cancel();
-        this.#anim = revealIn(el, { fromY: -8, fill: 'none' });
+        // Delay animation to next microtask so the element is fully committed
+        // to Lynx's native tree (via __FlushElementTree in end()) before the
+        // animation starts. Starting animation in the same flush batch as
+        // element creation causes the newly-pooled native element to not
+        // render the animation on the second cycle — the element appears
+        // permanently invisible (opacity stuck at the FROM keyframe: 0).
+        // The microtask fires AFTER __FlushElementTree() in end(), so the
+        // native element exists and is rendered before animation begins.
+        queueMicrotask(() => {
+          // Guard: the element may have been destroyed (collapsed) before
+          // this microtask fires. Re-check identity to avoid animating
+          // a dead or replaced element.
+          if (this.contentRef()?.nativeElement === el) {
+            this.#anim = revealIn(el, { fromY: -8, fill: 'none' });
+          }
+        });
       }
     });
   }

@@ -2262,6 +2262,20 @@ If the animated element is destroyed (removed from the native tree) mid-animatio
 
 ---
 
+## Calling `element.animate()` inside an event handler can recurse infinitely
+
+### What you'd expect (web)
+
+Starting a Web Animation from within an event handler (e.g. fading an `<image>` in from its `load` handler) is fine — `animate()` schedules the animation and returns; it does not synchronously re-fire the handler.
+
+### What Lynx does
+
+Starting (or cancelling) an animation via `element.animate()` can **synchronously re-invoke event listeners**. Observed concretely: an `<image>` fading itself in from its `(bindload)` handler — `onLoad → element.animate() → … → the bindload listener runs again → onLoad → element.animate() → …` — recursing until the main thread throws `InternalError: stack overflow`. The re-entry also fires across elements: tearing down a sibling's animation (e.g. removing a pulsing `ui-skeleton`) during change detection re-dispatched a nearby image's `load`.
+
+Consequence: never assume an event handler that calls `animate()` runs once. Make such handlers **idempotent** (a one-way latch that short-circuits re-entry), and prefer *not* driving essential state changes through an `animate()` call made inside an event handler. This bit `ui-avatar`: it faded the image in via `fadeIn()` (which calls `element.animate()`) from `(bindload)`, and once images actually loaded the reveal recursed and crashed. The fix was to drop the `animate()` reveal (the skeleton's removal reveals the image) and guard the handler with a `loaded` latch.
+
+---
+
 ## `__OnLowMemory` event: native memory pressure notifications (no web equivalent)
 
 ### What you'd expect (web)
@@ -3031,3 +3045,59 @@ There is also no default action to prevent, so `preventDefault()` has no meaning
 `LynxElement.addEventListener` (`packages/runtime/src/lib/lynx-element/lynx-element.ts`) wraps every handler. Before calling it, the wrapper adds no-op `stopPropagation`/`preventDefault`/`stopImmediatePropagation` shims to the event — but only when absent, so it never clobbers the real methods available in main-thread scripts. This gives Angular DOM parity: `$event.stopPropagation()` and return-`false` handlers no longer crash.
 
 To actually stop propagation, use the `catch` prefix (`(catchtap)="..."`), not a runtime `stopPropagation()` call. Overlay components (`dialog`, `sheet`, `nav-drawer`, `alert-dialog`, `action-sheet`, `select`) use an empty `onPanelTap()` handler on a `catchtap` panel for exactly this reason — the `catch` prefix stops the tap from reaching the backdrop.
+
+---
+
+## No label/`for` control association; `[for]` on a component is a compile error
+
+### What you'd expect (Angular web)
+
+`<label for="email">` links the label to the control with `id="email"` — tapping the label focuses or toggles that control. Angular special-cases `[for]`, binding it to the DOM `htmlFor` property.
+
+### What Lynx does
+
+Lynx has no label/control association. There is no `htmlFor` property and no `id`-based linking, so `for=`, `[for]`, and the paired `id=` are all dead — tapping a label never activates a sibling control.
+
+Worse, `[for]` on a custom component fails to compile. Angular maps `[for]` to the `htmlFor` DOM property, which a component like `ui-label` does not declare:
+
+```
+Can't bind to 'htmlFor' since it isn't a known property of 'ui-label'. (ngtsc -998002)
+```
+
+A static `for="x"` attribute does not error — Angular treats it as a plain attribute — but it is equally dead.
+
+### The fix
+
+Nest the label inside the control's own content slot when it has one. `ui-radio-group-item` projects `<ng-content/>` and makes its whole row tappable, so nesting the label makes tapping it select the item:
+
+```html
+<!-- WRONG — [for] is a compile error, and the association does nothing -->
+<ui-radio-group-item [value]="opt.value" [id]="opt.value" />
+<ui-label [for]="opt.value">{{ opt.label }}</ui-label>
+
+<!-- CORRECT — label inside the item, whole row tappable -->
+<ui-radio-group-item [value]="opt.value">{{ opt.label }}</ui-radio-group-item>
+```
+
+When the control has no content slot (e.g. `ui-checkbox`), or the label is a multi-line block that can't live inside the item's `<text>` slot, drop the dead `id`/`for` attributes and keep the label as a sibling. Only the control itself stays tappable.
+
+---
+
+## Children stretch to fill the parent's cross axis by default (no width = full-bleed)
+
+### What you'd expect (web)
+
+A `<div style="display:flex">` is block-level, so it fills its container's width — but its *flex children* are content-sized on the main axis. To make a pill/badge shrink to its content you reach for `display: inline-flex` (this is exactly what shadcn's `Badge` does).
+
+### What Lynx does
+
+Views default to **`linear`** layout (`display: linear`, `linear-direction: column` — see the `defaultDisplayLinear: true` plugin option). In linear layout a child with **no explicit `width`** and no `align-self` override **expands to fill the parent's cross axis** — so a badge/pill/chip in a column container renders full-bleed, not hugging its text.
+
+There is no `inline`/`inline-flex` display in Lynx to opt out. The lever is **`align-self: flex-start`** (Tailwind `self-start`) on the child, which overrides the container's `align-items` and lets the child size to its content on the cross axis. This is supported in both linear and flex layouts.
+
+```ts
+// A badge that hugs its content regardless of parent layout:
+cva('flex items-center self-start rounded-full px-2.5 py-0.5', { /* … */ })
+```
+
+Note the parent trap that makes this bite: `class="flex-row"` alone does **not** create a row. `flex-row` only emits `flex-direction: row`, which linear layout ignores (it uses `linear-direction`). Without a `flex` class the view stays a linear column, so its children stack *and* stretch full-width. Use `flex flex-row` for an actual horizontal row.

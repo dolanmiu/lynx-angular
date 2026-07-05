@@ -75,8 +75,14 @@ export class UiAlertDialog {
       : 'position: fixed; overflow: visible; display: none;',
   );
 
+  // `bg-black/50` supplies the dim. It lives on the backdrop specifically so
+  // the existing fadeIn/fadeOut (opacity 0↔1, staggered 30ms ahead of the
+  // panel scale-in) animate the dim in lockstep with the dialog appearing —
+  // no separate animation needed. A named color with an opacity modifier is
+  // used deliberately: it compiles to `rgb(0 0 0 / 0.5)`, which Lynx accepts,
+  // whereas a semantic token like `bg-background/50` would render transparent.
   protected readonly backdropClass = computed(() =>
-    cn('flex items-center justify-center', 'w-full h-full'),
+    cn('flex items-center justify-center', 'w-full h-full', 'bg-black/50'),
   );
 
   protected readonly panelClass = computed(() =>

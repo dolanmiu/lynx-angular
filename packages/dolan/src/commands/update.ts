@@ -297,23 +297,21 @@ export const updateCommand = async (options: {
   const config = readConfig(cwd);
   const componentsDir = resolve(cwd, config.aliases.components);
 
-  if (!existsSync(componentsDir)) {
-    p.log.warn('No components directory found. Nothing to update.');
-    p.outro('Done.');
-    return;
-  }
-
+  // Theme files are tracked independently of components (see the shared-file
+  // pass below). A project can legitimately have theme drift with zero tracked
+  // components — e.g. after ejecting every component but keeping the theme, or
+  // a theme-only setup. So we must NOT bail out just because there are no
+  // components: that would silently skip theme updates, including the
+  // destructive `--force` reset the user explicitly asked for. We compute the
+  // installed list defensively (empty when the dir is absent) and let the
+  // normal "nothing to do" checks below decide whether there's real work.
   const allKnown = new Set(getComponentNames());
-  const installed = readdirSync(componentsDir, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory() && allKnown.has(entry.name))
-    .map((entry) => entry.name)
-    .sort();
-
-  if (installed.length === 0) {
-    p.log.warn('No installed components found. Nothing to update.');
-    p.outro('Done.');
-    return;
-  }
+  const installed = existsSync(componentsDir)
+    ? readdirSync(componentsDir, { withFileTypes: true })
+        .filter((entry) => entry.isDirectory() && allKnown.has(entry.name))
+        .map((entry) => entry.name)
+        .sort()
+    : [];
 
   const lockfile = getOrCreateLockfile(cwd);
 
@@ -390,13 +388,15 @@ export const updateCommand = async (options: {
   s.stop('Analysis complete.');
 
   // --- Display summary ---
-  p.log.message(pc.bold('\nComponents:'));
+  if (componentAnalyses.length > 0) {
+    p.log.message(pc.bold('\nComponents:'));
 
-  for (const comp of componentAnalyses) {
-    const overall = summarizeComponent(comp);
-    p.log.message(
-      `  ${STATUS_ICONS[overall]} ${pc.bold(comp.name)} — ${STATUS_LABELS[overall]}`,
-    );
+    for (const comp of componentAnalyses) {
+      const overall = summarizeComponent(comp);
+      p.log.message(
+        `  ${STATUS_ICONS[overall]} ${pc.bold(comp.name)} — ${STATUS_LABELS[overall]}`,
+      );
+    }
   }
 
   if (sharedAnalyses.length > 0) {

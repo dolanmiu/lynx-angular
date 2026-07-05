@@ -41,7 +41,16 @@ import { cn } from '../../utils/cn';
           [style]="panelPositionStyle()"
           (catchtap)="onPanelTap()"
         >
-          <view class="flex flex-col rounded-lg bg-card overflow-hidden">
+          <!-- The elevation shadow is an inline rgba() box-shadow rather than a
+               \`shadow-*\` Tailwind class: the Lynx tailwind preset doesn't wire
+               up the \`--tw-shadow\`/\`--tw-ring-*\` variables those utilities
+               depend on, so \`shadow-*\` renders nothing on Lynx. \`overflow-hidden\`
+               clips this tile's children to the rounded corners but not its own
+               box-shadow (painted outside the border box), so the shadow shows. -->
+          <view
+            class="flex flex-col rounded-lg border border-border bg-card overflow-hidden"
+            style="box-shadow: 0 2px 16px rgba(0, 0, 0, 0.15);"
+          >
             <ng-content />
           </view>
           <!-- Cancel button is slotted separately so it renders outside the
@@ -268,6 +277,7 @@ export class UiActionSheetItem {
     <view
       #container
       [class]="containerClass()"
+      style="box-shadow: 0 2px 16px rgba(0, 0, 0, 0.15);"
       (bindtouchstart)="onPressStart()"
       (bindtouchend)="onPressEnd()"
       (bindtouchcancel)="onPressCancel()"
@@ -288,7 +298,7 @@ export class UiActionSheetCancel {
 
   protected readonly containerClass = computed(() =>
     cn(
-      'flex items-center justify-center py-3 px-4 rounded-lg bg-card',
+      'flex items-center justify-center py-3 px-4 rounded-lg border border-border bg-card',
       this.userClass(),
     ),
   );

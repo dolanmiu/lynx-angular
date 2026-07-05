@@ -14,7 +14,11 @@ import { popIn } from '@blotch/dolan/utils/animate';
 import { cn } from '@blotch/dolan/utils/cn';
 
 export const badgeVariants = cva(
-  'flex items-center rounded-full px-2.5 py-0.5',
+  // `self-start` keeps the badge hugging its content. Lynx views default to `linear`
+  // layout, where a child with no explicit width stretches to fill the parent's cross
+  // axis — so without it a badge renders full-width. (Web shadcn uses `inline-flex` for
+  // the same shrink-to-fit; Lynx has no inline display, so align-self is the lever.)
+  'flex items-center self-start rounded-full px-2.5 py-0.5',
   {
     variants: {
       variant: {

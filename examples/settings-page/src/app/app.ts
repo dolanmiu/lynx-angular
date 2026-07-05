@@ -92,8 +92,15 @@ import { UiButton } from '../components/ui/button';
                   <view
                     class="flex flex-row items-center gap-2.5 px-4 py-3 bg-white border border-zinc-200 rounded-xl"
                   >
-                    <ui-radio-group-item [value]="opt.value" [id]="opt.value" />
-                    <ui-label [for]="opt.value">{{ opt.label }}</ui-label>
+                    <!--
+                      The label lives inside ui-radio-group-item (via ng-content), not
+                      as a sibling ui-label. Lynx has no HTML-style label/for-id
+                      association, and the item's whole row is tappable to select — so
+                      keeping the text inside makes the label tappable too.
+                    -->
+                    <ui-radio-group-item [value]="opt.value">{{
+                      opt.label
+                    }}</ui-radio-group-item>
                   </view>
                 }
               </view>

@@ -27,7 +27,7 @@
     },
     "collapsible": {
       "collapsible.ts": {
-        "hash": "1d7381b0cbf2516e"
+        "hash": "d41af8df783503fe"
       },
       "index.ts": {
         "hash": "2ff1aa9a6b200d26"
@@ -54,7 +54,7 @@
     },
     "avatar": {
       "avatar.ts": {
-        "hash": "70be949748154e41"
+        "hash": "3c4de6c91e2f6103"
       },
       "index.ts": {
         "hash": "66b1c0ebbbfaa25b"
@@ -66,6 +66,14 @@
       },
       "separator.ts": {
         "hash": "90c078f7c02083eb"
+      }
+    },
+    "skeleton": {
+      "index.ts": {
+        "hash": "ba103d0f7f4bd0e7"
+      },
+      "skeleton.ts": {
+        "hash": "5f04e8a1cffafb31"
       }
     }
   },

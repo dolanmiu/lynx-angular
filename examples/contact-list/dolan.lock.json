@@ -3,7 +3,7 @@
   "components": {
     "avatar": {
       "avatar.ts": {
-        "hash": "70be949748154e41"
+        "hash": "3c4de6c91e2f6103"
       },
       "index.ts": {
         "hash": "66b1c0ebbbfaa25b"
@@ -35,7 +35,7 @@
     },
     "alert-dialog": {
       "alert-dialog.ts": {
-        "hash": "fd6c6b18eac2762f"
+        "hash": "c92ff511643f139d"
       },
       "index.ts": {
         "hash": "dad7247c95e254dc"
@@ -85,6 +85,14 @@
       },
       "label.ts": {
         "hash": "c62bec8145e47621"
+      }
+    },
+    "skeleton": {
+      "index.ts": {
+        "hash": "ba103d0f7f4bd0e7"
+      },
+      "skeleton.ts": {
+        "hash": "5f04e8a1cffafb31"
       }
     }
   },

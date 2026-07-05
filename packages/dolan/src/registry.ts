@@ -9,7 +9,7 @@ export const registry: RegistryEntry[] = [
   { name: 'alert', dependencies: [] },
   { name: 'alert-dialog', dependencies: [] },
   { name: 'aspect-ratio', dependencies: [] },
-  { name: 'avatar', dependencies: [] },
+  { name: 'avatar', dependencies: ['skeleton'] },
   { name: 'badge', dependencies: [] },
   { name: 'button', dependencies: ['spinner'] },
   { name: 'card', dependencies: [] },

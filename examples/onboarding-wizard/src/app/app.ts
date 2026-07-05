@@ -70,7 +70,14 @@ type Role = 'developer' | 'designer' | 'manager' | 'founder';
                   <view
                     class="flex flex-row items-center gap-3 px-4 py-3.5 bg-white border border-zinc-200 rounded-xl"
                   >
-                    <ui-radio-group-item [value]="opt.value" [id]="opt.value" />
+                    <!--
+                      No [id] here: Lynx has no HTML-style label/for-id association, so
+                      it was a dead no-op. The label + description stack vertically beside
+                      the circle, and the item's ng-content sits inside a <text> (which
+                      can't hold a nested view), so the block stays a sibling rather than
+                      moving inside the item.
+                    -->
+                    <ui-radio-group-item [value]="opt.value" />
                     <view class="flex flex-col gap-0.5 flex-1">
                       <ui-label>{{ opt.label }}</ui-label>
                       <text class="text-xs text-zinc-400">{{ opt.desc }}</text>
