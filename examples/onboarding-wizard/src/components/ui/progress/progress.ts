@@ -9,11 +9,7 @@ import {
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
-import {
-  type AnimationHandle,
-  DURATION,
-  EASING,
-} from '@blotch/dolan/utils/animate';
+import { type AnimationHandle, DURATION, EASING } from '@blotch/dolan/utils/animate';
 import { cn } from '@blotch/dolan/utils/cn';
 
 @Component({
@@ -102,13 +98,13 @@ export class UiProgress {
       // bg-muted (solid, theme-aware) instead of bg-primary/20: opacity
       // modifiers on semantic colors don't work on Lynx (colors are opaque
       // rgba values with no separable channels).
-      'h-2 w-full rounded-full bg-muted overflow-hidden',
+      'bg-muted h-2 w-full overflow-hidden rounded-full',
       this.userClass(),
     ),
   );
 
   protected readonly fillClass = computed(() =>
-    cn('h-full rounded-full bg-primary'),
+    cn('bg-primary h-full rounded-full'),
   );
 
   protected readonly fillStyle = computed(() =>

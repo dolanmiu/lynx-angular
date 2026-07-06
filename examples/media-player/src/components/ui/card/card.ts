@@ -44,7 +44,7 @@ export class UiCard {
   #pressAnim?: AnimationHandle;
 
   protected readonly containerClass = computed(() =>
-    cn('rounded-lg border border-border bg-card', this.userClass()),
+    cn('border-border bg-card rounded-lg border', this.userClass()),
   );
 
   protected onPressStart(): void {
@@ -86,7 +86,7 @@ export class UiCardHeader {
   readonly userClass = input<string>('', { alias: 'class' });
 
   protected readonly containerClass = computed(() =>
-    cn('flex-col p-6 flex', this.userClass()),
+    cn('flex flex-col p-6', this.userClass()),
   );
 }
 
@@ -101,7 +101,7 @@ export class UiCardTitle {
   readonly userClass = input<string>('', { alias: 'class' });
 
   protected readonly textClass = computed(() =>
-    cn('text-2xl font-semibold text-card-foreground', this.userClass()),
+    cn('text-card-foreground text-2xl font-semibold', this.userClass()),
   );
 }
 
@@ -116,7 +116,7 @@ export class UiCardDescription {
   readonly userClass = input<string>('', { alias: 'class' });
 
   protected readonly textClass = computed(() =>
-    cn('text-sm text-muted-foreground', this.userClass()),
+    cn('text-muted-foreground text-sm', this.userClass()),
   );
 }
 
@@ -154,6 +154,6 @@ export class UiCardFooter {
   readonly userClass = input<string>('', { alias: 'class' });
 
   protected readonly containerClass = computed(() =>
-    cn('items-center p-6 pt-0 flex', this.userClass()),
+    cn('flex items-center p-6 pt-0', this.userClass()),
   );
 }

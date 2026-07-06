@@ -31,16 +31,16 @@ export class UiEmptyState {
 
   protected readonly containerClass = computed(() =>
     cn(
-      'flex-col items-center px-6 py-12 flex justify-center',
+      'flex flex-col items-center justify-center px-6 py-12',
       this.userClass(),
     ),
   );
 
   protected readonly titleClass = computed(() =>
-    cn('mb-1 text-lg font-semibold text-foreground'),
+    cn('text-foreground mb-1 text-lg font-semibold'),
   );
 
   protected readonly descriptionClass = computed(() =>
-    cn('mb-4 text-sm text-muted-foreground text-center'),
+    cn('text-muted-foreground mb-4 text-center text-sm'),
   );
 }

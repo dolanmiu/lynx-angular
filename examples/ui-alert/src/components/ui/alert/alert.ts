@@ -13,10 +13,10 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { revealIn } from '@blotch/dolan/utils/animate';
 import { cn } from '@blotch/dolan/utils/cn';
 
-export const alertVariants = cva('flex-col rounded-lg border p-4 flex', {
+export const alertVariants = cva('flex flex-col rounded-lg border p-4', {
   variants: {
     variant: {
-      default: 'border-border bg-background',
+      default: 'bg-background border-border',
       // Opacity modifiers on semantic colors don't work on Lynx (opaque rgba
       // values with no separable channels): use a solid destructive border and
       // the pre-composed translucent bg-destructive-subtle for the tint.

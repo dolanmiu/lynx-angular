@@ -12,11 +12,7 @@ import {
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
-import {
-  type AnimationHandle,
-  popIn,
-  popOut,
-} from '@blotch/dolan/utils/animate';
+import { type AnimationHandle, popIn, popOut } from '@blotch/dolan/utils/animate';
 import { cn } from '@blotch/dolan/utils/cn';
 
 @Component({
@@ -38,7 +34,7 @@ export class UiRadioGroup {
   readonly changed = output<string>();
 
   protected readonly containerClass = computed(() =>
-    cn('flex-col gap-2 flex', this.userClass()),
+    cn('flex flex-col gap-2', this.userClass()),
   );
 
   select(value: string): void {
@@ -103,7 +99,7 @@ export class UiRadioGroupItem {
 
   protected readonly itemClass = computed(() =>
     cn(
-      'h-11 flex-row items-center gap-3 flex',
+      'flex h-11 flex-row items-center gap-3',
       this.#group.disabled() && 'opacity-50',
       this.userClass(),
     ),
@@ -111,16 +107,16 @@ export class UiRadioGroupItem {
 
   protected readonly circleClass = computed(() =>
     cn(
-      'h-5 w-5 items-center rounded-full border flex justify-center',
+      'flex h-5 w-5 items-center justify-center rounded-full border',
       this.isSelected() ? 'border-primary' : 'border-primary',
     ),
   );
 
   protected readonly dotClass = computed(() =>
-    cn('h-2.5 w-2.5 rounded-full bg-primary'),
+    cn('bg-primary h-2.5 w-2.5 rounded-full'),
   );
 
-  protected readonly labelClass = computed(() => cn('text-sm text-foreground'));
+  protected readonly labelClass = computed(() => cn('text-foreground text-sm'));
 
   select(): void {
     if (this.#group.disabled()) return;

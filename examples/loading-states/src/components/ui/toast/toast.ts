@@ -9,11 +9,7 @@ import {
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
-import {
-  type AnimationHandle,
-  DURATION,
-  EASING,
-} from '@blotch/dolan/utils/animate';
+import { type AnimationHandle, DURATION, EASING } from '@blotch/dolan/utils/animate';
 import { cn } from '@blotch/dolan/utils/cn';
 import { type ToastData, toasts } from './toast-state';
 
@@ -26,11 +22,11 @@ import { type ToastData, toasts } from './toast-state';
     <overlay [attr.visible]="overlayVisible()" [style]="overlayStyle()">
       <view
         style="position: absolute; bottom: 0; left: 0; right: 0;"
-        class="flex-col items-center p-4 flex"
+        class="flex flex-col items-center px-4 pt-4 pb-safe-4"
       >
         @if (displayedToast(); as t) {
           <view #toastEl [class]="toastClass()" (bindtap)="dismiss()">
-            <view class="flex-1 flex-col gap-1 flex">
+            <view class="flex flex-1 flex-col gap-1">
               @if (t.title) {
                 <text [class]="titleClass()">{{ t.title }}</text>
               }
@@ -76,10 +72,10 @@ export class UiToaster {
     const t = this.displayedToast();
     const isDestructive = t?.variant === 'destructive';
     return cn(
-      'w-full flex-row items-start gap-3 rounded-lg border p-4 flex',
+      'flex w-full flex-row items-start gap-3 rounded-lg border p-4',
       isDestructive
-        ? 'border-destructive bg-destructive'
-        : 'border-border bg-background',
+        ? 'bg-destructive border-destructive'
+        : 'bg-background border-border',
     );
   });
 
@@ -105,7 +101,7 @@ export class UiToaster {
     const t = this.displayedToast();
     const isDestructive = t?.variant === 'destructive';
     return cn(
-      'items-center rounded-md border px-3 py-1.5 flex justify-center',
+      'flex items-center justify-center rounded-md border px-3 py-1.5',
       isDestructive ? 'border-destructive-foreground' : 'border-border',
     );
   });

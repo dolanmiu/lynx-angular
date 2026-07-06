@@ -7,15 +7,15 @@ import { cn } from '@blotch/dolan/utils/cn';
 export const typographyVariants = cva('', {
   variants: {
     variant: {
-      h1: 'text-4xl font-bold text-foreground',
-      h2: 'text-3xl font-semibold text-foreground',
-      h3: 'text-2xl font-semibold text-foreground',
-      h4: 'text-xl font-semibold text-foreground',
-      p: 'text-base text-foreground',
-      lead: 'text-xl text-muted-foreground',
-      large: 'text-lg font-semibold text-foreground',
-      small: 'text-sm font-medium text-foreground',
-      muted: 'text-sm text-muted-foreground',
+      h1: 'text-foreground text-4xl font-bold',
+      h2: 'text-foreground text-3xl font-semibold',
+      h3: 'text-foreground text-2xl font-semibold',
+      h4: 'text-foreground text-xl font-semibold',
+      p: 'text-foreground text-base',
+      lead: 'text-muted-foreground text-xl',
+      large: 'text-foreground text-lg font-semibold',
+      small: 'text-foreground text-sm font-medium',
+      muted: 'text-muted-foreground text-sm',
     },
   },
   defaultVariants: {

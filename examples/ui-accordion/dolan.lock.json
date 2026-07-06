@@ -3,7 +3,7 @@
   "components": {
     "accordion": {
       "accordion.ts": {
-        "hash": "2eb3a7b7b775bae2"
+        "hash": "8ea0725eeef2c9e3"
       },
       "index.ts": {
         "hash": "8751913a8ed8016e"
@@ -15,7 +15,7 @@
       "hash": "c49bb4b16a4407ba"
     },
     "tailwind-plugin.ts": {
-      "hash": "36725f0fb15589ca"
+      "hash": "d90f5b377f6e00eb"
     },
     "dark.css": {
       "hash": "1aff1591e516342c"

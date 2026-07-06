@@ -50,7 +50,7 @@ export class UiTabs {
   readonly direction = signal<1 | -1>(1);
 
   protected readonly containerClass = computed(() =>
-    cn('flex-col flex', this.userClass()),
+    cn('flex flex-col', this.userClass()),
   );
 
   constructor() {
@@ -110,7 +110,7 @@ export class UiTabsList {
       // it the muted pill spans the full width, leaving empty space around the
       // tabs. Same lever as the badge fix: Lynx has no `inline-flex`, so
       // align-self is how you opt a child into shrink-to-fit.
-      'flex-row items-center self-start rounded-lg bg-muted p-1 flex',
+      'bg-muted flex flex-row items-center self-start rounded-lg p-1',
       this.userClass(),
     ),
   );
@@ -198,7 +198,7 @@ export class UiTabsTrigger {
       // `min-content` as `0px` would let triggers collapse to zero width and
       // clip their labels. Content-sized triggers match shadcn's default
       // inline tabs.
-      'items-center rounded-sm px-3 py-1.5 flex justify-center',
+      'flex items-center justify-center rounded-sm px-3 py-1.5',
       this.isActive() ? 'bg-background' : 'bg-transparent',
       this.userClass(),
     ),
@@ -271,6 +271,6 @@ export class UiTabsContent {
   }
 
   protected readonly contentClass = computed(() =>
-    cn('mt-2 flex-col flex', this.userClass()),
+    cn('mt-2 flex flex-col', this.userClass()),
   );
 }

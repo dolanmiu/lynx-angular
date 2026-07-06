@@ -10,10 +10,7 @@ import {
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
-import {
-  type AnimationHandle,
-  springTranslateX,
-} from '@blotch/dolan/utils/animate';
+import { type AnimationHandle, springTranslateX } from '@blotch/dolan/utils/animate';
 import { cn } from '@blotch/dolan/utils/cn';
 
 /**
@@ -60,7 +57,7 @@ export class UiSwitch {
 
   protected readonly trackClass = computed(() =>
     cn(
-      'h-[24px] w-[44px] flex-row items-center rounded-full flex',
+      'flex h-[24px] w-[44px] flex-row items-center rounded-full',
       this.checked() ? 'bg-primary' : 'bg-input',
       this.disabled() && 'opacity-50',
       this.userClass(),
@@ -68,7 +65,7 @@ export class UiSwitch {
   );
 
   protected readonly thumbClass = computed(() =>
-    cn('h-[20px] w-[20px] rounded-full bg-background'),
+    cn('bg-background h-[20px] w-[20px] rounded-full'),
   );
 
   protected readonly thumbPositionStyle = computed(

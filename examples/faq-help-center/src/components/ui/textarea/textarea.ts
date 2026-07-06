@@ -54,7 +54,7 @@ import { cn } from '@blotch/dolan/utils/cn';
           [value]="value()"
           [attr.disabled]="disabled() || undefined"
           [attr.enable-scroll-bar]="maxLines() != null ? 'true' : null"
-          class="text-sm text-foreground"
+          class="text-foreground text-sm"
           style="border: none; background: transparent; height: 100%; width: 100%; line-height: 20px;"
           (bindinput)="onInput($any($event))"
           (bindfocus)="onFocus()"
@@ -107,18 +107,18 @@ export class UiTextarea implements FormValueControl<string> {
   }
 
   protected readonly containerClass = computed(() =>
-    cn('flex-col gap-1.5 flex', this.userClass()),
+    cn('flex flex-col gap-1.5', this.userClass()),
   );
 
   protected readonly labelClass = computed(() =>
-    cn('text-sm font-medium text-foreground'),
+    cn('text-foreground text-sm font-medium'),
   );
 
   protected readonly textareaWrapperClass = computed(() =>
     cn(
       // No min-height here — the minimum is now enforced by the textarea's own
       // min-height (minLines) so callers can go below the old 3-line floor.
-      'rounded-xl bg-muted px-3.5 py-2.5',
+      'bg-muted rounded-xl px-3.5 py-2.5',
       this.error()
         ? 'ring-destructive ring-2'
         : this.#isFocused()
@@ -149,11 +149,11 @@ export class UiTextarea implements FormValueControl<string> {
   });
 
   protected readonly helperClass = computed(() =>
-    cn('text-xs text-muted-foreground'),
+    cn('text-muted-foreground text-xs'),
   );
 
   protected readonly errorClass = computed(() =>
-    cn('text-xs text-destructive'),
+    cn('text-destructive text-xs'),
   );
 
   protected onFocus(): void {

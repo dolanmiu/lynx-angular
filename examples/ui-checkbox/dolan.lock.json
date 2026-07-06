@@ -3,7 +3,7 @@
   "components": {
     "checkbox": {
       "checkbox.ts": {
-        "hash": "016051846e16e4a3"
+        "hash": "a34106e38f976230"
       },
       "index.ts": {
         "hash": "1f08373e69b58dcf"
@@ -14,7 +14,7 @@
         "hash": "85cf48114b14edc8"
       },
       "label.ts": {
-        "hash": "c62bec8145e47621"
+        "hash": "780fa7113a0d4a44"
       }
     }
   },
@@ -23,7 +23,7 @@
       "hash": "c49bb4b16a4407ba"
     },
     "tailwind-plugin.ts": {
-      "hash": "36725f0fb15589ca"
+      "hash": "d90f5b377f6e00eb"
     },
     "dark.css": {
       "hash": "1aff1591e516342c"

@@ -32,7 +32,7 @@ export class UiAccordion {
   readonly expandedItems = signal<Set<string>>(new Set());
 
   protected readonly containerClass = computed(() =>
-    cn('flex-col flex', this.userClass()),
+    cn('flex flex-col', this.userClass()),
   );
 
   toggle(value: string): void {
@@ -79,7 +79,7 @@ export class UiAccordionItem {
   );
 
   protected readonly itemClass = computed(() =>
-    cn('flex-col border-b border-border flex', this.userClass()),
+    cn('border-border flex flex-col border-b', this.userClass()),
   );
 
   toggle(): void {
@@ -104,15 +104,15 @@ export class UiAccordionTrigger {
   readonly userClass = input<string>('', { alias: 'class' });
 
   protected readonly triggerClass = computed(() =>
-    cn('flex-row items-center py-4 flex justify-between', this.userClass()),
+    cn('flex flex-row items-center justify-between py-4', this.userClass()),
   );
 
   protected readonly textClass = computed(() =>
-    cn('text-sm font-medium text-foreground'),
+    cn('text-foreground text-sm font-medium'),
   );
 
   protected readonly chevronClass = computed(() =>
-    cn('text-xs text-muted-foreground'),
+    cn('text-muted-foreground text-xs'),
   );
 
   protected onTap(): void {
@@ -181,6 +181,6 @@ export class UiAccordionContent {
   }
 
   protected readonly contentClass = computed(() =>
-    cn('flex-col pb-4 flex', this.userClass()),
+    cn('flex flex-col pb-4', this.userClass()),
   );
 }

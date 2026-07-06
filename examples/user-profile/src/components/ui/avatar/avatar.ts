@@ -87,7 +87,7 @@ export class UiAvatar {
     cn(
       // `relative` makes the container the positioning context for the absolutely
       // positioned skeleton overlay below.
-      'items-center rounded-full flex relative justify-center overflow-hidden',
+      'relative flex items-center justify-center overflow-hidden rounded-full',
       {
         'h-10 w-10': this.size() === 'default',
         'h-8 w-8': this.size() === 'sm',
@@ -113,15 +113,15 @@ export class UiAvatar {
   // w-full` together guard against flex-collapse; `rounded-full` matches the
   // container (which also `overflow-hidden`-clips it to a circle).
   protected readonly skeletonClass = computed(() =>
-    cn('h-full w-full rounded-full absolute inset-0'),
+    cn('absolute inset-0 h-full w-full rounded-full'),
   );
 
   protected readonly fallbackClass = computed(() =>
-    cn('h-full w-full items-center rounded-full bg-muted flex justify-center'),
+    cn('bg-muted flex h-full w-full items-center justify-center rounded-full'),
   );
 
   protected readonly initialsClass = computed(() =>
-    cn('font-medium text-muted-foreground', {
+    cn('text-muted-foreground font-medium', {
       'text-sm': this.size() === 'default' || this.size() === 'sm',
       'text-lg': this.size() === 'lg',
       'text-2xl': this.size() === 'xl',

@@ -3,7 +3,7 @@
   "components": {
     "avatar": {
       "avatar.ts": {
-        "hash": "3c4de6c91e2f6103"
+        "hash": "5702c557625d577f"
       },
       "index.ts": {
         "hash": "66b1c0ebbbfaa25b"
@@ -14,7 +14,7 @@
         "hash": "ba103d0f7f4bd0e7"
       },
       "skeleton.ts": {
-        "hash": "5f04e8a1cffafb31"
+        "hash": "3d4263f8ed0b47cf"
       }
     }
   },
@@ -23,7 +23,7 @@
       "hash": "c49bb4b16a4407ba"
     },
     "tailwind-plugin.ts": {
-      "hash": "36725f0fb15589ca"
+      "hash": "d90f5b377f6e00eb"
     },
     "dark.css": {
       "hash": "1aff1591e516342c"

@@ -31,7 +31,7 @@ export class UiCollapsible {
   readonly userClass = input<string>('', { alias: 'class' });
 
   protected readonly containerClass = computed(() =>
-    cn('flex-col flex', this.userClass()),
+    cn('flex flex-col', this.userClass()),
   );
 
   toggle(): void {
@@ -58,7 +58,7 @@ export class UiCollapsibleTrigger {
 
   protected readonly triggerClass = computed(() =>
     cn(
-      'flex-row items-center flex',
+      'flex flex-row items-center',
       this.#collapsible.disabled() && 'opacity-50',
       this.userClass(),
     ),
@@ -130,6 +130,6 @@ export class UiCollapsibleContent {
   }
 
   protected readonly contentClass = computed(() =>
-    cn('flex-col flex', this.userClass()),
+    cn('flex flex-col', this.userClass()),
   );
 }

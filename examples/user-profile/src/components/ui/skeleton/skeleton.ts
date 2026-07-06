@@ -36,6 +36,6 @@ export class UiSkeleton {
   }
 
   protected readonly skeletonClass = computed(() =>
-    cn('rounded-md bg-muted', this.userClass()),
+    cn('bg-muted rounded-md', this.userClass()),
   );
 }

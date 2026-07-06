@@ -41,7 +41,7 @@ import { cn } from '@blotch/dolan/utils/cn';
           [attr.type]="type()"
           [value]="value()"
           [attr.disabled]="disabled() || undefined"
-          class="text-sm text-foreground"
+          class="text-foreground text-sm"
           style="border: none; background: transparent; height: 100%; width: 100%;"
           (bindinput)="onInput($any($event))"
           (bindfocus)="onFocus()"
@@ -89,31 +89,31 @@ export class UiInput implements FormValueControl<string> {
   }
 
   protected readonly containerClass = computed(() =>
-    cn('flex-col gap-1.5 flex', this.userClass()),
+    cn('flex flex-col gap-1.5', this.userClass()),
   );
 
   protected readonly labelClass = computed(() =>
-    cn('text-sm font-medium text-foreground'),
+    cn('text-foreground text-sm font-medium'),
   );
 
   protected readonly inputWrapperClass = computed(() =>
     cn(
-      'h-10 rounded-xl bg-muted px-3.5 py-2',
+      'bg-muted h-10 rounded-xl px-3.5 py-2',
       this.error()
-        ? 'ring-2 ring-destructive'
+        ? 'ring-destructive ring-2'
         : this.#isFocused()
-          ? 'ring-2 ring-ring'
+          ? 'ring-ring ring-2'
           : '',
       this.disabled() && 'opacity-50',
     ),
   );
 
   protected readonly helperClass = computed(() =>
-    cn('text-xs text-muted-foreground'),
+    cn('text-muted-foreground text-xs'),
   );
 
   protected readonly errorClass = computed(() =>
-    cn('text-xs text-destructive'),
+    cn('text-destructive text-xs'),
   );
 
   protected onFocus(): void {

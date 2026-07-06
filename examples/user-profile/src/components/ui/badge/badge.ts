@@ -18,14 +18,14 @@ export const badgeVariants = cva(
   // layout, where a child with no explicit width stretches to fill the parent's cross
   // axis — so without it a badge renders full-width. (Web shadcn uses `inline-flex` for
   // the same shrink-to-fit; Lynx has no inline display, so align-self is the lever.)
-  'items-center self-start rounded-full px-2.5 py-0.5 flex',
+  'flex items-center self-start rounded-full px-2.5 py-0.5',
   {
     variants: {
       variant: {
         default: 'bg-primary',
         secondary: 'bg-secondary',
         destructive: 'bg-destructive',
-        outline: 'border border-border bg-transparent',
+        outline: 'border-border border bg-transparent',
       },
     },
     defaultVariants: {
