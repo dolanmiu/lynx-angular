@@ -52,6 +52,42 @@ Do NOT put a `position: fixed`/`position: absolute` overlay element inside the s
 
 ---
 
+## `<overlay>` is 0×0 and only sizes its FIRST child; a bare `position: absolute` child collapses to the top-left
+
+### What you'd expect (web)
+
+An overlay/portal container fills the screen, so a child with `position: absolute; bottom: 0` docks to the bottom of the viewport.
+
+### What Lynx does
+
+The native `<overlay>` element occupies **no space** (`OverlayShadowNode::Measure` returns `0×0`) and establishes **no containing block**. Instead it measures **only its first child** against the full screen dimensions (`MeasureMode::Definite` screen width/height). If that first child is itself `position: absolute` with no size, it collapses to its content at the top-left — so a toast whose overlay's first child is a bare `<view style="position: absolute; bottom: 0">` renders at the **top**, not the bottom.
+
+### The fix
+
+Make the overlay's first child a **full-size backdrop view** (`class="h-full w-full"`), then position content inside it. This is why `bottom-sheet` (overlay → `h-full w-full` backdrop → `position: absolute; bottom: 0` panel) docks correctly, and the toast did not until wrapped the same way.
+
+Caveats for **non-modal** overlays (e.g. toast): a full-screen first child captures touches for the app behind it, and there is **no clean passthrough on native** — `pointer-events` errors the build (see above), and `events-pass-through`/`custom-layout` are web-platform-only overlay attributes (the native overlay API exposes only `ios-enable-swipe-back`, `level`, `mode`, `visible`).
+
+---
+
+## A `position: absolute` element's auto **height** collapses against a zero-height containing block
+
+### What you'd expect (web)
+
+An absolutely positioned element with `bottom` set (and no `top`/`height`) sizes its height to its content — shrink-to-fit — regardless of the containing block's height. So an absolute card inside a zero-height wrapper still grows to fit its text.
+
+### What Lynx does
+
+Lynx resolves an absolute element's `height: auto` against its **containing block's** height. If the nearest positioned ancestor has collapsed to 0 (e.g. a `position: relative` wrapper whose only children are themselves absolute, so nothing gives it height), the absolute child gets ~0 usable height. Its flex content is then squeezed below its intrinsic minimum (Lynx treats `min-content` as `0px` — see the flex-shrink note), so **text lines overlap as if they had no line-height**.
+
+This is distinct from the "docks to top-left" overlay note above: there the *position* was wrong; here the *height* silently collapses even though the position (bottom-docked) is correct.
+
+### The fix
+
+Position the absolute element against a **definite, full-height containing block** — the same `h-full w-full` view the bottom-sheet uses — not a collapsed wrapper. This is exactly why the stacked toast squished: the toasts were absolute inside a 0-height `position: relative` wrapper. Moving them to be direct absolute children of the overlay's `h-full w-full` view (with `left/right` insets + `bottom: calc(env(safe-area-inset-bottom) + 1rem)`) let each card's auto height resolve from its content again.
+
+---
+
 ## `display: none` resizes to 0×0, does not remove from layout
 
 ### What you'd expect (web)
@@ -1586,7 +1622,7 @@ These global keywords are **not supported** in Lynx. Many individual property do
 
 ---
 
-## `calc()` is supported; `min()`, `max()`, `clamp()`, and `env()` are not
+## `calc()` and `env()` are supported; `min()`, `max()`, `clamp()` are not
 
 ### What you'd expect (web)
 
@@ -1596,7 +1632,9 @@ These global keywords are **not supported** in Lynx. Many individual property do
 
 - **`calc()`** — supported with basic arithmetic (`+`, `-`, `*`, `/`, parentheses). Works with CSS variables via `var()`.
 - **`min()`, `max()`, `clamp()`** — not supported. Calculate responsive bounds in JavaScript and set them via signals or inline styles.
-- **`env()`** — not supported. Safe area insets (`env(safe-area-inset-top)`) are not available via CSS. Use `lynx.getSystemInfo()` or native bridge APIs to get device inset data.
+- **`env()`** — **supported** for safe area insets: `env(safe-area-inset-top|right|bottom|left)` parses as a length, and it also works **inside `calc()`** (e.g. `padding-bottom: calc(1rem + env(safe-area-inset-bottom))`). Verified in the Lynx core CSS engine (`references/lynx/core/renderer/css/css_style_utils.cc` — `GetEnvValue`, and the `calc` parser accepts `env()` tokens).
+  - **Caveat:** the insets default to `0` until the **native host app** populates them. On a host that doesn't inject inset data (some dev harnesses), `env(...)` resolves to `0`, so styles that depend on it degrade to plain padding rather than erroring — a safe no-op. For a boolean "is this a notch device?" signal that _is_ available in JS, inject `LynxSafeArea` from `@blotch/angular-lynx` (`isNotchScreen()`).
+  - The `@blotch/ui` Tailwind plugin ships `*-safe` / `*-safe-<n>` padding utilities built on this (see `packages/ui/src/lib/theme/tailwind-plugin.ts`).
 
 ---
 

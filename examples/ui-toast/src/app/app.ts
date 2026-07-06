@@ -24,6 +24,10 @@ import { UiButton } from '../components/ui/button';
         <ui-button variant="secondary" (pressed)="showWithAction()">
           With Action
         </ui-button>
+
+        <ui-button variant="outline" (pressed)="showSeveral()">
+          Show Several (stack)
+        </ui-button>
       </view>
 
       <ui-toaster />
@@ -60,6 +64,24 @@ export class App {
           toast({ title: 'Message unsent' });
         },
       },
+    });
+  }
+
+  /**
+   * Fire several toasts in quick succession to show the stack: 3 pile up
+   * (newest in front, older ones scaled down and shifted up), and the rest
+   * queue behind, sliding in as each front toast is dismissed.
+   */
+  showSeveral(): void {
+    const items = [
+      { title: 'File uploaded', description: 'report.pdf' },
+      { title: 'File uploaded', description: 'photo.jpg' },
+      { title: 'File uploaded', description: 'data.csv' },
+      { title: 'File uploaded', description: 'notes.txt' },
+      { title: 'All uploads complete', description: '4 files' },
+    ];
+    items.forEach((item, i) => {
+      setTimeout(() => toast(item), i * 350);
     });
   }
 }
