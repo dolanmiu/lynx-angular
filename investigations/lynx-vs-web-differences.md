@@ -3166,3 +3166,30 @@ export class UiSeparator {
 ```
 
 Use **`align-self: stretch`** (Tailwind `self-stretch`) for the vertical fill rather than `h-full`: a percentage height is less reliable on a flex item, whereas `align-self` stretches to the parent's cross axis directly and re-enables stretch even under `align-items: center`. (`align-self` is the same cross-axis lever as the "children stretch to fill" note above — `self-start` to hug, `self-stretch` to fill.)
+
+---
+
+## `<textarea>` placeholder does not hide under a programmatically-set value (iOS)
+
+### What you'd expect (web)
+
+A `<textarea>` (or `<input>`) hides its `placeholder` the moment it has a value — whether the value came from typing or was set programmatically. The two never render at once.
+
+### What Lynx does
+
+On **iOS**, the native textarea renders the placeholder as a **separate overlay `UITextView`**, not the field's own placeholder. That overlay's visibility is only recomputed inside `textViewDidChange:` (i.e. on user edits). Setting the initial value through the `setValue` UIMethod — which is the only way to set a Lynx textarea/input value (`__SetAttribute("value")` is a no-op; see `LynxTextarea`/`LynxInput` in `packages/runtime/src/lib/lynx-elements/input.ts`) — does not reliably hide that overlay, so the placeholder and the value render stacked on top of each other.
+
+Android (native `EditText` `hint`) and web (native `<textarea>`) hide the placeholder automatically, so the bug is iOS-only. The root cause is in the vendored on-device runtime (`references/lynx/.../input/LynxUITextArea.m`), so it can't be fixed from the Angular side.
+
+### The fix
+
+Don't emit the `placeholder` attribute while a value is present — this matches web semantics and sidesteps the overlay on every platform:
+
+```html
+<textarea
+  [attr.placeholder]="value() ? null : placeholder()"
+  [value]="value()"
+/>
+```
+
+(Applied in `packages/ui/src/lib/components/textarea/textarea.ts`. `UiInput` shares the same `setValue` mechanism, so apply the same guard there if a placeholder+value overlap shows up on a single-line field.)

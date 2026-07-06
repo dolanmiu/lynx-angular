@@ -28,6 +28,25 @@ import { UiTextarea } from '../components/ui/textarea';
           [(value)]="feedback"
         />
 
+        <!-- Line limits: grows from 3 lines up to 6, then scrolls (SwiftUI lineLimit) -->
+        <ui-textarea
+          label="Review"
+          placeholder="Write a detailed review..."
+          helperText="Grows to 6 lines, then scrolls"
+          [minLines]="3"
+          [maxLines]="6"
+          [(value)]="review"
+        />
+
+        <!-- Compact: a single starting line -->
+        <ui-textarea
+          label="Note"
+          placeholder="Quick note..."
+          [minLines]="1"
+          [maxLines]="4"
+          [(value)]="note"
+        />
+
         <!-- Textarea with error state -->
         <ui-textarea
           label="Description"
@@ -62,4 +81,9 @@ export class App {
   bio = signal('');
   feedback = signal('');
   description = signal('');
+  // Pre-seeded past 6 lines so the maxLines scroll behaviour is visible on load.
+  review = signal(
+    'Line one of the review.\nLine two.\nLine three.\nLine four.\nLine five.\nLine six.\nLine seven — this one is only reachable by scrolling.',
+  );
+  note = signal('');
 }
