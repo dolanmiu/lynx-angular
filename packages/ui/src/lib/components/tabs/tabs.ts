@@ -103,7 +103,16 @@ export class UiTabsList {
   readonly userClass = input<string>('', { alias: 'class' });
 
   protected readonly listClass = computed(() =>
-    cn('flex flex-row items-center rounded-lg bg-muted p-1', this.userClass()),
+    cn(
+      // `self-start` keeps the tab bar hugging its triggers. The parent <ui-tabs>
+      // is a `flex flex-col` column, and in Lynx's linear/flex layout a child with
+      // no explicit width stretches to fill the parent's cross axis — so without
+      // it the muted pill spans the full width, leaving empty space around the
+      // tabs. Same lever as the badge fix: Lynx has no `inline-flex`, so
+      // align-self is how you opt a child into shrink-to-fit.
+      'flex flex-row items-center self-start rounded-lg bg-muted p-1',
+      this.userClass(),
+    ),
   );
 }
 
@@ -183,7 +192,13 @@ export class UiTabsTrigger {
 
   protected readonly triggerClass = computed(() =>
     cn(
-      'flex-1 flex items-center justify-center rounded-sm px-3 py-1.5',
+      // No `flex-1` here: now that the list shrinks to fit its content (see
+      // `self-start` in UiTabsList), stretching triggers to equal width is
+      // pointless, and `flex-basis: 0` growth combined with Lynx treating
+      // `min-content` as `0px` would let triggers collapse to zero width and
+      // clip their labels. Content-sized triggers match shadcn's default
+      // inline tabs.
+      'flex items-center justify-center rounded-sm px-3 py-1.5',
       this.isActive() ? 'bg-background' : 'bg-transparent',
       this.userClass(),
     ),
