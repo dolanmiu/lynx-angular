@@ -99,7 +99,7 @@ export class UiRadioGroupItem {
 
   protected readonly itemClass = computed(() =>
     cn(
-      'flex flex-row items-center gap-3 h-11',
+      'flex h-11 flex-row items-center gap-3',
       this.#group.disabled() && 'opacity-50',
       this.userClass(),
     ),
@@ -107,16 +107,16 @@ export class UiRadioGroupItem {
 
   protected readonly circleClass = computed(() =>
     cn(
-      'flex items-center justify-center h-5 w-5 rounded-full border',
+      'flex h-5 w-5 items-center justify-center rounded-full border',
       this.isSelected() ? 'border-primary' : 'border-primary',
     ),
   );
 
   protected readonly dotClass = computed(() =>
-    cn('h-2.5 w-2.5 rounded-full bg-primary'),
+    cn('bg-primary h-2.5 w-2.5 rounded-full'),
   );
 
-  protected readonly labelClass = computed(() => cn('text-sm text-foreground'));
+  protected readonly labelClass = computed(() => cn('text-foreground text-sm'));
 
   select(): void {
     if (this.#group.disabled()) return;

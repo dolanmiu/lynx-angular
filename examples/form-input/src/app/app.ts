@@ -7,19 +7,19 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   template: `
     <scroll-view class="h-screen bg-zinc-50" scroll-orientation="vertical">
       <view class="p-6">
-        <text class="text-[28px] font-bold text-zinc-900 mb-1"
+        <text class="mb-1 text-[28px] font-bold text-zinc-900"
           >Profile Form</text
         >
-        <text class="text-[13px] text-zinc-500 mb-5"
+        <text class="mb-5 text-[13px] text-zinc-500"
           >Input validation with signal-based state.</text
         >
 
-        <view class="bg-white border border-zinc-200 rounded-xl p-5 mb-5">
-          <text class="text-[13px] font-semibold text-zinc-900 mb-1.5"
+        <view class="mb-5 rounded-xl border border-zinc-200 bg-white p-5">
+          <text class="mb-1.5 text-[13px] font-semibold text-zinc-900"
             >Name</text
           >
           <input
-            class="px-3.5 py-3 text-[15px] bg-white rounded-lg border border-zinc-200"
+            class="rounded-lg border border-zinc-200 bg-white px-3.5 py-3 text-[15px]"
             [class.border-indigo-500]="focusedField() === 'name'"
             [class.border-red-500]="submitted() && !name()"
             placeholder="Enter your name"
@@ -30,14 +30,14 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
             confirm-type="next"
           />
           @if (submitted() && !name()) {
-            <text class="text-xs text-red-500 mt-1">Name is required</text>
+            <text class="mt-1 text-xs text-red-500">Name is required</text>
           }
 
-          <text class="text-[13px] font-semibold text-zinc-900 mb-1.5 mt-4"
+          <text class="mb-1.5 mt-4 text-[13px] font-semibold text-zinc-900"
             >Email</text
           >
           <input
-            class="px-3.5 py-3 text-[15px] bg-white rounded-lg border border-zinc-200"
+            class="rounded-lg border border-zinc-200 bg-white px-3.5 py-3 text-[15px]"
             [class.border-indigo-500]="focusedField() === 'email'"
             [class.border-red-500]="submitted() && !validEmail()"
             placeholder="you@example.com"
@@ -49,14 +49,14 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
             confirm-type="next"
           />
           @if (submitted() && !validEmail()) {
-            <text class="text-xs text-red-500 mt-1">Enter a valid email</text>
+            <text class="mt-1 text-xs text-red-500">Enter a valid email</text>
           }
 
-          <text class="text-[13px] font-semibold text-zinc-900 mb-1.5 mt-4"
+          <text class="mb-1.5 mt-4 text-[13px] font-semibold text-zinc-900"
             >Bio</text
           >
           <textarea
-            class="px-3.5 py-3 text-[15px] bg-white rounded-lg border border-zinc-200 h-[100px]"
+            class="h-[100px] rounded-lg border border-zinc-200 bg-white px-3.5 py-3 text-[15px]"
             [class.border-indigo-500]="focusedField() === 'bio'"
             placeholder="Tell us about yourself..."
             [value]="bio()"
@@ -64,21 +64,21 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
             (bindfocus)="focusedField.set('bio')"
             (bindblur)="focusedField.set(null)"
           ></textarea>
-          <text class="text-xs text-zinc-400 text-right mt-1"
+          <text class="mt-1 text-xs text-zinc-400 text-right"
             >{{ bio().length }} / 200</text
           >
         </view>
 
         <view
-          class="bg-indigo-500 rounded-[10px] p-3.5 items-center"
+          class="items-center rounded-[10px] bg-indigo-500 p-3.5"
           (bindtap)="submit()"
         >
-          <text class="text-white text-base font-semibold">Save Profile</text>
+          <text class="text-base font-semibold text-white">Save Profile</text>
         </view>
 
         @if (successMessage()) {
           <view
-            class="bg-green-50 border border-green-200 rounded-xl p-3.5 mt-4 items-center"
+            class="mt-4 items-center rounded-xl border border-green-200 bg-green-50 p-3.5"
           >
             <text class="text-sm text-green-800">{{ successMessage() }}</text>
           </view>

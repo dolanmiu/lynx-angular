@@ -49,8 +49,8 @@ type FaqCategory = { title: string; items: FaqItem[] };
   ],
   template: `
     <scroll-view scroll-orientation="vertical" class="h-screen bg-zinc-50">
-      <view class="flex flex-col gap-5 p-6">
-        <view class="flex flex-col gap-1">
+      <view class="flex-col gap-5 p-6 flex">
+        <view class="flex-col gap-1 flex">
           <text class="text-[28px] font-bold text-zinc-900">Help Center</text>
           <text class="text-sm text-zinc-500"
             >Find answers to common questions</text
@@ -64,10 +64,10 @@ type FaqCategory = { title: string; items: FaqItem[] };
         />
 
         @for (cat of filtered(); track cat.title) {
-          <view class="bg-white border border-zinc-200 rounded-2xl p-4">
+          <view class="rounded-2xl border border-zinc-200 bg-white p-4">
             <ui-collapsible [open]="true">
               <ui-collapsible-trigger>
-                <view class="flex flex-row items-center justify-between py-2">
+                <view class="flex-row items-center py-2 flex justify-between">
                   <text class="text-base font-semibold text-zinc-900">{{
                     cat.title
                   }}</text>
@@ -82,7 +82,7 @@ type FaqCategory = { title: string; items: FaqItem[] };
                     <ui-accordion-item [value]="item.q">
                       <ui-accordion-trigger>{{ item.q }}</ui-accordion-trigger>
                       <ui-accordion-content>
-                        <text class="text-sm text-zinc-500 leading-5">{{
+                        <text class="text-sm leading-5 text-zinc-500">{{
                           item.a
                         }}</text>
                       </ui-accordion-content>
@@ -93,7 +93,7 @@ type FaqCategory = { title: string; items: FaqItem[] };
             </ui-collapsible>
           </view>
         } @empty {
-          <view class="flex flex-col items-center py-10 gap-2">
+          <view class="flex-col items-center gap-2 py-10 flex">
             <text class="text-[32px]">🔍</text>
             <text class="text-sm text-zinc-400"
               >No results for "{{ query() }}"</text
@@ -101,7 +101,7 @@ type FaqCategory = { title: string; items: FaqItem[] };
           </view>
         }
 
-        <view class="flex flex-col items-center gap-2 py-4">
+        <view class="flex-col items-center gap-2 py-4 flex">
           <text class="text-[13px] text-zinc-500"
             >Can't find what you need?</text
           >
@@ -119,15 +119,15 @@ type FaqCategory = { title: string; items: FaqItem[] };
           >We'll get back to you within 24 hours.</ui-dialog-description
         >
       </ui-dialog-header>
-      <view class="flex flex-col gap-4 p-4">
-        <view class="flex flex-col gap-1.5">
+      <view class="flex-col gap-4 p-4 flex">
+        <view class="flex-col gap-1.5 flex">
           <ui-label>Subject</ui-label>
           <ui-input
             [(value)]="subject"
             placeholder="Brief description of your issue"
           />
         </view>
-        <view class="flex flex-col gap-1.5">
+        <view class="flex-col gap-1.5 flex">
           <ui-label>Message</ui-label>
           <ui-textarea
             [(value)]="message"

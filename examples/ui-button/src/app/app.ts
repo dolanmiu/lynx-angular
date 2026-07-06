@@ -7,16 +7,16 @@ import { UiButton } from '../components/ui/button';
   imports: [LYNX_ELEMENTS, UiButton],
   template: `
     <scroll-view scroll-orientation="vertical" class="h-full">
-      <view class="flex flex-col gap-6 p-6">
+      <view class="flex-col gap-6 p-6 flex">
         <text class="text-2xl font-bold text-foreground">Button</text>
         <text class="text-sm text-muted-foreground">
           A versatile button component with multiple variants and sizes.
         </text>
 
         <!-- Variants -->
-        <view class="flex flex-col gap-3">
+        <view class="flex-col gap-3 flex">
           <text class="text-lg font-semibold text-foreground">Variants</text>
-          <view class="flex flex-row flex-wrap gap-3">
+          <view class="flex-row flex-wrap gap-3 flex">
             <ui-button variant="default" (pressed)="onPress('default')">
               Default
             </ui-button>
@@ -36,9 +36,9 @@ import { UiButton } from '../components/ui/button';
         </view>
 
         <!-- Sizes -->
-        <view class="flex flex-col gap-3">
+        <view class="flex-col gap-3 flex">
           <text class="text-lg font-semibold text-foreground">Sizes</text>
-          <view class="flex flex-row flex-wrap items-center gap-3">
+          <view class="flex-row flex-wrap items-center gap-3 flex">
             <ui-button size="sm">Small</ui-button>
             <ui-button size="default">Default</ui-button>
             <ui-button size="lg">Large</ui-button>
@@ -47,9 +47,9 @@ import { UiButton } from '../components/ui/button';
         </view>
 
         <!-- Disabled -->
-        <view class="flex flex-col gap-3">
+        <view class="flex-col gap-3 flex">
           <text class="text-lg font-semibold text-foreground">Disabled</text>
-          <view class="flex flex-row flex-wrap gap-3">
+          <view class="flex-row flex-wrap gap-3 flex">
             <ui-button [disabled]="true">Disabled</ui-button>
             <ui-button variant="destructive" [disabled]="true">
               Disabled
@@ -61,9 +61,9 @@ import { UiButton } from '../components/ui/button';
         </view>
 
         <!-- Loading -->
-        <view class="flex flex-col gap-3">
+        <view class="flex-col gap-3 flex">
           <text class="text-lg font-semibold text-foreground">Loading</text>
-          <view class="flex flex-row flex-wrap gap-3">
+          <view class="flex-row flex-wrap gap-3 flex">
             <ui-button [loading]="true">Loading</ui-button>
             <ui-button variant="secondary" [loading]="true">
               Loading
@@ -73,9 +73,9 @@ import { UiButton } from '../components/ui/button';
         </view>
 
         <!-- Interactive -->
-        <view class="flex flex-col gap-3">
+        <view class="flex-col gap-3 flex">
           <text class="text-lg font-semibold text-foreground">Interactive</text>
-          <view class="flex flex-row items-center gap-3">
+          <view class="flex-row items-center gap-3 flex">
             <ui-button (pressed)="onPress('tap')">Tap me</ui-button>
             <text class="text-sm text-muted-foreground">
               Pressed: {{ pressCount() }} times

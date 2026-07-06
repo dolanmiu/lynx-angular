@@ -19,7 +19,7 @@ import { cn } from '@blotch/dolan/utils/cn';
 import { UiSpinner } from '../spinner/spinner';
 
 export const buttonVariants = cva(
-  'flex items-center justify-center rounded-md',
+  'items-center rounded-md flex justify-center',
   {
     variants: {
       variant: {

@@ -6,29 +6,29 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   template: `
     <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
       <view class="p-6">
-        <text class="text-[28px] font-bold text-zinc-900 mb-1"
+        <text class="mb-1 text-[28px] font-bold text-zinc-900"
           >Error Handling</text
         >
-        <text class="text-[13px] text-zinc-500 mb-5"
+        <text class="mb-5 text-[13px] text-zinc-500"
           >Catch and display runtime errors via __lynxLastError.</text
         >
 
         <view
-          class="bg-indigo-500 py-3 px-6 rounded-[10px] items-center mb-4"
+          class="mb-4 items-center rounded-[10px] bg-indigo-500 px-6 py-3"
           (bindtap)="throwError()"
         >
-          <text class="text-white text-[15px] font-semibold"
+          <text class="text-[15px] font-semibold text-white"
             >Throw an Error</text
           >
         </view>
 
-        <view class="bg-white border border-zinc-200 rounded-xl p-4">
+        <view class="rounded-xl border border-zinc-200 bg-white p-4">
           <text
-            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-2.5"
+            class="uppercase mb-2.5 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
             >__lynxLastError</text
           >
           <view
-            class="bg-zinc-100 rounded-lg p-3.5"
+            class="rounded-lg bg-zinc-100 p-3.5"
             [class.bg-red-50]="!!lastError()"
           >
             <text

@@ -21,40 +21,40 @@ const FRENCH_TRANSLATIONS: Record<string, string> = {
   imports: [LYNX_ELEMENTS],
   template: `
     <view class="p-4">
-      <text class="text-xl font-bold mb-3"> i18n Demo </text>
+      <text class="mb-3 text-xl font-bold"> i18n Demo </text>
 
-      <view class="bg-green-50 p-3 rounded-lg mb-3">
+      <view class="mb-3 rounded-lg bg-green-50 p-3">
         <text class="text-sm text-green-800">
           Current locale: {{ localeService.locale() }}
         </text>
       </view>
 
-      <text class="text-base mb-2">
+      <text class="mb-2 text-base">
         {{ greetingMessage }}
       </text>
 
-      <text class="text-base mb-2">
+      <text class="mb-2 text-base">
         {{ welcomeMessage }}
       </text>
 
-      <text class="text-base mb-2">
+      <text class="mb-2 text-base">
         {{ counterMessage() }}
       </text>
 
       <view
-        class="bg-[#6200ee] px-5 py-2.5 rounded-lg mt-2"
+        class="mt-2 rounded-lg bg-[#6200ee] px-5 py-2.5"
         (bindtap)="increment()"
       >
-        <text class="text-white text-sm">
+        <text class="text-sm text-white">
           {{ tapMessage }}
         </text>
       </view>
 
       <view
-        class="bg-[#1565c0] px-5 py-2.5 rounded-lg mt-3"
+        class="mt-3 rounded-lg bg-[#1565c0] px-5 py-2.5"
         (bindtap)="toggleLocale()"
       >
-        <text class="text-white text-sm">
+        <text class="text-sm text-white">
           {{ switchLabel }}
         </text>
       </view>

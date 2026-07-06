@@ -5,28 +5,28 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   selector: 'app-root',
   template: `
     <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
-      <view class="p-6 items-center">
-        <text class="text-[28px] font-bold text-zinc-900 mb-1">Main Page</text>
-        <text class="text-[13px] text-zinc-500 mb-6"
+      <view class="items-center p-6">
+        <text class="mb-1 text-[28px] font-bold text-zinc-900">Main Page</text>
+        <text class="mb-6 text-[13px] text-zinc-500"
           >The primary entry point for multi-page apps.</text
         >
 
         <view
-          class="bg-white border border-zinc-200 rounded-2xl px-10 py-6 items-center mb-5"
+          class="mb-5 items-center rounded-2xl border border-zinc-200 bg-white px-10 py-6"
         >
           <text class="text-[48px] font-bold text-indigo-500">{{
             count()
           }}</text>
-          <text class="text-[13px] text-zinc-400 mt-1 uppercase tracking-[1px]"
+          <text class="uppercase mt-1 text-[13px] tracking-[1px] text-zinc-400"
             >taps</text
           >
         </view>
 
         <view
-          class="bg-indigo-500 py-3.5 px-8 rounded-[10px] items-center"
+          class="items-center rounded-[10px] bg-indigo-500 px-8 py-3.5"
           (bindtap)="increment()"
         >
-          <text class="text-white text-base font-semibold"
+          <text class="text-base font-semibold text-white"
             >Tap to increment</text
           >
         </view>

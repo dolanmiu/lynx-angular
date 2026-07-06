@@ -6,37 +6,37 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   template: `
     <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
       <view class="p-6">
-        <text class="text-[28px] font-bold text-zinc-900 mb-1"
+        <text class="mb-1 text-[28px] font-bold text-zinc-900"
           >Image Element</text
         >
-        <text class="text-[13px] text-zinc-500 mb-5"
+        <text class="mb-5 text-[13px] text-zinc-500"
           >Display images with different scaling modes.</text
         >
 
-        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+        <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
-            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-3"
+            class="uppercase mb-3 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
             >aspectFit (default)</text
           >
-          <view class="bg-zinc-100 rounded-lg p-4 items-center">
+          <view class="items-center rounded-lg bg-zinc-100 p-4">
             <image
               src="https://angular.dev/assets/images/press-kit/angular_icon_gradient.gif"
               mode="aspectFit"
-              class="w-[120px] h-[120px]"
+              class="h-[120px] w-[120px]"
             />
           </view>
         </view>
 
-        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+        <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
-            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-3"
+            class="uppercase mb-3 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
             >aspectFill</text
           >
-          <view class="bg-zinc-100 rounded-lg p-4 items-center">
+          <view class="items-center rounded-lg bg-zinc-100 p-4">
             <image
               src="https://angular.dev/assets/images/press-kit/angular_icon_gradient.gif"
               mode="aspectFill"
-              class="w-[120px] h-[80px]"
+              class="h-[80px] w-[120px]"
             />
           </view>
         </view>

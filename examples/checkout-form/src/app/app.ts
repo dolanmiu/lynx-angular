@@ -36,9 +36,9 @@ import { UiSeparator } from '../components/ui/separator';
   ],
   template: `
     <scroll-view scroll-orientation="vertical" class="h-screen bg-zinc-50">
-      <view class="flex flex-col gap-6 p-6">
-        <view class="flex flex-col gap-2">
-          <view class="flex flex-row justify-between">
+      <view class="flex-col gap-6 p-6 flex">
+        <view class="flex-col gap-2 flex">
+          <view class="flex-row flex justify-between">
             <text class="text-sm font-medium text-zinc-900"
               >Step {{ step() }} of 3</text
             >
@@ -48,29 +48,29 @@ import { UiSeparator } from '../components/ui/separator';
         </view>
 
         @if (step() === 1) {
-          <view class="flex flex-col gap-4">
+          <view class="flex-col gap-4 flex">
             <text class="text-[22px] font-bold text-zinc-900"
               >Shipping Address</text
             >
-            <view class="flex flex-col gap-1.5">
+            <view class="flex-col gap-1.5 flex">
               <ui-label>Full Name</ui-label>
               <ui-input [(value)]="name" placeholder="Jane Smith" />
             </view>
-            <view class="flex flex-col gap-1.5">
+            <view class="flex-col gap-1.5 flex">
               <ui-label>Street Address</ui-label>
               <ui-input [(value)]="street" placeholder="123 Main St" />
             </view>
-            <view class="flex flex-row gap-3">
-              <view class="flex flex-col gap-1.5 flex-1">
+            <view class="flex-row gap-3 flex">
+              <view class="flex-1 flex-col gap-1.5 flex">
                 <ui-label>City</ui-label>
                 <ui-input [(value)]="city" placeholder="New York" />
               </view>
-              <view class="flex flex-col gap-1.5 w-24">
+              <view class="w-24 flex-col gap-1.5 flex">
                 <ui-label>ZIP</ui-label>
                 <ui-input [(value)]="zip" placeholder="10001" />
               </view>
             </view>
-            <view class="flex flex-col gap-1.5">
+            <view class="flex-col gap-1.5 flex">
               <ui-label>Country</ui-label>
               <ui-select [(value)]="country">
                 <ui-select-item value="us" label="United States" />
@@ -82,15 +82,15 @@ import { UiSeparator } from '../components/ui/separator';
         }
 
         @if (step() === 2) {
-          <view class="flex flex-col gap-4">
+          <view class="flex-col gap-4 flex">
             <text class="text-[22px] font-bold text-zinc-900">Payment</text>
-            <view class="flex flex-col gap-2.5">
+            <view class="flex-col gap-2.5 flex">
               <ui-label>Payment Method</ui-label>
               <ui-radio-group [(value)]="paymentMethod">
-                <view class="flex flex-col gap-2">
+                <view class="flex-col gap-2 flex">
                   @for (opt of paymentOptions; track opt.value) {
                     <view
-                      class="flex flex-row items-center gap-2.5 px-4 py-3 bg-white border border-zinc-200 rounded-xl"
+                      class="flex-row items-center gap-2.5 rounded-xl border border-zinc-200 bg-white px-4 py-3 flex"
                     >
                       <!--
                         The label lives inside ui-radio-group-item (via ng-content),
@@ -107,20 +107,20 @@ import { UiSeparator } from '../components/ui/separator';
               </ui-radio-group>
             </view>
             @if (paymentMethod() === 'card') {
-              <view class="flex flex-col gap-3">
-                <view class="flex flex-col gap-1.5">
+              <view class="flex-col gap-3 flex">
+                <view class="flex-col gap-1.5 flex">
                   <ui-label>Card Number</ui-label>
                   <ui-input
                     [(value)]="cardNumber"
                     placeholder="4242 4242 4242 4242"
                   />
                 </view>
-                <view class="flex flex-row gap-3">
-                  <view class="flex flex-col gap-1.5 flex-1">
+                <view class="flex-row gap-3 flex">
+                  <view class="flex-1 flex-col gap-1.5 flex">
                     <ui-label>Expiry</ui-label>
                     <ui-input [(value)]="expiry" placeholder="MM/YY" />
                   </view>
-                  <view class="flex flex-col gap-1.5 w-24">
+                  <view class="w-24 flex-col gap-1.5 flex">
                     <ui-label>CVV</ui-label>
                     <ui-input [(value)]="cvv" placeholder="123" />
                   </view>
@@ -132,7 +132,7 @@ import { UiSeparator } from '../components/ui/separator';
               were dead attributes. ui-checkbox has its own tap area (no label slot to
               nest into), so the label stays a sibling.
             -->
-            <view class="flex flex-row items-center gap-2.5">
+            <view class="flex-row items-center gap-2.5 flex">
               <ui-checkbox [(checked)]="agreeTerms" />
               <ui-label>I agree to the Terms of Service</ui-label>
             </view>
@@ -140,7 +140,7 @@ import { UiSeparator } from '../components/ui/separator';
         }
 
         @if (step() === 3) {
-          <view class="flex flex-col gap-4">
+          <view class="flex-col gap-4 flex">
             <text class="text-[22px] font-bold text-zinc-900"
               >Order Summary</text
             >
@@ -149,8 +149,8 @@ import { UiSeparator } from '../components/ui/separator';
                 ><ui-card-title>Items</ui-card-title></ui-card-header
               >
               <ui-card-content>
-                <view class="flex flex-col gap-2.5">
-                  <view class="flex flex-row justify-between">
+                <view class="flex-col gap-2.5 flex">
+                  <view class="flex-row flex justify-between">
                     <text class="text-sm text-zinc-900"
                       >AngularLynx Pro Plan</text
                     >
@@ -158,14 +158,14 @@ import { UiSeparator } from '../components/ui/separator';
                       >$99.00</text
                     >
                   </view>
-                  <view class="flex flex-row justify-between">
+                  <view class="flex-row flex justify-between">
                     <text class="text-sm text-zinc-900"
                       >Annual discount (20%)</text
                     >
                     <text class="text-sm text-green-600">-$19.80</text>
                   </view>
                   <ui-separator />
-                  <view class="flex flex-row justify-between">
+                  <view class="flex-row flex justify-between">
                     <text class="text-sm font-bold text-zinc-900">Total</text>
                     <text class="text-sm font-bold text-zinc-900">$79.20</text>
                   </view>
@@ -175,7 +175,7 @@ import { UiSeparator } from '../components/ui/separator';
           </view>
         }
 
-        <view class="flex flex-row gap-3">
+        <view class="flex-row gap-3 flex">
           @if (step() > 1) {
             <ui-button variant="outline" class="flex-1" (pressed)="back()"
               >Back</ui-button

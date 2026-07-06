@@ -12,7 +12,7 @@ import { UiLabel } from '../components/ui/label';
   imports: [LYNX_ELEMENTS, UiToggle, UiToggleGroup, UiToggleGroupItem, UiLabel],
   template: `
     <scroll-view scroll-orientation="vertical" class="h-full">
-      <view class="flex flex-col gap-6 p-6">
+      <view class="flex-col gap-6 p-6 flex">
         <text class="text-2xl font-bold text-foreground">Toggle</text>
         <text class="text-sm text-muted-foreground">
           A two-state button that can be toggled on or off, with support for
@@ -20,9 +20,9 @@ import { UiLabel } from '../components/ui/label';
         </text>
 
         <!-- Single toggle -->
-        <view class="flex flex-col gap-2">
+        <view class="flex-col gap-2 flex">
           <ui-label>Single Toggle</ui-label>
-          <view class="flex flex-row gap-2">
+          <view class="flex-row gap-2 flex">
             <ui-toggle [(pressed)]="bold">
               <text class="text-sm font-bold text-foreground">B</text>
             </ui-toggle>
@@ -40,7 +40,7 @@ import { UiLabel } from '../components/ui/label';
         </view>
 
         <!-- Toggle group (single selection) -->
-        <view class="flex flex-col gap-2">
+        <view class="flex-col gap-2 flex">
           <ui-label>Alignment (single select)</ui-label>
           <ui-toggle-group type="single" [(value)]="alignment">
             <ui-toggle-group-item value="left">
@@ -56,7 +56,7 @@ import { UiLabel } from '../components/ui/label';
         </view>
 
         <!-- Toggle group (multiple selection) -->
-        <view class="flex flex-col gap-2">
+        <view class="flex-col gap-2 flex">
           <ui-label>Formatting (multi select)</ui-label>
           <ui-toggle-group type="multiple" [(value)]="formatting">
             <ui-toggle-group-item value="bold">
@@ -76,7 +76,7 @@ import { UiLabel } from '../components/ui/label';
         </view>
 
         <!-- Outline variant -->
-        <view class="flex flex-col gap-2">
+        <view class="flex-col gap-2 flex">
           <ui-label>Outline Variant</ui-label>
           <ui-toggle-group type="single" variant="outline" [(value)]="size">
             <ui-toggle-group-item value="sm">
@@ -95,7 +95,7 @@ import { UiLabel } from '../components/ui/label';
         </view>
 
         <!-- Disabled toggle group -->
-        <view class="flex flex-col gap-2">
+        <view class="flex-col gap-2 flex">
           <ui-label [disabled]="true">Disabled Group</ui-label>
           <ui-toggle-group type="single" [disabled]="true" [value]="['left']">
             <ui-toggle-group-item value="left">
@@ -112,7 +112,7 @@ import { UiLabel } from '../components/ui/label';
 
         <!-- Display current state -->
         <view class="rounded-md border border-border bg-muted p-4">
-          <text class="text-sm font-medium text-foreground mb-2">State</text>
+          <text class="mb-2 text-sm font-medium text-foreground">State</text>
           <text class="text-xs text-muted-foreground">
             Bold: {{ bold() }} | Italic: {{ italic() }} | Underline:
             {{ underline() }}

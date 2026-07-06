@@ -117,11 +117,11 @@ export class UiAvatar {
   );
 
   protected readonly fallbackClass = computed(() =>
-    cn('flex h-full w-full items-center justify-center rounded-full bg-muted'),
+    cn('bg-muted flex h-full w-full items-center justify-center rounded-full'),
   );
 
   protected readonly initialsClass = computed(() =>
-    cn('font-medium text-muted-foreground', {
+    cn('text-muted-foreground font-medium', {
       'text-sm': this.size() === 'default' || this.size() === 'sm',
       'text-lg': this.size() === 'lg',
       'text-2xl': this.size() === 'xl',

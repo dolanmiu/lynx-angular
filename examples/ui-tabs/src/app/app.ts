@@ -30,7 +30,7 @@ import {
   ],
   template: `
     <scroll-view scroll-orientation="vertical" class="h-full">
-      <view class="flex flex-col gap-6 p-6">
+      <view class="flex-col gap-6 p-6 flex">
         <text class="text-2xl font-bold text-foreground">Tabs</text>
         <text class="text-sm text-muted-foreground">
           A set of layered sections of content, known as tab panels.
@@ -53,8 +53,8 @@ import {
                 </ui-card-description>
               </ui-card-header>
               <ui-card-content>
-                <view class="flex flex-col gap-3">
-                  <view class="flex flex-col gap-1">
+                <view class="flex-col gap-3 flex">
+                  <view class="flex-col gap-1 flex">
                     <text class="text-sm font-medium text-foreground">
                       Name
                     </text>
@@ -62,7 +62,7 @@ import {
                       John Doe
                     </text>
                   </view>
-                  <view class="flex flex-col gap-1">
+                  <view class="flex-col gap-1 flex">
                     <text class="text-sm font-medium text-foreground">
                       Email
                     </text>
@@ -84,8 +84,8 @@ import {
                 </ui-card-description>
               </ui-card-header>
               <ui-card-content>
-                <view class="flex flex-col gap-3">
-                  <view class="flex flex-col gap-1">
+                <view class="flex-col gap-3 flex">
+                  <view class="flex-col gap-1 flex">
                     <text class="text-sm font-medium text-foreground">
                       Current Password
                     </text>
@@ -93,7 +93,7 @@ import {
                       ••••••••
                     </text>
                   </view>
-                  <view class="flex flex-col gap-1">
+                  <view class="flex-col gap-1 flex">
                     <text class="text-sm font-medium text-foreground">
                       New Password
                     </text>
@@ -115,14 +115,14 @@ import {
                 </ui-card-description>
               </ui-card-header>
               <ui-card-content>
-                <view class="flex flex-col gap-3">
-                  <view class="flex flex-col gap-1">
+                <view class="flex-col gap-3 flex">
+                  <view class="flex-col gap-1 flex">
                     <text class="text-sm font-medium text-foreground">
                       Language
                     </text>
                     <text class="text-sm text-muted-foreground"> English </text>
                   </view>
-                  <view class="flex flex-col gap-1">
+                  <view class="flex-col gap-1 flex">
                     <text class="text-sm font-medium text-foreground">
                       Theme
                     </text>
@@ -130,7 +130,7 @@ import {
                       System default
                     </text>
                   </view>
-                  <view class="flex flex-col gap-1">
+                  <view class="flex-col gap-1 flex">
                     <text class="text-sm font-medium text-foreground">
                       Notifications
                     </text>

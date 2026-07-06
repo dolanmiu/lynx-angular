@@ -9,38 +9,38 @@ type Todo = { id: number; text: string; done: boolean };
   template: `
     <scroll-view class="h-screen bg-zinc-50" scroll-orientation="vertical">
       <view class="p-6">
-        <text class="text-[28px] font-bold text-zinc-900 mb-1">Todos</text>
-        <text class="text-[13px] text-zinc-500 mb-5"
+        <text class="mb-1 text-[28px] font-bold text-zinc-900">Todos</text>
+        <text class="mb-5 text-[13px] text-zinc-500"
           >{{ remaining() }} remaining</text
         >
 
-        <view class="flex flex-row gap-2 mb-4">
+        <view class="mb-4 flex-row gap-2 flex">
           <input
-            class="flex-1 px-3.5 py-3 text-[15px] bg-white border border-zinc-200 rounded-[10px]"
+            class="flex-1 rounded-[10px] border border-zinc-200 bg-white px-3.5 py-3 text-[15px]"
             placeholder="What needs to be done?"
             [value]="draft()"
             (bindinput)="onInput($event)"
           />
           <view
-            class="bg-indigo-500 rounded-[10px] py-3 px-5 justify-center items-center"
+            class="items-center rounded-[10px] bg-indigo-500 px-5 py-3 justify-center"
             (bindtap)="addTodo()"
           >
-            <text class="text-white text-[15px] font-semibold">Add</text>
+            <text class="text-[15px] font-semibold text-white">Add</text>
           </view>
         </view>
 
         @for (todo of todos(); track todo.id) {
           <view
-            class="flex flex-row items-center px-4 py-3.5 bg-white border border-zinc-200 rounded-xl mb-2"
+            class="mb-2 flex-row items-center rounded-xl border border-zinc-200 bg-white px-4 py-3.5 flex"
             (bindtap)="toggle(todo.id)"
           >
             <view
-              class="w-[22px] h-[22px] rounded-[6px] border-2 border-zinc-200 mr-3 items-center justify-center"
+              class="mr-3 h-[22px] w-[22px] items-center rounded-[6px] border-2 border-zinc-200 justify-center"
               [class.bg-indigo-500]="todo.done"
               [class.border-indigo-500]="todo.done"
             >
               @if (todo.done) {
-                <text class="text-[13px] text-white font-bold">✓</text>
+                <text class="text-[13px] font-bold text-white">✓</text>
               }
             </view>
             <text
@@ -49,15 +49,15 @@ type Todo = { id: number; text: string; done: boolean };
               [class.line-through]="todo.done"
               >{{ todo.text }}</text
             >
-            <view class="py-1 px-2" (catchtap)="remove(todo.id)">
+            <view class="px-2 py-1" (catchtap)="remove(todo.id)">
               <text class="text-base text-red-500">✕</text>
             </view>
           </view>
         } @empty {
           <view
-            class="bg-white border border-zinc-200 rounded-xl p-10 items-center"
+            class="items-center rounded-xl border border-zinc-200 bg-white p-10"
           >
-            <text class="text-[32px] mb-2">🎉</text>
+            <text class="mb-2 text-[32px]">🎉</text>
             <text class="text-base text-zinc-400">All done!</text>
           </view>
         }

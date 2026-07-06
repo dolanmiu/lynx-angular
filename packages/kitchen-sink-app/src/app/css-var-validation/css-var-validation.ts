@@ -14,166 +14,166 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   imports: [LYNX_ELEMENTS],
   template: `
     <scroll-view class="w-full" scroll-orientation="vertical">
-      <view class="p-4 flex flex-col">
-        <text class="text-xl font-bold text-zinc-900 mb-1">
+      <view class="flex-col p-4 flex">
+        <text class="mb-1 text-xl font-bold text-zinc-900">
           CSS Validation
         </text>
-        <text class="text-xs text-gray-400 mb-4">
+        <text class="mb-4 text-xs text-gray-400">
           Each swatch should show a dark charcoal color unless the format is
           unsupported
         </text>
 
         <!-- Section A: Color Formats -->
-        <text class="text-[15px] font-bold text-gray-700 mb-2.5">
+        <text class="mb-2.5 text-[15px] font-bold text-gray-700">
           A. Color Formats
         </text>
 
-        <text class="text-[11px] text-gray-500 mb-1">A1: hex — #18181b</text>
+        <text class="mb-1 text-[11px] text-gray-500">A1: hex — #18181b</text>
         <view
-          class="w-full h-12 rounded-lg mb-4 items-center justify-center"
+          class="mb-4 h-12 w-full items-center rounded-lg justify-center"
           style="background-color: #18181b;"
         >
-          <text class="text-white text-[11px]">#18181b</text>
+          <text class="text-[11px] text-white">#18181b</text>
         </view>
 
-        <text class="text-[11px] text-gray-500 mb-1"
+        <text class="mb-1 text-[11px] text-gray-500"
           >A2: rgb comma — rgb(24, 24, 27)</text
         >
         <view
-          class="w-full h-12 rounded-lg mb-4 items-center justify-center"
+          class="mb-4 h-12 w-full items-center rounded-lg justify-center"
           style="background-color: rgb(24, 24, 27);"
         >
-          <text class="text-white text-[11px]">rgb(24, 24, 27)</text>
+          <text class="text-[11px] text-white">rgb(24, 24, 27)</text>
         </view>
 
-        <text class="text-[11px] text-gray-500 mb-1"
+        <text class="mb-1 text-[11px] text-gray-500"
           >A3: rgba comma — rgba(24, 24, 27, 0.5)</text
         >
         <view
-          class="w-full h-12 rounded-lg mb-4 items-center justify-center"
+          class="mb-4 h-12 w-full items-center rounded-lg justify-center"
           style="background-color: rgba(24, 24, 27, 0.5);"
         >
-          <text class="text-white text-[11px]">rgba 50%</text>
+          <text class="text-[11px] text-white">rgba 50%</text>
         </view>
 
-        <text class="text-[11px] text-gray-500 mb-1"
+        <text class="mb-1 text-[11px] text-gray-500"
           >A4: hsl comma — hsl(240, 5.9%, 10%)</text
         >
         <view
-          class="w-full h-12 rounded-lg mb-4 items-center justify-center"
+          class="mb-4 h-12 w-full items-center rounded-lg justify-center"
           style="background-color: hsl(240, 5.9%, 10%);"
         >
-          <text class="text-white text-[11px]">hsl(240, 5.9%, 10%)</text>
+          <text class="text-[11px] text-white">hsl(240, 5.9%, 10%)</text>
         </view>
 
-        <text class="text-[11px] text-gray-500 mb-1"
+        <text class="mb-1 text-[11px] text-gray-500"
           >A5: hsl space — hsl(240 5.9% 10%) ⚠️ expected to fail</text
         >
         <view
-          class="w-full h-12 rounded-lg mb-4 items-center justify-center"
+          class="mb-4 h-12 w-full items-center rounded-lg justify-center"
           style="background-color: hsl(240 5.9% 10%);"
         >
-          <text class="text-white text-[11px]">hsl(240 5.9% 10%)</text>
+          <text class="text-[11px] text-white">hsl(240 5.9% 10%)</text>
         </view>
 
-        <text class="text-[11px] text-gray-500 mb-1"
+        <text class="mb-1 text-[11px] text-gray-500"
           >A6: hsla comma — hsla(240, 5.9%, 10%, 0.5)</text
         >
         <view
-          class="w-full h-12 rounded-lg mb-4 items-center justify-center"
+          class="mb-4 h-12 w-full items-center rounded-lg justify-center"
           style="background-color: hsla(240, 5.9%, 10%, 0.5);"
         >
-          <text class="text-white text-[11px]">hsla 50%</text>
+          <text class="text-[11px] text-white">hsla 50%</text>
         </view>
 
-        <text class="text-[11px] text-gray-500 mb-1"
+        <text class="mb-1 text-[11px] text-gray-500"
           >A7: named color — red</text
         >
         <view
-          class="w-full h-12 rounded-lg mb-4 items-center justify-center"
+          class="mb-4 h-12 w-full items-center rounded-lg justify-center"
           style="background-color: red;"
         >
-          <text class="text-white text-[11px]">red</text>
+          <text class="text-[11px] text-white">red</text>
         </view>
 
-        <text class="text-[11px] text-gray-500 mb-1"
+        <text class="mb-1 text-[11px] text-gray-500"
           >A8: rgb space — rgb(24 24 27)</text
         >
         <view
-          class="w-full h-12 rounded-lg mb-6 items-center justify-center"
+          class="mb-6 h-12 w-full items-center rounded-lg justify-center"
           style="background-color: rgb(24 24 27);"
         >
-          <text class="text-white text-[11px]">rgb(24 24 27)</text>
+          <text class="text-[11px] text-white">rgb(24 24 27)</text>
         </view>
 
         <!-- Section B: CSS Variables -->
-        <text class="text-[15px] font-bold text-gray-700 mb-2.5">
+        <text class="mb-2.5 text-[15px] font-bold text-gray-700">
           B. CSS Variables
         </text>
 
-        <text class="text-[11px] text-gray-500 mb-1"
+        <text class="mb-1 text-[11px] text-gray-500"
           >B1: var(--test-hex) → #18181b</text
         >
         <view
-          class="w-full h-12 rounded-lg mb-4 items-center justify-center"
+          class="mb-4 h-12 w-full items-center rounded-lg justify-center"
           style="background-color: var(--test-hex);"
         >
-          <text class="text-white text-[11px]">var(--test-hex)</text>
+          <text class="text-[11px] text-white">var(--test-hex)</text>
         </view>
 
-        <text class="text-[11px] text-gray-500 mb-1"
+        <text class="mb-1 text-[11px] text-gray-500"
           >B2: var(--primary) — complete rgba() value → should render ✅</text
         >
         <view
-          class="w-full h-12 rounded-lg mb-4 items-center justify-center"
+          class="mb-4 h-12 w-full items-center rounded-lg justify-center"
           style="background-color: var(--primary);"
         >
-          <text class="text-white text-[11px]">var(--primary)</text>
+          <text class="text-[11px] text-white">var(--primary)</text>
         </view>
 
-        <text class="text-[11px] text-gray-500 mb-1"
+        <text class="mb-1 text-[11px] text-gray-500"
           >B3: hsl(var(--primary)) — rgba inside hsl(), invalid → blank</text
         >
         <view
-          class="w-full h-12 rounded-lg mb-4 items-center justify-center"
+          class="mb-4 h-12 w-full items-center rounded-lg justify-center"
           style="background-color: hsl(var(--primary));"
         >
-          <text class="text-white text-[11px]">hsl(var(--primary))</text>
+          <text class="text-[11px] text-white">hsl(var(--primary))</text>
         </view>
 
-        <text class="text-[11px] text-gray-500 mb-1"
+        <text class="mb-1 text-[11px] text-gray-500"
           >B4: var(--nonexistent, #18181b) — fallback value</text
         >
         <view
-          class="w-full h-12 rounded-lg mb-6 items-center justify-center"
+          class="mb-6 h-12 w-full items-center rounded-lg justify-center"
           style="background-color: var(--nonexistent, #18181b);"
         >
-          <text class="text-white text-[11px]">var fallback</text>
+          <text class="text-[11px] text-white">var fallback</text>
         </view>
 
         <!-- Section C: Composition -->
-        <text class="text-[15px] font-bold text-gray-700 mb-2.5">
+        <text class="mb-2.5 text-[15px] font-bold text-gray-700">
           C. Variable Composition
         </text>
 
-        <text class="text-[11px] text-gray-500 mb-1"
+        <text class="mb-1 text-[11px] text-gray-500"
           >C1: rgb(var(--r), var(--g), var(--b)) — channel vars</text
         >
         <view
-          class="w-full h-12 rounded-lg mb-4 items-center justify-center"
+          class="mb-4 h-12 w-full items-center rounded-lg justify-center"
           style="background-color: rgb(var(--test-rgb-r), var(--test-rgb-g), var(--test-rgb-b));"
         >
-          <text class="text-white text-[11px]">rgb(var, var, var)</text>
+          <text class="text-[11px] text-white">rgb(var, var, var)</text>
         </view>
 
-        <text class="text-[11px] text-gray-500 mb-1"
+        <text class="mb-1 text-[11px] text-gray-500"
           >C2: Tailwind bg-primary — generates var(--primary) → should render
           ✅</text
         >
         <view
-          class="w-full h-12 rounded-lg mb-6 items-center justify-center bg-primary"
+          class="mb-6 h-12 w-full items-center rounded-lg bg-primary justify-center"
         >
-          <text class="text-white text-[11px]">bg-primary</text>
+          <text class="text-[11px] text-white">bg-primary</text>
         </view>
       </view>
     </scroll-view>

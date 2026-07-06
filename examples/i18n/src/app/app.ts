@@ -6,26 +6,26 @@ import { LYNX_ELEMENTS, LynxLocale } from '@blotch/angular-lynx';
   template: `
     <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
       <view class="p-6">
-        <text class="text-[28px] font-bold text-zinc-900 mb-1">i18n</text>
-        <text class="text-[13px] text-zinc-500 mb-5"
+        <text class="mb-1 text-[28px] font-bold text-zinc-900">i18n</text>
+        <text class="mb-5 text-[13px] text-zinc-500"
           >Internationalization with Angular and Lynx.</text
         >
 
-        <view class="bg-indigo-50 py-2.5 px-3.5 rounded-lg mb-4">
+        <view class="mb-4 rounded-lg bg-indigo-50 px-3.5 py-2.5">
           <text class="text-[13px] font-semibold text-indigo-700"
             >Locale: {{ localeService.locale() }}</text
           >
         </view>
 
-        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+        <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
-            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-2.5"
+            class="uppercase mb-2.5 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
             >Translated Strings</text
           >
-          <text i18n="@@app.greeting" class="text-[18px] text-zinc-900 mb-2">
+          <text i18n="@@app.greeting" class="mb-2 text-[18px] text-zinc-900">
             Hello, world!
           </text>
-          <text class="text-[15px] text-zinc-900 mb-2">{{
+          <text class="mb-2 text-[15px] text-zinc-900">{{
             welcomeMessage
           }}</text>
           <text
@@ -38,21 +38,21 @@ import { LYNX_ELEMENTS, LynxLocale } from '@blotch/angular-lynx';
           </text>
         </view>
 
-        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+        <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
-            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-2.5"
+            class="uppercase mb-2.5 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
             >Counter</text
           >
-          <text class="text-[18px] text-zinc-900 mb-3">{{
+          <text class="mb-3 text-[18px] text-zinc-900">{{
             counterMessage()
           }}</text>
           <view
-            class="bg-indigo-500 py-3 px-6 rounded-[10px] items-center"
+            class="items-center rounded-[10px] bg-indigo-500 px-6 py-3"
             (bindtap)="increment()"
           >
             <text
               i18n="@@app.tap_button"
-              class="text-white text-[15px] font-semibold"
+              class="text-[15px] font-semibold text-white"
               >Tap to increment</text
             >
           </view>

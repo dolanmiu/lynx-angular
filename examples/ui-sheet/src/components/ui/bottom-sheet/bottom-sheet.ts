@@ -54,7 +54,7 @@ const DISMISS_TRANSLATE = 600;
     <overlay [attr.visible]="overlayVisible()" [style]="overlayStyle()">
       <view
         #backdrop
-        class="w-full h-full bg-black/50"
+        class="h-full w-full bg-black/50"
         (bindtap)="onBackdropTap()"
       >
         <view
@@ -64,7 +64,7 @@ const DISMISS_TRANSLATE = 600;
           (catchtap)="onPanelTap()"
         >
           <view
-            class="flex items-center justify-center pt-2 pb-3"
+            class="items-center pb-3 pt-2 flex justify-center"
             (catchtouchstart)="onHandleTouchStart($event)"
             (catchtouchmove)="onHandleTouchMove($event)"
             (catchtouchend)="onHandleTouchEnd()"
@@ -125,7 +125,7 @@ export class UiBottomSheet {
 
   protected readonly panelClass = computed(() =>
     cn(
-      'flex flex-col bg-background rounded-t-2xl border-t border-border',
+      'flex-col rounded-t-2xl border-t border-border bg-background flex',
       'w-full',
       this.userClass(),
     ),

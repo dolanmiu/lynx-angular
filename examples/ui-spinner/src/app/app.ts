@@ -8,59 +8,61 @@ import { UiSpinner } from '../components/ui/spinner';
   template: `
     <scroll-view scroll-orientation="vertical" class="h-full">
       <view class="p-6">
-        <text class="text-2xl font-bold text-foreground mb-6">Spinner</text>
+        <text class="mb-6 text-2xl font-bold text-foreground">Spinner</text>
 
         <!-- Sizes -->
-        <text class="text-sm font-medium text-muted-foreground mb-3"
+        <text class="mb-3 text-sm font-medium text-muted-foreground"
           >Sizes</text
         >
-        <view class="flex flex-row items-center gap-6 mb-6">
-          <view class="flex flex-col items-center gap-2">
+        <view class="mb-6 flex-row items-center gap-6 flex">
+          <view class="flex-col items-center gap-2 flex">
             <ui-spinner size="xs" />
             <text class="text-xs text-muted-foreground">xs</text>
           </view>
-          <view class="flex flex-col items-center gap-2">
+          <view class="flex-col items-center gap-2 flex">
             <ui-spinner size="sm" />
             <text class="text-xs text-muted-foreground">sm</text>
           </view>
-          <view class="flex flex-col items-center gap-2">
+          <view class="flex-col items-center gap-2 flex">
             <ui-spinner size="md" />
             <text class="text-xs text-muted-foreground">md</text>
           </view>
-          <view class="flex flex-col items-center gap-2">
+          <view class="flex-col items-center gap-2 flex">
             <ui-spinner size="lg" />
             <text class="text-xs text-muted-foreground">lg</text>
           </view>
         </view>
 
         <!-- Custom colors -->
-        <text class="text-sm font-medium text-muted-foreground mb-3">
+        <text class="mb-3 text-sm font-medium text-muted-foreground">
           Custom Colors
         </text>
-        <view class="flex flex-row items-center gap-6 mb-6">
-          <view class="flex flex-col items-center gap-2">
+        <view class="mb-6 flex-row items-center gap-6 flex">
+          <view class="flex-col items-center gap-2 flex">
             <ui-spinner color="#3b82f6" />
             <text class="text-xs text-muted-foreground">Blue</text>
           </view>
-          <view class="flex flex-col items-center gap-2">
+          <view class="flex-col items-center gap-2 flex">
             <ui-spinner color="#ef4444" />
             <text class="text-xs text-muted-foreground">Red</text>
           </view>
-          <view class="flex flex-col items-center gap-2">
+          <view class="flex-col items-center gap-2 flex">
             <ui-spinner color="#22c55e" />
             <text class="text-xs text-muted-foreground">Green</text>
           </view>
-          <view class="flex flex-col items-center gap-2">
+          <view class="flex-col items-center gap-2 flex">
             <ui-spinner color="#f59e0b" />
             <text class="text-xs text-muted-foreground">Amber</text>
           </view>
         </view>
 
         <!-- In context -->
-        <text class="text-sm font-medium text-muted-foreground mb-3">
+        <text class="mb-3 text-sm font-medium text-muted-foreground">
           In Context
         </text>
-        <view class="flex flex-col rounded-lg border border-border p-6 items-center gap-3">
+        <view
+          class="flex-col items-center gap-3 rounded-lg border border-border p-6 flex"
+        >
           <ui-spinner size="lg" />
           <text class="text-sm text-muted-foreground">Loading content...</text>
         </view>

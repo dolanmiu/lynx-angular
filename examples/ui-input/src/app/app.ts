@@ -7,7 +7,7 @@ import { UiInput } from '../components/ui/input';
   imports: [LYNX_ELEMENTS, UiInput],
   template: `
     <scroll-view scroll-orientation="vertical" class="h-full">
-      <view class="flex flex-col gap-6 p-6">
+      <view class="flex-col gap-6 p-6 flex">
         <text class="text-2xl font-bold text-foreground">Input</text>
         <text class="text-sm text-muted-foreground">
           A text input field with label, helper text, and validation states.
@@ -47,7 +47,7 @@ import { UiInput } from '../components/ui/input';
 
         <!-- Display current values -->
         <view class="rounded-md border border-border bg-muted p-4">
-          <text class="text-sm font-medium text-foreground mb-2">
+          <text class="mb-2 text-sm font-medium text-foreground">
             Current Values
           </text>
           <text class="text-xs text-muted-foreground">

@@ -12,18 +12,18 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   standalone: true,
   imports: [LYNX_ELEMENTS],
   template: `
-    <view class="flex flex-col p-4 bg-gray-100 min-h-screen">
-      <text class="text-[24px] font-bold text-center mb-4"
+    <view class="min-h-screen flex-col bg-gray-100 p-4 flex">
+      <text class="mb-4 text-[24px] font-bold text-center"
         >querySelector Demo</text
       >
 
       <view class="mb-4">
-        <text class="text-[13px] text-gray-700 mb-2">
+        <text class="mb-2 text-[13px] text-gray-700">
           Lynx runs Angular on a background JS thread with no real DOM. This
           demo verifies that querySelector and querySelectorAll work on the
           background thread's virtual element tree.
         </text>
-        <text class="text-[13px] text-gray-700 mb-2">
+        <text class="mb-2 text-[13px] text-gray-700">
           The box below is the element tree being queried. Results are evaluated
           in ngAfterViewInit via ElementRef.nativeElement and displayed below.
         </text>
@@ -32,34 +32,34 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
       <!-- These are the elements being queried — three .qs-item views, one with
            an extra .qs-active class, one with id="qs-first", plus a text with
            class .qs-label for testing compound tag+class selectors. -->
-      <text class="text-xs text-gray-400 mb-1.5 italic"
+      <text class="mb-1.5 text-xs italic text-gray-400"
         >Element tree being queried:</text
       >
-      <view #subject class="bg-white rounded-lg p-3 mb-4">
-        <view class="qs-item p-2 bg-gray-200 rounded mb-1.5" id="qs-first"
+      <view #subject class="mb-4 rounded-lg bg-white p-3">
+        <view class="qs-item mb-1.5 rounded bg-gray-200 p-2" id="qs-first"
           ><text>Item A</text></view
         >
-        <view class="qs-item qs-active p-2 bg-blue-100 rounded mb-1.5"
+        <view class="qs-item qs-active mb-1.5 rounded bg-blue-100 p-2"
           ><text>Item B (active)</text></view
         >
-        <view class="qs-item p-2 bg-gray-200 rounded mb-1.5"
+        <view class="qs-item mb-1.5 rounded bg-gray-200 p-2"
           ><text>Item C</text></view
         >
-        <text class="qs-label italic text-gray-500 mt-1">Label</text>
+        <text class="qs-label mt-1 italic text-gray-500">Label</text>
       </view>
 
-      <view class="bg-white rounded-lg p-3">
-        <text class="text-[18px] font-bold mb-3">Results</text>
+      <view class="rounded-lg bg-white p-3">
+        <text class="mb-3 text-[18px] font-bold">Results</text>
 
-        <view class="mb-2.5 pb-2.5 border-b border-gray-200">
-          <text class="text-xs text-gray-600 mb-1 font-[monospace]"
+        <view class="mb-2.5 border-b border-gray-200 pb-2.5">
+          <text class="mb-1 font-[monospace] text-xs text-gray-600"
             >querySelector('.qs-active')</text
           >
           <text [style.color]="resultColor(qsActive())">{{ qsActive() }}</text>
         </view>
 
-        <view class="mb-2.5 pb-2.5 border-b border-gray-200">
-          <text class="text-xs text-gray-600 mb-1 font-[monospace]"
+        <view class="mb-2.5 border-b border-gray-200 pb-2.5">
+          <text class="mb-1 font-[monospace] text-xs text-gray-600"
             >querySelectorAll('.qs-item').length</text
           >
           <text [style.color]="resultColor(qsAllCount())">{{
@@ -67,15 +67,15 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
           }}</text>
         </view>
 
-        <view class="mb-2.5 pb-2.5 border-b border-gray-200">
-          <text class="text-xs text-gray-600 mb-1 font-[monospace]"
+        <view class="mb-2.5 border-b border-gray-200 pb-2.5">
+          <text class="mb-1 font-[monospace] text-xs text-gray-600"
             >querySelector('#qs-first')</text
           >
           <text [style.color]="resultColor(qsById())">{{ qsById() }}</text>
         </view>
 
-        <view class="mb-2.5 pb-2.5 border-b border-gray-200">
-          <text class="text-xs text-gray-600 mb-1 font-[monospace]"
+        <view class="mb-2.5 border-b border-gray-200 pb-2.5">
+          <text class="mb-1 font-[monospace] text-xs text-gray-600"
             >querySelector('text.qs-label')</text
           >
           <text [style.color]="resultColor(qsCompound())">{{
@@ -83,8 +83,8 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
           }}</text>
         </view>
 
-        <view class="mb-2.5 pb-2.5 border-b border-gray-200">
-          <text class="text-xs text-gray-600 mb-1 font-[monospace]"
+        <view class="mb-2.5 border-b border-gray-200 pb-2.5">
+          <text class="mb-1 font-[monospace] text-xs text-gray-600"
             >querySelector('view view') — combinator (unsupported)</text
           >
           <text [style.color]="resultColor(qsCombinator())">{{

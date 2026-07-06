@@ -1,9 +1,4 @@
-import {
-  Component,
-  ViewEncapsulation,
-  computed,
-  input,
-} from '@angular/core';
+import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
 import { cn } from '@blotch/dolan/utils/cn';
@@ -36,16 +31,16 @@ export class UiEmptyState {
 
   protected readonly containerClass = computed(() =>
     cn(
-      'flex flex-col items-center justify-center py-12 px-6',
+      'flex-col items-center px-6 py-12 flex justify-center',
       this.userClass(),
     ),
   );
 
   protected readonly titleClass = computed(() =>
-    cn('text-lg font-semibold text-foreground mb-1'),
+    cn('mb-1 text-lg font-semibold text-foreground'),
   );
 
   protected readonly descriptionClass = computed(() =>
-    cn('text-sm text-muted-foreground mb-4 text-center'),
+    cn('mb-4 text-sm text-muted-foreground text-center'),
   );
 }

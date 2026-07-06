@@ -6,41 +6,41 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   template: `
     <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
       <view class="p-6">
-        <text class="text-[28px] font-bold text-zinc-900 mb-1"
+        <text class="mb-1 text-[28px] font-bold text-zinc-900"
           >Overlay Element</text
         >
-        <text class="text-[13px] text-zinc-500 mb-5"
+        <text class="mb-5 text-[13px] text-zinc-500"
           >A floating layer for modals and popups.</text
         >
 
         <view
-          class="bg-indigo-500 py-3 px-6 rounded-[10px] items-center"
+          class="items-center rounded-[10px] bg-indigo-500 px-6 py-3"
           (bindtap)="open()"
         >
-          <text class="text-white text-[15px] font-semibold">Show Modal</text>
+          <text class="text-[15px] font-semibold text-white">Show Modal</text>
         </view>
 
         <overlay [attr.visible]="showModal()">
           <view
-            class="absolute top-0 left-0 right-0 bottom-0 items-center justify-center"
+            class="items-center absolute bottom-0 left-0 right-0 top-0 justify-center"
             style="background-color: rgba(0,0,0,0.4)"
             (bindtap)="close()"
           >
             <view
-              class="bg-white border border-zinc-200 p-6 rounded-2xl w-[260px] items-center"
+              class="w-[260px] items-center rounded-2xl border border-zinc-200 bg-white p-6"
               (catchtap)="noop()"
             >
-              <text class="text-[18px] font-bold text-zinc-900 mb-2"
+              <text class="mb-2 text-[18px] font-bold text-zinc-900"
                 >Modal Title</text
               >
-              <text class="text-sm text-zinc-500 mb-5 text-center leading-5"
+              <text class="mb-5 text-sm leading-5 text-zinc-500 text-center"
                 >This overlay floats above the normal content.</text
               >
               <view
-                class="bg-indigo-500 py-3 px-6 rounded-[10px] items-center"
+                class="items-center rounded-[10px] bg-indigo-500 px-6 py-3"
                 (bindtap)="close()"
               >
-                <text class="text-white text-[15px] font-semibold">Close</text>
+                <text class="text-[15px] font-semibold text-white">Close</text>
               </view>
             </view>
           </view>

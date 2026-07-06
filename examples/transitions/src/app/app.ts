@@ -12,28 +12,28 @@ type Item = { id: number; label: string };
   template: `
     <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
       <view class="p-6">
-        <text class="text-[28px] font-bold text-zinc-900 mb-1"
+        <text class="mb-1 text-[28px] font-bold text-zinc-900"
           >Transitions</text
         >
-        <text class="text-[13px] text-zinc-500 mb-5"
+        <text class="mb-5 text-[13px] text-zinc-500"
           >Animate elements entering and leaving the DOM.</text
         >
 
-        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+        <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
-            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-3"
+            class="uppercase mb-3 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
             >LynxTransition — Single Element</text
           >
           <view
-            class="bg-indigo-500 rounded-lg py-2.5 px-5 items-center justify-center mb-3"
+            class="mb-3 items-center rounded-lg bg-indigo-500 px-5 py-2.5 justify-center"
             (bindtap)="togglePanel()"
           >
-            <text class="text-white text-sm font-semibold">{{
+            <text class="text-sm font-semibold text-white">{{
               showPanel() ? 'Hide Panel' : 'Show Panel'
             }}</text>
           </view>
           <lynx-transition [show]="showPanel()" name="fade" [duration]="300">
-            <view class="bg-indigo-50 rounded-lg p-4 mb-2">
+            <view class="mb-2 rounded-lg bg-indigo-50 p-4">
               <text class="text-sm text-indigo-700"
                 >I fade and slide in/out!</text
               >
@@ -41,16 +41,16 @@ type Item = { id: number; label: string };
           </lynx-transition>
         </view>
 
-        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+        <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
-            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-3"
+            class="uppercase mb-3 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
             >LynxTransitionGroup — Dynamic List</text
           >
           <view
-            class="bg-indigo-500 rounded-lg py-2.5 px-5 items-center justify-center mb-3"
+            class="mb-3 items-center rounded-lg bg-indigo-500 px-5 py-2.5 justify-center"
             (bindtap)="addItem()"
           >
-            <text class="text-white text-sm font-semibold">+ Add Item</text>
+            <text class="text-sm font-semibold text-white">+ Add Item</text>
           </view>
           <view class="mt-1">
             <lynx-transition-group
@@ -61,17 +61,17 @@ type Item = { id: number; label: string };
             >
               <ng-template let-item>
                 <view
-                  class="bg-indigo-500 rounded-lg px-4 py-3 mb-2 flex-row justify-between items-center"
+                  class="mb-2 flex-row items-center rounded-lg bg-indigo-500 px-4 py-3 justify-between"
                 >
-                  <text class="text-sm font-semibold text-white flex-1">{{
+                  <text class="flex-1 text-sm font-semibold text-white">{{
                     item.label
                   }}</text>
                   <view
-                    class="w-7 h-7 rounded-[14px] items-center justify-center"
+                    class="h-7 w-7 items-center rounded-[14px] justify-center"
                     style="background-color: rgba(0,0,0,0.15)"
                     (bindtap)="removeItem(item)"
                   >
-                    <text class="text-white text-base font-bold">×</text>
+                    <text class="text-base font-bold text-white">×</text>
                   </view>
                 </view>
               </ng-template>

@@ -28,21 +28,21 @@ type Track = { title: string; artist: string; duration: string };
   ],
   template: `
     <scroll-view scroll-orientation="vertical" class="h-screen bg-zinc-50">
-      <view class="flex flex-col items-center gap-6 px-6 py-8">
-        <view class="p-2 bg-white border border-zinc-200 rounded-[20px]">
+      <view class="flex-col items-center gap-6 px-6 py-8 flex">
+        <view class="rounded-[20px] border border-zinc-200 bg-white p-2">
           <ui-avatar size="2xl" src="" fallback="♪" />
         </view>
 
-        <view class="flex flex-col items-center gap-1">
+        <view class="flex-col items-center gap-1 flex">
           <text class="text-[22px] font-bold text-zinc-900">{{
             currentTrack().title
           }}</text>
           <text class="text-sm text-zinc-500">{{ currentTrack().artist }}</text>
         </view>
 
-        <view class="flex flex-col gap-1.5 w-full">
+        <view class="w-full flex-col gap-1.5 flex">
           <ui-progress [value]="position()" />
-          <view class="flex flex-row justify-between">
+          <view class="flex-row flex justify-between">
             <text class="text-xs text-zinc-400">{{ elapsed() }}</text>
             <text class="text-xs text-zinc-400">{{
               currentTrack().duration
@@ -50,7 +50,7 @@ type Track = { title: string; artist: string; duration: string };
           </view>
         </view>
 
-        <view class="flex flex-row items-center gap-5">
+        <view class="flex-row items-center gap-5 flex">
           <ui-toggle [(pressed)]="shuffle" aria-label="Shuffle">
             <text class="text-base">⇌</text>
           </ui-toggle>
@@ -58,7 +58,7 @@ type Track = { title: string; artist: string; duration: string };
             <text class="text-[24px]">⏮</text>
           </ui-button>
           <view
-            class="w-16 h-16 rounded-[50%] bg-indigo-500 items-center justify-center"
+            class="h-16 w-16 items-center rounded-[50%] bg-indigo-500 justify-center"
             (bindtap)="togglePlay()"
           >
             <text class="text-[24px] text-white">{{
@@ -77,7 +77,7 @@ type Track = { title: string; artist: string; duration: string };
 
         <ui-collapsible class="w-full">
           <ui-collapsible-trigger>
-            <view class="flex flex-row justify-between items-center py-2">
+            <view class="flex-row items-center py-2 flex justify-between">
               <text class="text-sm font-semibold text-zinc-900">Up Next</text>
               <text class="text-xs text-zinc-400"
                 >{{ queue.length }} tracks</text
@@ -85,15 +85,15 @@ type Track = { title: string; artist: string; duration: string };
             </view>
           </ui-collapsible-trigger>
           <ui-collapsible-content>
-            <view class="flex flex-col gap-1.5 mt-2">
+            <view class="mt-2 flex-col gap-1.5 flex">
               @for (track of queue; track track.title; let i = $index) {
                 <view
-                  class="flex flex-row items-center gap-3 px-3 py-2.5 rounded-[10px]"
+                  class="flex-row items-center gap-3 rounded-[10px] px-3 py-2.5 flex"
                   [class.bg-indigo-50]="i === trackIndex()"
                   (bindtap)="jumpTo(i)"
                 >
                   <ui-avatar size="sm" src="" [fallback]="String(i + 1)" />
-                  <view class="flex flex-col gap-0.5 flex-1">
+                  <view class="flex-1 flex-col gap-0.5 flex">
                     <text class="text-sm font-medium text-zinc-900">{{
                       track.title
                     }}</text>

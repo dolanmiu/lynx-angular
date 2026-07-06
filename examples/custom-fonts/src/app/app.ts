@@ -6,27 +6,27 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   template: `
     <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
       <view class="p-6">
-        <text class="text-[28px] font-bold text-zinc-900 mb-1">
+        <text class="mb-1 text-[28px] font-bold text-zinc-900">
           Custom Fonts
         </text>
-        <text class="text-[13px] text-zinc-500 mb-5">
+        <text class="mb-5 text-[13px] text-zinc-500">
           Load and display custom fonts via @font-face.
         </text>
 
-        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+        <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
-            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-2.5"
+            class="uppercase mb-2.5 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
           >
             Custom Font (Roboto)
           </text>
-          <text class="text-[18px] text-zinc-900 font-[Roboto]">
+          <text class="font-[Roboto] text-[18px] text-zinc-900">
             The quick brown fox jumps over the lazy dog
           </text>
         </view>
 
-        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+        <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
-            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-2.5"
+            class="uppercase mb-2.5 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
           >
             System Font
           </text>
@@ -35,44 +35,44 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
           </text>
         </view>
 
-        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+        <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
-            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-2.5"
+            class="uppercase mb-2.5 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
           >
             Serif Display (Playfair Display)
           </text>
-          <text class="text-[22px] text-zinc-900 font-[PlayfairDisplay] mb-1">
+          <text class="mb-1 font-[PlayfairDisplay] text-[22px] text-zinc-900">
             The Quick Brown Fox
           </text>
-          <text class="text-[13px] text-zinc-500 font-[PlayfairDisplay]">
+          <text class="font-[PlayfairDisplay] text-[13px] text-zinc-500">
             Jumps Over The Lazy Dog — 0123456789
           </text>
         </view>
 
-        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+        <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
-            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-2.5"
+            class="uppercase mb-2.5 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
           >
             Handwriting (Dancing Script)
           </text>
-          <text class="text-[26px] text-zinc-900 font-[DancingScript] mb-1">
+          <text class="mb-1 font-[DancingScript] text-[26px] text-zinc-900">
             Hello, beautiful world!
           </text>
-          <text class="text-[16px] text-zinc-500 font-[DancingScript]">
+          <text class="font-[DancingScript] text-[16px] text-zinc-500">
             the quick brown fox jumps over the lazy dog
           </text>
         </view>
 
-        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+        <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
-            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-2.5"
+            class="uppercase mb-2.5 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
           >
             Size Scale
           </text>
-          <text class="text-sm text-zinc-500 font-[Roboto] mb-2">
+          <text class="mb-2 font-[Roboto] text-sm text-zinc-500">
             14px — ABCDEFGHIJKLMNOPQRSTUVWXYZ
           </text>
-          <text class="text-[28px] text-zinc-900 font-[Roboto]">
+          <text class="font-[Roboto] text-[28px] text-zinc-900">
             28px — Hello, Lynx!
           </text>
         </view>

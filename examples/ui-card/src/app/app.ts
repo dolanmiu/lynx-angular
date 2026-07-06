@@ -22,7 +22,7 @@ import {
   ],
   template: `
     <scroll-view scroll-orientation="vertical" class="h-full">
-      <view class="flex flex-col gap-4 p-6">
+      <view class="flex-col gap-4 p-6 flex">
         <text class="text-2xl font-bold text-foreground">Card</text>
         <text class="text-sm text-muted-foreground">
           A container for grouping related content and actions.
@@ -37,10 +37,10 @@ import {
             </ui-card-description>
           </ui-card-header>
           <ui-card-content>
-            <view class="flex flex-col gap-3">
-              <view class="flex flex-row items-center gap-3">
+            <view class="flex-col gap-3 flex">
+              <view class="flex-row items-center gap-3 flex">
                 <view class="h-2 w-2 rounded-full bg-primary" />
-                <view class="flex flex-col">
+                <view class="flex-col flex">
                   <text class="text-sm font-medium text-foreground">
                     New deployment started
                   </text>
@@ -49,9 +49,9 @@ import {
                   </text>
                 </view>
               </view>
-              <view class="flex flex-row items-center gap-3">
+              <view class="flex-row items-center gap-3 flex">
                 <view class="h-2 w-2 rounded-full bg-primary" />
-                <view class="flex flex-col">
+                <view class="flex-col flex">
                   <text class="text-sm font-medium text-foreground">
                     Build completed
                   </text>
@@ -60,9 +60,9 @@ import {
                   </text>
                 </view>
               </view>
-              <view class="flex flex-row items-center gap-3">
+              <view class="flex-row items-center gap-3 flex">
                 <view class="h-2 w-2 rounded-full bg-muted-foreground" />
-                <view class="flex flex-col">
+                <view class="flex-col flex">
                   <text class="text-sm font-medium text-foreground">
                     Your trial expires soon
                   </text>

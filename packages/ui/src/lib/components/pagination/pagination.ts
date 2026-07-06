@@ -37,8 +37,8 @@ const CHEVRON_RIGHT = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 2
             }}</text>
           </view>
         } @else {
-          <view class="flex items-center justify-center w-8 h-8">
-            <text class="text-xs text-muted-foreground">...</text>
+          <view class="flex h-8 w-8 items-center justify-center">
+            <text class="text-muted-foreground text-xs">...</text>
           </view>
         }
       }
@@ -110,14 +110,14 @@ export class UiPagination {
 
   protected navButtonClass(disabled: boolean): string {
     return cn(
-      'flex items-center justify-center w-10 h-10 rounded-md',
+      'flex h-10 w-10 items-center justify-center rounded-md',
       disabled && 'opacity-50',
     );
   }
 
   protected pageButtonClass(active: boolean): string {
     return cn(
-      'flex items-center justify-center w-10 h-10 rounded-md',
+      'flex h-10 w-10 items-center justify-center rounded-md',
       active ? 'bg-primary' : 'bg-transparent',
     );
   }

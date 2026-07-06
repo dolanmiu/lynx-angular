@@ -26,7 +26,7 @@ import { type ToastData, toasts } from './toast-state';
       >
         @if (displayedToast(); as t) {
           <view #toastEl [class]="toastClass()" (bindtap)="dismiss()">
-            <view class="flex flex-col gap-1 flex-1">
+            <view class="flex flex-1 flex-col gap-1">
               @if (t.title) {
                 <text [class]="titleClass()">{{ t.title }}</text>
               }
@@ -72,7 +72,7 @@ export class UiToaster {
     const t = this.displayedToast();
     const isDestructive = t?.variant === 'destructive';
     return cn(
-      'flex flex-row items-start gap-3 w-full rounded-lg border p-4',
+      'flex w-full flex-row items-start gap-3 rounded-lg border p-4',
       isDestructive
         ? 'bg-destructive border-destructive'
         : 'bg-background border-border',

@@ -6,43 +6,43 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   template: `
     <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
       <view class="p-6">
-        <text class="text-[28px] font-bold text-zinc-900 mb-1"
+        <text class="mb-1 text-[28px] font-bold text-zinc-900"
           >Event Handling</text
         >
-        <text class="text-[13px] text-zinc-500 mb-5"
+        <text class="mb-5 text-[13px] text-zinc-500"
           >Tap the outer or inner box to see how events propagate.</text
         >
 
-        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+        <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
-            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-3"
+            class="uppercase mb-3 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
             >Propagation Demo</text
           >
           <view
-            class="bg-indigo-50 p-5 rounded-[10px] items-center"
+            class="items-center rounded-[10px] bg-indigo-50 p-5"
             (bindtap)="onOuterTap()"
           >
-            <text class="text-[13px] text-indigo-700 mb-3"
+            <text class="mb-3 text-[13px] text-indigo-700"
               >Outer (bindtap — bubbles)</text
             >
             <view
-              class="bg-indigo-500 py-3.5 px-6 rounded-lg"
+              class="rounded-lg bg-indigo-500 px-6 py-3.5"
               (catchtap)="onInnerTap()"
             >
-              <text class="text-white text-[13px]"
+              <text class="text-[13px] text-white"
                 >Inner (catchtap — stops propagation)</text
               >
             </view>
           </view>
         </view>
 
-        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+        <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
-            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-3"
+            class="uppercase mb-3 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
             >Event Log</text
           >
           @for (entry of log(); track $index) {
-            <text class="text-[13px] text-zinc-900 mb-1">{{ entry }}</text>
+            <text class="mb-1 text-[13px] text-zinc-900">{{ entry }}</text>
           } @empty {
             <text class="text-[13px] text-zinc-400"
               >Tap a box to see events</text

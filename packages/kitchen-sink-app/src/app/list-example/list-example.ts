@@ -8,27 +8,27 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   imports: [LYNX_ELEMENTS],
   template: `
     <scroll-view
-      class="flex flex-col p-4 h-screen bg-gray-100"
+      class="h-screen flex-col bg-gray-100 p-4 flex"
       scroll-orientation="vertical"
     >
-      <text class="text-[24px] mb-4 text-center font-bold">List Example</text>
+      <text class="mb-4 text-[24px] font-bold text-center">List Example</text>
       <!-- Simple list example -->
       <view class="flex justify-center">
         <view
-          class="bg-blue-500 rounded-lg px-6 py-3"
+          class="rounded-lg bg-blue-500 px-6 py-3"
           (bindtap)="toggleItems()"
         >
-          <text class="text-white text-base text-center"
+          <text class="text-base text-white text-center"
             >Toggle Items ({{ showItems() }})</text
           >
         </view>
-        <view class="bg-blue-500 rounded-lg px-6 py-3" (bindtap)="addItem()">
-          <text class="text-white text-base text-center">Add Item</text>
+        <view class="rounded-lg bg-blue-500 px-6 py-3" (bindtap)="addItem()">
+          <text class="text-base text-white text-center">Add Item</text>
         </view>
       </view>
       <text class="text-[10px] text-gray-800">{{ dbg }}</text>
       <list
-        class="w-full h-[400px] bg-red-500 rounded-lg overflow-hidden mb-4"
+        class="mb-4 h-[400px] w-full rounded-lg bg-red-500 overflow-hidden"
         list-type="single"
         [span-count]="1"
         scroll-orientation="vertical"

@@ -66,7 +66,7 @@ export class UiSelect {
 
   protected readonly triggerClass = computed(() =>
     cn(
-      'flex flex-row items-center justify-between rounded-md border border-input bg-background px-3 py-2 h-10',
+      'border-input bg-background flex h-10 flex-row items-center justify-between rounded-md border px-3 py-2',
       this.disabled() && 'opacity-50',
       this.userClass(),
     ),
@@ -75,7 +75,7 @@ export class UiSelect {
   protected readonly valueTextClass = computed(() => {
     const val = this.value();
     return cn(
-      'text-sm flex-1',
+      'flex-1 text-sm',
       val ? 'text-foreground' : 'text-muted-foreground',
     );
   });
@@ -136,7 +136,7 @@ export class UiSelectItem {
     ),
   );
 
-  protected readonly labelClass = computed(() => cn('text-sm text-foreground'));
+  protected readonly labelClass = computed(() => cn('text-foreground text-sm'));
 
   protected onTap(): void {
     this.#select.select(this.itemValue());

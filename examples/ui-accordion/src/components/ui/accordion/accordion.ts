@@ -32,7 +32,7 @@ export class UiAccordion {
   readonly expandedItems = signal<Set<string>>(new Set());
 
   protected readonly containerClass = computed(() =>
-    cn('flex flex-col', this.userClass()),
+    cn('flex-col flex', this.userClass()),
   );
 
   toggle(value: string): void {
@@ -79,7 +79,7 @@ export class UiAccordionItem {
   );
 
   protected readonly itemClass = computed(() =>
-    cn('flex flex-col border-b border-border', this.userClass()),
+    cn('flex-col border-b border-border flex', this.userClass()),
   );
 
   toggle(): void {
@@ -104,7 +104,7 @@ export class UiAccordionTrigger {
   readonly userClass = input<string>('', { alias: 'class' });
 
   protected readonly triggerClass = computed(() =>
-    cn('flex flex-row items-center justify-between py-4', this.userClass()),
+    cn('flex-row items-center py-4 flex justify-between', this.userClass()),
   );
 
   protected readonly textClass = computed(() =>
@@ -181,6 +181,6 @@ export class UiAccordionContent {
   }
 
   protected readonly contentClass = computed(() =>
-    cn('flex flex-col pb-4', this.userClass()),
+    cn('flex-col pb-4 flex', this.userClass()),
   );
 }

@@ -110,7 +110,7 @@ export class UiTabsList {
       // it the muted pill spans the full width, leaving empty space around the
       // tabs. Same lever as the badge fix: Lynx has no `inline-flex`, so
       // align-self is how you opt a child into shrink-to-fit.
-      'flex flex-row items-center self-start rounded-lg bg-muted p-1',
+      'bg-muted flex flex-row items-center self-start rounded-lg p-1',
       this.userClass(),
     ),
   );
@@ -271,6 +271,6 @@ export class UiTabsContent {
   }
 
   protected readonly contentClass = computed(() =>
-    cn('flex flex-col mt-2', this.userClass()),
+    cn('mt-2 flex flex-col', this.userClass()),
   );
 }

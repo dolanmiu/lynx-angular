@@ -18,14 +18,14 @@ import {
   ],
   template: `
     <scroll-view scroll-orientation="vertical" class="h-full">
-      <view class="flex flex-col gap-6 p-6">
+      <view class="flex-col gap-6 p-6 flex">
         <text class="text-2xl font-bold text-foreground">Accordion</text>
         <text class="text-sm text-muted-foreground">
           A vertically stacked set of interactive headings that reveal content.
         </text>
 
         <!-- Single-mode accordion (only one item open at a time) -->
-        <view class="flex flex-col gap-2">
+        <view class="flex-col gap-2 flex">
           <text class="text-lg font-semibold text-foreground">
             Single Mode
           </text>
@@ -65,7 +65,7 @@ import {
         </ui-accordion>
 
         <!-- Multiple-mode accordion (multiple items can be open) -->
-        <view class="flex flex-col gap-2 mt-4">
+        <view class="mt-4 flex-col gap-2 flex">
           <text class="text-lg font-semibold text-foreground">
             Multiple Mode
           </text>

@@ -8,13 +8,13 @@ import { UiBadge } from '../components/ui/badge';
   template: `
     <scroll-view scroll-orientation="vertical" class="h-full">
       <view class="p-6">
-        <text class="text-2xl font-bold text-foreground mb-6">Badge</text>
+        <text class="mb-6 text-2xl font-bold text-foreground">Badge</text>
 
         <!-- Variants -->
-        <text class="text-sm font-medium text-muted-foreground mb-3">
+        <text class="mb-3 text-sm font-medium text-muted-foreground">
           Variants
         </text>
-        <view class="flex flex-row flex-wrap gap-2 mb-6">
+        <view class="mb-6 flex-row flex-wrap gap-2 flex">
           <ui-badge>Default</ui-badge>
           <ui-badge variant="secondary">Secondary</ui-badge>
           <ui-badge variant="destructive">Destructive</ui-badge>
@@ -22,23 +22,23 @@ import { UiBadge } from '../components/ui/badge';
         </view>
 
         <!-- Usage examples -->
-        <text class="text-sm font-medium text-muted-foreground mb-3">
+        <text class="mb-3 text-sm font-medium text-muted-foreground">
           Common Uses
         </text>
-        <view class="flex flex-col gap-3">
-          <view class="flex flex-row items-center gap-2">
+        <view class="flex-col gap-3 flex">
+          <view class="flex-row items-center gap-2 flex">
             <text class="text-sm text-foreground">Status</text>
             <ui-badge>Active</ui-badge>
           </view>
-          <view class="flex flex-row items-center gap-2">
+          <view class="flex-row items-center gap-2 flex">
             <text class="text-sm text-foreground">Notifications</text>
             <ui-badge variant="destructive">3</ui-badge>
           </view>
-          <view class="flex flex-row items-center gap-2">
+          <view class="flex-row items-center gap-2 flex">
             <text class="text-sm text-foreground">Category</text>
             <ui-badge variant="secondary">Angular</ui-badge>
           </view>
-          <view class="flex flex-row items-center gap-2">
+          <view class="flex-row items-center gap-2 flex">
             <text class="text-sm text-foreground">Version</text>
             <ui-badge variant="outline">v2.0</ui-badge>
           </view>

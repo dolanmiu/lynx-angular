@@ -8,7 +8,7 @@ import { UiLabel } from '../components/ui/label';
   imports: [LYNX_ELEMENTS, UiRadioGroup, UiRadioGroupItem, UiLabel],
   template: `
     <scroll-view scroll-orientation="vertical" class="h-full">
-      <view class="flex flex-col gap-6 p-6">
+      <view class="flex-col gap-6 p-6 flex">
         <text class="text-2xl font-bold text-foreground">Radio Group</text>
         <text class="text-sm text-muted-foreground">
           A group of radio buttons where only one option can be selected at a
@@ -16,7 +16,7 @@ import { UiLabel } from '../components/ui/label';
         </text>
 
         <!-- Basic radio group -->
-        <view class="flex flex-col gap-2">
+        <view class="flex-col gap-2 flex">
           <ui-label>Preferred Contact Method</ui-label>
           <ui-radio-group [(value)]="contact">
             <ui-radio-group-item value="email">Email</ui-radio-group-item>
@@ -26,7 +26,7 @@ import { UiLabel } from '../components/ui/label';
         </view>
 
         <!-- Radio group with different options -->
-        <view class="flex flex-col gap-2">
+        <view class="flex-col gap-2 flex">
           <ui-label>Plan</ui-label>
           <ui-radio-group [(value)]="plan">
             <ui-radio-group-item value="free">Free</ui-radio-group-item>
@@ -38,7 +38,7 @@ import { UiLabel } from '../components/ui/label';
         </view>
 
         <!-- Disabled radio group -->
-        <view class="flex flex-col gap-2">
+        <view class="flex-col gap-2 flex">
           <ui-label [disabled]="true">Region (locked)</ui-label>
           <ui-radio-group value="us" [disabled]="true">
             <ui-radio-group-item value="us">United States</ui-radio-group-item>
@@ -49,7 +49,7 @@ import { UiLabel } from '../components/ui/label';
 
         <!-- Display current selections -->
         <view class="rounded-md border border-border bg-muted p-4">
-          <text class="text-sm font-medium text-foreground mb-2">
+          <text class="mb-2 text-sm font-medium text-foreground">
             Selected Values
           </text>
           <text class="text-xs text-muted-foreground">

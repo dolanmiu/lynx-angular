@@ -63,9 +63,9 @@ type Task = {
     UiActionSheetCancel,
   ],
   template: `
-    <view class="flex flex-col h-screen bg-zinc-50">
+    <view class="h-screen flex-col bg-zinc-50 flex">
       <view
-        class="flex flex-row items-center justify-between px-5 py-4 bg-white border-b border-zinc-200"
+        class="flex-row items-center border-b border-zinc-200 bg-white px-5 py-4 flex justify-between"
       >
         <text class="text-[22px] font-bold text-zinc-900">Tasks</text>
         <ui-button size="sm" (pressed)="newSheetOpen.set(true)"
@@ -73,7 +73,7 @@ type Task = {
         >
       </view>
 
-      <ui-tabs [(value)]="activeTab" class="flex-1 flex flex-col">
+      <ui-tabs [(value)]="activeTab" class="flex-1 flex-col flex">
         <ui-tabs-list class="mx-4 mt-3">
           <ui-tabs-trigger value="all"
             >All <ui-badge>{{ tasks().length }}</ui-badge></ui-tabs-trigger
@@ -110,7 +110,7 @@ type Task = {
 
     <ng-template #taskList let-tasks="tasks">
       <scroll-view scroll-orientation="vertical" class="flex-1">
-        <view class="flex flex-col gap-2 p-4">
+        <view class="flex-col gap-2 p-4 flex">
           @if (tasks.length === 0) {
             <ui-empty-state
               title="No tasks"
@@ -119,7 +119,7 @@ type Task = {
           }
           @for (task of tasks; track task.id) {
             <view
-              class="flex flex-row items-center gap-3 px-4 py-3.5 bg-white border border-zinc-200 rounded-xl"
+              class="flex-row items-center gap-3 rounded-xl border border-zinc-200 bg-white px-4 py-3.5 flex"
               (longpress)="openOptions(task)"
             >
               <ui-checkbox
@@ -145,12 +145,12 @@ type Task = {
       <ui-sheet-header
         ><ui-sheet-title>New Task</ui-sheet-title></ui-sheet-header
       >
-      <view class="flex flex-col gap-4 p-4">
-        <view class="flex flex-col gap-1.5">
+      <view class="flex-col gap-4 p-4 flex">
+        <view class="flex-col gap-1.5 flex">
           <ui-label>Title</ui-label>
           <ui-input [(value)]="newTitle" placeholder="Task title..." />
         </view>
-        <view class="flex flex-col gap-1.5">
+        <view class="flex-col gap-1.5 flex">
           <ui-label>Priority</ui-label>
           <ui-select [(value)]="newPriority">
             <ui-select-item value="high" label="High" />

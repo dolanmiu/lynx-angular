@@ -86,7 +86,7 @@ export class UiCardHeader {
   readonly userClass = input<string>('', { alias: 'class' });
 
   protected readonly containerClass = computed(() =>
-    cn('flex flex-col p-6', this.userClass()),
+    cn('flex-col p-6 flex', this.userClass()),
   );
 }
 
@@ -154,6 +154,6 @@ export class UiCardFooter {
   readonly userClass = input<string>('', { alias: 'class' });
 
   protected readonly containerClass = computed(() =>
-    cn('flex items-center p-6 pt-0', this.userClass()),
+    cn('items-center p-6 pt-0 flex', this.userClass()),
   );
 }

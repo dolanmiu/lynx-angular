@@ -16,19 +16,19 @@ import {
   ],
   template: `
     <scroll-view scroll-orientation="vertical" class="h-full">
-      <view class="flex flex-col gap-6 p-6">
+      <view class="flex-col gap-6 p-6 flex">
         <text class="text-2xl font-bold text-foreground">Collapsible</text>
         <text class="text-sm text-muted-foreground">
           An interactive component that expands and collapses content.
         </text>
 
         <!-- Basic collapsible -->
-        <view class="flex flex-col gap-2">
+        <view class="flex-col gap-2 flex">
           <text class="text-lg font-semibold text-foreground"> Basic </text>
         </view>
 
         <ui-collapsible class="rounded-lg border border-border">
-          <ui-collapsible-trigger class="justify-between p-4">
+          <ui-collapsible-trigger class="p-4 justify-between">
             <text class="text-sm font-medium text-foreground">
               What are starred repositories?
             </text>
@@ -46,21 +46,21 @@ import {
         </ui-collapsible>
 
         <!-- Collapsible with list content -->
-        <view class="flex flex-col gap-2">
+        <view class="flex-col gap-2 flex">
           <text class="text-lg font-semibold text-foreground">
             With List Content
           </text>
         </view>
 
         <ui-collapsible class="rounded-lg border border-border">
-          <ui-collapsible-trigger class="justify-between p-4">
+          <ui-collapsible-trigger class="p-4 justify-between">
             <text class="text-sm font-medium text-foreground">
               3 tagged versions
             </text>
             <text class="text-xs text-muted-foreground">Show</text>
           </ui-collapsible-trigger>
           <ui-collapsible-content>
-            <view class="flex flex-col gap-2 px-4 pb-4">
+            <view class="flex-col gap-2 px-4 pb-4 flex">
               <view class="rounded-md border border-border px-4 py-3">
                 <text class="text-sm text-foreground">v1.0.0</text>
               </view>
@@ -75,7 +75,7 @@ import {
         </ui-collapsible>
 
         <!-- Disabled collapsible -->
-        <view class="flex flex-col gap-2">
+        <view class="flex-col gap-2 flex">
           <text class="text-lg font-semibold text-foreground"> Disabled </text>
           <text class="text-xs text-muted-foreground">
             Cannot be toggled when disabled.
@@ -86,7 +86,7 @@ import {
           [disabled]="true"
           class="rounded-lg border border-border"
         >
-          <ui-collapsible-trigger class="justify-between p-4">
+          <ui-collapsible-trigger class="p-4 justify-between">
             <text class="text-sm font-medium text-foreground">
               This section is locked
             </text>

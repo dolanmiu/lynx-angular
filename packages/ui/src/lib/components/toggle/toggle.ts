@@ -22,7 +22,7 @@ const toggleVariants = cva('flex items-center justify-center rounded-md', {
   variants: {
     variant: {
       default: '',
-      outline: 'border border-border',
+      outline: 'border-border border',
     },
     size: {
       default: 'h-10 px-3',

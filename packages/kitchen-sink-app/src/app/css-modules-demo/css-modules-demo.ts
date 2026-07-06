@@ -8,7 +8,7 @@ import styles from './demo.module.css';
   imports: [LYNX_ELEMENTS],
   template: `
     <view class="p-4">
-      <text class="text-xl font-bold mb-4">CSS Modules Demo</text>
+      <text class="mb-4 text-xl font-bold">CSS Modules Demo</text>
 
       <!-- Styled via CSS Modules hashed class names -->
       <view [class]="styles['card']">
@@ -24,26 +24,26 @@ import styles from './demo.module.css';
 
       <view [class]="styles['card']">
         <view [class]="styles['badge']">
-          <text class="text-white text-xs">Badge</text>
+          <text class="text-xs text-white">Badge</text>
         </view>
         <text>Card with a badge element</text>
       </view>
 
       <!-- Debug: show the raw hashed class names -->
-      <view class="mt-6 p-3 bg-gray-100 rounded-lg">
-        <text class="text-sm font-bold text-gray-500 mb-2"
+      <view class="mt-6 rounded-lg bg-gray-100 p-3">
+        <text class="mb-2 text-sm font-bold text-gray-500"
           >Debug: Hashed Class Names</text
         >
-        <text class="text-xs text-gray-400 font-[monospace] mb-1"
+        <text class="mb-1 font-[monospace] text-xs text-gray-400"
           >card → {{ styles['card'] }}</text
         >
-        <text class="text-xs text-gray-400 font-[monospace] mb-1"
+        <text class="mb-1 font-[monospace] text-xs text-gray-400"
           >title → {{ styles['title'] }}</text
         >
-        <text class="text-xs text-gray-400 font-[monospace] mb-1"
+        <text class="mb-1 font-[monospace] text-xs text-gray-400"
           >highlight → {{ styles['highlight'] }}</text
         >
-        <text class="text-xs text-gray-400 font-[monospace] mb-1"
+        <text class="mb-1 font-[monospace] text-xs text-gray-400"
           >badge → {{ styles['badge'] }}</text
         >
       </view>

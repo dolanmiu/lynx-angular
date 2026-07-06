@@ -36,11 +36,11 @@ type Notification = {
     UiButton,
   ],
   template: `
-    <view class="flex flex-col h-screen bg-zinc-50">
+    <view class="h-screen flex-col bg-zinc-50 flex">
       <view
-        class="flex flex-row items-center justify-between px-5 py-4 bg-white border-b border-zinc-200"
+        class="flex-row items-center border-b border-zinc-200 bg-white px-5 py-4 flex justify-between"
       >
-        <view class="flex flex-row items-center gap-2.5">
+        <view class="flex-row items-center gap-2.5 flex">
           <text class="text-[22px] font-bold text-zinc-900">Notifications</text>
           @if (unreadCount() > 0) {
             <ui-badge>{{ unreadCount() }}</ui-badge>
@@ -63,27 +63,27 @@ type Notification = {
             />
           </view>
         } @else {
-          <view class="flex flex-col gap-2 p-4">
+          <view class="flex-col gap-2 p-4 flex">
             @for (n of notifications(); track n.id) {
               <ui-card
                 [class.opacity-[0.55]]="n.read"
                 (longpress)="openActionSheet(n)"
               >
                 <ui-card-content class="p-3">
-                  <view class="flex flex-row items-start gap-3">
+                  <view class="flex-row items-start gap-3 flex">
                     @if (!n.read) {
                       <view
-                        class="w-2 h-2 rounded-[50%] bg-indigo-500 mt-1.5 shrink-0"
+                        class="mt-1.5 h-2 w-2 shrink-0 rounded-[50%] bg-indigo-500"
                       />
                     } @else {
-                      <view class="w-2 h-2 mt-1.5 shrink-0" />
+                      <view class="mt-1.5 h-2 w-2 shrink-0" />
                     }
-                    <view class="flex flex-col gap-0.5 flex-1">
+                    <view class="flex-1 flex-col gap-0.5 flex">
                       <text class="text-sm font-semibold text-zinc-900">{{
                         n.title
                       }}</text>
                       <text class="text-xs text-zinc-500">{{ n.message }}</text>
-                      <text class="text-xs text-zinc-400 mt-1">{{
+                      <text class="mt-1 text-xs text-zinc-400">{{
                         n.time
                       }}</text>
                     </view>

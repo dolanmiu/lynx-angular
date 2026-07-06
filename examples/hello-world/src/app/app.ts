@@ -5,13 +5,13 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   selector: 'app-root',
   template: `
     <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
-      <view class="p-6 items-center justify-center min-h-full">
-        <view class="items-center mb-8">
+      <view class="min-h-full items-center p-6 justify-center">
+        <view class="mb-8 items-center">
           <text
-            class="text-[11px] font-bold text-indigo-500 bg-indigo-50 py-1 px-3 rounded-[20px] tracking-[0.5px] uppercase mb-4"
+            class="uppercase mb-4 rounded-[20px] bg-indigo-50 px-3 py-1 text-[11px] font-bold tracking-[0.5px] text-indigo-500"
             >AngularLynx</text
           >
-          <text class="text-[32px] font-bold text-zinc-900 mb-1.5"
+          <text class="mb-1.5 text-[32px] font-bold text-zinc-900"
             >Hello, Lynx!</text
           >
           <text class="text-[15px] text-zinc-500 text-center"
@@ -20,21 +20,21 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
         </view>
 
         <view
-          class="bg-white border border-zinc-200 rounded-2xl px-12 py-8 items-center mb-6"
+          class="mb-6 items-center rounded-2xl border border-zinc-200 bg-white px-12 py-8"
         >
           <text class="text-[64px] font-bold text-indigo-500">{{
             count()
           }}</text>
-          <text class="text-sm text-zinc-400 mt-1 uppercase tracking-[1px]"
+          <text class="uppercase mt-1 text-sm tracking-[1px] text-zinc-400"
             >taps</text
           >
         </view>
 
         <view
-          class="bg-indigo-500 py-3.5 px-8 rounded-[10px] items-center"
+          class="items-center rounded-[10px] bg-indigo-500 px-8 py-3.5"
           (bindtap)="increment()"
         >
-          <text class="text-white text-base font-semibold"
+          <text class="text-base font-semibold text-white"
             >Tap to increment</text
           >
         </view>

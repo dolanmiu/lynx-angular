@@ -6,14 +6,14 @@ import { LYNX_ELEMENTS, type LynxAnimation } from '@blotch/angular-lynx';
   template: `
     <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
       <view class="p-6">
-        <text class="text-[28px] font-bold text-zinc-900 mb-1">Animations</text>
-        <text class="text-[13px] text-zinc-500 mb-5"
+        <text class="mb-1 text-[28px] font-bold text-zinc-900">Animations</text>
+        <text class="mb-5 text-[13px] text-zinc-500"
           >CSS transitions, keyframes, and the JS animate() API.</text
         >
 
-        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+        <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
-            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-3"
+            class="uppercase mb-3 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
             >CSS Transition</text
           >
           <view
@@ -25,9 +25,9 @@ import { LYNX_ELEMENTS, type LynxAnimation } from '@blotch/angular-lynx';
           </view>
         </view>
 
-        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+        <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
-            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-3"
+            class="uppercase mb-3 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
             >CSS Keyframes</text
           >
           <view
@@ -39,9 +39,9 @@ import { LYNX_ELEMENTS, type LynxAnimation } from '@blotch/angular-lynx';
           </view>
         </view>
 
-        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+        <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
-            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-3"
+            class="uppercase mb-3 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
             >JS animate() API</text
           >
           <view

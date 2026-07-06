@@ -50,64 +50,64 @@ const handleScaleTap = (event: MainThread.TouchEvent) => {
   imports: [LYNX_ELEMENTS, LynxMainThreadEvent],
   template: `
     <scroll-view scroll-orientation="vertical" class="p-4">
-      <text class="text-xl font-bold mb-4 text-[#1a1a2e]"
+      <text class="mb-4 text-xl font-bold text-[#1a1a2e]"
         >Worklet Directive Demo</text
       >
-      <text class="text-sm text-gray-500 mb-2 mt-4">
+      <text class="mb-2 mt-4 text-sm text-gray-500">
         Uses "main thread" directive instead of mainThreadFn()
       </text>
 
-      <text class="text-sm text-gray-500 mb-2 mt-4"
+      <text class="mb-2 mt-4 text-sm text-gray-500"
         >Tap — cycles background color</text
       >
       <view
-        class="p-5 rounded-xl items-center justify-center mb-3 bg-[#6200ee]"
+        class="mb-3 items-center rounded-xl bg-[#6200ee] p-5 justify-center"
         [mainThreadBindtap]="handleColorTap"
       >
-        <text class="text-white text-base font-medium">Tap me</text>
-        <text class="text-xs text-gray-400 mt-1 italic"
+        <text class="text-base font-medium text-white">Tap me</text>
+        <text class="mt-1 text-xs italic text-gray-400"
           >"main thread" directive</text
         >
       </view>
 
-      <text class="text-sm text-gray-500 mb-2 mt-4"
+      <text class="mb-2 mt-4 text-sm text-gray-500"
         >Touch move — adjusts opacity</text
       >
       <view
-        class="p-5 rounded-xl items-center justify-center mb-3 bg-[#0077b6]"
+        class="mb-3 items-center rounded-xl bg-[#0077b6] p-5 justify-center"
         [mainThreadBindtouchmove]="handleOpacityMove"
         [mainThreadBindtouchend]="handleOpacityEnd"
       >
-        <text class="text-white text-base font-medium"
+        <text class="text-base font-medium text-white"
           >Slide finger left/right</text
         >
-        <text class="text-xs text-gray-400 mt-1 italic"
+        <text class="mt-1 text-xs italic text-gray-400"
           >Opacity tracks finger position</text
         >
       </view>
 
-      <text class="text-sm text-gray-500 mb-2 mt-4">Tap — scale bounce</text>
+      <text class="mb-2 mt-4 text-sm text-gray-500">Tap — scale bounce</text>
       <view
-        class="p-5 rounded-xl items-center justify-center mb-3 bg-[#2d6a4f]"
+        class="mb-3 items-center rounded-xl bg-[#2d6a4f] p-5 justify-center"
         [mainThreadBindtap]="handleScaleTap"
       >
-        <text class="text-white text-base font-medium">Tap for bounce</text>
-        <text class="text-xs text-gray-400 mt-1 italic"
+        <text class="text-base font-medium text-white">Tap for bounce</text>
+        <text class="mt-1 text-xs italic text-gray-400"
           >transform: scale() on main thread</text
         >
       </view>
 
-      <text class="text-sm text-gray-500 mb-2 mt-4"
+      <text class="mb-2 mt-4 text-sm text-gray-500"
         >Background thread tap (for comparison)</text
       >
       <view
-        class="p-5 rounded-xl items-center justify-center mb-3 bg-[#555]"
+        class="mb-3 items-center rounded-xl bg-[#555] p-5 justify-center"
         (bindtap)="onBgTap()"
       >
-        <text class="text-white text-base font-medium"
+        <text class="text-base font-medium text-white"
           >BG taps: {{ bgTapCount() }}</text
         >
-        <text class="text-xs text-gray-400 mt-1 italic"
+        <text class="mt-1 text-xs italic text-gray-400"
           >Standard Angular event (cross-thread)</text
         >
       </view>

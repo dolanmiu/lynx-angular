@@ -39,15 +39,15 @@ type UploadFile = {
   ],
   template: `
     <scroll-view scroll-orientation="vertical" class="h-screen bg-zinc-50">
-      <view class="flex flex-col gap-6 p-6">
+      <view class="flex-col gap-6 p-6 flex">
         <text class="text-[28px] font-bold text-zinc-900">File Manager</text>
 
         <ui-card>
           <ui-card-header>
-            <view class="flex flex-row items-center justify-between">
+            <view class="flex-row items-center flex justify-between">
               <ui-card-title>Uploads</ui-card-title>
               @if (syncing()) {
-                <view class="flex flex-row items-center gap-2">
+                <view class="flex-row items-center gap-2 flex">
                   <ui-spinner size="sm" />
                   <text class="text-xs text-zinc-400">Syncing...</text>
                 </view>
@@ -55,10 +55,10 @@ type UploadFile = {
             </view>
           </ui-card-header>
           <ui-card-content>
-            <view class="flex flex-col gap-4">
+            <view class="flex-col gap-4 flex">
               @for (file of files(); track file.id) {
-                <view class="flex flex-col gap-1.5">
-                  <view class="flex flex-row items-center justify-between">
+                <view class="flex-col gap-1.5 flex">
+                  <view class="flex-row items-center flex justify-between">
                     <text class="text-sm text-zinc-900">{{ file.name }}</text>
                     @if (file.done) {
                       <ui-badge variant="secondary">Done</ui-badge>
@@ -77,7 +77,7 @@ type UploadFile = {
                 [disabled]="uploading()"
               >
                 @if (uploading()) {
-                  <view class="flex flex-row items-center gap-2">
+                  <view class="flex-row items-center gap-2 flex">
                     <ui-spinner size="sm" />
                     <text>Uploading...</text>
                   </view>
@@ -91,13 +91,13 @@ type UploadFile = {
 
         <ui-separator />
 
-        <view class="flex flex-col gap-3">
+        <view class="flex-col gap-3 flex">
           <text class="text-sm font-medium text-zinc-900">Recent Files</text>
           @if (loading()) {
             @for (i of [1, 2, 3]; track i) {
-              <view class="flex flex-row items-center gap-3">
-                <ui-skeleton class="w-10 h-10 rounded-lg" />
-                <view class="flex flex-col gap-2 flex-1">
+              <view class="flex-row items-center gap-3 flex">
+                <ui-skeleton class="h-10 w-10 rounded-lg" />
+                <view class="flex-1 flex-col gap-2 flex">
                   <ui-skeleton class="h-3.5 w-3/4 rounded" />
                   <ui-skeleton class="h-3 w-1/2 rounded" />
                 </view>
@@ -106,14 +106,14 @@ type UploadFile = {
           } @else {
             @for (file of recentFiles; track file.name) {
               <view
-                class="flex flex-row items-center gap-3 px-3.5 py-2.5 bg-white border border-zinc-200 rounded-xl"
+                class="flex-row items-center gap-3 rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 flex"
               >
                 <view
-                  class="w-10 h-10 rounded-lg bg-zinc-100 items-center justify-center"
+                  class="h-10 w-10 items-center rounded-lg bg-zinc-100 justify-center"
                 >
                   <text class="text-[18px]">{{ file.icon }}</text>
                 </view>
-                <view class="flex flex-col gap-0.5 flex-1">
+                <view class="flex-1 flex-col gap-0.5 flex">
                   <text class="text-sm font-medium text-zinc-900">{{
                     file.name
                   }}</text>

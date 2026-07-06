@@ -9,13 +9,13 @@ import { UiButton } from '../components/ui/button';
   template: `
     <scroll-view scroll-orientation="vertical" class="h-full">
       <view class="p-6">
-        <text class="text-2xl font-bold text-foreground mb-6">Empty State</text>
+        <text class="mb-6 text-2xl font-bold text-foreground">Empty State</text>
 
         <!-- With icon and description -->
-        <text class="text-sm font-medium text-muted-foreground mb-3">
+        <text class="mb-3 text-sm font-medium text-muted-foreground">
           With Icon and Description
         </text>
-        <view class="rounded-lg border border-border mb-6">
+        <view class="mb-6 rounded-lg border border-border">
           <ui-empty-state
             icon="search"
             title="No results found"
@@ -24,10 +24,10 @@ import { UiButton } from '../components/ui/button';
         </view>
 
         <!-- Without icon -->
-        <text class="text-sm font-medium text-muted-foreground mb-3">
+        <text class="mb-3 text-sm font-medium text-muted-foreground">
           Without Icon
         </text>
-        <view class="rounded-lg border border-border mb-6">
+        <view class="mb-6 rounded-lg border border-border">
           <ui-empty-state
             title="Nothing here yet"
             description="Content will appear here once it's available."
@@ -35,7 +35,7 @@ import { UiButton } from '../components/ui/button';
         </view>
 
         <!-- With action button -->
-        <text class="text-sm font-medium text-muted-foreground mb-3">
+        <text class="mb-3 text-sm font-medium text-muted-foreground">
           With Action
         </text>
         <view class="rounded-lg border border-border">

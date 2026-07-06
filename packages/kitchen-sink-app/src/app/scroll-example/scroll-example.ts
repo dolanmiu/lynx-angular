@@ -6,35 +6,35 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   standalone: true,
   imports: [LYNX_ELEMENTS],
   template: `
-    <view class="flex flex-col p-4 h-screen bg-gray-100">
-      <text class="text-[24px] mb-4 text-center font-bold"
+    <view class="h-screen flex-col bg-gray-100 p-4 flex">
+      <text class="mb-4 text-[24px] font-bold text-center"
         >Scroll View Example</text
       >
       <!-- Horizontal scroll example -->
-      <text class="text-[18px] my-3 font-bold">Horizontal Scroll</text>
+      <text class="my-3 text-[18px] font-bold">Horizontal Scroll</text>
       <scroll-view
-        class="h-[120px] bg-white rounded-lg mb-6"
+        class="mb-6 h-[120px] rounded-lg bg-white"
         scroll-orientation="horizontal"
       >
         @for (item of horizontalItems; track item) {
           <view
-            class="w-[150px] h-[80px] bg-blue-500 rounded-lg m-4 flex justify-center items-center"
+            class="m-4 h-[80px] w-[150px] items-center rounded-lg bg-blue-500 flex justify-center"
           >
-            <text class="text-white text-base font-bold">{{ item }}</text>
+            <text class="text-base font-bold text-white">{{ item }}</text>
           </view>
         }
       </scroll-view>
       <!-- Vertical scroll example -->
-      <text class="text-[18px] my-3 font-bold">Vertical Scroll</text>
+      <text class="my-3 text-[18px] font-bold">Vertical Scroll</text>
       <scroll-view
-        class="flex-1 bg-white rounded-lg"
+        class="flex-1 rounded-lg bg-white"
         scroll-orientation="vertical"
       >
         @for (item of verticalItems; track item) {
           <view
-            class="h-[80px] bg-[#17a2b8] rounded-lg m-4 flex justify-center items-center"
+            class="m-4 h-[80px] items-center rounded-lg bg-[#17a2b8] flex justify-center"
           >
-            <text class="text-white text-base font-bold">{{ item }}</text>
+            <text class="text-base font-bold text-white">{{ item }}</text>
           </view>
         }
       </scroll-view>

@@ -51,20 +51,20 @@ import lynxLogo from '../assets/lynx-logo.png';
 
         <overlay [attr.visible]="showOverlay()" class="fixed overflow-visible">
           <view
-            class="w-full h-full z-0 justify-center items-center bg-black/50"
+            class="z-0 h-full w-full items-center bg-black/50 justify-center"
             (bindtap)="closeOverlay()"
           >
-            <view class="bg-white p-6 rounded-xl w-[80%]">
-              <text class="text-[18px] font-bold mb-3">Overlay Demo</text>
-              <text class="text-sm mb-4"
+            <view class="w-[80%] rounded-xl bg-white p-6">
+              <text class="mb-3 text-[18px] font-bold">Overlay Demo</text>
+              <text class="mb-4 text-sm"
                 >This modal is rendered outside the Lynx document flow using the
                 native overlay element.</text
               >
               <view
-                class="bg-[#6200ee] p-3 rounded-lg items-center"
+                class="items-center rounded-lg bg-[#6200ee] p-3"
                 (catchtap)="closeOverlay()"
               >
-                <text class="text-white text-sm">Close</text>
+                <text class="text-sm text-white">Close</text>
               </view>
             </view>
           </view>
@@ -74,11 +74,11 @@ import lynxLogo from '../assets/lynx-logo.png';
 
         <!-- frame element: set src to a .lynx.bundle URL to embed a nested Lynx page -->
         <frame
-          class="w-full h-[200px] border-2 border-[#6200ee] my-2"
+          class="my-2 h-[200px] w-full border-2 border-[#6200ee]"
           (bindload)="onFrameLoad($any($event))"
         ></frame>
 
-        <view class="nav-button bg-[#6200ee] mb-3" (bindtap)="openOverlay()">
+        <view class="nav-button mb-3 bg-[#6200ee]" (bindtap)="openOverlay()">
           <text class="nav-button-text">Open Overlay</text>
         </view>
 

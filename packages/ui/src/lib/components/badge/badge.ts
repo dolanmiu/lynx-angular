@@ -25,7 +25,7 @@ export const badgeVariants = cva(
         default: 'bg-primary',
         secondary: 'bg-secondary',
         destructive: 'bg-destructive',
-        outline: 'border border-border bg-transparent',
+        outline: 'border-border border bg-transparent',
       },
     },
     defaultVariants: {

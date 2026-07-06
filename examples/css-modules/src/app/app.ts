@@ -7,10 +7,10 @@ import styles from './demo.module.css';
   template: `
     <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
       <view class="p-6">
-        <text class="text-[28px] font-bold text-zinc-900 mb-1"
+        <text class="mb-1 text-[28px] font-bold text-zinc-900"
           >CSS Modules</text
         >
-        <text class="text-[13px] text-zinc-500 mb-5"
+        <text class="mb-5 text-[13px] text-zinc-500"
           >Scoped, hashed class names for style isolation.</text
         >
 
@@ -25,15 +25,15 @@ import styles from './demo.module.css';
           <text class="text-sm text-indigo-700">Highlighted Section</text>
         </view>
 
-        <view class="bg-zinc-100 rounded-xl p-3.5 mt-4">
+        <view class="mt-4 rounded-xl bg-zinc-100 p-3.5">
           <text
-            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-2"
+            class="uppercase mb-2 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
             >Hashed class names</text
           >
-          <text class="text-[11px] text-zinc-500 mb-0.5"
+          <text class="mb-0.5 text-[11px] text-zinc-500"
             >card → {{ styles['card'] }}</text
           >
-          <text class="text-[11px] text-zinc-500 mb-0.5"
+          <text class="mb-0.5 text-[11px] text-zinc-500"
             >title → {{ styles['title'] }}</text
           >
         </view>

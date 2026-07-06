@@ -89,7 +89,7 @@ export class UiInput implements FormValueControl<string> {
   }
 
   protected readonly containerClass = computed(() =>
-    cn('flex flex-col gap-1.5', this.userClass()),
+    cn('flex-col gap-1.5 flex', this.userClass()),
   );
 
   protected readonly labelClass = computed(() =>

@@ -35,18 +35,18 @@ import { UiButton } from '../components/ui/button';
   ],
   template: `
     <scroll-view scroll-orientation="vertical" class="h-screen bg-zinc-50">
-      <view class="flex flex-col gap-6 p-6">
+      <view class="flex-col gap-6 p-6 flex">
         <text class="text-[28px] font-bold text-zinc-900">Settings</text>
 
-        <view class="flex flex-col gap-3.5">
+        <view class="flex-col gap-3.5 flex">
           <text
-            class="text-[11px] font-semibold uppercase tracking-[1px] text-zinc-400"
+            class="uppercase text-[11px] font-semibold tracking-[1px] text-zinc-400"
             >Notifications</text
           >
           <view
-            class="flex flex-row items-center justify-between px-4 py-3 bg-white border border-zinc-200 rounded-xl"
+            class="flex-row items-center rounded-xl border border-zinc-200 bg-white px-4 py-3 flex justify-between"
           >
-            <view class="flex flex-col gap-0.5">
+            <view class="flex-col gap-0.5 flex">
               <ui-label>Push Notifications</ui-label>
               <text class="text-xs text-zinc-400"
                 >Receive alerts on your device</text
@@ -55,13 +55,13 @@ import { UiButton } from '../components/ui/button';
             <ui-switch [(checked)]="pushNotifications" />
           </view>
           <view
-            class="flex flex-row items-center justify-between px-4 py-3 bg-white border border-zinc-200 rounded-xl"
+            class="flex-row items-center rounded-xl border border-zinc-200 bg-white px-4 py-3 flex justify-between"
           >
             <ui-label>Sound</ui-label>
             <ui-switch [(checked)]="sound" />
           </view>
           <view
-            class="flex flex-row items-center justify-between px-4 py-3 bg-white border border-zinc-200 rounded-xl"
+            class="flex-row items-center rounded-xl border border-zinc-200 bg-white px-4 py-3 flex justify-between"
           >
             <ui-label>Email Digest</ui-label>
             <ui-switch [(checked)]="emailDigest" />
@@ -70,12 +70,12 @@ import { UiButton } from '../components/ui/button';
 
         <ui-separator />
 
-        <view class="flex flex-col gap-3.5">
+        <view class="flex-col gap-3.5 flex">
           <text
-            class="text-[11px] font-semibold uppercase tracking-[1px] text-zinc-400"
+            class="uppercase text-[11px] font-semibold tracking-[1px] text-zinc-400"
             >Appearance</text
           >
-          <view class="flex flex-col gap-1.5">
+          <view class="flex-col gap-1.5 flex">
             <ui-label>Language</ui-label>
             <ui-select [(value)]="language">
               <ui-select-item value="en" label="English" />
@@ -84,13 +84,13 @@ import { UiButton } from '../components/ui/button';
               <ui-select-item value="de" label="Deutsch" />
             </ui-select>
           </view>
-          <view class="flex flex-col gap-2.5">
+          <view class="flex-col gap-2.5 flex">
             <ui-label>Theme</ui-label>
             <ui-radio-group [(value)]="theme">
-              <view class="flex flex-col gap-2.5">
+              <view class="flex-col gap-2.5 flex">
                 @for (opt of themeOptions; track opt.value) {
                   <view
-                    class="flex flex-row items-center gap-2.5 px-4 py-3 bg-white border border-zinc-200 rounded-xl"
+                    class="flex-row items-center gap-2.5 rounded-xl border border-zinc-200 bg-white px-4 py-3 flex"
                   >
                     <!--
                       The label lives inside ui-radio-group-item (via ng-content), not
@@ -110,9 +110,9 @@ import { UiButton } from '../components/ui/button';
 
         <ui-separator />
 
-        <view class="flex flex-col gap-3.5">
+        <view class="flex-col gap-3.5 flex">
           <text
-            class="text-[11px] font-semibold uppercase tracking-[1px] text-red-500"
+            class="uppercase text-[11px] font-semibold tracking-[1px] text-red-500"
             >Danger Zone</text
           >
           <ui-button

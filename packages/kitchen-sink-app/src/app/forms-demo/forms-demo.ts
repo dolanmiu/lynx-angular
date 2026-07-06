@@ -14,59 +14,59 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   template: `
     <scroll-view scroll-orientation="vertical" class="flex-1">
       <view class="p-4">
-        <text class="text-xl font-bold mb-1"> Angular Forms </text>
-        <text class="text-[13px] text-gray-500 mb-5">
+        <text class="mb-1 text-xl font-bold"> Angular Forms </text>
+        <text class="mb-5 text-[13px] text-gray-500">
           Reactive forms via ControlValueAccessor.
         </text>
 
         <!-- Name -->
-        <text class="text-[13px] text-gray-600 mb-1">Name *</text>
+        <text class="mb-1 text-[13px] text-gray-600">Name *</text>
         <input
           type="text"
           placeholder="Your name"
-          class="border border-gray-300 p-2.5 rounded-md text-[15px] mb-1"
+          class="mb-1 rounded-md border border-gray-300 p-2.5 text-[15px]"
           [formControl]="form.controls.name"
         />
         @if (form.controls.name.invalid && form.controls.name.touched) {
-          <text class="text-xs text-red-500 mb-2"> Name is required </text>
+          <text class="mb-2 text-xs text-red-500"> Name is required </text>
         } @else {
-          <view class="h-3 mb-2" />
+          <view class="mb-2 h-3" />
         }
 
         <!-- Email -->
-        <text class="text-[13px] text-gray-600 mb-1">Email *</text>
+        <text class="mb-1 text-[13px] text-gray-600">Email *</text>
         <input
           type="email"
           placeholder="you@example.com"
-          class="border border-gray-300 p-2.5 rounded-md text-[15px] mb-1"
+          class="mb-1 rounded-md border border-gray-300 p-2.5 text-[15px]"
           [formControl]="form.controls.email"
         />
         @if (form.controls.email.touched) {
           @if (form.controls.email.hasError('required')) {
-            <text class="text-xs text-red-500 mb-2"> Email is required </text>
+            <text class="mb-2 text-xs text-red-500"> Email is required </text>
           } @else if (form.controls.email.hasError('email')) {
-            <text class="text-xs text-red-500 mb-2">
+            <text class="mb-2 text-xs text-red-500">
               Enter a valid email address
             </text>
           } @else {
-            <view class="h-3 mb-2" />
+            <view class="mb-2 h-3" />
           }
         } @else {
-          <view class="h-3 mb-2" />
+          <view class="mb-2 h-3" />
         }
 
         <!-- Message -->
-        <text class="text-[13px] text-gray-600 mb-1">Message</text>
+        <text class="mb-1 text-[13px] text-gray-600">Message</text>
         <textarea
           placeholder="Write a message..."
-          class="border border-gray-300 p-2.5 rounded-md text-[15px] h-[80px] mb-4"
+          class="mb-4 h-[80px] rounded-md border border-gray-300 p-2.5 text-[15px]"
           [formControl]="form.controls.message"
         ></textarea>
 
         <!-- Form state badges -->
-        <view class="flex flex-row gap-2 mb-4 flex-wrap">
+        <view class="mb-4 flex-row flex-wrap gap-2 flex">
           <view
-            class="py-1 px-2 rounded"
+            class="rounded px-2 py-1"
             [class.bg-green-100]="form.valid"
             [class.bg-red-100]="!form.valid"
           >
@@ -75,32 +75,32 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
             </text>
           </view>
           @if (form.dirty) {
-            <view class="py-1 px-2 rounded bg-yellow-100">
+            <view class="rounded bg-yellow-100 px-2 py-1">
               <text class="text-xs">Dirty</text>
             </view>
           }
           @if (form.touched) {
-            <view class="py-1 px-2 rounded bg-purple-100">
+            <view class="rounded bg-purple-100 px-2 py-1">
               <text class="text-xs">Touched</text>
             </view>
           }
           @if (disabled()) {
-            <view class="py-1 px-2 rounded bg-slate-100">
+            <view class="rounded bg-slate-100 px-2 py-1">
               <text class="text-xs">Disabled</text>
             </view>
           }
         </view>
 
         <!-- Action buttons -->
-        <view class="flex flex-row gap-2 mb-4">
+        <view class="mb-4 flex-row gap-2 flex">
           <view
-            class="flex-1 bg-indigo-600 p-3 rounded-md items-center"
+            class="flex-1 items-center rounded-md bg-indigo-600 p-3"
             (bindtap)="submit()"
           >
-            <text class="text-white text-[15px] font-semibold"> Submit </text>
+            <text class="text-[15px] font-semibold text-white"> Submit </text>
           </view>
           <view
-            class="flex-1 bg-slate-100 p-3 rounded-md items-center border border-slate-200"
+            class="flex-1 items-center rounded-md border border-slate-200 bg-slate-100 p-3"
             (bindtap)="toggleDisable()"
           >
             <text class="text-[15px]">
@@ -111,8 +111,8 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
         <!-- Result -->
         @if (result()) {
-          <view class="bg-green-50 border border-green-300 p-3 rounded-md">
-            <text class="text-[13px] text-green-800 mb-0.5 font-semibold">
+          <view class="rounded-md border border-green-300 bg-green-50 p-3">
+            <text class="mb-0.5 text-[13px] font-semibold text-green-800">
               Submitted!
             </text>
             <text class="text-[13px] text-green-800">

@@ -25,16 +25,16 @@ import { UiSeparator } from '../components/ui/separator';
     UiSeparator,
   ],
   template: `
-    <view class="flex flex-col h-full">
+    <view class="h-full flex-col flex">
       <view
-        class="flex flex-row items-center px-4 py-3 border-b border-border bg-background"
+        class="flex-row items-center border-b border-border bg-background px-4 py-3 flex"
       >
         <ui-nav-drawer-trigger (pressed)="drawerOpen.set(true)" />
-        <text class="text-lg font-semibold text-foreground ml-3">My App</text>
+        <text class="ml-3 text-lg font-semibold text-foreground">My App</text>
       </view>
 
       <scroll-view scroll-orientation="vertical" class="flex-1">
-        <view class="flex flex-col gap-4 p-6">
+        <view class="flex-col gap-4 p-6 flex">
           <text class="text-2xl font-bold text-foreground">Nav Drawer</text>
           <text class="text-sm text-muted-foreground">
             Tap the hamburger menu icon to open the navigation drawer.

@@ -33,9 +33,9 @@ type Role = 'developer' | 'designer' | 'manager' | 'founder';
   ],
   template: `
     <scroll-view scroll-orientation="vertical" class="h-screen bg-zinc-50">
-      <view class="flex flex-col gap-6 p-6">
-        <view class="flex flex-col gap-2">
-          <view class="flex flex-row justify-between">
+      <view class="flex-col gap-6 p-6 flex">
+        <view class="flex-col gap-2 flex">
+          <view class="flex-row flex justify-between">
             <text class="text-sm text-zinc-500"
               >Step {{ step() }} of {{ totalSteps }}</text
             >
@@ -47,12 +47,12 @@ type Role = 'developer' | 'designer' | 'manager' | 'founder';
         </view>
 
         @if (step() === 1) {
-          <view class="flex flex-col items-center gap-3 py-8">
+          <view class="flex-col items-center gap-3 py-8 flex">
             <text class="text-[48px]">👋</text>
             <text class="text-[26px] font-bold text-zinc-900 text-center"
               >Welcome to AngularLynx</text
             >
-            <text class="text-sm text-zinc-500 text-center leading-5"
+            <text class="text-sm leading-5 text-zinc-500 text-center"
               >Let's personalize your experience. This only takes a
               minute.</text
             >
@@ -60,15 +60,15 @@ type Role = 'developer' | 'designer' | 'manager' | 'founder';
         }
 
         @if (step() === 2) {
-          <view class="flex flex-col gap-4">
+          <view class="flex-col gap-4 flex">
             <text class="text-[22px] font-bold text-zinc-900"
               >What's your role?</text
             >
             <ui-radio-group [(value)]="role">
-              <view class="flex flex-col gap-2.5">
+              <view class="flex-col gap-2.5 flex">
                 @for (opt of roles; track opt.value) {
                   <view
-                    class="flex flex-row items-center gap-3 px-4 py-3.5 bg-white border border-zinc-200 rounded-xl"
+                    class="flex-row items-center gap-3 rounded-xl border border-zinc-200 bg-white px-4 py-3.5 flex"
                   >
                     <!--
                       No [id] here: Lynx has no HTML-style label/for-id association, so
@@ -78,7 +78,7 @@ type Role = 'developer' | 'designer' | 'manager' | 'founder';
                       moving inside the item.
                     -->
                     <ui-radio-group-item [value]="opt.value" />
-                    <view class="flex flex-col gap-0.5 flex-1">
+                    <view class="flex-1 flex-col gap-0.5 flex">
                       <ui-label>{{ opt.label }}</ui-label>
                       <text class="text-xs text-zinc-400">{{ opt.desc }}</text>
                     </view>
@@ -90,15 +90,15 @@ type Role = 'developer' | 'designer' | 'manager' | 'founder';
         }
 
         @if (step() === 3) {
-          <view class="flex flex-col gap-4">
+          <view class="flex-col gap-4 flex">
             <text class="text-[22px] font-bold text-zinc-900"
               >What are you building?</text
             >
             <text class="text-sm text-zinc-500">Select all that apply.</text>
-            <view class="flex flex-col gap-2.5">
+            <view class="flex-col gap-2.5 flex">
               @for (opt of interests; track opt.value) {
                 <view
-                  class="flex flex-row items-center gap-3 px-4 py-3.5 bg-white border border-zinc-200 rounded-xl"
+                  class="flex-row items-center gap-3 rounded-xl border border-zinc-200 bg-white px-4 py-3.5 flex"
                   [class.border-indigo-500]="
                     selectedInterests().includes(opt.value)
                   "
@@ -109,7 +109,7 @@ type Role = 'developer' | 'designer' | 'manager' | 'founder';
                     [checked]="selectedInterests().includes(opt.value)"
                     (checkedChange)="toggleInterest(opt.value)"
                   />
-                  <view class="flex flex-col gap-0.5 flex-1">
+                  <view class="flex-1 flex-col gap-0.5 flex">
                     <text class="text-sm font-medium text-zinc-900">{{
                       opt.label
                     }}</text>
@@ -122,7 +122,7 @@ type Role = 'developer' | 'designer' | 'manager' | 'founder';
         }
 
         @if (step() === 4) {
-          <view class="flex flex-col gap-4">
+          <view class="flex-col gap-4 flex">
             <text class="text-[22px] font-bold text-zinc-900"
               >You're all set! 🎉</text
             >
@@ -131,15 +131,15 @@ type Role = 'developer' | 'designer' | 'manager' | 'founder';
                 ><ui-card-title>Your Profile</ui-card-title></ui-card-header
               >
               <ui-card-content>
-                <view class="flex flex-col gap-3">
-                  <view class="flex flex-row justify-between">
+                <view class="flex-col gap-3 flex">
+                  <view class="flex-row flex justify-between">
                     <text class="text-sm text-zinc-500">Role</text>
                     <text class="text-sm font-medium text-zinc-900">{{
                       roleName()
                     }}</text>
                   </view>
                   <ui-separator />
-                  <view class="flex flex-col gap-1">
+                  <view class="flex-col gap-1 flex">
                     <text class="text-sm text-zinc-500">Interests</text>
                     <text class="text-sm font-medium text-zinc-900">{{
                       interestNames()
@@ -151,7 +151,7 @@ type Role = 'developer' | 'designer' | 'manager' | 'founder';
           </view>
         }
 
-        <view class="flex flex-row gap-3">
+        <view class="flex-row gap-3 flex">
           @if (step() > 1) {
             <ui-button variant="outline" class="flex-1" (pressed)="back()"
               >Back</ui-button

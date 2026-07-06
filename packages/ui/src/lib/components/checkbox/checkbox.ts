@@ -21,7 +21,7 @@ import { cn } from '../../utils/cn';
   encapsulation: ViewEncapsulation.None,
   template: `
     <view
-      class="flex items-center justify-center h-11 w-11"
+      class="flex h-11 w-11 items-center justify-center"
       (bindtap)="toggle()"
     >
       <view [class]="boxClass()">
@@ -69,7 +69,7 @@ export class UiCheckbox {
 
   protected readonly boxClass = computed(() =>
     cn(
-      'flex items-center justify-center h-5 w-5 rounded-sm border',
+      'flex h-5 w-5 items-center justify-center rounded-sm border',
       this.checked()
         ? 'bg-primary border-primary'
         : 'border-primary bg-transparent',
@@ -79,7 +79,7 @@ export class UiCheckbox {
   );
 
   protected readonly checkClass = computed(() =>
-    cn('text-[10px] font-bold text-primary-foreground'),
+    cn('text-primary-foreground text-[10px] font-bold'),
   );
 
   toggle(): void {

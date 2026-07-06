@@ -79,7 +79,7 @@ export class UiAccordionItem {
   );
 
   protected readonly itemClass = computed(() =>
-    cn('flex flex-col border-b border-border', this.userClass()),
+    cn('border-border flex flex-col border-b', this.userClass()),
   );
 
   toggle(): void {
@@ -108,11 +108,11 @@ export class UiAccordionTrigger {
   );
 
   protected readonly textClass = computed(() =>
-    cn('text-sm font-medium text-foreground'),
+    cn('text-foreground text-sm font-medium'),
   );
 
   protected readonly chevronClass = computed(() =>
-    cn('text-xs text-muted-foreground'),
+    cn('text-muted-foreground text-xs'),
   );
 
   protected onTap(): void {

@@ -34,7 +34,7 @@ import { cn } from '../../utils/cn';
   encapsulation: ViewEncapsulation.None,
   template: `
     <overlay [attr.visible]="overlayVisible()" [style]="overlayStyle()">
-      <view #backdrop class="w-full h-full" (bindtap)="onBackdropTap()">
+      <view #backdrop class="h-full w-full" (bindtap)="onBackdropTap()">
         <view
           #panel
           [class]="panelClass()"
@@ -48,7 +48,7 @@ import { cn } from '../../utils/cn';
                clips this tile's children to the rounded corners but not its own
                box-shadow (painted outside the border box), so the shadow shows. -->
           <view
-            class="flex flex-col rounded-lg border border-border bg-card overflow-hidden"
+            class="border-border bg-card flex flex-col overflow-hidden rounded-lg border"
             style="box-shadow: 0 2px 16px rgba(0, 0, 0, 0.15);"
           >
             <ng-content />
@@ -98,7 +98,7 @@ export class UiActionSheet {
   }
 
   protected readonly panelClass = computed(() =>
-    cn('flex flex-col gap-2 w-full px-4 pb-6', this.userClass()),
+    cn('flex w-full flex-col gap-2 px-4 pb-6', this.userClass()),
   );
 
   protected readonly panelPositionStyle = computed(
@@ -193,11 +193,11 @@ export class UiActionSheetTitle {
   readonly userClass = input<string>('', { alias: 'class' });
 
   protected readonly containerClass = computed(() =>
-    cn('flex items-center justify-center py-3 px-4', this.userClass()),
+    cn('flex items-center justify-center px-4 py-3', this.userClass()),
   );
 
   protected readonly textClass = computed(() =>
-    cn('text-sm text-muted-foreground'),
+    cn('text-muted-foreground text-sm'),
   );
 }
 
@@ -232,7 +232,7 @@ export class UiActionSheetItem {
 
   protected readonly containerClass = computed(() =>
     cn(
-      'flex items-center justify-center py-3 px-4 border-t border-border',
+      'border-border flex items-center justify-center border-t px-4 py-3',
       this.userClass(),
     ),
   );
@@ -298,13 +298,13 @@ export class UiActionSheetCancel {
 
   protected readonly containerClass = computed(() =>
     cn(
-      'flex items-center justify-center py-3 px-4 rounded-lg border border-border bg-card',
+      'border-border bg-card flex items-center justify-center rounded-lg border px-4 py-3',
       this.userClass(),
     ),
   );
 
   protected readonly textClass = computed(() =>
-    cn('text-base font-semibold text-primary'),
+    cn('text-primary text-base font-semibold'),
   );
 
   protected onPressStart(): void {

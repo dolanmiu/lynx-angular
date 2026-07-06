@@ -8,9 +8,9 @@ import type { TextMetrics } from '@lynx-js/types';
   imports: [LYNX_ELEMENTS],
   template: `
     <view class="p-4">
-      <text class="text-[22px] font-bold mb-4">Text Measurement Demo</text>
+      <text class="mb-4 text-[22px] font-bold">Text Measurement Demo</text>
 
-      <text class="text-[13px] text-gray-500 mt-3 mb-1"
+      <text class="mb-1 mt-3 text-[13px] text-gray-500"
         >Enter text to measure:</text
       >
       <input
@@ -20,22 +20,22 @@ import type { TextMetrics } from '@lynx-js/types';
       />
 
       <view class="mt-4">
-        <text class="text-[13px] text-gray-500 mt-3 mb-1"
+        <text class="mb-1 mt-3 text-[13px] text-gray-500"
           >Measured at 14px:</text
         >
-        <text class="text-base mb-1">Width: {{ small().width }}px</text>
+        <text class="mb-1 text-base">Width: {{ small().width }}px</text>
 
-        <text class="text-[13px] text-gray-500 mt-3 mb-1"
+        <text class="mb-1 mt-3 text-[13px] text-gray-500"
           >Measured at 24px:</text
         >
-        <text class="text-base mb-1">Width: {{ large().width }}px</text>
+        <text class="mb-1 text-base">Width: {{ large().width }}px</text>
 
-        <text class="text-[13px] text-gray-500 mt-3 mb-1"
+        <text class="mb-1 mt-3 text-[13px] text-gray-500"
           >Line-break (maxWidth: 150px, maxLine: 3):</text
         >
-        <text class="text-base mb-1">Width: {{ wrapped().width }}px</text>
+        <text class="mb-1 text-base">Width: {{ wrapped().width }}px</text>
         @for (line of wrapped().content ?? []; track $index) {
-          <text class="text-sm text-gray-800 font-[monospace] mb-0.5"
+          <text class="mb-0.5 font-[monospace] text-sm text-gray-800"
             >Line {{ $index + 1 }}: "{{ line }}"</text
           >
         }

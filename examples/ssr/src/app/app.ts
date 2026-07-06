@@ -6,80 +6,80 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   template: `
     <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
       <view class="p-6">
-        <text class="text-[28px] font-bold text-zinc-900 mb-1">SSR</text>
-        <text class="text-[13px] text-zinc-500 mb-5"
+        <text class="mb-1 text-[28px] font-bold text-zinc-900">SSR</text>
+        <text class="mb-5 text-[13px] text-zinc-500"
           >Instant first-frame rendering with snapshot encoding.</text
         >
 
         <view
-          class="rounded-xl p-4 mb-4 border"
+          class="mb-4 rounded-xl border p-4"
           [class.bg-green-50]="ssrStatus().ok"
           [class.border-green-200]="ssrStatus().ok"
           [class.bg-red-50]="!ssrStatus().ok"
           [class.border-red-200]="!ssrStatus().ok"
         >
-          <text class="text-sm font-semibold text-zinc-900 mb-2"
+          <text class="mb-2 text-sm font-semibold text-zinc-900"
             >SSR Status</text
           >
-          <text class="text-[13px] text-zinc-500 mb-0.5"
+          <text class="mb-0.5 text-[13px] text-zinc-500"
             >ssrEncode registered:
             {{ ssrStatus().encodeRegistered ? 'YES' : 'NO' }}</text
           >
-          <text class="text-[13px] text-zinc-500 mb-0.5"
+          <text class="mb-0.5 text-[13px] text-zinc-500"
             >ssrHydrate registered:
             {{ ssrStatus().hydrateRegistered ? 'YES' : 'NO' }}</text
           >
-          <text class="text-[13px] text-zinc-500 mb-0.5"
+          <text class="mb-0.5 text-[13px] text-zinc-500"
             >Opcode count: {{ ssrStatus().opcodeCount }}</text
           >
-          <text class="text-[13px] text-zinc-500 mb-0.5"
+          <text class="mb-0.5 text-[13px] text-zinc-500"
             >Snapshot size: {{ ssrStatus().snapshotSize }} bytes</text
           >
         </view>
 
         <view
-          class="bg-indigo-500 py-3 px-6 rounded-[10px] items-center mb-4"
+          class="mb-4 items-center rounded-[10px] bg-indigo-500 px-6 py-3"
           (bindtap)="runEncode()"
         >
-          <text class="text-white text-[15px] font-semibold"
+          <text class="text-[15px] font-semibold text-white"
             >Run ssrEncode()</text
           >
         </view>
 
         @if (snapshotPreview()) {
-          <view class="bg-zinc-100 rounded-lg p-3 mb-4">
+          <view class="mb-4 rounded-lg bg-zinc-100 p-3">
             <text class="text-[11px] text-zinc-900">{{
               snapshotPreview()
             }}</text>
           </view>
         }
 
-        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+        <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
-            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-2.5"
+            class="uppercase mb-2.5 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
             >Static Content</text
           >
-          <text class="text-sm text-zinc-500 leading-5">
+          <text class="text-sm leading-5 text-zinc-500">
             This text is part of the first-frame snapshot. It appears instantly
             without waiting for JS to execute on the background thread.
           </text>
         </view>
 
-        <view class="bg-white border border-zinc-200 rounded-xl p-4 mb-4">
+        <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
-            class="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-2.5"
+            class="uppercase mb-2.5 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
             >Dynamic Items</text
           >
           @for (item of items(); track item.id) {
-            <view class="py-2.5 border-b border-zinc-200">
+            <view class="border-b border-zinc-200 py-2.5">
               <text class="text-sm text-zinc-900">{{ item.label }}</text>
             </view>
           }
           <view
-            class="bg-indigo-500 py-3 px-6 rounded-[10px] items-center mt-3"
+            class="mt-3 items-center rounded-[10px] bg-indigo-500 px-6 py-3"
             (bindtap)="addItem()"
           >
-            <text class="text-white text-[15px] font-semibold"
+            <text class="text-[15px] font-semibold text-white"
               >Add item (post-hydration)</text
             >
           </view>

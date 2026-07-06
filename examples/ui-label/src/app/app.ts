@@ -7,14 +7,14 @@ import { UiLabel } from '../components/ui/label';
   imports: [LYNX_ELEMENTS, UiLabel],
   template: `
     <scroll-view scroll-orientation="vertical" class="h-full">
-      <view class="flex flex-col gap-6 p-6">
+      <view class="flex-col gap-6 p-6 flex">
         <text class="text-2xl font-bold text-foreground">Label</text>
         <text class="text-sm text-muted-foreground">
           A text label for form fields with support for disabled state styling.
         </text>
 
         <!-- Normal label -->
-        <view class="flex flex-col gap-2">
+        <view class="flex-col gap-2 flex">
           <ui-label>Email Address</ui-label>
           <view
             class="h-10 rounded-md border border-input bg-background px-3 py-2"
@@ -24,7 +24,7 @@ import { UiLabel } from '../components/ui/label';
         </view>
 
         <!-- Label with custom styling -->
-        <view class="flex flex-col gap-2">
+        <view class="flex-col gap-2 flex">
           <ui-label class="text-base">Full Name</ui-label>
           <view
             class="h-10 rounded-md border border-input bg-background px-3 py-2"
@@ -34,7 +34,7 @@ import { UiLabel } from '../components/ui/label';
         </view>
 
         <!-- Disabled label -->
-        <view class="flex flex-col gap-2">
+        <view class="flex-col gap-2 flex">
           <ui-label [disabled]="true">Account ID (read-only)</ui-label>
           <view
             class="h-10 rounded-md border border-input bg-background px-3 py-2 opacity-50"
@@ -44,7 +44,7 @@ import { UiLabel } from '../components/ui/label';
         </view>
 
         <!-- Multiple labels in a row -->
-        <view class="flex flex-row gap-4">
+        <view class="flex-row gap-4 flex">
           <ui-label>First Name</ui-label>
           <ui-label>Last Name</ui-label>
         </view>

@@ -11,7 +11,11 @@ import {
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
-import { type AnimationHandle, popIn, popOut } from '@blotch/dolan/utils/animate';
+import {
+  type AnimationHandle,
+  popIn,
+  popOut,
+} from '@blotch/dolan/utils/animate';
 import { cn } from '@blotch/dolan/utils/cn';
 
 @Component({
@@ -21,7 +25,7 @@ import { cn } from '@blotch/dolan/utils/cn';
   encapsulation: ViewEncapsulation.None,
   template: `
     <view
-      class="flex items-center justify-center h-11 w-11"
+      class="h-11 w-11 items-center flex justify-center"
       (bindtap)="toggle()"
     >
       <view [class]="boxClass()">
@@ -69,9 +73,9 @@ export class UiCheckbox {
 
   protected readonly boxClass = computed(() =>
     cn(
-      'flex items-center justify-center h-5 w-5 rounded-sm border',
+      'h-5 w-5 items-center rounded-sm border flex justify-center',
       this.checked()
-        ? 'bg-primary border-primary'
+        ? 'border-primary bg-primary'
         : 'border-primary bg-transparent',
       this.disabled() && 'opacity-50',
       this.userClass(),

@@ -22,7 +22,7 @@ import { UiButton } from '../components/ui/button';
   ],
   template: `
     <scroll-view scroll-orientation="vertical" class="h-full">
-      <view class="flex flex-col gap-4 p-6">
+      <view class="flex-col gap-4 p-6 flex">
         <text class="text-2xl font-bold text-foreground">Sheet</text>
 
         <ui-button (pressed)="showSheet.set(true)">Open Sheet</ui-button>
@@ -35,7 +35,7 @@ import { UiButton } from '../components/ui/button';
               dismiss.
             </ui-sheet-description>
           </ui-sheet-header>
-          <view class="flex flex-col gap-3 py-4">
+          <view class="flex-col gap-3 py-4 flex">
             <text class="text-sm text-foreground">
               Notifications: Enabled
             </text>

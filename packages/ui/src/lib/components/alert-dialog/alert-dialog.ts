@@ -82,12 +82,12 @@ export class UiAlertDialog {
   // used deliberately: it compiles to `rgb(0 0 0 / 0.5)`, which Lynx accepts,
   // whereas a semantic token like `bg-background/50` would render transparent.
   protected readonly backdropClass = computed(() =>
-    cn('flex items-center justify-center', 'w-full h-full', 'bg-black/50'),
+    cn('flex items-center justify-center', 'h-full w-full', 'bg-black/50'),
   );
 
   protected readonly panelClass = computed(() =>
     cn(
-      'flex flex-col bg-background rounded-lg border border-border p-6 w-4/5',
+      'bg-background border-border flex w-4/5 flex-col rounded-lg border p-6',
       this.userClass(),
     ),
   );
@@ -198,7 +198,7 @@ export class UiAlertDialogTitle {
   readonly userClass = input<string>('', { alias: 'class' });
 
   protected readonly textClass = computed(() =>
-    cn('text-lg font-semibold text-foreground', this.userClass()),
+    cn('text-foreground text-lg font-semibold', this.userClass()),
   );
 }
 
@@ -213,7 +213,7 @@ export class UiAlertDialogDescription {
   readonly userClass = input<string>('', { alias: 'class' });
 
   protected readonly textClass = computed(() =>
-    cn('text-sm text-muted-foreground', this.userClass()),
+    cn('text-muted-foreground text-sm', this.userClass()),
   );
 }
 

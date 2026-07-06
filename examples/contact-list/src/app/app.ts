@@ -48,15 +48,15 @@ type Contact = {
     UiLabel,
   ],
   template: `
-    <view class="flex flex-col h-screen bg-zinc-50">
+    <view class="h-screen flex-col bg-zinc-50 flex">
       <view
-        class="flex flex-row items-center justify-between px-5 py-4 bg-white border-b border-zinc-200"
+        class="flex-row items-center border-b border-zinc-200 bg-white px-5 py-4 flex justify-between"
       >
         <text class="text-[22px] font-bold text-zinc-900">Contacts</text>
         <ui-button size="sm" (pressed)="openAdd()">+ Add</ui-button>
       </view>
 
-      <view class="px-4 pt-3 pb-2">
+      <view class="px-4 pb-2 pt-3">
         <ui-input
           [value]="query()"
           (valueChange)="query.set($event)"
@@ -74,8 +74,8 @@ type Contact = {
           </view>
         }
         @for (group of grouped(); track group.letter) {
-          <view class="flex flex-col">
-            <view class="px-4 py-1.5 bg-zinc-100">
+          <view class="flex-col flex">
+            <view class="bg-zinc-100 px-4 py-1.5">
               <text class="text-xs font-bold text-zinc-400">{{
                 group.letter
               }}</text>
@@ -86,7 +86,7 @@ type Contact = {
               let last = $last
             ) {
               <view
-                class="flex flex-row items-center gap-3 px-4 py-3"
+                class="flex-row items-center gap-3 px-4 py-3 flex"
                 (bindtap)="viewContact(contact)"
               >
                 <ui-avatar
@@ -94,7 +94,7 @@ type Contact = {
                   src=""
                   [fallback]="initials(contact.name)"
                 />
-                <view class="flex flex-col gap-0.5 flex-1">
+                <view class="flex-1 flex-col gap-0.5 flex">
                   <text class="text-[15px] font-medium text-zinc-900">{{
                     contact.name
                   }}</text>
@@ -113,7 +113,7 @@ type Contact = {
     @if (selected()) {
       <ui-dialog [(open)]="viewOpen">
         <ui-dialog-header>
-          <view class="flex flex-col items-center gap-2.5 pb-2">
+          <view class="flex-col items-center gap-2.5 pb-2 flex">
             <ui-avatar
               size="lg"
               src=""
@@ -122,12 +122,12 @@ type Contact = {
             <ui-dialog-title>{{ selected()!.name }}</ui-dialog-title>
           </view>
         </ui-dialog-header>
-        <view class="flex flex-col gap-3.5 p-4">
-          <view class="flex flex-col gap-0.5">
+        <view class="flex-col gap-3.5 p-4 flex">
+          <view class="flex-col gap-0.5 flex">
             <text class="text-xs text-zinc-400">Phone</text>
             <text class="text-sm text-zinc-900">{{ selected()!.phone }}</text>
           </view>
-          <view class="flex flex-col gap-0.5">
+          <view class="flex-col gap-0.5 flex">
             <text class="text-xs text-zinc-400">Email</text>
             <text class="text-sm text-zinc-900">{{ selected()!.email }}</text>
           </view>
@@ -145,16 +145,16 @@ type Contact = {
       <ui-dialog-header
         ><ui-dialog-title>New Contact</ui-dialog-title></ui-dialog-header
       >
-      <view class="flex flex-col gap-3.5 p-4">
-        <view class="flex flex-col gap-1.5">
+      <view class="flex-col gap-3.5 p-4 flex">
+        <view class="flex-col gap-1.5 flex">
           <ui-label>Name</ui-label>
           <ui-input [(value)]="newName" placeholder="Full name" />
         </view>
-        <view class="flex flex-col gap-1.5">
+        <view class="flex-col gap-1.5 flex">
           <ui-label>Phone</ui-label>
           <ui-input [(value)]="newPhone" placeholder="+1 555 0100" />
         </view>
-        <view class="flex flex-col gap-1.5">
+        <view class="flex-col gap-1.5 flex">
           <ui-label>Email</ui-label>
           <ui-input [(value)]="newEmail" placeholder="name@example.com" />
         </view>

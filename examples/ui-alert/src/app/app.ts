@@ -7,7 +7,7 @@ import { UiAlert } from '../components/ui/alert';
   imports: [LYNX_ELEMENTS, UiAlert],
   template: `
     <scroll-view scroll-orientation="vertical" class="h-full">
-      <view class="flex flex-col gap-4 p-6">
+      <view class="flex-col gap-4 p-6 flex">
         <text class="text-2xl font-bold text-foreground">Alert</text>
 
         <!-- Default variant -->
@@ -28,7 +28,7 @@ import { UiAlert } from '../components/ui/alert';
 
         <!-- With content projection -->
         <ui-alert title="Update available">
-          <text class="text-sm text-muted-foreground mt-2">
+          <text class="mt-2 text-sm text-muted-foreground">
             A new version of the app is ready. Restart to apply changes.
           </text>
         </ui-alert>

@@ -8,8 +8,8 @@ import lynxLogo from '../../assets/lynx-logo.png';
   standalone: true,
   imports: [LYNX_ELEMENTS],
   template: `
-    <view class="p-4 bg-gray-100 min-h-screen">
-      <text class="text-[24px] font-bold text-center mb-6"
+    <view class="min-h-screen bg-gray-100 p-4">
+      <text class="mb-6 text-[24px] font-bold text-center"
         >Lynx Elements Showcase</text
       >
 
@@ -50,7 +50,7 @@ import lynxLogo from '../../assets/lynx-logo.png';
 
       <!-- Layout Elements Section -->
       <view class="mb-8">
-        <text class="text-xl font-bold mb-4 text-gray-600"
+        <text class="mb-4 text-xl font-bold text-gray-600"
           >Layout Elements</text
         >
 
@@ -70,13 +70,13 @@ import lynxLogo from '../../assets/lynx-logo.png';
           <text class="text-sm text-gray-500">Scrollable container for content</text>
         </view> -->
 
-        <view class="bg-white rounded-lg p-4 mb-4 shadow-sm">
-          <text class="text-base font-bold mb-2 text-blue-500">list</text>
-          <view class="bg-gray-50 rounded p-4 my-2 min-h-[60px]">
-            <list class="w-full h-[120px]">
+        <view class="mb-4 rounded-lg bg-white p-4 shadow-sm">
+          <text class="mb-2 text-base font-bold text-blue-500">list</text>
+          <view class="my-2 min-h-[60px] rounded bg-gray-50 p-4">
+            <list class="h-[120px] w-full">
               @for (i of [1, 2, 3]; track i) {
                 <list-item
-                  class="p-2 border-b border-gray-200"
+                  class="border-b border-gray-200 p-2"
                   item-key="{{ i }}"
                 >
                   <text>List Item {{ i }}</text>
@@ -142,13 +142,13 @@ import lynxLogo from '../../assets/lynx-logo.png';
 
       <!-- Events Demo -->
       <view class="mb-8">
-        <text class="text-xl font-bold mb-4 text-gray-600">Event Handling</text>
+        <text class="mb-4 text-xl font-bold text-gray-600">Event Handling</text>
 
-        <view class="bg-white rounded-lg p-4 mb-4 shadow-sm">
-          <text class="text-base font-bold mb-2 text-blue-500">Tap Event</text>
-          <view class="bg-gray-50 rounded p-4 my-2 min-h-[60px]">
+        <view class="mb-4 rounded-lg bg-white p-4 shadow-sm">
+          <text class="mb-2 text-base font-bold text-blue-500">Tap Event</text>
+          <view class="my-2 min-h-[60px] rounded bg-gray-50 p-4">
             <view
-              class="bg-green-500 px-4 py-2 rounded mb-2 self-start"
+              class="mb-2 self-start rounded bg-green-500 px-4 py-2"
               (bindtap)="handleTap()"
             >
               <text class="text-white">Tap Me</text>

@@ -8,43 +8,43 @@ import { UiAvatar } from '../components/ui/avatar';
   template: `
     <scroll-view scroll-orientation="vertical" class="h-full">
       <view class="p-6">
-        <text class="text-2xl font-bold text-foreground mb-6">Avatar</text>
+        <text class="mb-6 text-2xl font-bold text-foreground">Avatar</text>
 
         <!-- With images -->
-        <text class="text-sm font-medium text-muted-foreground mb-3">
+        <text class="mb-3 text-sm font-medium text-muted-foreground">
           With Images
         </text>
-        <view class="flex flex-row items-center gap-3 mb-6">
+        <view class="mb-6 flex-row items-center gap-3 flex">
           <ui-avatar src="https://i.pravatar.cc/150?img=1" />
           <ui-avatar src="https://i.pravatar.cc/150?img=5" />
           <ui-avatar src="https://i.pravatar.cc/150?img=12" />
         </view>
 
         <!-- Fallback initials -->
-        <text class="text-sm font-medium text-muted-foreground mb-3">
+        <text class="mb-3 text-sm font-medium text-muted-foreground">
           Fallback Initials
         </text>
-        <view class="flex flex-row items-center gap-3 mb-6">
+        <view class="mb-6 flex-row items-center gap-3 flex">
           <ui-avatar fallback="JD" />
           <ui-avatar fallback="AB" />
           <ui-avatar fallback="ZK" />
         </view>
 
         <!-- Sizes -->
-        <text class="text-sm font-medium text-muted-foreground mb-3"
+        <text class="mb-3 text-sm font-medium text-muted-foreground"
           >Sizes</text
         >
-        <view class="flex flex-row items-center gap-3 mb-6">
+        <view class="mb-6 flex-row items-center gap-3 flex">
           <ui-avatar src="https://i.pravatar.cc/150?img=3" size="sm" />
           <ui-avatar src="https://i.pravatar.cc/150?img=3" size="default" />
           <ui-avatar src="https://i.pravatar.cc/150?img=3" size="lg" />
         </view>
 
         <!-- Sizes with fallback -->
-        <text class="text-sm font-medium text-muted-foreground mb-3">
+        <text class="mb-3 text-sm font-medium text-muted-foreground">
           Sizes with Fallback
         </text>
-        <view class="flex flex-row items-center gap-3">
+        <view class="flex-row items-center gap-3 flex">
           <ui-avatar fallback="SM" size="sm" />
           <ui-avatar fallback="MD" size="default" />
           <ui-avatar fallback="LG" size="lg" />

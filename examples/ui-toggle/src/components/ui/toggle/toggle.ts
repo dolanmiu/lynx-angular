@@ -18,7 +18,7 @@ import {
 } from '@blotch/dolan/utils/animate';
 import { cn } from '@blotch/dolan/utils/cn';
 
-const toggleVariants = cva('flex items-center justify-center rounded-md', {
+const toggleVariants = cva('items-center rounded-md flex justify-center', {
   variants: {
     variant: {
       default: '',
@@ -123,7 +123,7 @@ export class UiToggleGroup {
   readonly userClass = input<string>('', { alias: 'class' });
 
   protected readonly containerClass = computed(() =>
-    cn('flex flex-row items-center gap-1', this.userClass()),
+    cn('flex-row items-center gap-1 flex', this.userClass()),
   );
 
   toggle(val: string): void {

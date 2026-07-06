@@ -35,7 +35,7 @@ import { UiIcon } from '../icon';
   encapsulation: ViewEncapsulation.None,
   template: `
     <overlay [attr.visible]="overlayVisible()" [style]="overlayStyle()">
-      <view #backdrop class="w-full h-full" (bindtap)="onBackdropTap()">
+      <view #backdrop class="h-full w-full" (bindtap)="onBackdropTap()">
         <view
           #panel
           [class]="panelClass()"
@@ -82,7 +82,7 @@ export class UiNavDrawer {
 
   protected readonly panelClass = computed(() =>
     cn(
-      'flex flex-col bg-background h-full',
+      'h-full flex-col bg-background flex',
       this.side() === 'left'
         ? 'border-r border-border'
         : 'border-l border-border',
@@ -178,7 +178,7 @@ export class UiNavDrawerHeader {
   readonly userClass = input<string>('', { alias: 'class' });
 
   protected readonly containerClass = computed(() =>
-    cn('flex flex-col gap-1.5 p-4 border-b border-border', this.userClass()),
+    cn('flex-col gap-1.5 border-b border-border p-4 flex', this.userClass()),
   );
 }
 
@@ -234,7 +234,7 @@ export class UiNavDrawerItem {
 
   protected readonly containerClass = computed(() =>
     cn(
-      'flex flex-row items-center gap-3 px-4 py-3',
+      'flex-row items-center gap-3 px-4 py-3 flex',
       this.active() ? 'bg-accent' : 'bg-transparent',
       this.userClass(),
     ),
@@ -281,7 +281,7 @@ export class UiNavDrawerFooter {
   readonly userClass = input<string>('', { alias: 'class' });
 
   protected readonly containerClass = computed(() =>
-    cn('flex flex-col gap-2 p-4 border-t border-border', this.userClass()),
+    cn('flex-col gap-2 border-t border-border p-4 flex', this.userClass()),
   );
 }
 
@@ -313,7 +313,7 @@ export class UiNavDrawerTrigger {
 
   protected readonly containerClass = computed(() =>
     cn(
-      'flex items-center justify-center w-10 h-10 rounded-md',
+      'h-10 w-10 items-center rounded-md flex justify-center',
       this.userClass(),
     ),
   );

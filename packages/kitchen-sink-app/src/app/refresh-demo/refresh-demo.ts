@@ -16,14 +16,14 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
       </refresh-header>
       <scroll-view scroll-orientation="vertical" class="h-screen">
         <view class="p-4">
-          <text class="text-[24px] font-bold mb-2">Refresh Demo</text>
-          <text class="text-sm text-gray-500 mb-4">
+          <text class="mb-2 text-[24px] font-bold">Refresh Demo</text>
+          <text class="mb-4 text-sm text-gray-500">
             Pull down to reload the list (refreshed {{ refreshCount() }} times)
           </text>
           @for (item of items(); track item.id) {
-            <view class="p-4 mb-2 bg-gray-100 rounded-lg">
+            <view class="mb-2 rounded-lg bg-gray-100 p-4">
               <text class="text-base font-bold">{{ item.name }}</text>
-              <text class="text-xs text-gray-400 mt-1">{{ item.time }}</text>
+              <text class="mt-1 text-xs text-gray-400">{{ item.time }}</text>
             </view>
           }
         </view>

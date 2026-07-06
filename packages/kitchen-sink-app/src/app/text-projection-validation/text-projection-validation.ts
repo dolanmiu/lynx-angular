@@ -4,7 +4,7 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 @Component({
   selector: 'app-text-wrapper',
   template: `
-    <view class="bg-green-100 px-3 py-2 rounded mb-2">
+    <view class="mb-2 rounded bg-green-100 px-3 py-2">
       <text class="text-sm text-zinc-900"><ng-content /></text>
     </view>
   `,
@@ -15,7 +15,7 @@ export class TextWrapper {}
 @Component({
   selector: 'app-multi-slot-text',
   template: `
-    <text class="text-sm px-3 py-2 bg-orange-50 rounded mb-2">
+    <text class="mb-2 rounded bg-orange-50 px-3 py-2 text-sm">
       <ng-content select="[prefix]" />
       <ng-content />
     </text>
@@ -28,7 +28,7 @@ export class MultiSlotText {}
   selector: 'app-conditional-text',
   template: `
     <view (bindtap)="toggle()">
-      <text class="text-sm px-3 py-2 bg-pink-50 rounded mb-2">
+      <text class="mb-2 rounded bg-pink-50 px-3 py-2 text-sm">
         @if (show()) {
           <ng-content />
         } @else {
@@ -53,7 +53,7 @@ export class ConditionalText {
 
 @Component({
   selector: 'app-card-title-mock',
-  template: `<text class="text-base font-bold text-zinc-900 leading-none"
+  template: `<text class="text-base font-bold leading-none text-zinc-900"
     ><ng-content
   /></text>`,
   imports: [LYNX_ELEMENTS],
@@ -71,29 +71,29 @@ export class CardTitleMock {}
   ],
   template: `
     <scroll-view class="w-full" scroll-orientation="vertical">
-      <view class="p-4 flex flex-col">
-        <text class="text-xl font-bold text-zinc-900 mb-1">
+      <view class="flex-col p-4 flex">
+        <text class="mb-1 text-xl font-bold text-zinc-900">
           ng-content in text Validation
         </text>
-        <text class="text-xs text-gray-400 mb-4">
+        <text class="mb-4 text-xs text-gray-400">
           Tests whether Angular content projection works inside Lynx text
           elements
         </text>
 
         <!-- Test A: Raw text projected into <text> -->
-        <text class="text-[15px] font-bold text-gray-700 mb-2.5">
+        <text class="mb-2.5 text-[15px] font-bold text-gray-700">
           A. Raw text projected into text element
         </text>
-        <text class="text-[11px] text-gray-500 mb-1">
+        <text class="mb-1 text-[11px] text-gray-500">
           Expected: "Hello World" on green background
         </text>
         <app-text-wrapper>Hello World</app-text-wrapper>
 
         <!-- Test B: <text> projected into <text> (text-in-text) -->
-        <text class="text-[15px] font-bold text-gray-700 mt-2 mb-2.5">
+        <text class="mb-2.5 mt-2 text-[15px] font-bold text-gray-700">
           B. text-in-text via projection
         </text>
-        <text class="text-[11px] text-gray-500 mb-1">
+        <text class="mb-1 text-[11px] text-gray-500">
           Expected: "Bold text" in bold on green background
         </text>
         <app-text-wrapper>
@@ -101,10 +101,10 @@ export class CardTitleMock {}
         </app-text-wrapper>
 
         <!-- Test C: Multiple projected text nodes -->
-        <text class="text-[15px] font-bold text-gray-700 mt-2 mb-2.5">
+        <text class="mb-2.5 mt-2 text-[15px] font-bold text-gray-700">
           C. Multiple projected children
         </text>
-        <text class="text-[11px] text-gray-500 mb-1">
+        <text class="mb-1 text-[11px] text-gray-500">
           Expected: "One" and "Two" both visible on green background
         </text>
         <app-text-wrapper>
@@ -113,10 +113,10 @@ export class CardTitleMock {}
         </app-text-wrapper>
 
         <!-- Test D: Named slot projection into <text> -->
-        <text class="text-[15px] font-bold text-gray-700 mt-2 mb-2.5">
+        <text class="mb-2.5 mt-2 text-[15px] font-bold text-gray-700">
           D. Named slot in text
         </text>
-        <text class="text-[11px] text-gray-500 mb-1">
+        <text class="mb-1 text-[11px] text-gray-500">
           Expected: star followed by "Main content" on orange background
         </text>
         <app-multi-slot-text>
@@ -125,10 +125,10 @@ export class CardTitleMock {}
         </app-multi-slot-text>
 
         <!-- Test E: Conditional projection inside <text> -->
-        <text class="text-[15px] font-bold text-gray-700 mt-2 mb-2.5">
+        <text class="mb-2.5 mt-2 text-[15px] font-bold text-gray-700">
           E. Conditional projection in text (tap to toggle)
         </text>
-        <text class="text-[11px] text-gray-500 mb-1">
+        <text class="mb-1 text-[11px] text-gray-500">
           Expected: "Visible content" on pink background
         </text>
         <app-conditional-text>
@@ -136,28 +136,28 @@ export class CardTitleMock {}
         </app-conditional-text>
 
         <!-- Test F: Real-world pattern (UiCardTitle mock) -->
-        <text class="text-[15px] font-bold text-gray-700 mt-2 mb-2.5">
+        <text class="mb-2.5 mt-2 text-[15px] font-bold text-gray-700">
           F. Real-world: UiCardTitle pattern
         </text>
-        <text class="text-[11px] text-gray-500 mb-1">
+        <text class="mb-1 text-[11px] text-gray-500">
           Expected: "My Card Title" in bold 16px
         </text>
         <app-card-title-mock>My Card Title</app-card-title-mock>
 
         <!-- Test G: Styled text-in-text -->
-        <text class="text-[15px] font-bold text-gray-700 mt-2 mb-2.5">
+        <text class="mb-2.5 mt-2 text-[15px] font-bold text-gray-700">
           G. Inline styled wrapper (no helper component)
         </text>
-        <text class="text-[11px] text-gray-500 mb-1">
+        <text class="mb-1 text-[11px] text-gray-500">
           Expected: "Blue bold text" in blue on blue background
         </text>
         <app-text-wrapper>
-          <text class="text-blue-800 font-bold">Blue bold text</text>
+          <text class="font-bold text-blue-800">Blue bold text</text>
         </app-text-wrapper>
 
         <!-- Summary -->
-        <view class="mt-6 p-3 bg-gray-100 rounded-lg">
-          <text class="text-[13px] font-bold text-gray-700 mb-1">
+        <view class="mt-6 rounded-lg bg-gray-100 p-3">
+          <text class="mb-1 text-[13px] font-bold text-gray-700">
             Summary
           </text>
           <text class="text-[11px] text-gray-500">

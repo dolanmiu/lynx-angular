@@ -34,7 +34,7 @@ import { cn } from '@blotch/dolan/utils/cn';
   encapsulation: ViewEncapsulation.None,
   template: `
     <overlay [attr.visible]="overlayVisible()" [style]="overlayStyle()">
-      <view #backdrop class="w-full h-full" (bindtap)="onBackdropTap()">
+      <view #backdrop class="h-full w-full" (bindtap)="onBackdropTap()">
         <view
           #panel
           [class]="panelClass()"
@@ -48,7 +48,7 @@ import { cn } from '@blotch/dolan/utils/cn';
                clips this tile's children to the rounded corners but not its own
                box-shadow (painted outside the border box), so the shadow shows. -->
           <view
-            class="flex flex-col rounded-lg border border-border bg-card overflow-hidden"
+            class="flex-col rounded-lg border border-border bg-card flex overflow-hidden"
             style="box-shadow: 0 2px 16px rgba(0, 0, 0, 0.15);"
           >
             <ng-content />
@@ -98,7 +98,7 @@ export class UiActionSheet {
   }
 
   protected readonly panelClass = computed(() =>
-    cn('flex flex-col gap-2 w-full px-4 pb-6', this.userClass()),
+    cn('w-full flex-col gap-2 px-4 pb-6 flex', this.userClass()),
   );
 
   protected readonly panelPositionStyle = computed(
@@ -193,7 +193,7 @@ export class UiActionSheetTitle {
   readonly userClass = input<string>('', { alias: 'class' });
 
   protected readonly containerClass = computed(() =>
-    cn('flex items-center justify-center py-3 px-4', this.userClass()),
+    cn('items-center px-4 py-3 flex justify-center', this.userClass()),
   );
 
   protected readonly textClass = computed(() =>
@@ -232,7 +232,7 @@ export class UiActionSheetItem {
 
   protected readonly containerClass = computed(() =>
     cn(
-      'flex items-center justify-center py-3 px-4 border-t border-border',
+      'items-center border-t border-border px-4 py-3 flex justify-center',
       this.userClass(),
     ),
   );
@@ -298,7 +298,7 @@ export class UiActionSheetCancel {
 
   protected readonly containerClass = computed(() =>
     cn(
-      'flex items-center justify-center py-3 px-4 rounded-lg border border-border bg-card',
+      'items-center rounded-lg border border-border bg-card px-4 py-3 flex justify-center',
       this.userClass(),
     ),
   );

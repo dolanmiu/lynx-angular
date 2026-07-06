@@ -25,7 +25,7 @@ export const buttonVariants = cva(
       variant: {
         default: 'bg-primary',
         destructive: 'bg-destructive',
-        outline: 'border border-border bg-background',
+        outline: 'border-border bg-background border',
         secondary: 'bg-secondary',
         ghost: 'bg-transparent',
       },

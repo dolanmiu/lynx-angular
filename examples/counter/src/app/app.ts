@@ -6,40 +6,40 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   imports: [LYNX_ELEMENTS],
   template: `
     <view
-      class="flex flex-col items-center justify-center h-screen bg-zinc-50 p-6"
+      class="h-screen flex-col items-center bg-zinc-50 p-6 flex justify-center"
     >
-      <text class="text-[28px] font-bold text-zinc-900 mb-1">Counter</text>
-      <text class="text-[13px] text-zinc-500 mb-8"
+      <text class="mb-1 text-[28px] font-bold text-zinc-900">Counter</text>
+      <text class="mb-8 text-[13px] text-zinc-500"
         >Signal-based reactivity with computed state.</text
       >
 
       <view
-        class="bg-white border border-zinc-200 rounded-2xl px-12 py-8 items-center mb-8"
+        class="mb-8 items-center rounded-2xl border border-zinc-200 bg-white px-12 py-8"
       >
-        <text class="text-[72px] font-bold text-indigo-500 mb-1">{{
+        <text class="mb-1 text-[72px] font-bold text-indigo-500">{{
           count()
         }}</text>
         <text class="text-sm text-zinc-400">{{ label() }}</text>
       </view>
 
-      <view class="flex flex-row gap-3">
+      <view class="flex-row gap-3 flex">
         <view
-          class="bg-indigo-500 rounded-[10px] px-7 py-4"
+          class="rounded-[10px] bg-indigo-500 px-7 py-4"
           (bindtap)="decrement()"
         >
-          <text class="text-white text-2xl font-bold">-</text>
+          <text class="text-2xl font-bold text-white">-</text>
         </view>
         <view
-          class="bg-zinc-100 border border-zinc-200 rounded-[10px] px-7 py-4"
+          class="rounded-[10px] border border-zinc-200 bg-zinc-100 px-7 py-4"
           (bindtap)="reset()"
         >
-          <text class="text-zinc-900 text-base font-bold">Reset</text>
+          <text class="text-base font-bold text-zinc-900">Reset</text>
         </view>
         <view
-          class="bg-indigo-500 rounded-[10px] px-7 py-4"
+          class="rounded-[10px] bg-indigo-500 px-7 py-4"
           (bindtap)="increment()"
         >
-          <text class="text-white text-2xl font-bold">+</text>
+          <text class="text-2xl font-bold text-white">+</text>
         </view>
       </view>
     </view>

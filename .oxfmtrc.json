@@ -11,5 +11,8 @@
   "arrowParens": "always",
   "bracketSameLine": false,
   "bracketSpacing": true,
+  "sortTailwindcss": {
+    "functions": ["cn", "cva", "clsx"]
+  },
   "ignorePatterns": ["**/dist/**", "**/node_modules/**", "**/fesm2022/**", "**/esm2022/**", "**/schematics/**/*.js"]
 }

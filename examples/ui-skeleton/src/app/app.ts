@@ -8,22 +8,24 @@ import { UiSkeleton } from '../components/ui/skeleton';
   template: `
     <scroll-view scroll-orientation="vertical" class="h-full">
       <view class="p-6">
-        <text class="text-2xl font-bold text-foreground mb-6">Skeleton</text>
+        <text class="mb-6 text-2xl font-bold text-foreground">Skeleton</text>
 
         <!-- Card skeleton -->
-        <text class="text-sm font-medium text-muted-foreground mb-3">
+        <text class="mb-3 text-sm font-medium text-muted-foreground">
           Card Loading State
         </text>
-        <view class="flex flex-col rounded-lg border border-border p-4 gap-4 mb-6">
-          <view class="flex flex-row items-center gap-3">
+        <view
+          class="mb-6 flex-col gap-4 rounded-lg border border-border p-4 flex"
+        >
+          <view class="flex-row items-center gap-3 flex">
             <ui-skeleton class="h-10 w-10 rounded-full" />
-            <view class="flex flex-col gap-2 flex-1">
+            <view class="flex-1 flex-col gap-2 flex">
               <ui-skeleton class="h-4 w-3/4" />
               <ui-skeleton class="h-3 w-1/2" />
             </view>
           </view>
           <ui-skeleton class="h-48 w-full rounded-md" />
-          <view class="gap-2 flex flex-col">
+          <view class="flex-col gap-2 flex">
             <ui-skeleton class="h-4 w-full" />
             <ui-skeleton class="h-4 w-5/6" />
             <ui-skeleton class="h-4 w-4/6" />
@@ -31,11 +33,13 @@ import { UiSkeleton } from '../components/ui/skeleton';
         </view>
 
         <!-- Profile skeleton -->
-        <text class="text-sm font-medium text-muted-foreground mb-3">
+        <text class="mb-3 text-sm font-medium text-muted-foreground">
           Profile Loading State
         </text>
-        <view class="flex flex-col rounded-lg border border-border p-4 gap-4 mb-6">
-          <view class="flex flex-col items-center gap-3">
+        <view
+          class="mb-6 flex-col gap-4 rounded-lg border border-border p-4 flex"
+        >
+          <view class="flex-col items-center gap-3 flex">
             <ui-skeleton class="h-16 w-16 rounded-full" />
             <ui-skeleton class="h-5 w-32" />
             <ui-skeleton class="h-3 w-48" />
@@ -43,14 +47,14 @@ import { UiSkeleton } from '../components/ui/skeleton';
         </view>
 
         <!-- List skeleton -->
-        <text class="text-sm font-medium text-muted-foreground mb-3">
+        <text class="mb-3 text-sm font-medium text-muted-foreground">
           List Loading State
         </text>
-        <view class="flex flex-col rounded-lg border border-border p-4 gap-3">
+        <view class="flex-col gap-3 rounded-lg border border-border p-4 flex">
           @for (item of [1, 2, 3]; track item) {
-            <view class="flex flex-row items-center gap-3">
+            <view class="flex-row items-center gap-3 flex">
               <ui-skeleton class="h-8 w-8 rounded-full" />
-              <view class="flex flex-col gap-1.5 flex-1">
+              <view class="flex-1 flex-col gap-1.5 flex">
                 <ui-skeleton class="h-4 w-2/3" />
                 <ui-skeleton class="h-3 w-1/3" />
               </view>

@@ -42,11 +42,11 @@ import { UiSeparator } from '../components/ui/separator';
   ],
   template: `
     <scroll-view scroll-orientation="vertical" class="h-screen bg-zinc-50">
-      <view class="flex flex-col items-center gap-5 px-6 py-8">
-        <view class="flex flex-col items-center gap-2">
+      <view class="flex-col items-center gap-5 px-6 py-8 flex">
+        <view class="flex-col items-center gap-2 flex">
           <ui-avatar size="xl" src="" fallback="AJ" />
           <text class="text-[24px] font-bold text-zinc-900">Alex Johnson</text>
-          <view class="flex flex-row items-center gap-2">
+          <view class="flex-row items-center gap-2 flex">
             <!-- cspell:disable-next-line -->
             <text class="text-sm text-zinc-500">@alexj</text>
             <ui-badge variant="secondary">Pro</ui-badge>
@@ -54,19 +54,19 @@ import { UiSeparator } from '../components/ui/separator';
         </view>
 
         <view
-          class="flex flex-row gap-7 px-6 py-5 bg-white border border-zinc-200 rounded-2xl"
+          class="flex-row gap-7 rounded-2xl border border-zinc-200 bg-white px-6 py-5 flex"
         >
-          <view class="flex flex-col items-center gap-0.5">
+          <view class="flex-col items-center gap-0.5 flex">
             <text class="text-[20px] font-bold text-zinc-900">248</text>
             <text class="text-xs text-zinc-400">Posts</text>
           </view>
           <ui-separator orientation="vertical" />
-          <view class="flex flex-col items-center gap-0.5">
+          <view class="flex-col items-center gap-0.5 flex">
             <text class="text-[20px] font-bold text-zinc-900">4.2k</text>
             <text class="text-xs text-zinc-400">Followers</text>
           </view>
           <ui-separator orientation="vertical" />
-          <view class="flex flex-col items-center gap-0.5">
+          <view class="flex-col items-center gap-0.5 flex">
             <text class="text-[20px] font-bold text-zinc-900">312</text>
             <text class="text-xs text-zinc-400">Following</text>
           </view>
@@ -79,7 +79,7 @@ import { UiSeparator } from '../components/ui/separator';
         <ui-card class="w-full">
           <ui-card-header><ui-card-title>About</ui-card-title></ui-card-header>
           <ui-card-content>
-            <text class="text-sm text-zinc-500 leading-5">{{ bio() }}</text>
+            <text class="text-sm leading-5 text-zinc-500">{{ bio() }}</text>
           </ui-card-content>
         </ui-card>
       </view>
@@ -89,8 +89,8 @@ import { UiSeparator } from '../components/ui/separator';
       <ui-sheet-header
         ><ui-sheet-title>Edit Profile</ui-sheet-title></ui-sheet-header
       >
-      <view class="flex flex-col gap-4 p-4">
-        <view class="flex flex-col gap-1.5">
+      <view class="flex-col gap-4 p-4 flex">
+        <view class="flex-col gap-1.5 flex">
           <ui-label>Display Name</ui-label>
           <ui-input
             [value]="editName()"
@@ -98,7 +98,7 @@ import { UiSeparator } from '../components/ui/separator';
             placeholder="Your name"
           />
         </view>
-        <view class="flex flex-col gap-1.5">
+        <view class="flex-col gap-1.5 flex">
           <ui-label>Bio</ui-label>
           <ui-textarea
             [value]="editBio()"
