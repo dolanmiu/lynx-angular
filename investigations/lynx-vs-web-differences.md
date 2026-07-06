@@ -3101,3 +3101,42 @@ cva('flex items-center self-start rounded-full px-2.5 py-0.5', { /* … */ })
 ```
 
 Note the parent trap that makes this bite: `class="flex-row"` alone does **not** create a row. `flex-row` only emits `flex-direction: row`, which linear layout ignores (it uses `linear-direction`). Without a `flex` class the view stays a linear column, so its children stack *and* stretch full-width. Use `flex flex-row` for an actual horizontal row.
+
+---
+
+## A component's host element is an UNstyled fallback `view` — style the host, not an inner view, for zero-content components
+
+### What you'd expect (web)
+
+You write a component `<ui-separator>` with `template: '<view [class]="...">`, and the inner view's classes (`w-px h-full`, `w-full`, etc.) fully determine how it renders. The host element is transparent — it just wraps the template.
+
+### What Lynx does
+
+An Angular component whose selector is **not** a native Lynx element (`ui-separator`, `ui-badge`, …) has a host element that falls back to a plain, **unstyled** `view` (the renderer maps unknown tags to `view` — see `packages/runtime` CLAUDE.md). That host `view` is a real element in the layout tree: it sits between the parent and your template's inner view as an **extra flex/linear item with no classes of its own**.
+
+For most components this is invisible, because the host gets a size *either* from its content (a badge/button has text) *or* from the parent stretching it (Lynx's default `align-items: stretch`). But a **zero-content** component that relies entirely on stretch/fill has nothing to give the host an intrinsic size — so if the parent doesn't stretch the host, the host collapses to 0 and everything inside it disappears.
+
+This is what made the vertical `ui-separator` invisible while the horizontal one worked:
+
+- **Horizontal**, parent `flex flex-col`: Lynx's default `align-items: stretch` stretched the unstyled host to full width, so the inner view's `w-full` had a full-width host to resolve against. Visible.
+- **Vertical**, parent `flex flex-row items-center`: `items-center` overrode the default stretch, so the unstyled host collapsed to 0 height (no content, not stretched), and the inner view had nothing to fill. Invisible — no amount of inner-view CSS (`h-full`, `self-stretch`) could fix it, because the *host* was the collapsed element.
+
+### The fix
+
+For a zero-content component, put the sizing/styling on the **host element** so it *is* the rendered element (one element, like shadcn's separator on the web) — don't nest a styled view inside an unstyled host:
+
+```ts
+@Component({
+  selector: 'ui-separator',
+  host: { '[class]': 'separatorClass()' }, // classes land on the actual flex item
+  template: '',                            // no inner view to collapse into
+})
+export class UiSeparator {
+  readonly userClass = input<string>('', { alias: 'class' }); // class input alias + host [class] coexist fine
+  protected readonly separatorClass = computed(() =>
+    cn('bg-border', this.orientation() === 'horizontal' ? 'h-px w-full' : 'w-px self-stretch'),
+  );
+}
+```
+
+Use **`align-self: stretch`** (Tailwind `self-stretch`) for the vertical fill rather than `h-full`: a percentage height is less reliable on a flex item, whereas `align-self` stretches to the parent's cross axis directly and re-enables stretch even under `align-items: center`. (`align-self` is the same cross-axis lever as the "children stretch to fill" note above — `self-start` to hug, `self-stretch` to fill.)

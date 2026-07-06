@@ -39,7 +39,7 @@ import { UiInput } from '../components/ui/input';
 
         <!-- Disabled input -->
         <ui-input
-          label="Account ID"
+          label="Account ID (disabled input)"
           placeholder="Cannot edit"
           [disabled]="true"
           value="ACC-12345"

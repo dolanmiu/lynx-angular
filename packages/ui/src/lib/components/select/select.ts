@@ -1,5 +1,4 @@
 import {
-  type ElementRef,
   Component,
   ViewEncapsulation,
   computed,
@@ -10,19 +9,10 @@ import {
   model,
   output,
   signal,
-  viewChild,
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
-import {
-  type AnimationHandle,
-  DURATION,
-  EASING,
-  fadeIn,
-  fadeOut,
-  slideIn,
-  slideOut,
-} from '../../utils/animate';
+import { UiBottomSheet } from '../bottom-sheet/bottom-sheet';
 import { cn } from '../../utils/cn';
 
 const CHEVRON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`;
@@ -31,32 +21,20 @@ const CHECK_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" f
 @Component({
   selector: 'ui-select',
   standalone: true,
-  imports: [LYNX_ELEMENTS],
+  imports: [LYNX_ELEMENTS, UiBottomSheet],
   encapsulation: ViewEncapsulation.None,
   template: `
     <view [class]="triggerClass()" (bindtap)="toggle()">
       <text [class]="valueTextClass()">{{ displayText() }}</text>
       <svg [attr.content]="chevronSvg" style="width: 16px; height: 16px;" />
     </view>
-    <overlay [attr.visible]="overlayVisible()" [style]="overlayStyle()">
-      <view #backdrop class="w-full h-full" (bindtap)="close()">
-        <view
-          #panel
-          [class]="panelClass()"
-          style="position: absolute; bottom: 0; left: 0; right: 0;"
-          (catchtap)="onPanelTap()"
-        >
-          <view class="flex items-center justify-center pt-2 pb-3">
-            <view class="h-1 w-10 rounded-full bg-muted" />
-          </view>
-          <scroll-view scroll-orientation="vertical" style="max-height: 300px;">
-            <view class="flex flex-col pb-4">
-              <ng-content />
-            </view>
-          </scroll-view>
+    <ui-bottom-sheet [(open)]="sheetOpen">
+      <scroll-view scroll-orientation="vertical" style="max-height: 300px;">
+        <view class="flex flex-col pb-4">
+          <ng-content />
         </view>
-      </view>
-    </overlay>
+      </scroll-view>
+    </ui-bottom-sheet>
   `,
 })
 export class UiSelect {
@@ -67,23 +45,17 @@ export class UiSelect {
 
   readonly changed = output<string>();
 
-  protected readonly overlayVisible = signal(false);
-  protected readonly overlayStyle = computed(() =>
-    this.overlayVisible()
-      ? 'position: fixed; overflow: visible;'
-      : 'position: fixed; overflow: visible; display: none;',
-  );
   protected readonly chevronSvg = CHEVRON_SVG;
+
+  // Drives the shared bottom-sheet's `open` model via `[(open)]`. All the
+  // overlay/animation/drag behavior lives in ui-bottom-sheet; select only
+  // decides when the sheet is open.
+  protected readonly sheetOpen = signal(false);
 
   // `forwardRef` is required because UiSelectItem is defined later in this
   // file — without it, the reference would be `undefined` at class-definition
   // time and contentChildren would silently query nothing.
   readonly itemRefs = contentChildren(forwardRef(() => UiSelectItem));
-  readonly backdropRef = viewChild<ElementRef>('backdrop');
-  readonly panelRef = viewChild<ElementRef>('panel');
-  #backdropAnim?: AnimationHandle;
-  #panelAnim?: AnimationHandle;
-  #isOpen = false;
 
   protected readonly displayText = computed(() => {
     const val = this.value();
@@ -108,87 +80,24 @@ export class UiSelect {
     );
   });
 
-  protected readonly panelClass = computed(() =>
-    cn('flex flex-col bg-background rounded-t-lg border-t border-border'),
-  );
-
   select(value: string): void {
     this.value.set(value);
     this.changed.emit(value);
     this.close();
   }
 
-  /**
-   * No-op tap handler for the panel. `catchtap` (vs `bindtap`) already stops
-   * the tap from bubbling to the backdrop — Lynx controls propagation via the
-   * event prefix, not at runtime. (The renderer shims `event.stopPropagation()`
-   * as a no-op so DOM-style handlers don't crash, but it has no effect here.)
-   */
-  protected onPanelTap(): void {}
-
   toggle(): void {
     if (this.disabled()) return;
-    if (this.#isOpen) {
-      this.close();
-    } else {
-      this.open();
-    }
+    this.sheetOpen.update((v) => !v);
   }
 
-  /**
-   * Two-phase open: same pattern as nav-drawer — make overlay visible first
-   * so native elements exist in the tree, then animate on the next frame.
-   * `#isOpen` guards against duplicate calls from rapid taps.
-   */
   open(): void {
-    if (this.#isOpen) return;
-    this.#isOpen = true;
-    setTimeout(() => {
-      this.overlayVisible.set(true);
-      setTimeout(() => this.#animateIn(), 0);
-    }, 0);
+    if (this.disabled()) return;
+    this.sheetOpen.set(true);
   }
 
-  /**
-   * Animate out before hiding overlay; +20ms absorbs Lynx timer imprecision.
-   */
   close(): void {
-    if (!this.#isOpen) return;
-    this.#isOpen = false;
-    this.#animateOut();
-    setTimeout(() => {
-      this.overlayVisible.set(false);
-    }, DURATION.normal + 20);
-  }
-
-  #animateIn(): void {
-    const backdrop = this.backdropRef()?.nativeElement;
-    const panel = this.panelRef()?.nativeElement;
-    if (!backdrop || !panel) return;
-
-    this.#backdropAnim?.cancel();
-    this.#panelAnim?.cancel();
-
-    this.#backdropAnim = fadeIn(backdrop, { duration: DURATION.normal });
-    this.#panelAnim = slideIn(panel, 'up', {
-      duration: DURATION.slow,
-      easing: EASING.sheet,
-    });
-  }
-
-  #animateOut(): void {
-    const backdrop = this.backdropRef()?.nativeElement;
-    const panel = this.panelRef()?.nativeElement;
-    if (!backdrop || !panel) return;
-
-    this.#backdropAnim?.cancel();
-    this.#panelAnim?.cancel();
-
-    this.#backdropAnim = fadeOut(backdrop, { duration: DURATION.normal });
-    this.#panelAnim = slideOut(panel, 'down', {
-      duration: DURATION.normal,
-      easing: EASING.accelerate,
-    });
+    this.sheetOpen.set(false);
   }
 }
 

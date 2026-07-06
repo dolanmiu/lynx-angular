@@ -1,49 +1,37 @@
 import {
-  type ElementRef,
   Component,
   ViewEncapsulation,
   computed,
-  effect,
   input,
   model,
   output,
-  signal,
-  viewChild,
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
-import {
-  type AnimationHandle,
-  DURATION,
-  EASING,
-  fadeIn,
-  fadeOut,
-  slideIn,
-  slideOut,
-} from '../../utils/animate';
+import { UiBottomSheet } from '../bottom-sheet/bottom-sheet';
 import { cn } from '../../utils/cn';
 
+/**
+ * Styled bottom sheet: a thin wrapper over the shared `ui-bottom-sheet`
+ * primitive that adds content padding and pairs with the header/title/
+ * description/footer layout helpers below. All the overlay, animation, and
+ * drag-to-dismiss behavior lives in `ui-bottom-sheet`.
+ *
+ * The consumer's `class` and the built-in padding are applied to an inner
+ * content wrapper (not the panel) — the panel chrome (rounded corners, border,
+ * background) comes from the primitive.
+ */
 @Component({
   selector: 'ui-sheet',
   standalone: true,
-  imports: [LYNX_ELEMENTS],
+  imports: [LYNX_ELEMENTS, UiBottomSheet],
   encapsulation: ViewEncapsulation.None,
   template: `
-    <overlay [attr.visible]="overlayVisible()" [style]="overlayStyle()">
-      <view #backdrop class="w-full h-full" (bindtap)="onBackdropTap()">
-        <view
-          #panel
-          [class]="panelClass()"
-          [style]="panelPositionStyle()"
-          (catchtap)="onPanelTap()"
-        >
-          <view class="flex items-center justify-center pt-2 pb-4">
-            <view class="h-1 w-10 rounded-full bg-muted" />
-          </view>
-          <ng-content />
-        </view>
+    <ui-bottom-sheet [(open)]="open" (closed)="closed.emit()">
+      <view [class]="contentClass()">
+        <ng-content />
       </view>
-    </overlay>
+    </ui-bottom-sheet>
   `,
 })
 export class UiSheet {
@@ -52,116 +40,9 @@ export class UiSheet {
 
   readonly closed = output<void>();
 
-  protected readonly overlayVisible = signal(false);
-  protected readonly overlayStyle = computed(() =>
-    this.overlayVisible()
-      ? 'position: fixed; overflow: visible;'
-      : 'position: fixed; overflow: visible; display: none;',
+  protected readonly contentClass = computed(() =>
+    cn('px-6 pb-6', this.userClass()),
   );
-
-  readonly backdropRef = viewChild<ElementRef>('backdrop');
-  readonly panelRef = viewChild<ElementRef>('panel');
-  #backdropAnim?: AnimationHandle;
-  #panelAnim?: AnimationHandle;
-  #hasBeenOpen = false;
-
-  constructor() {
-    // `#hasBeenOpen` prevents the close animation from running on the initial
-    // effect evaluation when `open` starts as false. Without this guard, the
-    // first run would call #doClose() and emit `closed` before the sheet
-    // has ever been opened.
-    effect(() => {
-      const isOpen = this.open();
-      if (isOpen) {
-        this.#hasBeenOpen = true;
-        this.#doOpen();
-      } else if (this.#hasBeenOpen) {
-        this.#doClose();
-      }
-    });
-  }
-
-  protected readonly panelClass = computed(() =>
-    cn(
-      'flex flex-col bg-background rounded-t-lg border-t border-border px-6 pb-6',
-      'w-full',
-      this.userClass(),
-    ),
-  );
-
-  protected readonly panelPositionStyle = computed(
-    () => 'position: absolute; bottom: 0; left: 0; right: 0;',
-  );
-
-  protected onBackdropTap(): void {
-    this.open.set(false);
-  }
-
-  /**
-   * No-op tap handler for the panel. `catchtap` (vs `bindtap`) already stops
-   * the tap from bubbling to the backdrop — Lynx controls propagation via the
-   * event prefix, not at runtime. (The renderer shims `event.stopPropagation()`
-   * as a no-op so DOM-style handlers don't crash, but it has no effect here.)
-   */
-  protected onPanelTap(): void {}
-
-  /**
-   * Two-phase open: make the overlay visible first so native elements exist
-   * in the tree, then animate on the next frame. Without this, animate()
-   * targets elements that haven't been flushed to native yet and silently fails.
-   */
-  #doOpen(): void {
-    setTimeout(() => {
-      this.overlayVisible.set(true);
-      setTimeout(() => this.#animateIn(), 0);
-    }, 0);
-  }
-
-  /**
-   * Reverse: animate out first, then hide the overlay once the animation
-   * completes. The +20ms buffer absorbs timer imprecision in the Lynx
-   * runtime — hiding the overlay mid-animation causes elements to vanish
-   * before the fade finishes.
-   */
-  #doClose(): void {
-    setTimeout(() => {
-      this.#animateOut();
-      setTimeout(() => {
-        this.overlayVisible.set(false);
-        this.closed.emit();
-      }, DURATION.normal + 20);
-    }, 0);
-  }
-
-  #animateIn(): void {
-    const backdrop = this.backdropRef()?.nativeElement;
-    const panel = this.panelRef()?.nativeElement;
-    if (!backdrop || !panel) return;
-
-    this.#backdropAnim?.cancel();
-    this.#panelAnim?.cancel();
-
-    this.#backdropAnim = fadeIn(backdrop, { duration: DURATION.normal });
-    this.#panelAnim = slideIn(panel, 'up', {
-      duration: DURATION.slow,
-      easing: EASING.sheet,
-    });
-  }
-
-  #animateOut(): void {
-    const backdrop = this.backdropRef()?.nativeElement;
-    const panel = this.panelRef()?.nativeElement;
-    if (!backdrop || !panel) return;
-
-    this.#backdropAnim?.cancel();
-    this.#panelAnim?.cancel();
-
-    this.#backdropAnim = fadeOut(backdrop, { duration: DURATION.normal });
-    this.#panelAnim = slideOut(panel, 'down', {
-      duration: DURATION.normal,
-      easing: EASING.accelerate,
-    });
-  }
 }
 
 @Component({

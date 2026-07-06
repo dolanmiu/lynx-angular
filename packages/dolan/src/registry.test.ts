@@ -50,6 +50,22 @@ describe('resolveDependencies', () => {
     expect(resolved).toEqual(['icon', 'empty-state']);
   });
 
+  it('resolves select with its bottom-sheet dependency', () => {
+    expect(resolveDependencies(['select'])).toEqual(['bottom-sheet', 'select']);
+  });
+
+  it('resolves sheet with its bottom-sheet dependency', () => {
+    expect(resolveDependencies(['sheet'])).toEqual(['bottom-sheet', 'sheet']);
+  });
+
+  it('deduplicates bottom-sheet when both select and sheet are selected', () => {
+    expect(resolveDependencies(['select', 'sheet'])).toEqual([
+      'bottom-sheet',
+      'select',
+      'sheet',
+    ]);
+  });
+
   it('skips unknown component names', () => {
     expect(resolveDependencies(['nonexistent'])).toEqual([]);
   });

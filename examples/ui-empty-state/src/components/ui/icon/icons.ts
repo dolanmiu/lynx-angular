@@ -12,6 +12,15 @@ const svg = (paths: string) =>
 // silently never paints on device (web renders it fine, so it looks correct in
 // a browser preview but disappears on iOS/Android). <path> equivalents avoid
 // the bug: e.g. a horizontal <line x1=4 x2=20 y=12> becomes <path d="M4 12h16"/>.
+//
+// Dots must be a <circle>, never a zero-length "dot" path. Lucide draws the
+// dot of an "i"/"!" as a degenerate subpath (e.g. <path d="M12 8h.01"/>) that
+// relies on stroke-linecap="round" to paint a disc of diameter = stroke-width.
+// ServalSVG's DrawPath does not paint a round cap for a near-zero-length
+// stroked subpath, so the dot silently vanishes on device (same failure mode
+// as <line>). Replace it with a filled circle of radius = stroke-width/2, which
+// routes through the dedicated DrawCircle primitive and always paints:
+// <path d="M12 8h.01"/> becomes <circle cx="12" cy="8" r="1" fill="currentColor" stroke="none"/>.
 export const ICONS = {
   check: svg('<path d="M20 6 9 17l-5-5"/>'),
   x: svg('<path d="M18 6 6 18"/><path d="m6 6 12 12"/>'),
@@ -26,10 +35,10 @@ export const ICONS = {
   search: svg('<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>'),
   menu: svg('<path d="M4 12h16"/><path d="M4 6h16"/><path d="M4 18h16"/>'),
   info: svg(
-    '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+    '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><circle cx="12" cy="8" r="1" fill="currentColor" stroke="none"/>',
   ),
   'alert-triangle': svg(
-    '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+    '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><circle cx="12" cy="17" r="1" fill="currentColor" stroke="none"/>',
   ),
   loader: svg(
     '<path d="M12 2v4"/><path d="m16.2 7.8 2.9-2.9"/><path d="M18 12h4"/><path d="m16.2 16.2 2.9 2.9"/><path d="M12 18v4"/><path d="m4.9 19.1 2.9-2.9"/><path d="M2 12h4"/><path d="m4.9 4.9 2.9 2.9"/>',
