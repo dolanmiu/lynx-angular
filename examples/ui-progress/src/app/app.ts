@@ -15,24 +15,24 @@ import { UiButton } from '../components/ui/button';
         <text class="text-sm font-medium text-muted-foreground mb-3">
           Static Values
         </text>
-        <view class="gap-4 mb-6">
-          <view class="gap-1">
+        <view class="flex flex-col gap-4 mb-6">
+          <view class="flex flex-col gap-1">
             <text class="text-xs text-muted-foreground">0%</text>
             <ui-progress [value]="0" />
           </view>
-          <view class="gap-1">
+          <view class="flex flex-col gap-1">
             <text class="text-xs text-muted-foreground">25%</text>
             <ui-progress [value]="25" />
           </view>
-          <view class="gap-1">
+          <view class="flex flex-col gap-1">
             <text class="text-xs text-muted-foreground">50%</text>
             <ui-progress [value]="50" />
           </view>
-          <view class="gap-1">
+          <view class="flex flex-col gap-1">
             <text class="text-xs text-muted-foreground">75%</text>
             <ui-progress [value]="75" />
           </view>
-          <view class="gap-1">
+          <view class="flex flex-col gap-1">
             <text class="text-xs text-muted-foreground">100%</text>
             <ui-progress [value]="100" />
           </view>
@@ -42,7 +42,7 @@ import { UiButton } from '../components/ui/button';
         <text class="text-sm font-medium text-muted-foreground mb-3">
           Custom Max (200)
         </text>
-        <view class="gap-1 mb-6">
+        <view class="flex flex-col gap-1 mb-6">
           <text class="text-xs text-muted-foreground">150 / 200</text>
           <ui-progress [value]="150" [max]="200" />
         </view>
@@ -51,14 +51,14 @@ import { UiButton } from '../components/ui/button';
         <text class="text-sm font-medium text-muted-foreground mb-3">
           Interactive
         </text>
-        <view class="gap-3">
-          <view class="gap-1">
+        <view class="flex flex-col gap-3">
+          <view class="flex flex-col gap-1">
             <text class="text-xs text-muted-foreground">
               {{ dynamicValue() }}%
             </text>
             <ui-progress [value]="dynamicValue()" />
           </view>
-          <view class="flex-row gap-2">
+          <view class="flex flex-row gap-2">
             <ui-button size="sm" variant="outline" (pressed)="decrease()">
               -10
             </ui-button>

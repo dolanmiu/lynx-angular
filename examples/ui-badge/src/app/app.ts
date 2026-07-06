@@ -14,7 +14,7 @@ import { UiBadge } from '../components/ui/badge';
         <text class="text-sm font-medium text-muted-foreground mb-3">
           Variants
         </text>
-        <view class="flex-row flex-wrap gap-2 mb-6">
+        <view class="flex flex-row flex-wrap gap-2 mb-6">
           <ui-badge>Default</ui-badge>
           <ui-badge variant="secondary">Secondary</ui-badge>
           <ui-badge variant="destructive">Destructive</ui-badge>
@@ -25,20 +25,20 @@ import { UiBadge } from '../components/ui/badge';
         <text class="text-sm font-medium text-muted-foreground mb-3">
           Common Uses
         </text>
-        <view class="gap-3">
-          <view class="flex-row items-center gap-2">
+        <view class="flex flex-col gap-3">
+          <view class="flex flex-row items-center gap-2">
             <text class="text-sm text-foreground">Status</text>
             <ui-badge>Active</ui-badge>
           </view>
-          <view class="flex-row items-center gap-2">
+          <view class="flex flex-row items-center gap-2">
             <text class="text-sm text-foreground">Notifications</text>
             <ui-badge variant="destructive">3</ui-badge>
           </view>
-          <view class="flex-row items-center gap-2">
+          <view class="flex flex-row items-center gap-2">
             <text class="text-sm text-foreground">Category</text>
             <ui-badge variant="secondary">Angular</ui-badge>
           </view>
-          <view class="flex-row items-center gap-2">
+          <view class="flex flex-row items-center gap-2">
             <text class="text-sm text-foreground">Version</text>
             <ui-badge variant="outline">v2.0</ui-badge>
           </view>

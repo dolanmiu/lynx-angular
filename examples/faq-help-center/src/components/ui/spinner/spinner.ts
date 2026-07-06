@@ -42,7 +42,7 @@ export class UiSpinner {
       el.animate(
         [{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }],
         {
-          duration: 800,
+          duration: 1600,
           iterations: Infinity,
           easing: 'linear',
         },

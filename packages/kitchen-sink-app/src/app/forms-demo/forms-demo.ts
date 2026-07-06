@@ -64,7 +64,7 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
         ></textarea>
 
         <!-- Form state badges -->
-        <view class="flex-row gap-2 mb-4 flex-wrap">
+        <view class="flex flex-row gap-2 mb-4 flex-wrap">
           <view
             class="py-1 px-2 rounded"
             [class.bg-green-100]="form.valid"
@@ -92,7 +92,7 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
         </view>
 
         <!-- Action buttons -->
-        <view class="flex-row gap-2 mb-4">
+        <view class="flex flex-row gap-2 mb-4">
           <view
             class="flex-1 bg-indigo-600 p-3 rounded-md items-center"
             (bindtap)="submit()"

@@ -14,9 +14,22 @@ import { type AnimationHandle, springTranslateX } from '../../utils/animate';
 import { cn } from '../../utils/cn';
 
 /**
- * Pixel offsets for the thumb within the 44px track (w-11).
- * Track is h-6 (24px), thumb is w-5 h-5 (20px).
- * OFF: 2px from left edge; ON: 2px from right edge (24 - 20 - 2 = 2).
+ * Pixel offsets for the thumb within the 44px track.
+ *
+ * The thumb is positioned with a px-based `translateX`, so the track and thumb
+ * MUST be sized in px too (see the `w-[44px]`/`w-[20px]` arbitrary values in the
+ * templates below) — NOT with Tailwind's rem-based scale (`w-11`/`w-5`).
+ *
+ * Why: Tailwind's default width scale compiles to rem (`w-11` → `2.75rem`), and
+ * on Lynx `1rem` resolves against the root `<page>` font-size, which defaults to
+ * 14px (`DEFAULT_FONT_SIZE_DP`) — not the 16px browsers use. So `w-11` renders as
+ * 38.5px on device, not 44px. Mixing that rem-sized track with a px `translateX`
+ * made the ON thumb overshoot the right edge (it was offset 22px inside a 38.5px
+ * track). Sizing everything in px keeps the geometry self-consistent regardless
+ * of the ambient font-size.
+ *
+ * Track is 44px wide, 24px tall; thumb is 20px square. OFF: 2px from the left
+ * edge; ON: 2px from the right edge (44 - 20 - 2 = 22).
  */
 const THUMB_OFFSET_OFF = 2;
 const THUMB_OFFSET_ON = 22;
@@ -44,7 +57,7 @@ export class UiSwitch {
 
   protected readonly trackClass = computed(() =>
     cn(
-      'flex flex-row items-center w-11 h-6 rounded-full',
+      'flex flex-row items-center w-[44px] h-[24px] rounded-full',
       this.checked() ? 'bg-primary' : 'bg-input',
       this.disabled() && 'opacity-50',
       this.userClass(),
@@ -52,7 +65,7 @@ export class UiSwitch {
   );
 
   protected readonly thumbClass = computed(() =>
-    cn('w-5 h-5 rounded-full bg-background'),
+    cn('w-[20px] h-[20px] rounded-full bg-background'),
   );
 
   protected readonly thumbPositionStyle = computed(

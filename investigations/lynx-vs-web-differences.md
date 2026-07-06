@@ -469,6 +469,32 @@ Lynx adds `rpx` (responsive pixels) — a unit that scales proportionally to the
 
 ---
 
+## `rem` resolves against a **14px** root font-size, not 16px — so Tailwind's `w-11` etc. are smaller than on web
+
+### What you'd expect (web)
+
+`1rem` equals the root (`<html>`) font-size, which defaults to `16px` in every browser. Tailwind's default spacing scale is expressed in `rem` (`w-11` → `2.75rem`), so `w-11` renders as `2.75 × 16 = 44px`, `w-5` as `20px`, etc. Designs (e.g. shadcn/ui) are laid out around these 16px-based pixel values.
+
+### What Lynx does
+
+`rem` resolves against the root `<page>` font-size, and Lynx's default font-size is **`14px`** (`DEFAULT_FONT_SIZE_DP`, see `core/renderer/tasm/config.h`), not 16px. Nothing sets a root font-size in the `@blotch/ui` theme, so every rem-based Tailwind utility is scaled by 14/16:
+
+| Tailwind class | rem value | Web (16px) | **Lynx (14px)** |
+| -------------- | --------- | ---------- | --------------- |
+| `w-5` / `h-5`  | `1.25rem` | 20px       | **17.5px**      |
+| `h-6`          | `1.5rem`  | 24px       | **21px**        |
+| `w-11`         | `2.75rem` | 44px       | **38.5px**      |
+
+This is silent — the web preview looks right, the device is ~12.5% smaller.
+
+### The fix
+
+For most elements the uniform 12.5% shrink is harmless (everything scales together). It bites when you **mix rem-based sizing with a `px`-based value** — the two no longer agree. This broke the `ui-switch` thumb: the track was sized `w-11` (38.5px on device) but the thumb was positioned with a hardcoded `translateX(22px)` computed for a 44px track, so the ON thumb overshot the right edge.
+
+When an element's geometry must be pixel-exact and self-consistent with px transforms/positions, size it in **explicit px** via Tailwind arbitrary values (`w-[44px]`, `h-[20px]`) rather than the rem scale (`w-11`, `h-5`). Arbitrary px values compile straight to `width: 44px` and are immune to the root font-size. (Alternatively, set a `16px` font-size on `page` to make rem match web — but that would resize all existing rem-based layouts.)
+
+---
+
 ## `white-space` only supports `normal` and `nowrap`
 
 ### What you'd expect (web)
