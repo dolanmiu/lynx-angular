@@ -35,6 +35,17 @@ const DISMISS_THRESHOLD = 100;
 // offset; WAAPI won't tween between px and % transforms.
 const DISMISS_TRANSLATE = 600;
 
+// Backdrop dim tuning. The scrim sits at BACKDROP_MAX_DIM alpha when the sheet
+// is fully open and lightens toward transparent as the handle is dragged down,
+// so the dimming reads as coupled to how much of the sheet is still on screen.
+const BACKDROP_MAX_DIM = 0.5;
+// Drag distance (px) over which the backdrop fades from full dim to fully clear.
+// Ideally this would be the panel's own height, but measuring it on the drag's
+// background thread isn't cheap (getBoundingClientRect is main-thread/async), so
+// we approximate a full reveal with a fixed travel that stays within the
+// DISMISS_TRANSLATE off-screen distance. The dim reduces linearly across it.
+const BACKDROP_CLEAR_DISTANCE = 500;
+
 /**
  * Low-level bottom-sheet primitive: a full-screen `<overlay>` with a dimmed
  * backdrop and a panel docked to the bottom that slides up on open, slides
@@ -54,7 +65,8 @@ const DISMISS_TRANSLATE = 600;
     <overlay [attr.visible]="overlayVisible()" [style]="overlayStyle()">
       <view
         #backdrop
-        class="h-full w-full bg-black/50"
+        class="h-full w-full"
+        [style]="backdropStyle()"
         (bindtap)="onBackdropTap()"
       >
         <view
@@ -146,6 +158,23 @@ export class UiBottomSheet {
     () =>
       `position: absolute; bottom: 0; left: 0; right: 0; transform: translateY(${this.dragOffset()}px);`,
   );
+
+  // Backdrop scrim dimmed in tandem with the sheet's reveal: full dim while
+  // docked (dragOffset 0), lightening as the handle is dragged down so the
+  // content behind shows through progressively. Driven through the same live
+  // `[style]` path as panelPositionStyle — dragOffset updates on the drag's
+  // background thread, and inline styles reflect there (unlike element.animate()
+  // opacity tweens, which the open/close fade uses on the main thread instead).
+  // The alpha lives in the background-color rather than the element's opacity so
+  // it composes cleanly with the fadeIn/fadeOut opacity animations without the
+  // two mechanisms fighting over the same property.
+  protected readonly backdropStyle = computed(() => {
+    const revealed = Math.max(
+      0,
+      1 - this.dragOffset() / BACKDROP_CLEAR_DISTANCE,
+    );
+    return `background-color: rgba(0, 0, 0, ${BACKDROP_MAX_DIM * revealed});`;
+  });
 
   protected onBackdropTap(): void {
     this.open.set(false);
