@@ -70,6 +70,28 @@ Caveats for **non-modal** overlays (e.g. toast): a full-screen first child captu
 
 ---
 
+## An orphaned `<overlay>` is a live native window — teardown must remove it, not re-home it
+
+### What you'd expect (web)
+
+Removing a subtree from the DOM removes everything in it, including any overlay/portal element. A detached DOM node is inert and garbage-collected; there is no lingering "window."
+
+### What Lynx does
+
+An `<overlay>` is a standalone **native window**, not an in-flow element. The renderer's `remove()` (`packages/runtime/src/lib/lynx-element/lynx-element.ts`) works around a separate Lynx constraint — an element trapped inside a `__RemoveElement`'d subtree becomes permanently dead — by **re-homing a removed element's children to the page root** so content projected in from a surviving parent survives re-projection when an `@if` inside a component toggles (this is what makes `collapsible`/`accordion`/`tabs` re-expand correctly).
+
+But when the destroyed subtree itself contains an `<overlay>` (e.g. a `ui-select` / `dialog` / `sheet` sitting inside an `@if` that is destroyed), re-homing leaves that overlay **orphaned on the page root** — a live native window with no owning Angular view. That corrupts the native window hierarchy and **crashes to the home screen** (observed on `examples/checkout-form`: pressing Continue destroys the step-1 `@if`, which contains the Country `ui-select`).
+
+Angular gives no usable signal to distinguish "re-projected" from "destroyed" here: `renderer.destroyNode` fires only for the top-level nodes of the *directly* destroyed view (never nested/component-internal nodes like the overlay) and runs *after* the detach/re-home pass.
+
+### The fix
+
+`remove()` skips re-homing any subtree that **contains an `<overlay>`** (checked by walking the native tree via `__GetTag`) and removes it for real instead, so the overlay window is properly torn down. Overlays are always mounted and shown/hidden via their `visible` attribute — never re-projected through `@if` — so they never need re-homing to survive. Covered by `packages/runtime/src/lib/renderer/teardown.spec.ts` (a TestBed harness over a fake native tree that models the "trapped element is dead" constraint, asserting both overlay teardown and `@if` re-projection).
+
+Note: this fixes the crash but not the general re-home **leak** — non-overlay destroyed subtrees are still orphaned on the page root (see the native element-pool note below).
+
+---
+
 ## A `position: absolute` element's auto **height** collapses against a zero-height containing block
 
 ### What you'd expect (web)

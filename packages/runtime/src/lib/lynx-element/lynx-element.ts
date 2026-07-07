@@ -11,6 +11,19 @@ import {
   type LynxEventType,
 } from './types';
 
+/**
+ * True if `el` is an `<overlay>` or has one anywhere in its subtree. Used by
+ * remove() to decide whether a subtree is safe to park on the page root during
+ * an Angular detach: an orphaned overlay is a live native window with no owning
+ * view (see remove() for why that crashes), so overlay-bearing subtrees are torn
+ * down for real instead of parked. Walks the native tree via __GetTag; the depth
+ * is bounded by the removed subtree, and removals are not on a hot path.
+ */
+const containsOverlay = (el: ElementRef): boolean => {
+  if (__GetTag(el) === 'overlay') return true;
+  return __GetChildren(el).some(containsOverlay);
+};
+
 export class LynxElement implements BaseLynxElement {
   readonly element: ElementRef;
   tagName = '';
@@ -163,9 +176,24 @@ export class LynxElement implements BaseLynxElement {
     // can never be re-attached to a new parent. By moving children to the
     // page root first, they stay alive in the native tree and can be moved
     // to a new parent later (e.g. projected content re-projected by @if).
+    //
+    // Exception: never park a subtree that contains an <overlay>. Angular's
+    // detach pass removes only a subtree's root and relies on us to keep the
+    // rest alive — but an <overlay> is a standalone native window, not an
+    // in-flow element. Orphaning one on the page root leaves a live window with
+    // no owning Angular view, which corrupts the native window hierarchy on
+    // teardown (observed: crash to home screen when an @if that contains a
+    // select/sheet/dialog is destroyed). Overlays are always mounted and
+    // shown/hidden via their `visible` attribute — never re-projected through
+    // @if — so they never need parking to survive. Remove such subtrees for
+    // real instead, so the overlay window is properly torn down.
     if (__pageElementRef) {
       for (const child of __GetChildren(this.element)) {
-        __AppendElement(__pageElementRef, child);
+        if (containsOverlay(child)) {
+          __RemoveElement(this.element, child);
+        } else {
+          __AppendElement(__pageElementRef, child);
+        }
       }
     }
     __RemoveElement((parent as LynxElement).element, this.element);
