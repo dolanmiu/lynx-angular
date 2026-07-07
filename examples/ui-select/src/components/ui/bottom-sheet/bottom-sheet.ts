@@ -127,6 +127,13 @@ export class UiBottomSheet {
     cn(
       'bg-background border-border flex flex-col rounded-t-2xl border-t',
       'w-full',
+      // The panel docks at bottom: 0 (see panelPositionStyle), so its lower edge
+      // sits behind the home indicator. `pb-safe` pads the bottom by
+      // env(safe-area-inset-bottom), lifting the projected content clear of it
+      // while the panel background still fills to the screen edge. Degrades to no
+      // padding where there's no bottom inset (web/older devices). Mirrors how
+      // the toast bakes the safe area into its own docked positioning.
+      'pb-safe',
       this.userClass(),
     ),
   );
