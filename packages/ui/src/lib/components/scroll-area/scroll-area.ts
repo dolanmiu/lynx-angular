@@ -66,7 +66,7 @@ export class UiScrollArea {
 
   protected readonly contentClass = computed(() =>
     cn(
-      this.orientation() === 'vertical' ? 'flex flex-col' : 'flex flex-row',
+      this.orientation() === 'vertical' ? 'flex-col flex' : 'flex-row flex',
       this.contentClass_(),
     ),
   );

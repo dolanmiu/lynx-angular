@@ -234,7 +234,7 @@ export class LynxElement implements BaseLynxElement {
   /**
    * Invokes a native UI method on this element by name.
    *
-   * This is needed because some Lynx native elements expose behaviour only
+   * This is needed because some Lynx native elements expose behavior only
    * through UIMethod calls and have no corresponding @LynxProp handler. The
    * most common case is input/textarea text updates: the native
    * LynxUIBaseInput class has no @LynxProp for "value", so __SetAttribute

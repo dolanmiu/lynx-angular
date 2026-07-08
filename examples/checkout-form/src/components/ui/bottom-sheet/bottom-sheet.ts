@@ -76,13 +76,13 @@ const BACKDROP_CLEAR_DISTANCE = 500;
           (catchtap)="onPanelTap()"
         >
           <view
-            class="flex items-center justify-center pb-3 pt-2"
+            class="items-center pb-3 pt-2 flex justify-center"
             (catchtouchstart)="onHandleTouchStart($event)"
             (catchtouchmove)="onHandleTouchMove($event)"
             (catchtouchend)="onHandleTouchEnd()"
             (catchtouchcancel)="onHandleTouchEnd()"
           >
-            <view class="bg-muted h-1 w-10 rounded-full" />
+            <view class="h-1 w-10 rounded-full bg-muted" />
           </view>
           <ng-content />
         </view>
@@ -137,7 +137,7 @@ export class UiBottomSheet {
 
   protected readonly panelClass = computed(() =>
     cn(
-      'bg-background border-border flex flex-col rounded-t-2xl border-t',
+      'flex-col rounded-t-2xl border-t border-border bg-background flex',
       'w-full',
       // The panel docks at bottom: 0 (see panelPositionStyle), so its lower edge
       // sits behind the home indicator. `pb-safe` pads the bottom by

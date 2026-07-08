@@ -86,10 +86,10 @@ export class UiNavDrawer {
 
   protected readonly panelClass = computed(() =>
     cn(
-      'bg-background flex h-full flex-col',
+      'h-full flex-col bg-background flex',
       this.side() === 'left'
-        ? 'border-border border-r'
-        : 'border-border border-l',
+        ? 'border-r border-border'
+        : 'border-l border-border',
       this.userClass(),
     ),
   );
@@ -194,7 +194,7 @@ export class UiNavDrawerHeader {
   readonly userClass = input<string>('', { alias: 'class' });
 
   protected readonly containerClass = computed(() =>
-    cn('border-border flex flex-col gap-1.5 border-b p-4', this.userClass()),
+    cn('flex-col gap-1.5 border-b border-border p-4 flex', this.userClass()),
   );
 }
 
@@ -250,7 +250,7 @@ export class UiNavDrawerItem {
 
   protected readonly containerClass = computed(() =>
     cn(
-      'flex flex-row items-center gap-3 px-4 py-3',
+      'flex-row items-center gap-3 px-4 py-3 flex',
       this.active() ? 'bg-accent' : 'bg-transparent',
       this.userClass(),
     ),
@@ -297,7 +297,7 @@ export class UiNavDrawerFooter {
   readonly userClass = input<string>('', { alias: 'class' });
 
   protected readonly containerClass = computed(() =>
-    cn('border-border flex flex-col gap-2 border-t p-4', this.userClass()),
+    cn('flex-col gap-2 border-t border-border p-4 flex', this.userClass()),
   );
 }
 
@@ -329,7 +329,7 @@ export class UiNavDrawerTrigger {
 
   protected readonly containerClass = computed(() =>
     cn(
-      'flex h-10 w-10 items-center justify-center rounded-md',
+      'h-10 w-10 items-center rounded-md flex justify-center',
       this.userClass(),
     ),
   );

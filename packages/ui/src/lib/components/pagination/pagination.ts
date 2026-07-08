@@ -37,8 +37,8 @@ const CHEVRON_RIGHT = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 2
             }}</text>
           </view>
         } @else {
-          <view class="flex h-8 w-8 items-center justify-center">
-            <text class="text-muted-foreground text-xs">...</text>
+          <view class="h-8 w-8 items-center flex justify-center">
+            <text class="text-xs text-muted-foreground">...</text>
           </view>
         }
       }
@@ -105,19 +105,19 @@ export class UiPagination {
   });
 
   protected readonly containerClass = computed(() =>
-    cn('flex flex-row items-center gap-1', this.userClass()),
+    cn('flex-row items-center gap-1 flex', this.userClass()),
   );
 
   protected navButtonClass(disabled: boolean): string {
     return cn(
-      'flex h-10 w-10 items-center justify-center rounded-md',
+      'h-10 w-10 items-center rounded-md flex justify-center',
       disabled && 'opacity-50',
     );
   }
 
   protected pageButtonClass(active: boolean): string {
     return cn(
-      'flex h-10 w-10 items-center justify-center rounded-md',
+      'h-10 w-10 items-center rounded-md flex justify-center',
       active ? 'bg-primary' : 'bg-transparent',
     );
   }

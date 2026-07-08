@@ -81,16 +81,12 @@ type Contact = {
             header must not be nested. flatten="false" keeps the header on its
             own layer, which sticky positioning requires on Android.
           -->
-          <view class="sticky top-0 bg-zinc-100 px-4 py-1.5" [flatten]="false">
+          <view class="bg-zinc-100 px-4 py-1.5 sticky top-0" [flatten]="false">
             <text class="text-xs font-bold text-zinc-400">{{
               group.letter
             }}</text>
           </view>
-          @for (
-            contact of group.contacts;
-            track contact.id;
-            let last = $last
-          ) {
+          @for (contact of group.contacts; track contact.id; let last = $last) {
             <view
               class="flex-row items-center gap-3 bg-zinc-50 px-4 py-3 flex"
               (bindtap)="viewContact(contact)"

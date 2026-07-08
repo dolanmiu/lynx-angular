@@ -54,7 +54,7 @@ import { cn } from '../../utils/cn';
           [value]="value()"
           [attr.disabled]="disabled() || undefined"
           [attr.enable-scroll-bar]="maxLines() != null ? 'true' : null"
-          class="text-foreground text-sm"
+          class="text-sm text-foreground"
           style="border: none; background: transparent; height: 100%; width: 100%; line-height: 20px;"
           (bindinput)="onInput($any($event))"
           (bindfocus)="onFocus()"
@@ -80,7 +80,7 @@ export class UiTextarea implements FormValueControl<string> {
 
   // SwiftUI-style lineLimit(min...max). The field opens at minLines, grows with
   // content, then stops at maxLines and scrolls internally. maxLines defaults to
-  // undefined so the field grows unbounded (the previous behaviour) unless capped.
+  // undefined so the field grows unbounded (the previous behavior) unless capped.
   readonly minLines = input(3);
   readonly maxLines = input<number>();
 
@@ -107,18 +107,18 @@ export class UiTextarea implements FormValueControl<string> {
   }
 
   protected readonly containerClass = computed(() =>
-    cn('flex flex-col gap-1.5', this.userClass()),
+    cn('flex-col gap-1.5 flex', this.userClass()),
   );
 
   protected readonly labelClass = computed(() =>
-    cn('text-foreground text-sm font-medium'),
+    cn('text-sm font-medium text-foreground'),
   );
 
   protected readonly textareaWrapperClass = computed(() =>
     cn(
       // No min-height here — the minimum is now enforced by the textarea's own
       // min-height (minLines) so callers can go below the old 3-line floor.
-      'bg-muted rounded-xl px-3.5 py-2.5',
+      'rounded-xl bg-muted px-3.5 py-2.5',
       this.error()
         ? 'ring-destructive ring-2'
         : this.#isFocused()
@@ -149,11 +149,11 @@ export class UiTextarea implements FormValueControl<string> {
   });
 
   protected readonly helperClass = computed(() =>
-    cn('text-muted-foreground text-xs'),
+    cn('text-xs text-muted-foreground'),
   );
 
   protected readonly errorClass = computed(() =>
-    cn('text-destructive text-xs'),
+    cn('text-xs text-destructive'),
   );
 
   protected onFocus(): void {

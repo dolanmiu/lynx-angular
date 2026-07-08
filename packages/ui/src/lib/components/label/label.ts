@@ -16,7 +16,7 @@ export class UiLabel {
 
   protected readonly labelClass = computed(() =>
     cn(
-      'text-foreground text-sm font-medium',
+      'text-sm font-medium text-foreground',
       this.disabled() && 'opacity-50',
       this.userClass(),
     ),

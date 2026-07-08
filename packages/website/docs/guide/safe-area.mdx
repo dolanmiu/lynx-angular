@@ -54,18 +54,18 @@ Using the `@blotch/ui` Tailwind plugin? Reach for its `*-safe` padding utilities
 
 **Bare utilities** set padding equal to the inset:
 
-| Class                                    | Padding                |
-| ---------------------------------------- | ---------------------- |
-| `pt-safe` `pr-safe` `pb-safe` `pl-safe`  | one side               |
-| `px-safe` `py-safe`                      | horizontal / vertical  |
-| `p-safe`                                 | all four sides         |
+| Class                                   | Padding               |
+| --------------------------------------- | --------------------- |
+| `pt-safe` `pr-safe` `pb-safe` `pl-safe` | one side              |
+| `px-safe` `py-safe`                     | horizontal / vertical |
+| `p-safe`                                | all four sides        |
 
 **Offset utilities** add the inset on top of a spacing value — for elements that already want padding but must also clear the notch or home indicator:
 
-| Class       | Padding                                      |
-| ----------- | -------------------------------------------- |
-| `pb-safe-4` | `calc(1rem + env(safe-area-inset-bottom))`   |
-| `pt-safe-2` | `calc(0.5rem + env(safe-area-inset-top))`    |
+| Class       | Padding                                    |
+| ----------- | ------------------------------------------ |
+| `pb-safe-4` | `calc(1rem + env(safe-area-inset-bottom))` |
+| `pt-safe-2` | `calc(0.5rem + env(safe-area-inset-top))`  |
 
 The `-<n>` suffix accepts any value from your spacing scale (`pb-safe-8`, `pt-safe-6`, …), matching the normal `p-*` scale.
 

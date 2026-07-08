@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+// cspell:words reproj
 //
 // Integration harness that drives the REAL main-thread renderer path
 // (LynxDocument + LynxElement) against an in-memory fake of the native element
@@ -43,7 +44,7 @@ type FakeEl = {
   attrs: Map<string, unknown>;
   classes: Set<string>;
   styles: Map<string, unknown>;
-}
+};
 
 let nextId = 1;
 let pageRoot: FakeEl;
@@ -252,9 +253,7 @@ class ReprojSlot {
   imports: [ReprojSlot],
   encapsulation: ViewEncapsulation.None,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  template: `<reproj-slot
-    ><text class="projected">hi</text></reproj-slot
-  >`,
+  template: `<reproj-slot><text class="projected">hi</text></reproj-slot>`,
 })
 class ReprojHost {}
 

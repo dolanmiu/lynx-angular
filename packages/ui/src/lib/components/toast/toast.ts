@@ -71,7 +71,7 @@ const stackTransform = (depth: number): string =>
     '(catchtouchcancel)': 'onTouchEnd()',
   },
   template: `
-    <view class="flex flex-1 flex-col gap-1">
+    <view class="flex-1 flex-col gap-1 flex">
       @if (data().title) {
         <text [class]="titleClass()">{{ data().title }}</text>
       }
@@ -177,10 +177,10 @@ export class UiToastItem implements OnInit {
     // the left/right insets in hostStyle(); width:100% would fight `right` and
     // overflow the screen.
     return cn(
-      'flex flex-row items-start gap-3 rounded-lg border p-4',
+      'flex-row items-start gap-3 rounded-lg border p-4 flex',
       isDestructive
-        ? 'bg-destructive border-destructive'
-        : 'bg-background border-border',
+        ? 'border-destructive bg-destructive'
+        : 'border-border bg-background',
     );
   });
 
@@ -203,7 +203,7 @@ export class UiToastItem implements OnInit {
   protected readonly actionClass = computed(() => {
     const isDestructive = this.data().variant === 'destructive';
     return cn(
-      'flex items-center justify-center rounded-md border px-3 py-1.5',
+      'items-center rounded-md border px-3 py-1.5 flex justify-center',
       isDestructive ? 'border-destructive-foreground' : 'border-border',
     );
   });
@@ -422,7 +422,7 @@ export class UiToastItem implements OnInit {
  * Stack host. Renders the newest `MAX_VISIBLE` toasts as an overlapping,
  * pseudo-3D stack (newest in front, older ones scaled down and shifted up).
  *
- * All per-toast behaviour — entrance/exit/restack animation, the auto-dismiss
+ * All per-toast behavior — entrance/exit/restack animation, the auto-dismiss
  * timer, and drag-to-dismiss — lives in `UiToastItem`, mirroring how the
  * accordion delegates per-item animation to a child component. This host only
  * decides which toasts are on screen and at what depth, and removes a toast from

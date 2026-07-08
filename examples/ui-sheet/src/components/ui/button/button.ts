@@ -19,13 +19,13 @@ import { cn } from '@blotch/dolan/utils/cn';
 import { UiSpinner } from '../spinner/spinner';
 
 export const buttonVariants = cva(
-  'flex items-center justify-center rounded-md',
+  'items-center rounded-md flex justify-center',
   {
     variants: {
       variant: {
         default: 'bg-primary',
         destructive: 'bg-destructive',
-        outline: 'border-border bg-background border',
+        outline: 'border border-border bg-background',
         secondary: 'bg-secondary',
         ghost: 'bg-transparent',
       },

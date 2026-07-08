@@ -30,7 +30,7 @@ const CHECK_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" f
     </view>
     <ui-bottom-sheet [(open)]="sheetOpen">
       <scroll-view scroll-orientation="vertical" style="max-height: 300px;">
-        <view class="flex flex-col pb-4">
+        <view class="flex-col pb-4 flex">
           <ng-content />
         </view>
       </scroll-view>
@@ -66,7 +66,7 @@ export class UiSelect {
 
   protected readonly triggerClass = computed(() =>
     cn(
-      'border-input bg-background flex h-10 flex-row items-center justify-between rounded-md border px-3 py-2',
+      'h-10 flex-row items-center rounded-md border border-input bg-background px-3 py-2 flex justify-between',
       this.disabled() && 'opacity-50',
       this.userClass(),
     ),
@@ -130,13 +130,13 @@ export class UiSelectItem {
 
   protected readonly containerClass = computed(() =>
     cn(
-      'flex flex-row items-center justify-between px-4 py-3',
+      'flex-row items-center px-4 py-3 flex justify-between',
       this.isSelected() && 'bg-accent',
       this.userClass(),
     ),
   );
 
-  protected readonly labelClass = computed(() => cn('text-foreground text-sm'));
+  protected readonly labelClass = computed(() => cn('text-sm text-foreground'));
 
   protected onTap(): void {
     this.#select.select(this.itemValue());

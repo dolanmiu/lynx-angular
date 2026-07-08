@@ -13,10 +13,10 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { revealIn } from '../../utils/animate';
 import { cn } from '../../utils/cn';
 
-export const alertVariants = cva('flex flex-col rounded-lg border p-4', {
+export const alertVariants = cva('flex-col rounded-lg border p-4 flex', {
   variants: {
     variant: {
-      default: 'bg-background border-border',
+      default: 'border-border bg-background',
       // Opacity modifiers on semantic colors don't work on Lynx (opaque rgba
       // values with no separable channels): use a solid destructive border and
       // the pre-composed translucent bg-destructive-subtle for the tint.

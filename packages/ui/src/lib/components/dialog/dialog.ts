@@ -82,14 +82,14 @@ export class UiDialog {
     // bg-black/50 dims the backdrop; backdrop-blur-sm applies frosted-glass blur
     // on web. Lynx does not support backdrop-filter, so the blur is web-only.
     cn(
-      'flex h-full w-full items-center justify-center',
-      'bg-black/50 backdrop-blur-sm',
+      'h-full w-full items-center flex justify-center',
+      'backdrop-blur-sm bg-black/50',
     ),
   );
 
   protected readonly panelClass = computed(() =>
     cn(
-      'bg-background border-border flex w-4/5 flex-col rounded-lg border p-6',
+      'w-4/5 flex-col rounded-lg border border-border bg-background p-6 flex',
       this.userClass(),
     ),
   );
@@ -190,7 +190,7 @@ export class UiDialogHeader {
   readonly userClass = input<string>('', { alias: 'class' });
 
   protected readonly containerClass = computed(() =>
-    cn('flex flex-col gap-1.5', this.userClass()),
+    cn('flex-col gap-1.5 flex', this.userClass()),
   );
 }
 
@@ -205,7 +205,7 @@ export class UiDialogTitle {
   readonly userClass = input<string>('', { alias: 'class' });
 
   protected readonly textClass = computed(() =>
-    cn('text-foreground text-lg font-semibold', this.userClass()),
+    cn('text-lg font-semibold text-foreground', this.userClass()),
   );
 }
 
@@ -220,7 +220,7 @@ export class UiDialogDescription {
   readonly userClass = input<string>('', { alias: 'class' });
 
   protected readonly textClass = computed(() =>
-    cn('text-muted-foreground text-sm', this.userClass()),
+    cn('text-sm text-muted-foreground', this.userClass()),
   );
 }
 
@@ -239,6 +239,6 @@ export class UiDialogFooter {
   readonly userClass = input<string>('', { alias: 'class' });
 
   protected readonly containerClass = computed(() =>
-    cn('flex flex-row justify-end gap-2 pt-4', this.userClass()),
+    cn('flex-row gap-2 pt-4 flex justify-end', this.userClass()),
   );
 }

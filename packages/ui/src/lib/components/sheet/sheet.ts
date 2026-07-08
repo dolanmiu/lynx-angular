@@ -60,7 +60,7 @@ export class UiSheetHeader {
   readonly userClass = input<string>('', { alias: 'class' });
 
   protected readonly containerClass = computed(() =>
-    cn('mb-4 flex flex-col gap-1.5', this.userClass()),
+    cn('mb-4 flex-col gap-1.5 flex', this.userClass()),
   );
 }
 
@@ -75,7 +75,7 @@ export class UiSheetTitle {
   readonly userClass = input<string>('', { alias: 'class' });
 
   protected readonly textClass = computed(() =>
-    cn('text-foreground text-lg font-semibold', this.userClass()),
+    cn('text-lg font-semibold text-foreground', this.userClass()),
   );
 }
 
@@ -90,7 +90,7 @@ export class UiSheetDescription {
   readonly userClass = input<string>('', { alias: 'class' });
 
   protected readonly textClass = computed(() =>
-    cn('text-muted-foreground text-sm', this.userClass()),
+    cn('text-sm text-muted-foreground', this.userClass()),
   );
 }
 
@@ -109,6 +109,6 @@ export class UiSheetFooter {
   readonly userClass = input<string>('', { alias: 'class' });
 
   protected readonly containerClass = computed(() =>
-    cn('flex flex-col gap-2 pt-4', this.userClass()),
+    cn('flex-col gap-2 pt-4 flex', this.userClass()),
   );
 }

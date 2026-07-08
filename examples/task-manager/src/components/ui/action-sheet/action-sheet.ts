@@ -48,7 +48,7 @@ import { cn } from '@blotch/dolan/utils/cn';
                clips this tile's children to the rounded corners but not its own
                box-shadow (painted outside the border box), so the shadow shows. -->
           <view
-            class="border-border bg-card flex flex-col overflow-hidden rounded-lg border"
+            class="flex-col rounded-lg border border-border bg-card flex overflow-hidden"
             style="box-shadow: 0 2px 16px rgba(0, 0, 0, 0.15);"
           >
             <ng-content />
@@ -98,7 +98,7 @@ export class UiActionSheet {
   }
 
   protected readonly panelClass = computed(() =>
-    cn('flex w-full flex-col gap-2 px-4 pb-6', this.userClass()),
+    cn('w-full flex-col gap-2 px-4 pb-6 flex', this.userClass()),
   );
 
   protected readonly panelPositionStyle = computed(
@@ -193,11 +193,11 @@ export class UiActionSheetTitle {
   readonly userClass = input<string>('', { alias: 'class' });
 
   protected readonly containerClass = computed(() =>
-    cn('flex items-center justify-center px-4 py-3', this.userClass()),
+    cn('items-center px-4 py-3 flex justify-center', this.userClass()),
   );
 
   protected readonly textClass = computed(() =>
-    cn('text-muted-foreground text-sm'),
+    cn('text-sm text-muted-foreground'),
   );
 }
 
@@ -232,7 +232,7 @@ export class UiActionSheetItem {
 
   protected readonly containerClass = computed(() =>
     cn(
-      'border-border flex items-center justify-center border-t px-4 py-3',
+      'items-center border-t border-border px-4 py-3 flex justify-center',
       this.userClass(),
     ),
   );
@@ -298,13 +298,13 @@ export class UiActionSheetCancel {
 
   protected readonly containerClass = computed(() =>
     cn(
-      'border-border bg-card flex items-center justify-center rounded-lg border px-4 py-3',
+      'items-center rounded-lg border border-border bg-card px-4 py-3 flex justify-center',
       this.userClass(),
     ),
   );
 
   protected readonly textClass = computed(() =>
-    cn('text-primary text-base font-semibold'),
+    cn('text-base font-semibold text-primary'),
   );
 
   protected onPressStart(): void {

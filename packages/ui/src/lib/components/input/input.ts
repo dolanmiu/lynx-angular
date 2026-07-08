@@ -41,7 +41,7 @@ import { cn } from '../../utils/cn';
           [attr.type]="type()"
           [value]="value()"
           [attr.disabled]="disabled() || undefined"
-          class="text-foreground text-sm"
+          class="text-sm text-foreground"
           style="border: none; background: transparent; height: 100%; width: 100%;"
           (bindinput)="onInput($any($event))"
           (bindfocus)="onFocus()"
@@ -89,16 +89,16 @@ export class UiInput implements FormValueControl<string> {
   }
 
   protected readonly containerClass = computed(() =>
-    cn('flex flex-col gap-1.5', this.userClass()),
+    cn('flex-col gap-1.5 flex', this.userClass()),
   );
 
   protected readonly labelClass = computed(() =>
-    cn('text-foreground text-sm font-medium'),
+    cn('text-sm font-medium text-foreground'),
   );
 
   protected readonly inputWrapperClass = computed(() =>
     cn(
-      'bg-muted h-10 rounded-xl px-3.5 py-2',
+      'h-10 rounded-xl bg-muted px-3.5 py-2',
       this.error()
         ? 'ring-destructive ring-2'
         : this.#isFocused()
@@ -109,11 +109,11 @@ export class UiInput implements FormValueControl<string> {
   );
 
   protected readonly helperClass = computed(() =>
-    cn('text-muted-foreground text-xs'),
+    cn('text-xs text-muted-foreground'),
   );
 
   protected readonly errorClass = computed(() =>
-    cn('text-destructive text-xs'),
+    cn('text-xs text-destructive'),
   );
 
   protected onFocus(): void {
