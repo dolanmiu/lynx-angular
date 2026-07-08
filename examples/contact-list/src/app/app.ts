@@ -74,38 +74,39 @@ type Contact = {
           </view>
         }
         @for (group of grouped(); track group.letter) {
-          <view class="flex-col flex">
-            <view class="bg-zinc-100 px-4 py-1.5">
-              <text class="text-xs font-bold text-zinc-400">{{
-                group.letter
-              }}</text>
-            </view>
-            @for (
-              contact of group.contacts;
-              track contact.id;
-              let last = $last
-            ) {
-              <view
-                class="flex-row items-center gap-3 px-4 py-3 flex"
-                (bindtap)="viewContact(contact)"
-              >
-                <ui-avatar
-                  size="sm"
-                  src=""
-                  [fallback]="initials(contact.name)"
-                />
-                <view class="flex-1 flex-col gap-0.5 flex">
-                  <text class="text-[15px] font-medium text-zinc-900">{{
-                    contact.name
-                  }}</text>
-                  <text class="text-xs text-zinc-400">{{ contact.phone }}</text>
-                </view>
-              </view>
-              @if (!last) {
-                <ui-separator class="ml-16" />
-              }
-            }
+          <!--
+            The letter header and its contact rows are rendered as flat, direct
+            children of the <scroll-view> (no per-group wrapper view). Lynx only
+            honours position: sticky on DIRECT children of a scroll-view, so the
+            header must not be nested. flatten="false" keeps the header on its
+            own layer, which sticky positioning requires on Android.
+          -->
+          <view class="sticky top-0 bg-zinc-100 px-4 py-1.5" [flatten]="false">
+            <text class="text-xs font-bold text-zinc-400">{{
+              group.letter
+            }}</text>
           </view>
+          @for (
+            contact of group.contacts;
+            track contact.id;
+            let last = $last
+          ) {
+            <view
+              class="flex-row items-center gap-3 bg-zinc-50 px-4 py-3 flex"
+              (bindtap)="viewContact(contact)"
+            >
+              <ui-avatar size="sm" src="" [fallback]="initials(contact.name)" />
+              <view class="flex-1 flex-col gap-0.5 flex">
+                <text class="text-[15px] font-medium text-zinc-900">{{
+                  contact.name
+                }}</text>
+                <text class="text-xs text-zinc-400">{{ contact.phone }}</text>
+              </view>
+            </view>
+            @if (!last) {
+              <ui-separator class="ml-16" />
+            }
+          }
         }
       </scroll-view>
     </view>
