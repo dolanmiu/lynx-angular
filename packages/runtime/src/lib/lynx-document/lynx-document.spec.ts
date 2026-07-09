@@ -46,6 +46,7 @@ const setupGlobals = () => {
   globalThis.__CreateIf = mock(() => makeRef());
   globalThis.__CreateFor = mock(() => makeRef());
   globalThis.__CreateBlock = mock(() => makeRef());
+  globalThis.__CreateWrapperElement = mock(() => makeRef());
   globalThis.__CreateFrame = mock(() => makeRef());
   globalThis.__GetElementUniqueID = mock(() => 42);
   globalThis.__AppendElement = mock(() => makeRef());
@@ -159,10 +160,9 @@ describe('LynxDocument', () => {
       );
     });
 
-    it('creates a block element via __CreateElement', () => {
+    it('creates a block element via __CreateWrapperElement', () => {
       doc.createElement('block');
-      expect(asMock(globalThis.__CreateElement)).toHaveBeenCalledWith(
-        'block',
+      expect(asMock(globalThis.__CreateWrapperElement)).toHaveBeenCalledWith(
         expect.any(Number),
       );
     });

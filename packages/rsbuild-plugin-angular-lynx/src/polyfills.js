@@ -64,6 +64,24 @@ if (typeof Object.hasOwn !== 'function') {
     Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
+// Angular's `@defer` block (triggerDeferBlock -> triggerResourceLoading) calls
+// Promise.allSettled() to await all dependency-loading promises before showing
+// the loaded content. Lynx's PrimJS engine is ES2015-era and lacks this ES2020
+// method entirely (not a partial implementation — `typeof` check is enough).
+// Without it, every @defer block throws "Promise.allSettled is not a function"
+// as soon as its trigger fires.
+if (typeof Promise.allSettled !== 'function') {
+  Promise.allSettled = (promises) =>
+    Promise.all(
+      Array.from(promises, (p) =>
+        Promise.resolve(p).then(
+          (value) => ({ status: 'fulfilled', value }),
+          (reason) => ({ status: 'rejected', reason }),
+        ),
+      ),
+    );
+}
+
 if (typeof performance === 'undefined') {
   globalThis.performance = undefined;
 }

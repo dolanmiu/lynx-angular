@@ -187,7 +187,21 @@ export class LynxElement implements BaseLynxElement {
     // shown/hidden via their `visible` attribute — never re-projected through
     // @if — so they never need parking to survive. Remove such subtrees for
     // real instead, so the overlay window is properly torn down.
-    if (__pageElementRef) {
+    //
+    // Second exception: never pick apart the children of a <block> being
+    // removed. <block> is backed by __CreateWrapperElement, a "layout-only"
+    // native element — its children have no native UI subtree of their own,
+    // they're flattened directly into the nearest real ancestor at the
+    // painting layer. Yanking them out individually here (leaving the wrapper
+    // momentarily childless before it too is removed) breaks that flatten
+    // bookkeeping — same "crash to home screen" symptom as the overlay case
+    // above, just via a different native mechanism. <block> exists for
+    // conditional grouping with no visual output, not content preservation
+    // across toggles, so removing its whole subtree in one shot (rather than
+    // parking each child) loses nothing a <block> user relies on. Callers
+    // that need projected content to survive an @if toggle should wrap it in
+    // a <view> instead, which keeps the normal (non-flattened) parking path.
+    if (__pageElementRef && this.tagName !== 'block') {
       for (const child of __GetChildren(this.element)) {
         if (containsOverlay(child)) {
           __RemoveElement(this.element, child);

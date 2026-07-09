@@ -92,6 +92,30 @@ Note: this fixes the crash but not the general re-home **leak** — non-overlay 
 
 ---
 
+## `<block>` has no native paintable UI — it must be created as a layout-only element, and its children can't be picked apart on teardown
+
+### What you'd expect (web)
+
+A grouping element used purely to satisfy a template's structural requirements (e.g. Angular's `@if` needing a single root node) can be any element — the browser doesn't care whether it paints anything.
+
+### What Lynx does
+
+Lynx's native fiber engine has a dedicated `BlockElement` C++ class for exactly this "invisible grouping container" role, created via the specialized `__CreateBlock()` PAPI. Creating it instead via the generic `__CreateElement('block', pageId)` — which is the normal, cross-platform-safe way to create every *other* element, including `<if>`/`<for>` — produces a plain generic `FiberElement` whose tag merely happens to be the string `"block"`. That element is not layout-only, so it reaches the native painting pipeline and tries to create a real UI for tag `"block"` — which no platform registers a UI class for, crashing with `"block ui not found when create UI"`.
+
+React Lynx (the production reference) sidesteps this entirely: it never creates a `"block"`/`"if"`/`"for"`-tagged element at all. Its equivalent invisible container is `__CreateWrapperElement`, backed by the native `WrapperElement` class, which unconditionally sets `is_layout_only_ = true` — the native painting pipeline (`ElementContainer::CreatePaintingNode`) skips creating a UI for any layout-only element, so it never needs a registered native UI class. `__CreateWrapperElement` is implemented on both native platforms and the web platform (unlike `__CreateBlock`/`__CreateIf`/`__CreateFor`, which only exist natively — the web platform only implements the generic `__CreateElement`).
+
+A second, distinct issue surfaces once `<block>` is fixed to use `__CreateWrapperElement`: layout-only elements are **flattened** into the nearest real ancestor at the native painting layer — their children have no native UI subtree that belongs to the wrapper itself. The renderer's `remove()` (see the overlay entry above) "parks" a removed element's children onto the page root individually, one `__AppendElement` call per child, before removing the now-empty container — this works fine for ordinary (non-flattened) parents, but for a `<block>`, picking its children apart like that while the flattened wrapper is mid-teardown corrupts that native bookkeeping and **crashes to the home screen** — the same failure signature as parking an `<overlay>`'s subtree, via a different native mechanism.
+
+### The fix
+
+- `createBlockElement()` (`packages/runtime/src/lib/lynx-document/element-creators/create-block-element.ts`) calls `__CreateWrapperElement(pageId)` instead of `__CreateElement('block', pageId)`.
+- `remove()` (`packages/runtime/src/lib/lynx-element/lynx-element.ts`) never parks a `<block>`'s children — it removes the whole subtree in one shot instead, mirroring the `<overlay>` exception. `<block>` exists for conditional grouping with no visual output, not content preservation across toggles, so this loses nothing a `<block>` user relies on. Content that must survive an `@if` toggle (e.g. re-projected `<ng-content>`) should be wrapped in a `<view>` instead, which keeps the normal parking path.
+- Covered by `packages/runtime/src/lib/renderer/teardown.spec.ts`.
+
+`<if>` and `<for>` are still created via the generic `__CreateElement` path and share the same theoretical "unregistered native UI" risk as `<block>` did — but neither is exercised anywhere in the codebase today, so this is a known latent gap, not a confirmed bug.
+
+---
+
 ## A `position: absolute` element's auto **height** collapses against a zero-height containing block
 
 ### What you'd expect (web)

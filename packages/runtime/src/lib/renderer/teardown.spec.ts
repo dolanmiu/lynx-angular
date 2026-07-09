@@ -93,6 +93,10 @@ const installNativeFakes = (): void => {
   g.__CreateImage = () => makeEl('image');
   g.__CreateRawText = (text: string) => makeEl('raw-text', text);
   g.__CreateElement = (tag: string) => makeEl(tag);
+  // Real <block> creation calls __CreateWrapperElement, whose native tag is
+  // "wrapper" — LynxElement.tagName is separately tracked as 'block' by
+  // LynxDocument (see lynx-document.ts), which is what remove() keys off.
+  g.__CreateWrapperElement = () => makeEl('wrapper');
 
   g.__GetElementUniqueID = (n: FakeEl) => n.id;
   g.__GetTag = (n: FakeEl) => n.tag;
@@ -257,6 +261,32 @@ class ReprojSlot {
 })
 class ReprojHost {}
 
+/**
+ * <block> is a layout-only flattening container (backed by
+ * __CreateWrapperElement) whose children have no native UI subtree of their
+ * own. Destroying it must remove the whole subtree in one shot rather than
+ * parking its children on the page root first — picking them apart
+ * individually corrupts the native flatten bookkeeping (see the <block>
+ * exception in LynxElement.remove()).
+ */
+@Component({
+  selector: 'block-host',
+  standalone: true,
+  encapsulation: ViewEncapsulation.None,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    @if (show()) {
+      <block>
+        <text class="a">one</text>
+        <text class="b">two</text>
+      </block>
+    }
+  `,
+})
+class BlockHost {
+  readonly show = signal(true);
+}
+
 describe('renderer teardown', () => {
   beforeAll(() => {
     TestBed.initTestEnvironment(
@@ -297,6 +327,26 @@ describe('renderer teardown', () => {
     expect(tagsUnderRoot()).not.toContain('backdrop');
     expect(findByClass('wrapper')).toHaveLength(0);
     expect(findByClass('backdrop')).toHaveLength(0);
+  });
+
+  it('fully removes a <block>\'s children instead of parking them on the page root', () => {
+    const fixture = TestBed.createComponent(BlockHost);
+    fixture.detectChanges();
+
+    // Sanity: the block and its children are present while the @if is truthy.
+    expect(tagsUnderRoot()).toContain('wrapper');
+    expect(findByClass('a')).toHaveLength(1);
+    expect(findByClass('b')).toHaveLength(1);
+
+    fixture.componentInstance.show.set(false);
+    fixture.detectChanges();
+
+    // The whole subtree must be gone — not parked as orphans directly under
+    // the page root, which is what crashed on-device (same failure class as
+    // parking an <overlay>'s subtree).
+    expect(tagsUnderRoot()).not.toContain('wrapper');
+    expect(findByClass('a')).toHaveLength(0);
+    expect(findByClass('b')).toHaveLength(0);
   });
 
   it('re-projects <ng-content> when a wrapping @if toggles off and on', () => {
