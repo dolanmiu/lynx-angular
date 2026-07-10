@@ -1,5 +1,5 @@
 import { LynxListElement } from '../../lynx-element';
-import type { ElementRef, ListElementRef } from '../../types/lynx';
+import type { ListElementRef } from '../../types/lynx';
 
 /**
  * Factory for the list native element.
@@ -12,10 +12,7 @@ import type { ElementRef, ListElementRef } from '../../types/lynx';
  * componentAtIndex's own doc comment for why, and for the hard constraint
  * that nothing reachable from these callbacks may call a WeakSet/Map method).
  */
-export const createListElement = (
-  pageId: number,
-  nonElements: WeakSet<ElementRef>,
-): LynxListElement => {
+export const createListElement = (pageId: number): LynxListElement => {
   // Forward-declared so callbacks can close over the fully-initialized instance.
   let listEl: LynxListElement;
 
@@ -42,22 +39,21 @@ export const createListElement = (
    * operationID queue rather than recursing into TickLayout here.
    *
    * CRITICAL: this function (and anything it calls, e.g. listEl's helper
-   * methods) must NEVER call a WeakSet/Map method (.has()/.add()/.delete()) —
-   * not even once. That was empirically isolated as the actual crash trigger,
-   * not general reentrancy or call-stack depth: a WeakSet.has() call
-   * (originally in LynxListElement.getUIChildren()'s NoneElement filter,
-   * called on every componentAtIndex invocation) reliably crashed with a
-   * QuickJS refcounting assertion in __JS_FreeValueRT during js_map_has,
-   * even when this callback was invoked from a freshly-scheduled setTimeout
-   * task at the top of the native message loop (i.e. with no accumulated
-   * call-stack depth at all) — ruling out "the engine's unbounded Lepus
-   * stack got too deep" as the cause. Something about calling into QuickJS's
-   * Map/Set/WeakSet native implementation specifically from a callback
-   * reached via ListElement::ComponentAtIndex's CallLepusMethod path is
-   * unsafe. getCommittedUIChildren()/isAppendedToNativeList() below use a
-   * pre-computed array and a plain property tag respectively, precisely to
-   * avoid this: ordinary array indexing and property access compile to
-   * different bytecode than a Map/Set method call and don't trigger it.
+   * methods) must NEVER key a WeakSet/Map/Set on an element ref — not even a
+   * single .has(). Hashing a native-backed element ref on the main-thread
+   * Lepus context aborts the whole process inside QuickJS's Map/Set
+   * implementation: js_map_has → map_find_record → js_strict_eq2 →
+   * __JS_FreeValueRT (a refcount assertion), or a CheckObjectCtx cross-context
+   * abort. This is NOT about reentrancy or call-stack depth — it reproduced
+   * from a freshly-scheduled setTimeout task with no accumulated depth, and it
+   * ALSO fires from LynxListElement._processUpdate() during an ordinary
+   * change-detection cycle (it crashed to the home screen on every list
+   * add/remove until getUIChildren() stopped keying a WeakSet on element refs).
+   * The helpers below sidestep it structurally: getCommittedUIChildren()
+   * indexes a pre-computed array, isAppendedToNativeList() reads a plain
+   * property tag, _processUpdate() diffs Sets of numeric unique-IDs, and
+   * getUIChildren() filters on the wrapper's tagName — all ordinary field
+   * access / primitive hashing, never an element-ref Map/Set lookup.
    */
   const componentAtIndex = (
     listRef: ListElementRef,
@@ -158,7 +154,7 @@ export const createListElement = (
   // future use case genuinely needs the sync (all-on-UI) engine strategy.
   __SetAttribute(nativeList, 'enable-async-list', true);
 
-  listEl = new LynxListElement(nativeList, nonElements);
+  listEl = new LynxListElement(nativeList);
   listEl.tagName = 'list';
   listEl.setCallbacks(componentAtIndex, enqueueComponent, componentAtIndexes);
   return listEl;

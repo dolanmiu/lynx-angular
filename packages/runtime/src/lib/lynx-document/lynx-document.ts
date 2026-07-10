@@ -42,13 +42,6 @@ export class LynxDocument implements LynxDocumentBase {
   page!: LynxElement;
   #pageId = 0;
   #pageElementRequested = false;
-  /**
-   * Track NoneElements (Angular comment markers from @for/@if) so LynxListElement
-   * can skip them in getUIChildren(). Without this, invisible comment-anchor
-   * views would be counted as list items, causing misaligned indices in
-   * componentAtIndex and incorrect update-list-info diffs.
-   */
-  readonly #nonElements = new WeakSet<ElementRef>();
 
   constructor() {}
   createRootElement(): LynxElement {
@@ -87,7 +80,7 @@ export class LynxDocument implements LynxDocumentBase {
         break;
       }
       case 'list': {
-        return createListElement(this.#pageId, this.#nonElements);
+        return createListElement(this.#pageId);
       }
       case 'list-item': {
         element = createListItemElement(this.#pageId);
@@ -185,8 +178,11 @@ export class LynxDocument implements LynxDocumentBase {
     // so we use an invisible view instead.
     const element = __CreateView(this.#pageId);
     __AddInlineStyle(element, 'display', 'none');
-    this.#nonElements.add(element);
     const el = new LynxElement(element);
+    // tagName 'comment' is the SOLE marker LynxListElement.getUIChildren() uses
+    // to skip these @for/@if insertion anchors. It deliberately does not go in a
+    // WeakSet of element refs — hashing a native ref crashes the Lepus engine
+    // (see getUIChildren). Keep this tag and that filter in sync.
     el.tagName = 'comment';
     return el;
   }

@@ -10,16 +10,25 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
           >List Element</text
         >
         <text class="mb-5 text-[13px] text-zinc-500"
-          >A virtualized list for efficient rendering of large datasets.</text
+          >A virtualized list. Add and remove items to see the native list
+          reconcile.</text
         >
 
         <view
           class="rounded-xl border border-zinc-200 bg-white p-4 overflow-hidden"
         >
-          <text
-            class="uppercase mb-2.5 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
-            >50 Items</text
-          >
+          <view class="mb-2.5 flex-row items-center justify-between flex">
+            <text
+              class="uppercase text-[11px] font-bold tracking-[0.5px] text-zinc-400"
+              >{{ items().length }} Items</text
+            >
+            <view
+              class="rounded-lg bg-indigo-500 px-3 py-1.5"
+              (bindtap)="addItem()"
+            >
+              <text class="text-[13px] font-semibold text-white">+ Add</text>
+            </view>
+          </view>
           <list
             list-type="single"
             scroll-orientation="vertical"
@@ -37,9 +46,18 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
                       item.id
                     }}</text>
                   </view>
-                  <text class="ml-3 text-[15px] text-zinc-900">{{
+                  <text class="ml-3 flex-1 text-[15px] text-zinc-900">{{
                     item.name
                   }}</text>
+                  <!--
+                    catchtap (not bindtap) stops the tap here so it cannot bubble
+                    up to the <list>'s own tap/scroll gesture handling — tapping ✕
+                    should only remove this row, never register as a tap on the
+                    list. Same pattern the todo-list example uses for its delete.
+                  -->
+                  <view class="px-2 py-1" (catchtap)="remove(item.id)">
+                    <text class="text-base text-red-500">✕</text>
+                  </view>
                 </view>
               </list-item>
             }
@@ -57,4 +75,18 @@ export class App {
       name: `Item ${i + 1}`,
     })),
   );
+
+  // Monotonic counter for stable ids on newly added items. Starts past the 50
+  // seed items so a freshly added item never reuses an existing id/item-key —
+  // the native list diffs on item-key, so a collision would misidentify cells.
+  #nextId = 51;
+
+  addItem(): void {
+    const id = `${this.#nextId++}`;
+    this.items.update((list) => [...list, { id, name: `Item ${id}` }]);
+  }
+
+  remove(id: string): void {
+    this.items.update((list) => list.filter((item) => item.id !== id));
+  }
 }

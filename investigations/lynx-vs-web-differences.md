@@ -3280,24 +3280,37 @@ Don't emit the `placeholder` attribute while a value is present — this matches
 
 ---
 
-## Calling a `Map`/`Set`/`WeakSet` method from a `<list>` `componentAtIndex` callback crashes the main-thread engine
+## Keying a `Map`/`Set`/`WeakSet` on a native element ref crashes the main-thread engine (both the `<list>` callback AND the diff)
 
 ### What you'd expect (web)
 
-`Map`, `Set`, and `WeakSet` methods (`.has()`, `.add()`, `.delete()`) are ordinary JavaScript and safe to call from anywhere, including inside a list's item-rendering callback.
+`Map`, `Set`, and `WeakSet` methods (`.has()`, `.add()`, `.delete()`) are ordinary JavaScript and safe to call with any object key, from anywhere.
 
 ### What Lynx does
 
-Native `<list>` requests items by calling `componentAtIndex(list, listID, cellIndex, operationID)` **synchronously and re-entrantly, from deep inside its own layout pass** (`LinearLayoutManager::Fill` → `LayoutChunk` → `BindItemHolder` → `ComponentAtIndex`), invoked via `TemplateAssembler::CallLepusMethod` on the **main-thread "Lepus" QuickJS context**. Calling **any** `Map`/`Set`/`WeakSet` method — even a single `.has()` — from that callback (or anything it transitively calls) reliably crashes with a QuickJS refcounting assertion inside `__JS_FreeValueRT`, tripped during `js_map_has` / `map_find_record` / `js_strict_eq2`.
+On the **main-thread "Lepus" QuickJS context**, element references returned by `__CreateElement` are **opaque native-backed objects**, not plain JS objects (see the FFI note above). Using one as a `Map`/`Set`/`WeakSet` **key** forces the engine to hash/compare it, and that **aborts the whole process (`SIGABRT`)**. Two abort signatures show up depending on the ref's state — both are the same root cause (a native ref used as a collection key):
 
-This was empirically isolated and is **not** about stack depth or reentrancy in general: the same call scheduled from a fresh `setTimeout` macrotask (a genuinely shallow, top-of-message-loop stack) crashed identically. It is specifically about reaching QuickJS's Map/Set native implementation from a callback dispatched through `ComponentAtIndex`'s `CallLepusMethod` path. Plain property access and array indexing compile to different bytecode and are unaffected. (Distinct from the background-thread iOS `Map`/`Set`/`WeakSet` polyfill note above — this is the main-thread Lepus engine, not JavaScriptCore.)
+- `js_map_has` → `LepusConvertToObjectCallBack` → `LEPUSValueHelper::ToJsValue` → `LEPUS_DupValue` → `CheckObjectCtx` — a cross-context / stale-ref abort.
+- `js_map_has` → `map_find_record` → `js_strict_eq2` → `__JS_FreeValueRT` — a refcount assertion when the comparison frees a ref whose count is already bad.
+
+This bit **three** separate sites on the `<list>` path; all had to be fixed:
+
+1. **The `componentAtIndex` / `componentAtIndexes` callback.** Native calls these synchronously and re-entrantly from deep inside its own layout pass (`LinearLayoutManager::Fill` → `LayoutChunk` → `BindItemHolder` → `ComponentAtIndex`), via `CallLepusMethod`. Even a single `.has()` here crashes. This is **not** about stack depth or reentrancy: the same call scheduled from a fresh `setTimeout` macrotask (a shallow, top-of-message-loop stack) crashed identically.
+
+2. **The NoneElement filter in `getUIChildren()`**, called by `_processUpdate` on **every** list update (add *and* remove) during ordinary change detection. It did `nonElements.has(child.element)` on a `WeakSet` of element refs → `__JS_FreeValueRT` abort. Insidiously, the **initial render survived it** (the refcount abort is timing-sensitive), so the list rendered its seed items fine and only crashed on the first mutation — which looked like an add/remove bug rather than a filter bug.
+
+3. **The diff that builds `update-list-info`** (`_processUpdate`). Building `new Set(children)` and calling `set.has(elementRef)` aborted with the `CheckObjectCtx` signature. This one only fired on **removal**: on the initial render and pure appends the diff only ever calls `.has()` against an **empty** Set, and QuickJS short-circuits an empty-set lookup without converting the key — so it hid until the first item was removed and the diff tested the just-removed, now-detached ref against a populated Set.
+
+(Distinct from the background-thread iOS `Map`/`Set`/`WeakSet` polyfill note above — this is the main-thread Lepus engine, not JavaScriptCore. Plain property access and array indexing compile to different bytecode and are unaffected.)
 
 ### The fix
 
-Nothing reachable from `componentAtIndex` / `componentAtIndexes` may touch a `Map`/`Set`/`WeakSet`. Pre-compute anything you'd otherwise derive with them **outside** the callback and read it back with plain array indexing; track per-element flags as plain properties on the `ElementRef` rather than in a `WeakSet`:
+Never key a `Map`/`Set`/`WeakSet` on a native element ref anywhere on the list path. Three techniques, in `lynx-list-element.ts` / `create-list-element.ts` / `lynx-document.ts`:
+
+- **Per-element flags** → store as a plain property on the `ElementRef`, not in a `WeakSet`:
 
 ```ts
-// BAD — WeakSet.has() inside the callback path crashes:
+// BAD — WeakSet.has() with an element key:
 if (!this.#appended.has(child)) { __AppendElement(list, child); this.#appended.add(child); }
 
 // GOOD — plain property tag (ordinary field access, not a Map/Set call):
@@ -3307,7 +3320,28 @@ if ((child as { __appended?: boolean }).__appended !== true) {
 }
 ```
 
-The list's filtered child array is likewise computed once per real update (which runs outside the callback) and cached, so `componentAtIndex` only ever indexes into it. See `packages/runtime/src/lib/lynx-document/element-creators/create-list-element.ts` and `lynx-element/lynx-list-element.ts` (`getCommittedUIChildren()` / `isAppendedToNativeList()`).
+- **Classifying elements** (e.g. "is this a comment anchor?") → tag the JS wrapper, not the native ref. NoneElement anchors are marked `tagName === 'comment'` at creation and filtered on that string; the old `nonElements` WeakSet of element refs is gone entirely:
+
+```ts
+// BAD — WeakSet of element refs, queried per child on every update:
+if (!this.#nonElements.has(child.element)) children.push(child.element);
+
+// GOOD — read a string off the JS wrapper (no FFI object, no Map/Set):
+if (child.tagName !== 'comment') children.push(child.element);
+```
+
+- **Identity for diffing / indexing** → use the element's **native unique ID (a plain number)**, never the element object. `componentAtIndex` indexes into a cached plain array; `_processUpdate` diffs a `Set<number>` of `__GetElementUniqueID(child)` values (and stores the previous update's IDs, so it never calls a native accessor on an already-removed element):
+
+```ts
+// BAD — Set keyed on element objects; set.has(ref) aborts on removal:
+const newSet = new Set(newChildren);
+if (!newSet.has(oldChildren[i])) removeAction.push(i);
+
+// GOOD — Set of numbers; hashes directly, no conversion callback:
+const newIds = newChildren.map((c) => __GetElementUniqueID(c));
+const newIdSet = new Set(newIds);
+if (!newIdSet.has(oldIds[i])) removeAction.push(i);
+```
 
 ---
 

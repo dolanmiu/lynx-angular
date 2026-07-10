@@ -45,7 +45,6 @@ export const processPendingListUpdates = (): void => {
 export class LynxListElement extends LynxElement {
   #firstVirtualChild: LynxElement | null = null;
   #lastVirtualChild: LynxElement | null = null;
-  readonly #nonElements: WeakSet<ElementRef>;
   #destroyed = false;
   /**
    * Tracks what was last committed to native via update-list-info so we can
@@ -55,14 +54,17 @@ export class LynxListElement extends LynxElement {
    * why they must never call getUIChildren() themselves.
    */
   #committedUIChildren: ElementRef[] = [];
+  /**
+   * The native unique-ID (a plain number) of each element in
+   * #committedUIChildren, in the same order. Stored so _processUpdate() can
+   * diff on primitive keys instead of element-object identity — see that
+   * method's diff block for why hashing an element ref in a Set/Map aborts the
+   * Lepus context. Kept strictly in lock-step with #committedUIChildren.
+   */
+  #committedIds: number[] = [];
   #componentAtIndex: ((...args: any[]) => number | undefined) | null = null;
   #enqueueComponent: ((...args: any[]) => void) | null = null;
   #componentAtIndexes: ((...args: any[]) => void) | null = null;
-
-  constructor(element: ElementRef, nonElements: WeakSet<ElementRef>) {
-    super(element);
-    this.#nonElements = nonElements;
-  }
 
   /**
    * Store the list callbacks so _processUpdate() can re-register them via
@@ -156,18 +158,29 @@ export class LynxListElement extends LynxElement {
   }
 
   /**
-   * Returns ElementRefs of real UI children (excludes NoneElements / comment markers).
+   * Returns ElementRefs of real UI children, excluding NoneElement comment
+   * markers — the invisible <view>s LynxDocument.createComment() creates as
+   * Angular's @for/@if insertion anchors, each tagged tagName === 'comment'.
    *
-   * Only ever call this from _processUpdate() (or elsewhere outside of
-   * componentAtIndex's call stack) — it calls WeakSet.has() per child.
-   * componentAtIndex/componentAtIndexes must use getCommittedUIChildren()
-   * instead. See that method's doc comment for why.
+   * Filters on the wrapper's `tagName` (a plain JS string on the LynxElement
+   * object), NOT a WeakSet keyed by the native ElementRef. This is the fix for
+   * the crash-to-home-screen on every list add/remove. The previous
+   * implementation did `#nonElements.has(child.element)`, and hashing a
+   * native-backed element ref in a WeakSet/Map/Set on the main-thread Lepus
+   * context aborts the process — js_map_has → map_find_record → js_strict_eq2
+   * → __JS_FreeValueRT (a QuickJS refcount assertion). _processUpdate() calls
+   * this on every list update, so it detonated as soon as items changed.
+   * (The initial render happened to survive it — the abort is refcount-timing
+   * sensitive — which is why it looked fine until the first mutation.) Reading
+   * a string property off the JS wrapper touches no FFI object and no Map/Set,
+   * so it can never trip it. See create-list-element.ts's componentAtIndex doc
+   * for the general "never key a Set/Map on an element ref" constraint.
    */
   getUIChildren(): ElementRef[] {
     const children: ElementRef[] = [];
     let child = this.#firstVirtualChild;
     while (child) {
-      if (!this.#nonElements.has(child.element)) {
+      if (child.tagName !== 'comment') {
         children.push(child.element);
       }
       child = child._virtualNext;
@@ -261,36 +274,58 @@ export class LynxListElement extends LynxElement {
 
     const newChildren = this.getUIChildren();
     const oldChildren = this.#committedUIChildren;
+    const oldIds = this.#committedIds;
+
+    // Diff by native unique-ID (a plain number), NOT by element-object identity.
+    // This is the fix for the SIGABRT on item removal. The diff below looks
+    // items up in a Set; hashing a native-backed element ref as a Set/Map key
+    // routes through Lepus's LepusConvertToObjectCallBack → CheckObjectCtx,
+    // which aborts the entire main-thread QuickJS context the instant the ref
+    // is stale or from another context — precisely the case on removal, where
+    // the diff must test the just-removed element (whose native backing is now
+    // detached) against the surviving set. Crucially this crash did NOT surface
+    // on the initial render or on pure appends: those only ever call .has()
+    // against an EMPTY Set, and QuickJS short-circuits an empty-set lookup
+    // without converting the key. Numbers hash directly with no conversion
+    // callback, so an ID-keyed Set is safe on every path (insert, remove,
+    // reorder). newIds is read from the live new children (all valid here);
+    // oldIds is the array captured on the previous update, so we never invoke a
+    // native accessor on an already-removed element while diffing.
+    const newIds = newChildren.map((child) => __GetElementUniqueID(child));
 
     // Commit NOW, before update-list-info/flush below — not at the end of
     // this method. componentAtIndex reads via getCommittedUIChildren(), and
     // it can run re-entrantly from inside the __FlushElementTree() call
     // further down (native invokes it synchronously as part of the list's
     // own layout pass); by then this must already reflect the new list.
+    // #committedIds is committed in lock-step so the NEXT update's oldIds line
+    // up positionally with the array componentAtIndex indexes into.
     this.#committedUIChildren = newChildren;
+    this.#committedIds = newIds;
 
-    const oldSet = new Set(oldChildren);
-    const newSet = new Set(newChildren);
+    const oldIdSet = new Set(oldIds);
+    const newIdSet = new Set(newIds);
 
     // Items present in old but absent from new → tell native to remove them.
+    // Positions are indices into the OLD committed array (oldIds is parallel).
     const removeAction: number[] = [];
-    for (let i = 0; i < oldChildren.length; i++) {
-      if (!newSet.has(oldChildren[i]!)) {
+    for (let i = 0; i < oldIds.length; i++) {
+      if (!newIdSet.has(oldIds[i]!)) {
         removeAction.push(i);
       }
     }
 
     // Items present in new but absent from old → tell native to insert them.
     // Minimal insertAction format matching Vue Lynx: only position, type, item-key.
+    // Positions are indices into the NEW child array.
     const insertAction = newChildren
       .map((child, i) => ({ child, i }))
-      .filter(({ child }) => !oldSet.has(child))
+      .filter(({ i }) => !oldIdSet.has(newIds[i]!))
       .map(({ child, i }) => ({
         position: i,
         type: 'list-item',
         'item-key':
-          __GetAttributeByName(child, 'item-key') ??
-          String(__GetElementUniqueID(child)),
+          __GetAttributeByName(child, 'item-key') ?? String(newIds[i]),
       }));
 
     // CRITICAL: Never send empty update-list-info. Vue Lynx skips updates

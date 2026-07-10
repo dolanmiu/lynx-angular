@@ -5,14 +5,19 @@ import {
   LynxListElement,
   processPendingListUpdates,
 } from './lynx-list-element';
+import { markFirstRenderComplete } from '../lynx-render-lifecycle';
 
 /**
- * Fake ElementRef — the Lynx PAPI handles have no runtime structure.
+ * Fake ElementRef — the Lynx PAPI handles have no runtime structure. Each carries
+ * a distinct __uid so the __GetElementUniqueID mock can return a stable, unique
+ * number per element. That mirrors the real engine, where _processUpdate()'s diff
+ * keys on __GetElementUniqueID (a number) rather than element-object identity — a
+ * constant ID would make distinct elements collide and break the diff.
  */
-const makeRef = (): ElementRef => ({}) as ElementRef;
+let uidCounter = 0;
+const makeRef = (): ElementRef => ({ __uid: ++uidCounter }) as ElementRef;
 const makeChild = (): LynxElement => new LynxElement(makeRef());
-const makeList = (nonElements?: WeakSet<ElementRef>): LynxListElement =>
-  new LynxListElement(makeRef(), nonElements ?? new WeakSet());
+const makeList = (): LynxListElement => new LynxListElement(makeRef());
 
 /**
  * All globals that any code path in LynxListElement / LynxElement can reach.
@@ -20,7 +25,9 @@ const makeList = (nonElements?: WeakSet<ElementRef>): LynxListElement =>
 const setupGlobals = () => {
   globalThis.__SetAttribute = vi.fn();
   globalThis.__GetAttributeByName = vi.fn(() => null);
-  globalThis.__GetElementUniqueID = vi.fn(() => 42);
+  globalThis.__GetElementUniqueID = vi.fn(
+    (ref: { __uid?: number }) => ref?.__uid ?? 42,
+  );
   globalThis.__FlushElementTree = vi.fn();
   globalThis.__RemoveElement = vi.fn();
   globalThis.__GetParent = vi.fn(() => null);
@@ -36,6 +43,11 @@ const setupGlobals = () => {
 
 describe('LynxListElement', () => {
   beforeEach(setupGlobals);
+  // _processUpdate() defers all of its work while the first bootstrap render is
+  // still pending (see lynx-render-lifecycle). These are unit tests of the diff
+  // itself, so flip the first-render latch to "done" up front — otherwise every
+  // update would be parked on a setTimeout and nothing would ever flush.
+  beforeEach(() => markFirstRenderComplete());
 
   // Drain any pending updates after each test so module-level state doesn't
   // leak between tests. The set is checked before processing to avoid
@@ -240,12 +252,13 @@ describe('LynxListElement', () => {
       expect(list.getUIChildren()).toEqual([a.element, b.element]);
     });
 
-    it('excludes elements registered in the nonElements WeakSet', () => {
-      const nonElements = new WeakSet<ElementRef>();
-      const list = makeList(nonElements);
+    it('excludes comment anchors (tagName === "comment") from UI children', () => {
+      const list = makeList();
       const real = makeChild();
       const comment = makeChild();
-      nonElements.add(comment.element);
+      // NoneElements are the invisible <view>s LynxDocument.createComment()
+      // makes for @for/@if anchors; they are identified solely by tagName.
+      comment.tagName = 'comment';
 
       list.appendChild(real);
       list.appendChild(comment);
@@ -419,19 +432,24 @@ describe('LynxListElement', () => {
       expect(globalThis.__FlushElementTree).toHaveBeenCalled();
     });
 
-    it('clears update-list-info after the targeted flush', () => {
+    it('does NOT write a trailing empty update-list-info (clearing corrupts native state)', () => {
       const list = makeList();
       list.appendChild(makeChild());
 
       list._processUpdate();
 
-      const calls = (globalThis.__SetAttribute as ReturnType<typeof vi.fn>).mock
-        .calls;
-      const [, lastName, lastPayload] = calls[calls.length - 1];
-      expect(lastName).toBe('update-list-info');
-      expect(lastPayload.insertAction).toHaveLength(0);
-      expect(lastPayload.removeAction).toHaveLength(0);
-      expect(lastPayload.updateAction).toHaveLength(0);
+      // Exactly one update-list-info write — the computed diff — and never an
+      // empty { insertAction: [], removeAction: [] } "reset" afterward. Native
+      // consumes the diff once during the flush; a follow-up empty write leaves
+      // every cell stuck "binding" (see lynx-vs-web-differences.md). React Lynx
+      // never clears it either.
+      const updateListInfoCalls = (
+        globalThis.__SetAttribute as ReturnType<typeof vi.fn>
+      ).mock.calls.filter(([, name]) => name === 'update-list-info');
+      expect(updateListInfoCalls).toHaveLength(1);
+      const [, , payload] = updateListInfoCalls[0];
+      expect(payload.insertAction).toHaveLength(1);
+      expect(payload.removeAction).toHaveLength(0);
     });
 
     it('removes removed items from appendedToNativeList so they can be re-appended', () => {
