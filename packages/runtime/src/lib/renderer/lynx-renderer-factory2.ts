@@ -9,6 +9,7 @@ import {
 import { devStats } from '../devtools/stats';
 import type { LynxDocumentBase } from '../lynx-document';
 import { processPendingListUpdates } from '../lynx-element';
+import { isFirstRenderPending } from '../lynx-render-lifecycle';
 import { EmulatedLynxRenderer } from './emulated-lynx-renderer';
 import { LynxRenderer } from './renderer';
 import { LYNX_DOCUMENT } from './token';
@@ -64,6 +65,16 @@ export class LynxRendererFactory2 implements RendererFactory2 {
    *      are already committed when componentAtIndex appends them.
    * Reversing this order causes list items to appear empty (subtree not committed)
    * or crashes from re-entrant __FlushElementTree.
+   *
+   * Step 1 is skipped entirely while isFirstRenderPending() — see that
+   * function's doc comment. Every CD cycle that runs as part of the initial
+   * bootstrap is still nested inside the native engine's own renderPage call;
+   * we avoid driving a layout-triggering flush (which, for pages with a
+   * <list>, re-entrantly calls back into componentAtIndex) from inside a call
+   * frame native hasn't finished unwinding. Native performs its own implicit
+   * flush once renderPage returns, so skipping this is safe — element
+   * creation/attribute calls above already mutate native elements directly,
+   * independent of flushing.
    */
   end?(): void {
     if (__MAIN_THREAD__) {
@@ -78,7 +89,9 @@ export class LynxRendererFactory2 implements RendererFactory2 {
         devStats.flushCount++;
       }
 
-      __FlushElementTree();
+      if (!isFirstRenderPending()) {
+        __FlushElementTree();
+      }
       processPendingListUpdates();
     }
   }

@@ -3,6 +3,7 @@ import { bootstrapApplication as ngBootstrapApplication } from '@angular/platfor
 import { firstValueFrom, Subject } from 'rxjs';
 import { MainThreadElement } from './main-thread/main-thread-element';
 import { __pageElementRef } from './lynx-document';
+import { markFirstRenderComplete } from './lynx-render-lifecycle';
 import { buildElementQueueFromOpcodes } from './ssr/build-element-queue';
 import { OpcodeRecorder } from './ssr/opcodes';
 import { serializeElementTree } from './ssr/serialize-tree';
@@ -477,6 +478,16 @@ export const bootstrapApplication = async (
   }
 
   const appRef = await ngBootstrapApplication(rootComponent, options);
+  // Signal that the initial render is done. This is the point where control
+  // has returned from Angular's whole bootstrap, so it's safe to run work that
+  // must NOT happen while nested inside native's first renderPage() call —
+  // specifically a <list>'s first update-list-info + layout flush, which
+  // re-enters componentAtIndex (see lynx-render-lifecycle.ts). Any such update
+  // queued during bootstrap was parked by _processUpdate()'s isFirstRenderPending()
+  // guard; this call drains it onto a fresh setTimeout macrotask. Placed on the
+  // line right after bootstrap resolves (not later) so the flag flips before the
+  // first post-bootstrap change-detection cycle's end() hook runs.
+  markFirstRenderComplete();
   (globalThis as any).__LYNX_ANGULAR_APP_REF__ = appRef;
 
   // Clear hydration state so subsequent change detection cycles flush normally.

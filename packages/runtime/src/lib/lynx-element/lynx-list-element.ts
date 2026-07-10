@@ -1,4 +1,8 @@
-import type { ElementRef } from '../types/lynx';
+import {
+  isFirstRenderPending,
+  runAfterFirstRender,
+} from '../lynx-render-lifecycle';
+import type { ElementRef, ListElementRef } from '../types/lynx';
 import { LynxElement } from './lynx-element';
 
 /**
@@ -44,16 +48,16 @@ export class LynxListElement extends LynxElement {
   readonly #nonElements: WeakSet<ElementRef>;
   #destroyed = false;
   /**
-   * Tracks which list-item elements have been appended to the native list tree.
-   * We append once (lazily in componentAtIndex) and never again —
-   * __AppendElement is not idempotent.
-   */
-  #appendedToNativeList = new WeakSet<ElementRef>();
-  /**
    * Tracks what was last committed to native via update-list-info so we can
-   * compute a diff (insertAction / removeAction) on the next update.
+   * compute a diff (insertAction / removeAction) on the next update. This is
+   * ALSO what componentAtIndex/componentAtIndexes (create-list-element.ts)
+   * read via getCommittedUIChildren() — see that method's doc comment for
+   * why they must never call getUIChildren() themselves.
    */
   #committedUIChildren: ElementRef[] = [];
+  #componentAtIndex: ((...args: any[]) => number | undefined) | null = null;
+  #enqueueComponent: ((...args: any[]) => void) | null = null;
+  #componentAtIndexes: ((...args: any[]) => void) | null = null;
 
   constructor(element: ElementRef, nonElements: WeakSet<ElementRef>) {
     super(element);
@@ -61,16 +65,22 @@ export class LynxListElement extends LynxElement {
   }
 
   /**
-   * Store the list callbacks so they can be re-registered before each flush.
+   * Store the list callbacks so _processUpdate() can re-register them via
+   * __UpdateListCallbacks on every update. React Lynx does this on every
+   * flush (see listUpdateInfo.ts) — the native engine (unlike the web
+   * polyfill) does not invoke componentAtIndex for a fresh update-list-info
+   * unless the callbacks are re-registered alongside it. Without this,
+   * update-list-info is accepted with no crash but componentAtIndex is
+   * silently never called and the list stays blank.
    */
   setCallbacks(
-    _componentAtIndex: any,
-    _enqueueComponent: any,
-    _componentAtIndexes: any,
+    componentAtIndex: (...args: any[]) => number | undefined,
+    enqueueComponent: (...args: any[]) => void,
+    componentAtIndexes: (...args: any[]) => void,
   ): void {
-    // Callbacks are stored by the native engine via __CreateList; we don't
-    // need to keep a JS-side reference. This method exists so the factory
-    // can signal that setup is complete.
+    this.#componentAtIndex = componentAtIndex;
+    this.#enqueueComponent = enqueueComponent;
+    this.#componentAtIndexes = componentAtIndexes;
   }
 
   override remove(): void {
@@ -147,6 +157,11 @@ export class LynxListElement extends LynxElement {
 
   /**
    * Returns ElementRefs of real UI children (excludes NoneElements / comment markers).
+   *
+   * Only ever call this from _processUpdate() (or elsewhere outside of
+   * componentAtIndex's call stack) — it calls WeakSet.has() per child.
+   * componentAtIndex/componentAtIndexes must use getCommittedUIChildren()
+   * instead. See that method's doc comment for why.
    */
   getUIChildren(): ElementRef[] {
     const children: ElementRef[] = [];
@@ -160,12 +175,36 @@ export class LynxListElement extends LynxElement {
     return children;
   }
 
+  /**
+   * The UI children list as of the last _processUpdate() call, pre-filtered
+   * and cached — for componentAtIndex/componentAtIndexes (create-list-element.ts)
+   * to read via plain array indexing. See their call sites' doc comments:
+   * native invokes them synchronously, re-entrantly, from deep inside its own
+   * list layout pass, and calling ANY WeakSet/Map method (even a single
+   * `.has()`) from within that reentrant call was observed to crash the
+   * Lepus QuickJS context with a refcounting assertion inside
+   * __JS_FreeValueRT, every time, regardless of how shallow the surrounding
+   * call stack is (confirmed via a genuinely fresh setTimeout-scheduled
+   * invocation that still crashed identically) — so getUIChildren() (which
+   * calls WeakSet.has() per child) must never run from that call path.
+   */
+  getCommittedUIChildren(): ElementRef[] {
+    return this.#committedUIChildren;
+  }
+
+  /**
+   * Appended-state is tracked as a plain property directly on the ElementRef
+   * rather than a WeakSet, for the same reason as getCommittedUIChildren():
+   * these are called from componentAtIndex, where WeakSet/Map methods crash.
+   * A plain property get/set compiles to ordinary field access, not a call
+   * into QuickJS's Map/Set native implementation.
+   */
   isAppendedToNativeList(child: ElementRef): boolean {
-    return this.#appendedToNativeList.has(child);
+    return (child as { __appended?: boolean }).__appended === true;
   }
 
   markAppendedToNativeList(child: ElementRef): void {
-    this.#appendedToNativeList.add(child);
+    (child as { __appended?: boolean }).__appended = true;
   }
 
   /**
@@ -183,10 +222,10 @@ export class LynxListElement extends LynxElement {
       // Safety net for cases where list items are created outside a begin/end
       // CD cycle (e.g. lazy-loaded route components on first navigation).
       // If end() drains the set first, this microtask is a no-op.
-      // IMPORTANT: Only call processPendingListUpdates() here — NOT bare
-      // __FlushElementTree(). _processUpdate() does its own targeted flush
-      // per list. Bare __FlushElementTree() crashes intermittently when
-      // processing lists with update-list-info.
+      // IMPORTANT: Only call processPendingListUpdates() here — NOT
+      // __FlushElementTree() directly. _processUpdate() does its own flush
+      // per list once update-list-info/callbacks are set; flushing before
+      // that setup runs processes stale list state.
       queueMicrotask(() => {
         if (pendingListUpdates.size > 0) {
           processPendingListUpdates();
@@ -206,11 +245,29 @@ export class LynxListElement extends LynxElement {
    */
   _processUpdate(): void {
     if (this.#destroyed) return;
-    const g = globalThis as any;
-    g.__dbg = `${g.__dbg || ''}procUpd\n`;
+
+    // Defer the ENTIRE update — not just the flush — until the first render
+    // has fully completed. See isFirstRenderPending()'s doc comment: driving
+    // the list's update-list-info + layout flush now would run it while still
+    // nested inside native's initial renderPage() call, re-entering our
+    // componentAtIndex callback from a call frame native hasn't finished
+    // unwinding. Re-running this method from the setTimeout macrotask scheduled
+    // by markFirstRenderComplete() lets it run on a clean top-level task
+    // instead, after renderPage() has returned.
+    if (isFirstRenderPending()) {
+      runAfterFirstRender(() => this._processUpdate());
+      return;
+    }
+
     const newChildren = this.getUIChildren();
     const oldChildren = this.#committedUIChildren;
-    g.__dbg += `kids:new=${newChildren.length},old=${oldChildren.length}\n`;
+
+    // Commit NOW, before update-list-info/flush below — not at the end of
+    // this method. componentAtIndex reads via getCommittedUIChildren(), and
+    // it can run re-entrantly from inside the __FlushElementTree() call
+    // further down (native invokes it synchronously as part of the list's
+    // own layout pass); by then this must already reflect the new list.
+    this.#committedUIChildren = newChildren;
 
     const oldSet = new Set(oldChildren);
     const newSet = new Set(newChildren);
@@ -241,42 +298,58 @@ export class LynxListElement extends LynxElement {
     // Sending an empty update puts the native list in a bad state that causes
     // subsequent updates with items to crash intermittently.
     if (insertAction.length === 0 && removeAction.length === 0) {
-      g.__dbg += 'skip-empty\n';
-      this.#committedUIChildren = newChildren;
       return;
     }
 
-    // Clean up _appendedToNativeList for removed items so they can be
-    // re-appended fresh if re-added to the list later.
+    // Clean up the appended-to-native-list marker for removed items so they
+    // can be re-appended fresh if re-added to the list later.
     for (const idx of removeAction) {
       const removed = oldChildren[idx];
-      if (removed) this.#appendedToNativeList.delete(removed);
+      if (removed) (removed as { __appended?: boolean }).__appended = false;
     }
 
-    g.__dbg += `setULI:ins=${insertAction.length},rem=${removeAction.length}\n`;
     __SetAttribute(this.element, 'update-list-info', {
       insertAction,
       removeAction,
       updateAction: [],
     });
-    g.__dbg += 'ULI-set\n';
 
-    // Targeted flush on the list element. Bare __FlushElementTree() crashes
-    // intermittently when processing lists. Targeted flush is safe.
-    const listID = __GetElementUniqueID(this.element);
-    g.__dbg += `tFlush:listID=${listID}\n`;
-    __FlushElementTree(this.element, { triggerLayout: true, listID });
-    g.__dbg += 'tFlushed\n';
+    // Re-register callbacks alongside the fresh update-list-info — matches
+    // React Lynx's flush() (listUpdateInfo.ts), which calls this on every
+    // update, not just once at creation, rather than only once at __CreateList
+    // time as we did before.
+    if (this.#componentAtIndex && this.#enqueueComponent) {
+      __UpdateListCallbacks(
+        this.element as ListElementRef,
+        this.#componentAtIndex,
+        this.#enqueueComponent,
+        this.#componentAtIndexes ?? undefined,
+      );
+    }
 
-    // Clear update-list-info after targeted flush so the bare
-    // __FlushElementTree() in end() doesn't re-process stale list data
-    // on the next CD cycle. The targeted flush already consumed the update.
-    __SetAttribute(this.element, 'update-list-info', {
-      insertAction: [],
-      removeAction: [],
-      updateAction: [],
-    });
+    // Flush from the tree ROOT, not the list element. FiberElement's layout
+    // traversal (UpdateLayoutInfoRecursively) walks down from root and
+    // early-returns the instant it hits a non-dirty ancestor — it does NOT
+    // recurse into children past that point. The list's surrounding
+    // <view>/<scroll-view> wrapper was already flushed clean by the earlier
+    // bare flush in end(), so a flush scoped to just the list element (via
+    // an `element` arg + listID) never reaches the list: the traversal
+    // prunes one level above it and the native list's own layout pass
+    // (which calls componentAtIndex) never runs. A root-scoped flush walks
+    // the whole tree, and marking the list dirty (done above via
+    // update-list-info's ResolveAttribute) bubbles dirtiness up through its
+    // ancestors, so the traversal isn't pruned before reaching it.
+    __FlushElementTree(undefined, { triggerLayout: true });
 
-    this.#committedUIChildren = newChildren;
+    // Do NOT clear update-list-info to an empty {insertAction:[],...} here.
+    // Native consumes update-list-info once during the flush above (the list
+    // element is no longer dirty for that attribute afterward), so a later
+    // bare __FlushElementTree() in end() won't re-apply it. React Lynx never
+    // clears it either — it just sets a fresh diff on the next real update
+    // (see listUpdateInfo.ts, which only ever __SetAttribute's a computed
+    // diff, never an empty one). Sending an empty update-list-info actively
+    // corrupts the native list's state (see this file's earlier note): it
+    // leaves every cell perpetually "binding" and the engine re-runs its
+    // layout pass forever with visibleItem stuck empty.
   }
 }

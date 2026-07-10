@@ -3277,3 +3277,78 @@ Don't emit the `placeholder` attribute while a value is present — this matches
 ```
 
 (Applied in `packages/ui/src/lib/components/textarea/textarea.ts`. `UiInput` shares the same `setValue` mechanism, so apply the same guard there if a placeholder+value overlap shows up on a single-line field.)
+
+---
+
+## Calling a `Map`/`Set`/`WeakSet` method from a `<list>` `componentAtIndex` callback crashes the main-thread engine
+
+### What you'd expect (web)
+
+`Map`, `Set`, and `WeakSet` methods (`.has()`, `.add()`, `.delete()`) are ordinary JavaScript and safe to call from anywhere, including inside a list's item-rendering callback.
+
+### What Lynx does
+
+Native `<list>` requests items by calling `componentAtIndex(list, listID, cellIndex, operationID)` **synchronously and re-entrantly, from deep inside its own layout pass** (`LinearLayoutManager::Fill` → `LayoutChunk` → `BindItemHolder` → `ComponentAtIndex`), invoked via `TemplateAssembler::CallLepusMethod` on the **main-thread "Lepus" QuickJS context**. Calling **any** `Map`/`Set`/`WeakSet` method — even a single `.has()` — from that callback (or anything it transitively calls) reliably crashes with a QuickJS refcounting assertion inside `__JS_FreeValueRT`, tripped during `js_map_has` / `map_find_record` / `js_strict_eq2`.
+
+This was empirically isolated and is **not** about stack depth or reentrancy in general: the same call scheduled from a fresh `setTimeout` macrotask (a genuinely shallow, top-of-message-loop stack) crashed identically. It is specifically about reaching QuickJS's Map/Set native implementation from a callback dispatched through `ComponentAtIndex`'s `CallLepusMethod` path. Plain property access and array indexing compile to different bytecode and are unaffected. (Distinct from the background-thread iOS `Map`/`Set`/`WeakSet` polyfill note above — this is the main-thread Lepus engine, not JavaScriptCore.)
+
+### The fix
+
+Nothing reachable from `componentAtIndex` / `componentAtIndexes` may touch a `Map`/`Set`/`WeakSet`. Pre-compute anything you'd otherwise derive with them **outside** the callback and read it back with plain array indexing; track per-element flags as plain properties on the `ElementRef` rather than in a `WeakSet`:
+
+```ts
+// BAD — WeakSet.has() inside the callback path crashes:
+if (!this.#appended.has(child)) { __AppendElement(list, child); this.#appended.add(child); }
+
+// GOOD — plain property tag (ordinary field access, not a Map/Set call):
+if ((child as { __appended?: boolean }).__appended !== true) {
+  __AppendElement(list, child);
+  (child as { __appended?: boolean }).__appended = true;
+}
+```
+
+The list's filtered child array is likewise computed once per real update (which runs outside the callback) and cached, so `componentAtIndex` only ever indexes into it. See `packages/runtime/src/lib/lynx-document/element-creators/create-list-element.ts` and `lynx-element/lynx-list-element.ts` (`getCommittedUIChildren()` / `isAppendedToNativeList()`).
+
+---
+
+## `<list>` `componentAtIndex` must acknowledge with an `operationID`-tagged flush — `asyncFlush` loops forever
+
+### What you'd expect (web)
+
+The web list polyfill renders an item as soon as its element is appended; any subsequent flush is enough to make it appear.
+
+### What Lynx does
+
+Native `<list>` calls `componentAtIndex(list, listID, cellIndex, operationID)` and then **waits for a `__FlushElementTree` tagged with that same `operationID`** to consider the cell's binding complete:
+
+```ts
+const sign = __GetElementUniqueID(child);
+__FlushElementTree(child, { triggerLayout: true, operationID, elementID: sign, listID });
+return sign;
+```
+
+If you instead ack with `{ asyncFlush: true }` (untagged), native never matches an operation completion, leaves every cell perpetually in the "binding" state, and re-runs its layout pass forever — an **infinite `layoutComplete` loop** where `visibleItemAfterUpdate` stays `[]` and nothing is ever displayed (even though `scrollHeight` is computed correctly, so the list "knows" the items exist). `{ asyncFlush: true }` is only for the batch `componentAtIndexes` path, and only when the engine itself passes `asyncFlush: true`.
+
+Despite running from inside the layout pass, the `operationID`-tagged flush is not dangerously re-entrant: native defers the operation's completion via the `operationID` queue rather than recursing back into `TickLayout`. This mirrors React Lynx's single-item `componentAtIndex` exactly (`references/lynx-stack-main/packages/react/runtime/src/snapshot/list/list.ts`, the `!enableBatchRender` branch).
+
+### The fix
+
+Ack each cell with `{ triggerLayout: true, operationID, elementID: sign, listID }`. See `create-list-element.ts`.
+
+---
+
+## Writing an empty `update-list-info` corrupts the native `<list>` state
+
+### What you'd expect (web)
+
+Resetting an attribute to empty arrays (`{ insertAction: [], removeAction: [], updateAction: [] }`) is a harmless no-op.
+
+### What Lynx does
+
+`<list>` items are managed by setting the `update-list-info` attribute to a computed diff and flushing. Native consumes that diff **once** during the flush (the list element is no longer dirty for the attribute afterward), so there is no need to "clear" it. Writing an **empty** `update-list-info` and flushing actively corrupts the native list's state: it leaves cells stuck in the "binding" state (the same infinite `layoutComplete` loop as the `asyncFlush` bug above) and causes intermittent crashes on subsequent updates that do carry items.
+
+React Lynx never clears it either — `ListUpdateInfoRecording.flush()` (`.../snapshot/list/listUpdateInfo.ts`) only ever `__SetAttribute`s a computed, non-empty diff.
+
+### The fix
+
+Only ever set `update-list-info` to a computed, non-empty diff; skip the update entirely when the diff is empty. Never write an empty `update-list-info` "to reset it". See `lynx-list-element.ts` (`_processUpdate()`).

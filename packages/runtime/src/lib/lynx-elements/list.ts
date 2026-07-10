@@ -28,6 +28,7 @@ import { LynxElementBase } from './base';
     'update-animation',
     'list-main-axis-gap',
     'list-cross-axis-gap',
+    'enable-async-list',
   ],
 })
 export class LynxList extends LynxElementBase {
@@ -99,6 +100,16 @@ export class LynxList extends LynxElementBase {
    * Gap between columns/rows on the cross axis (CSS length).
    */
   'list-cross-axis-gap'?: string;
+  /**
+   * Required by Lynx's native list UI whenever the app uses the standard
+   * dual-thread engine strategy (always true for AngularLynx) — without it
+   * the native list silently never applies its data source, so
+   * `componentAtIndex` is never called and no items render. The renderer
+   * sets this to `true` by default at element creation; bind it explicitly
+   * only to opt back into the sync (all-on-UI) engine strategy.
+   * @default true
+   */
+  'enable-async-list'?: boolean;
 }
 
 /**
