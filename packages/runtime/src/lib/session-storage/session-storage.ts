@@ -18,6 +18,18 @@ import type { SessionStorageSubscription } from './session-storage.types';
  * `unsubscribeSessionStorage` methods are not declared in `@lynx-js/types`, so we
  * access them via `any` — the APIs are stable and documented on lynxjs.org.
  *
+ * The native surface differs by thread, and AngularLynx bootstraps the same
+ * component tree on both (see runtime.ts), so this service must detect which
+ * thread it's on rather than assume one shape everywhere:
+ * - Background thread: `getSessionStorageItem(key, callback)` is async, plus
+ *   `subscribeSessionStorage`/`unsubscribeSessionStorage` for pub/sub.
+ * - Main thread (Lepus engine, see `Utils::CreateLynx` in lynx core): only
+ *   `setSessionStorageItem`/`getSessionStorageItem` are registered — no
+ *   subscribe/unsubscribe at all — and `getSessionStorageItem` is
+ *   *synchronous*, taking just the key and returning the value directly.
+ *   Calling it with a callback (the background-thread shape) throws a native
+ *   "GetSessionStorageItem param size should be 1" fatal error.
+ *
  * @usageNotes
  * ```typescript
  * const sessionStorage = inject(LynxSessionStorage);
@@ -51,6 +63,18 @@ export class LynxSessionStorage {
   }
 
   /**
+   * The main thread's `lynx` global never registers subscribe/unsubscribe
+   * (only setSessionStorageItem/getSessionStorageItem exist there), so pub/sub
+   * must always fall back to the local listener map on that thread.
+   */
+  #hasNativeSubscription(): boolean {
+    return (
+      this.#hasNativeSessionStorage() &&
+      !(typeof __MAIN_THREAD__ !== 'undefined' && __MAIN_THREAD__)
+    );
+  }
+
+  /**
    * Stores a value in session storage, shared across all LynxViews.
    * Existing subscribers for this key will be notified of the change.
    */
@@ -73,6 +97,11 @@ export class LynxSessionStorage {
    */
   getItem<T = unknown>(key: string): Promise<T> {
     if (this.#hasNativeSessionStorage()) {
+      // Main thread: synchronous, single-arg — see the class-level doc comment.
+      if (typeof __MAIN_THREAD__ !== 'undefined' && __MAIN_THREAD__) {
+        return Promise.resolve((lynx as any).getSessionStorageItem(key) as T);
+      }
+
       return new Promise<T>((resolve) => {
         (lynx as any).getSessionStorageItem(key, (value: T) => resolve(value));
       });
@@ -91,7 +120,7 @@ export class LynxSessionStorage {
     key: string,
     callback: (value: T) => void,
   ): SessionStorageSubscription {
-    if (this.#hasNativeSessionStorage()) {
+    if (this.#hasNativeSubscription()) {
       const listenerId: number = (lynx as any).subscribeSessionStorage(
         key,
         callback,
@@ -113,7 +142,7 @@ export class LynxSessionStorage {
    * Cancels a session storage subscription created by {@link subscribe}.
    */
   unsubscribe(subscription: SessionStorageSubscription): void {
-    if (this.#hasNativeSessionStorage()) {
+    if (this.#hasNativeSubscription()) {
       (lynx as any).unsubscribeSessionStorage(
         subscription.key,
         subscription.listenerId,

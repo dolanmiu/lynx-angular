@@ -289,4 +289,77 @@ describe('LynxSessionStorage', () => {
       });
     });
   });
+
+  // The main thread's `lynx` global only exposes setSessionStorageItem/
+  // getSessionStorageItem (synchronous, single-arg get) — no subscribe/
+  // unsubscribe. See the class-level doc comment on LynxSessionStorage.
+  describe('when lynx is defined with session storage on the main thread', () => {
+    beforeEach(() => {
+      vi.stubGlobal('__MAIN_THREAD__', true);
+      (globalThis as any).lynx = {
+        setSessionStorageItem: vi.fn(),
+        getSessionStorageItem: vi.fn((key: string) =>
+          key === 'theme' ? { mode: 'light' } : undefined,
+        ),
+      };
+    });
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    it('getItem calls the synchronous single-arg native API', async () => {
+      const service = new LynxSessionStorage();
+
+      const result = await service.getItem('theme');
+
+      expect(result).toEqual({ mode: 'light' });
+      expect((globalThis as any).lynx.getSessionStorageItem)
+        .toHaveBeenCalledWith('theme');
+    });
+
+    it('getItem resolves undefined for an unset key without throwing', async () => {
+      const service = new LynxSessionStorage();
+
+      await expect(service.getItem('missing')).resolves.toBeUndefined();
+    });
+
+    it('subscribe does not call native subscribeSessionStorage (not present on this thread)', () => {
+      const service = new LynxSessionStorage();
+
+      // The mocked `lynx` has no subscribeSessionStorage/unsubscribeSessionStorage
+      // at all, matching the real main thread — calling them would throw
+      // "not a function". Falling back to the local map avoids that.
+      const sub = service.subscribe('key', vi.fn());
+
+      expect(sub).toEqual({ key: 'key', listenerId: expect.any(Number) });
+    });
+
+    it('unsubscribe does not call native unsubscribeSessionStorage (not present on this thread)', () => {
+      const service = new LynxSessionStorage();
+      const sub = service.subscribe('key', vi.fn());
+
+      expect(() => service.unsubscribe(sub)).not.toThrow();
+    });
+
+    it('watch seeds from the synchronous native getItem without crashing', async () => {
+      const service = new LynxSessionStorage();
+      const { injector } = createMockInjector();
+
+      const value = service.watch<{ mode: string }>('theme', { injector });
+      await Promise.resolve();
+
+      expect(value()).toEqual({ mode: 'light' });
+    });
+
+    it('watch cleans up via the local listener map on destroy', () => {
+      const service = new LynxSessionStorage();
+      const { injector, destroyCallbacks } = createMockInjector();
+
+      expect(() => {
+        service.watch('theme', { injector });
+        destroyCallbacks.forEach((cb) => cb());
+      }).not.toThrow();
+    });
+  });
 });
