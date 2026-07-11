@@ -120,7 +120,7 @@ type Task = {
           @for (task of tasks; track task.id) {
             <view
               class="flex-row items-center gap-3 rounded-xl border border-zinc-200 bg-white px-4 py-3.5 flex"
-              (longpress)="openOptions(task)"
+              (bindlongpress)="openOptions(task)"
             >
               <ui-checkbox
                 [checked]="task.done"

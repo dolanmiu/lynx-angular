@@ -80,7 +80,7 @@ export class UiTextarea implements FormValueControl<string> {
 
   // SwiftUI-style lineLimit(min...max). The field opens at minLines, grows with
   // content, then stops at maxLines and scrolls internally. maxLines defaults to
-  // undefined so the field grows unbounded (the previous behaviour) unless capped.
+  // undefined so the field grows unbounded (the previous behavior) unless capped.
   readonly minLines = input(3);
   readonly maxLines = input<number>();
 

@@ -67,7 +67,7 @@ type Notification = {
             @for (n of notifications(); track n.id) {
               <ui-card
                 [class.opacity-[0.55]]="n.read"
-                (longpress)="openActionSheet(n)"
+                (bindlongpress)="openActionSheet(n)"
               >
                 <ui-card-content class="p-3">
                   <view class="flex-row items-start gap-3 flex">

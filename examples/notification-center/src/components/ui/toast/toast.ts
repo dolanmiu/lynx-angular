@@ -12,11 +12,7 @@ import {
 } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
-import {
-  type AnimationHandle,
-  DURATION,
-  EASING,
-} from '@blotch/dolan/utils/animate';
+import { type AnimationHandle, DURATION, EASING } from '@blotch/dolan/utils/animate';
 import { cn } from '@blotch/dolan/utils/cn';
 import { type ToastData, dismissToast, toasts } from './toast-state';
 
@@ -68,6 +64,10 @@ const stackTransform = (depth: number): string =>
   host: {
     '[class]': 'cardClass()',
     '[style]': 'hostStyle()',
+    // Overrides the `event-through: true` inherited from UiToaster's backdrop
+    // (see the <overlay> comment below) — without this, the card itself would
+    // let touches fall through to whatever is behind it instead of reacting.
+    '[attr.event-through]': 'false',
     '(bindtap)': 'onTap()',
     '(catchtouchstart)': 'onTouchStart($event)',
     '(catchtouchmove)': 'onTouchMove($event)',
@@ -426,7 +426,7 @@ export class UiToastItem implements OnInit {
  * Stack host. Renders the newest `MAX_VISIBLE` toasts as an overlapping,
  * pseudo-3D stack (newest in front, older ones scaled down and shifted up).
  *
- * All per-toast behaviour — entrance/exit/restack animation, the auto-dismiss
+ * All per-toast behavior — entrance/exit/restack animation, the auto-dismiss
  * timer, and drag-to-dismiss — lives in `UiToastItem`, mirroring how the
  * accordion delegates per-item animation to a child component. This host only
  * decides which toasts are on screen and at what depth, and removes a toast from
@@ -438,7 +438,7 @@ export class UiToastItem implements OnInit {
   imports: [LYNX_ELEMENTS, UiToastItem],
   encapsulation: ViewEncapsulation.None,
   template: `
-    <overlay [attr.visible]="overlayVisible()" [style]="overlayStyle()">
+    <overlay [attr.visible]="overlayVisible()" [style]="overlayStyle()" mode="page">
       <!--
         The <overlay> is 0x0, establishes NO containing block, and sizes only its
         FIRST child against the full screen — so that child must be a full-size
@@ -448,8 +448,33 @@ export class UiToastItem implements OnInit {
         instead collapsed the cards (squished text). The toasts overlap and
         bottom-dock here; each one's transform lifts/scales it into its stack
         slot. Stays transparent (no backdrop) since toasts are non-modal.
+
+        Non-modal also means it must not steal touches for the rest of the
+        app: this backdrop covers the full screen, so without event-through
+        it would swallow every tap/longpress behind it (the native overlay has
+        no pointer-events support — that's a build error — and no
+        events-pass-through, which is web-only). event-through is a different,
+        view-level attribute that Lynx's overlay hit-testing itself honors
+        (confirmed against Harmony's UIOverlay::OnNodeEvent and iOS's
+        LynxOverlayContainer.hitTest, which both redispatch to the underlying
+        page when the hit element has it set) — see
+        investigations/lynx-vs-web-differences.md. It's inherited, so each
+        toast card explicitly sets it back to false on its own host to stay
+        interactive.
+
+        mode="page" (iOS only) matters just as much as event-through: left
+        unset, LynxUIOverlay defaults to LynxOverlayModeWindow — a genuinely
+        separate native UIWindow stacked on top of the app, not a sibling view.
+        event-through's hit-test redispatch is a same-window mechanism; across
+        two real windows it's a much less certain path (Lynx would need to
+        return a nil hit-test result all the way up to the overlay's own
+        window, then rely on UIKit to fall back to the window behind — a
+        different, fragile guarantee). mode="page" attaches the overlay inside
+        the same UIViewController/window as the rest of the page instead, so
+        it's the same single-window scenario event-through was confirmed
+        against.
       -->
-      <view class="h-full w-full">
+      <view class="h-full w-full" [event-through]="true">
         @for (t of visible(); track t.id; let i = $index) {
           <ui-toast-item
             [data]="t"

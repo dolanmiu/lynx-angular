@@ -29,5 +29,15 @@
       }
     }
   },
-  "theme": {}
+  "theme": {
+    "default.css": {
+      "hash": "c49bb4b16a4407ba"
+    },
+    "dark.css": {
+      "hash": "1aff1591e516342c"
+    },
+    "tailwind-plugin.ts": {
+      "hash": "d90f5b377f6e00eb"
+    }
+  }
 }

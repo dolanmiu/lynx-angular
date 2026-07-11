@@ -3,7 +3,7 @@
   "components": {
     "avatar": {
       "avatar.ts": {
-        "hash": "5702c557625d577f"
+        "hash": "1f6647cf009e24d2"
       },
       "index.ts": {
         "hash": "66b1c0ebbbfaa25b"
@@ -14,7 +14,7 @@
         "hash": "ba103d0f7f4bd0e7"
       },
       "skeleton.ts": {
-        "hash": "3d4263f8ed0b47cf"
+        "hash": "5f04e8a1cffafb31"
       }
     }
   },

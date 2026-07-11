@@ -1,3 +1,4 @@
+// cspell:words WAAPI tweens
 import {
   type ElementRef,
   Component,
