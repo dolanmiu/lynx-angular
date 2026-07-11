@@ -92,18 +92,16 @@ export class Greeting {
 
 ## Loading Translations at Runtime
 
-Load translations before bootstrapping the app:
+Load translations before bootstrapping the app, using `getLynxAppLocale()` to read the host-provided locale without needing Angular DI:
 
 {/* cspell:ignore Bienvenue */}
 
 ```typescript
 import '@angular/localize/init';
 import { loadTranslations } from '@angular/localize';
+import { getLynxAppLocale } from '@blotch/angular-lynx';
 
-// Load translations based on the runtime locale
-const locale = lynx?.__globalProps?.appLocale ?? 'en-US';
-
-if (locale === 'fr') {
+if (getLynxAppLocale() === 'fr') {
   loadTranslations({
     'greeting': 'Bonjour le monde!',
     'welcomeMsg': 'Bienvenue, {$PH}!',
@@ -114,9 +112,11 @@ if (locale === 'fr') {
 bootstrapApplication(App, { providers: [...] });
 ```
 
+`getLynxAppLocale()` reads `lynx.__globalProps.appLocale` and returns `undefined` outside Lynx or when the host hasn't set a locale. It needs no injector, so it works before `bootstrapApplication()` runs.
+
 ## LynxLocale
 
-The `LynxLocale` provides reactive access to the current locale:
+Once the app is bootstrapped, inject `LynxLocale` instead — it's reactive and updates when the host changes the locale:
 
 ```typescript
 import { inject } from '@angular/core';

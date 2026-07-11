@@ -28,7 +28,7 @@ export type {
 } from './lib/exposure';
 export { LynxFont } from './lib/font';
 export { loadLazyBundle } from './lib/lazy-bundle';
-export { LynxLocale, provideLocale } from './lib/locale';
+export { getLynxAppLocale, LynxLocale, provideLocale } from './lib/locale';
 export type {
   LynxFontEntry,
   LynxFontFaceConfig,

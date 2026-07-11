@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { LynxGlobalData } from '../data-flow/global-data';
-import { LynxLocale } from './lynx-locale';
+import { getLynxAppLocale, LynxLocale } from './lynx-locale';
 import { provideLocale } from './providers';
 
 const createInjector = () =>
@@ -18,6 +18,34 @@ const createInjector = () =>
       provideLocale(),
     ],
   });
+
+describe('getLynxAppLocale', () => {
+  afterEach(() => {
+    delete (globalThis as any).lynx;
+  });
+
+  it('returns undefined when lynx is not defined', () => {
+    expect(getLynxAppLocale()).toBeUndefined();
+  });
+
+  it('returns undefined when appLocale is not set', () => {
+    (globalThis as any).lynx = { __globalProps: {} };
+
+    expect(getLynxAppLocale()).toBeUndefined();
+  });
+
+  it('returns undefined when appLocale is an empty string', () => {
+    (globalThis as any).lynx = { __globalProps: { appLocale: '' } };
+
+    expect(getLynxAppLocale()).toBeUndefined();
+  });
+
+  it('reads appLocale from lynx.__globalProps', () => {
+    (globalThis as any).lynx = { __globalProps: { appLocale: 'fr' } };
+
+    expect(getLynxAppLocale()).toBe('fr');
+  });
+});
 
 describe('LynxLocale', () => {
   afterEach(() => {
