@@ -4,6 +4,16 @@ AngularLynx supports Angular's built-in `$localize` system for translating templ
 
 ## Setup
 
+:::tip Automatic Setup
+If you already have an AngularLynx project, add i18n support in one command:
+
+```bash
+ng generate @blotch/angular-lynx:add-i18n
+```
+
+This installs `@angular/localize`, adds the `i18n` block to `angular.json`, types `$localize` in `tsconfig.app.json`, and registers `provideLocale()` in your app config. You can skip the manual steps below.
+:::
+
 ### 1. Install `@angular/localize`
 
 ```bash
@@ -32,7 +42,19 @@ Add the `i18n` section to your project definition:
 
 When the build plugin detects `i18n.sourceLocale`, it automatically includes the `@angular/localize/init` polyfill and sets the `__LYNX_SOURCE_LOCALE__` compile-time constant.
 
-### 3. Add `provideLocale()` to your app config
+### 3. Type `$localize` in tsconfig
+
+Add `@angular/localize` to `compilerOptions.types` in `tsconfig.app.json` so TypeScript recognizes the global `$localize` function instead of flagging it as undefined:
+
+```json title="tsconfig.app.json"
+{
+  "compilerOptions": {
+    "types": ["@angular/localize"]
+  }
+}
+```
+
+### 4. Add `provideLocale()` to your app config
 
 ```typescript
 import { provideRenderer, provideLocale } from '@blotch/angular-lynx';

@@ -151,6 +151,28 @@ ng generate @blotch/angular-lynx:add-testing
 | ----------- | -------- | --------------- | -------------- |
 | `--project` | `string` | default project | Target project |
 
+## `add-i18n` — Add Internationalization
+
+Adds [i18n support](/guide/i18n) with `@angular/localize` to an existing project:
+
+```bash
+ng generate @blotch/angular-lynx:add-i18n
+```
+
+**What it does:**
+
+- Adds the `i18n` block to `angular.json` (`sourceLocale: 'en-US'`)
+- Appends `@angular/localize/init` to the `polyfills` array in `angular.json`
+- Adds `@angular/localize` to `compilerOptions.types` in `tsconfig.app.json` so `$localize` is typed
+- Registers `provideLocale()` as the first provider in `app.config.ts`
+- Installs `@angular/localize` as a devDependency
+
+**Options:**
+
+| Option      | Type     | Default         | Description    |
+| ----------- | -------- | --------------- | -------------- |
+| `--project` | `string` | default project | Target project |
+
 ## Summary
 
 | Schematic      | Command                                  | Purpose                         |
@@ -159,3 +181,4 @@ ng generate @blotch/angular-lynx:add-testing
 | `component`    | `ng g @blotch/angular-lynx:c <name>`     | Generate Lynx component         |
 | `add-tailwind` | `ng g @blotch/angular-lynx:add-tailwind` | Add Tailwind CSS                |
 | `add-testing`  | `ng g @blotch/angular-lynx:add-testing`  | Add testing infrastructure      |
+| `add-i18n`     | `ng g @blotch/angular-lynx:add-i18n`     | Add i18n support                |
