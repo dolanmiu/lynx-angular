@@ -50,7 +50,7 @@ You attach a gesture/pointer handler and it fires. There's no global build switc
 
 **(1) The `enableNewGesture` page-config flag — off by default.** `__SetGestureDetector` plus the `waitFor` / `simultaneousWith` / `continueWith` relations is Lynx's **"new gesture" system**, and the native engine only processes it when the page config has `enableNewGesture: true`. With the flag off, `RadonNode` skips gesture-detector flushing entirely (`GetEnableNewGesture()` gate in `core/renderer/dom/vdom/radon/radon_node.cc`), so every `__SetGestureDetector` call is dropped — no crash, no warning, no log. The flag is baked into the compiled template's `sourceContent.config` at build time (verify with `grep -a enableNewGesture dist/main.lynx.bundle`), not set at runtime.
 
-**(2) Gesture callbacks must be OBJECTS, not raw functions — under fiber arch.** The native binding (`renderer_functions.cc InnerCreateGestureDetector`) routes a *callable* callback into `GestureCallback.lepus_function_`, but a callback that is an *object* into `lepus_object_`. Under fiber architecture (`enableFiberArch: true`, hardcoded on in `LynxTemplatePlugin`), the dispatch path `TriggerFiberElementWorklet` (`core/renderer/events/touch_event_handler.cc`) reads **only `lepus_object_`** and bails immediately if it's empty. So a plain-function callback is registered, the gesture is recognized natively, and then the callback is **silently never invoked**. This is the subtle one: the gesture *works*, but your handler never runs — indistinguishable on-device from "gestures are dead."
+**(2) Gesture callbacks must be OBJECTS, not raw functions — under fiber arch.** The native binding (`renderer_functions.cc InnerCreateGestureDetector`) routes a _callable_ callback into `GestureCallback.lepus_function_`, but a callback that is an _object_ into `lepus_object_`. Under fiber architecture (`enableFiberArch: true`, hardcoded on in `LynxTemplatePlugin`), the dispatch path `TriggerFiberElementWorklet` (`core/renderer/events/touch_event_handler.cc`) reads **only `lepus_object_`** and bails immediately if it's empty. So a plain-function callback is registered, the gesture is recognized natively, and then the callback is **silently never invoked**. This is the subtle one: the gesture _works_, but your handler never runs — indistinguishable on-device from "gestures are dead."
 
 When it does fire, native calls the main-thread global `runWorklet(callbackObject, [event, gestureManager], { source })` — so the callback object must be something `runWorklet` can dispatch.
 
@@ -63,7 +63,7 @@ Also (Android-only): registering a gesture does **not** auto-mark the element no
 ### The fix
 
 1. `@blotch/rsbuild-plugin-angular-lynx` defaults `enableNewGesture` to **`true`** (unlike React Lynx, which defaults it `false` to keep its legacy gesture system — AngularLynx has no legacy gesture path, so nothing to preserve). Override only to explicitly disable: `pluginAngularLynx({ enableNewGesture: false })`.
-2. `LynxGestureDetector` wraps each callback as `{ _fn: (event) => … }` so it lands in `lepus_object_`, and `runtime.ts`'s `runWorklet` unwraps `_fn` and calls it. (Events registered via `__AddEvent` are a *different* native path that does accept raw functions — which is why events worked but gestures didn't, obscuring the asymmetry.)
+2. `LynxGestureDetector` wraps each callback as `{ _fn: (event) => … }` so it lands in `lepus_object_`, and `runtime.ts`'s `runWorklet` unwraps `_fn` and calls it. (Events registered via `__AddEvent` are a _different_ native path that does accept raw functions — which is why events worked but gestures didn't, obscuring the asymmetry.)
 3. `mapGestureEvent` (`gesture/event.ts`) adapts the native envelope into AngularLynx's flat event: it spreads `params` (so every native field stays reachable, incl. `x`/`y`, pinch `scale`, rotation `rotation`, `isAtStart`/`isAtEnd`), keeps raw `params` as an escape hatch, maps `pageX`/`pageY`→`absoluteX`/`absoluteY`, and **derives** `translationX`/`translationY` by anchoring a per-gesture origin (`createGestureOrigin`, held by the directive) at the gesture's first event and subtracting — resetting it on `onEnd`. This reproduces react-native-gesture-handler's translation semantics on top of Lynx's position-only events.
 
 ---
@@ -112,7 +112,7 @@ An `<overlay>` is a standalone **native window**, not an in-flow element. The re
 
 But when the destroyed subtree itself contains an `<overlay>` (e.g. a `ui-select` / `dialog` / `sheet` sitting inside an `@if` that is destroyed), re-homing leaves that overlay **orphaned on the page root** — a live native window with no owning Angular view. That corrupts the native window hierarchy and **crashes to the home screen** (observed on `examples/checkout-form`: pressing Continue destroys the step-1 `@if`, which contains the Country `ui-select`).
 
-Angular gives no usable signal to distinguish "re-projected" from "destroyed" here: `renderer.destroyNode` fires only for the top-level nodes of the *directly* destroyed view (never nested/component-internal nodes like the overlay) and runs *after* the detach/re-home pass.
+Angular gives no usable signal to distinguish "re-projected" from "destroyed" here: `renderer.destroyNode` fires only for the top-level nodes of the _directly_ destroyed view (never nested/component-internal nodes like the overlay) and runs _after_ the detach/re-home pass.
 
 ### The fix
 
@@ -130,7 +130,7 @@ A grouping element used purely to satisfy a template's structural requirements (
 
 ### What Lynx does
 
-Lynx's native fiber engine has a dedicated `BlockElement` C++ class for exactly this "invisible grouping container" role, created via the specialized `__CreateBlock()` PAPI. Creating it instead via the generic `__CreateElement('block', pageId)` — which is the normal, cross-platform-safe way to create every *other* element, including `<if>`/`<for>` — produces a plain generic `FiberElement` whose tag merely happens to be the string `"block"`. That element is not layout-only, so it reaches the native painting pipeline and tries to create a real UI for tag `"block"` — which no platform registers a UI class for, crashing with `"block ui not found when create UI"`.
+Lynx's native fiber engine has a dedicated `BlockElement` C++ class for exactly this "invisible grouping container" role, created via the specialized `__CreateBlock()` PAPI. Creating it instead via the generic `__CreateElement('block', pageId)` — which is the normal, cross-platform-safe way to create every _other_ element, including `<if>`/`<for>` — produces a plain generic `FiberElement` whose tag merely happens to be the string `"block"`. That element is not layout-only, so it reaches the native painting pipeline and tries to create a real UI for tag `"block"` — which no platform registers a UI class for, crashing with `"block ui not found when create UI"`.
 
 React Lynx (the production reference) sidesteps this entirely: it never creates a `"block"`/`"if"`/`"for"`-tagged element at all. Its equivalent invisible container is `__CreateWrapperElement`, backed by the native `WrapperElement` class, which unconditionally sets `is_layout_only_ = true` — the native painting pipeline (`ElementContainer::CreatePaintingNode`) skips creating a UI for any layout-only element, so it never needs a registered native UI class. `__CreateWrapperElement` is implemented on both native platforms and the web platform (unlike `__CreateBlock`/`__CreateIf`/`__CreateFor`, which only exist natively — the web platform only implements the generic `__CreateElement`).
 
@@ -156,7 +156,7 @@ An absolutely positioned element with `bottom` set (and no `top`/`height`) sizes
 
 Lynx resolves an absolute element's `height: auto` against its **containing block's** height. If the nearest positioned ancestor has collapsed to 0 (e.g. a `position: relative` wrapper whose only children are themselves absolute, so nothing gives it height), the absolute child gets ~0 usable height. Its flex content is then squeezed below its intrinsic minimum (Lynx treats `min-content` as `0px` — see the flex-shrink note), so **text lines overlap as if they had no line-height**.
 
-This is distinct from the "docks to top-left" overlay note above: there the *position* was wrong; here the *height* silently collapses even though the position (bottom-docked) is correct.
+This is distinct from the "docks to top-left" overlay note above: there the _position_ was wrong; here the _height_ silently collapses even though the position (bottom-docked) is correct.
 
 ### The fix
 
@@ -478,7 +478,7 @@ Transpilation via the Rsbuild/RSpeedy build pipeline handles most of this automa
 
 ### What Lynx does
 
-`replaceAll` is an **ES2021** method. The main thread runs on PrimJS at an ES2019 target, and because `replaceAll` is a *runtime method* (not syntax), TypeScript down-leveling does **not** polyfill it. Calling it on the main thread throws:
+`replaceAll` is an **ES2021** method. The main thread runs on PrimJS at an ES2019 target, and because `replaceAll` is a _runtime method_ (not syntax), TypeScript down-leveling does **not** polyfill it. Calling it on the main thread throws:
 
 ```
 main-thread.js exception: not a function
@@ -1125,7 +1125,7 @@ The `<svg>` element is parsed on the **background thread** and rendered as a sin
 
 `<line>` elements vanish on device. Build every icon from `<path>` (and `<circle>`), never `<line>`.
 
-Lynx's native SVG engine (ServalSVG) only paints a `<line>` when its stroke is set *directly on the line*. `SrSVGLine::onDraw` guards on the line's own stroke, whereas `<path>`, `<circle>`, and `<rect>` paint unconditionally and resolve stroke/fill later. Icons set `stroke="currentColor"` once on the root `<svg>` and let children inherit it — so each `<line>` has no direct stroke and is skipped.
+Lynx's native SVG engine (ServalSVG) only paints a `<line>` when its stroke is set _directly on the line_. `SrSVGLine::onDraw` guards on the line's own stroke, whereas `<path>`, `<circle>`, and `<rect>` paint unconditionally and resolve stroke/fill later. Icons set `stroke="currentColor"` once on the root `<svg>` and let children inherit it — so each `<line>` has no direct stroke and is skipped.
 
 This is native-only. On web the `content` string renders as an `<img>`, so the browser's SVG engine draws `<line>` correctly. The icon looks fine in a browser preview but disappears on iOS/Android.
 
@@ -2412,7 +2412,7 @@ Starting a Web Animation from within an event handler (e.g. fading an `<image>` 
 
 Starting (or cancelling) an animation via `element.animate()` can **synchronously re-invoke event listeners**. Observed concretely: an `<image>` fading itself in from its `(bindload)` handler — `onLoad → element.animate() → … → the bindload listener runs again → onLoad → element.animate() → …` — recursing until the main thread throws `InternalError: stack overflow`. The re-entry also fires across elements: tearing down a sibling's animation (e.g. removing a pulsing `ui-skeleton`) during change detection re-dispatched a nearby image's `load`.
 
-Consequence: never assume an event handler that calls `animate()` runs once. Make such handlers **idempotent** (a one-way latch that short-circuits re-entry), and prefer *not* driving essential state changes through an `animate()` call made inside an event handler. This bit `ui-avatar`: it faded the image in via `fadeIn()` (which calls `element.animate()`) from `(bindload)`, and once images actually loaded the reveal recursed and crashed. The fix was to drop the `animate()` reveal (the skeleton's removal reveals the image) and guard the handler with a `loaded` latch.
+Consequence: never assume an event handler that calls `animate()` runs once. Make such handlers **idempotent** (a one-way latch that short-circuits re-entry), and prefer _not_ driving essential state changes through an `animate()` call made inside an event handler. This bit `ui-avatar`: it faded the image in via `fadeIn()` (which calls `element.animate()`) from `(bindload)`, and once images actually loaded the reveal recursed and crashed. The fix was to drop the `animate()` reveal (the skeleton's removal reveals the image) and guard the handler with a `loaded` latch.
 
 ---
 
@@ -3095,6 +3095,7 @@ Modern CSS Color Module Level 4 syntax: `hsl(240 5.9% 10%)` (space-separated, no
 ### What Lynx does
 
 The Lynx CSS parser (`css_string_parser.cc`) only supports **comma-separated** HSL syntax:
+
 - `hsl(240, 5.9%, 10%)` — works
 - `hsla(240, 5.9%, 10%, 0.5)` — works
 - `hsl(240 5.9% 10%)` — **silently fails**, no background renders
@@ -3104,6 +3105,7 @@ The parser uses hardcoded `Consume(TokenType::COMMA)` calls in the HSL path. RGB
 ### Impact on the theme system
 
 The shadcn-style `hsl(var(--primary))` composition pattern cannot work on Lynx because:
+
 1. The CSS variable stores raw HSL channels: `--primary: 240 5.9% 10%`
 2. `hsl(var(--primary))` expands to `hsl(240 5.9% 10%)` — space-separated — which Lynx rejects
 
@@ -3113,8 +3115,11 @@ The `@blotch/ui` theme stores each color as a complete `rgba()` value and the ta
 
 ```css
 /* packages/ui/src/lib/theme/default.css */
-page { --primary: rgba(24, 24, 27, 1); }
+page {
+  --primary: rgba(24, 24, 27, 1);
+}
 ```
+
 ```ts
 /* packages/ui/src/lib/theme/tailwind-plugin.ts */
 primary: { DEFAULT: 'var(--primary)', foreground: 'var(--primary-foreground)' }
@@ -3227,7 +3232,7 @@ When the control has no content slot (e.g. `ui-checkbox`), or the label is a mul
 
 ### What you'd expect (web)
 
-A `<div style="display:flex">` is block-level, so it fills its container's width — but its *flex children* are content-sized on the main axis. To make a pill/badge shrink to its content you reach for `display: inline-flex` (this is exactly what shadcn's `Badge` does).
+A `<div style="display:flex">` is block-level, so it fills its container's width — but its _flex children_ are content-sized on the main axis. To make a pill/badge shrink to its content you reach for `display: inline-flex` (this is exactly what shadcn's `Badge` does).
 
 ### What Lynx does
 
@@ -3237,10 +3242,12 @@ There is no `inline`/`inline-flex` display in Lynx to opt out. The lever is **`a
 
 ```ts
 // A badge that hugs its content regardless of parent layout:
-cva('flex items-center self-start rounded-full px-2.5 py-0.5', { /* … */ })
+cva('flex items-center self-start rounded-full px-2.5 py-0.5', {
+  /* … */
+});
 ```
 
-Note the parent trap that makes this bite: `class="flex-row"` alone does **not** create a row. `flex-row` only emits `flex-direction: row`, which linear layout ignores (it uses `linear-direction`). Without a `flex` class the view stays a linear column, so its children stack *and* stretch full-width. Use `flex flex-row` for an actual horizontal row.
+Note the parent trap that makes this bite: `class="flex-row"` alone does **not** create a row. `flex-row` only emits `flex-direction: row`, which linear layout ignores (it uses `linear-direction`). Without a `flex` class the view stays a linear column, so its children stack _and_ stretch full-width. Use `flex flex-row` for an actual horizontal row.
 
 ---
 
@@ -3254,27 +3261,30 @@ You write a component `<ui-separator>` with `template: '<view [class]="...">`, a
 
 An Angular component whose selector is **not** a native Lynx element (`ui-separator`, `ui-badge`, …) has a host element that falls back to a plain, **unstyled** `view` (the renderer maps unknown tags to `view` — see `packages/runtime` CLAUDE.md). That host `view` is a real element in the layout tree: it sits between the parent and your template's inner view as an **extra flex/linear item with no classes of its own**.
 
-For most components this is invisible, because the host gets a size *either* from its content (a badge/button has text) *or* from the parent stretching it (Lynx's default `align-items: stretch`). But a **zero-content** component that relies entirely on stretch/fill has nothing to give the host an intrinsic size — so if the parent doesn't stretch the host, the host collapses to 0 and everything inside it disappears.
+For most components this is invisible, because the host gets a size _either_ from its content (a badge/button has text) _or_ from the parent stretching it (Lynx's default `align-items: stretch`). But a **zero-content** component that relies entirely on stretch/fill has nothing to give the host an intrinsic size — so if the parent doesn't stretch the host, the host collapses to 0 and everything inside it disappears.
 
 This is what made the vertical `ui-separator` invisible while the horizontal one worked:
 
 - **Horizontal**, parent `flex flex-col`: Lynx's default `align-items: stretch` stretched the unstyled host to full width, so the inner view's `w-full` had a full-width host to resolve against. Visible.
-- **Vertical**, parent `flex flex-row items-center`: `items-center` overrode the default stretch, so the unstyled host collapsed to 0 height (no content, not stretched), and the inner view had nothing to fill. Invisible — no amount of inner-view CSS (`h-full`, `self-stretch`) could fix it, because the *host* was the collapsed element.
+- **Vertical**, parent `flex flex-row items-center`: `items-center` overrode the default stretch, so the unstyled host collapsed to 0 height (no content, not stretched), and the inner view had nothing to fill. Invisible — no amount of inner-view CSS (`h-full`, `self-stretch`) could fix it, because the _host_ was the collapsed element.
 
 ### The fix
 
-For a zero-content component, put the sizing/styling on the **host element** so it *is* the rendered element (one element, like shadcn's separator on the web) — don't nest a styled view inside an unstyled host:
+For a zero-content component, put the sizing/styling on the **host element** so it _is_ the rendered element (one element, like shadcn's separator on the web) — don't nest a styled view inside an unstyled host:
 
 ```ts
 @Component({
   selector: 'ui-separator',
   host: { '[class]': 'separatorClass()' }, // classes land on the actual flex item
-  template: '',                            // no inner view to collapse into
+  template: '', // no inner view to collapse into
 })
 export class UiSeparator {
   readonly userClass = input<string>('', { alias: 'class' }); // class input alias + host [class] coexist fine
   protected readonly separatorClass = computed(() =>
-    cn('bg-border', this.orientation() === 'horizontal' ? 'h-px w-full' : 'w-px self-stretch'),
+    cn(
+      'bg-border',
+      this.orientation() === 'horizontal' ? 'h-px w-full' : 'w-px self-stretch',
+    ),
   );
 }
 ```
@@ -3327,7 +3337,7 @@ This bit **three** separate sites on the `<list>` path; all had to be fixed:
 
 1. **The `componentAtIndex` / `componentAtIndexes` callback.** Native calls these synchronously and re-entrantly from deep inside its own layout pass (`LinearLayoutManager::Fill` → `LayoutChunk` → `BindItemHolder` → `ComponentAtIndex`), via `CallLepusMethod`. Even a single `.has()` here crashes. This is **not** about stack depth or reentrancy: the same call scheduled from a fresh `setTimeout` macrotask (a shallow, top-of-message-loop stack) crashed identically.
 
-2. **The NoneElement filter in `getUIChildren()`**, called by `_processUpdate` on **every** list update (add *and* remove) during ordinary change detection. It did `nonElements.has(child.element)` on a `WeakSet` of element refs → `__JS_FreeValueRT` abort. Insidiously, the **initial render survived it** (the refcount abort is timing-sensitive), so the list rendered its seed items fine and only crashed on the first mutation — which looked like an add/remove bug rather than a filter bug.
+2. **The NoneElement filter in `getUIChildren()`**, called by `_processUpdate` on **every** list update (add _and_ remove) during ordinary change detection. It did `nonElements.has(child.element)` on a `WeakSet` of element refs → `__JS_FreeValueRT` abort. Insidiously, the **initial render survived it** (the refcount abort is timing-sensitive), so the list rendered its seed items fine and only crashed on the first mutation — which looked like an add/remove bug rather than a filter bug.
 
 3. **The diff that builds `update-list-info`** (`_processUpdate`). Building `new Set(children)` and calling `set.has(elementRef)` aborted with the `CheckObjectCtx` signature. This one only fired on **removal**: on the initial render and pure appends the diff only ever calls `.has()` against an **empty** Set, and QuickJS short-circuits an empty-set lookup without converting the key — so it hid until the first item was removed and the diff tested the just-removed, now-detached ref against a populated Set.
 
@@ -3341,7 +3351,10 @@ Never key a `Map`/`Set`/`WeakSet` on a native element ref anywhere on the list p
 
 ```ts
 // BAD — WeakSet.has() with an element key:
-if (!this.#appended.has(child)) { __AppendElement(list, child); this.#appended.add(child); }
+if (!this.#appended.has(child)) {
+  __AppendElement(list, child);
+  this.#appended.add(child);
+}
 
 // GOOD — plain property tag (ordinary field access, not a Map/Set call):
 if ((child as { __appended?: boolean }).__appended !== true) {
@@ -3387,7 +3400,12 @@ Native `<list>` calls `componentAtIndex(list, listID, cellIndex, operationID)` a
 
 ```ts
 const sign = __GetElementUniqueID(child);
-__FlushElementTree(child, { triggerLayout: true, operationID, elementID: sign, listID });
+__FlushElementTree(child, {
+  triggerLayout: true,
+  operationID,
+  elementID: sign,
+  listID,
+});
 return sign;
 ```
 
@@ -3416,3 +3434,43 @@ React Lynx never clears it either — `ListUpdateInfoRecording.flush()` (`.../sn
 ### The fix
 
 Only ever set `update-list-info` to a computed, non-empty diff; skip the update entirely when the diff is empty. Never write an empty `update-list-info` "to reset it". See `lynx-list-element.ts` (`_processUpdate()`).
+
+---
+
+## Angular i18n (`i18n` / `$localize`) crashes with `Node is not defined` — the i18n runtime reads DOM `Node.*_NODE` constants
+
+### What you'd expect (Angular web)
+
+An `i18n` attribute or a `$localize` tagged string compiles to i18n op-codes that Angular's runtime applies at bootstrap. On the web these just work — the runtime creates the translated comment/text nodes through the renderer.
+
+### What Lynx does
+
+Angular's i18n op-code applier (`applyCreateOpCodes` / `applyMutableOpCodes` / `createNodeWithoutHydration` in `@angular/core`) does not ask the renderer what kind of node to make — it branches on the **DOM `Node` interface's node-type constants**:
+
+```js
+rNode = _locateOrCreateNode(
+  lView,
+  index,
+  text,
+  isComment ? Node.COMMENT_NODE : Node.TEXT_NODE,
+);
+// ...
+switch (nodeType) {
+  case Node.COMMENT_NODE:
+    return createCommentNode(renderer, textOrName);
+  case Node.TEXT_NODE:
+    return createTextNode(renderer, textOrName);
+  case Node.ELEMENT_NODE:
+    return createElementNode(renderer, textOrName, null);
+}
+```
+
+`Node` is a browser global. Lynx's PrimJS runtime has no DOM, so `Node` is undefined and the first op-code throws `ReferenceError: Node is not defined` from inside `ɵɵi18nStart`. The rejection is unhandled and aborts bootstrap **before anything paints** — the whole page is blank, not just the translated element. The crash frame (`applyCreateOpCodes` → `ɵɵi18nStart` → `ɵɵi18n`) points at i18n, but the real cause is a missing global, not anything translation-specific.
+
+It is subtle because the constants are pure discriminators — once resolved, the op-codes call `renderer.createComment()` / `renderer.createText()`, which the Lynx renderer already implements (they back `@if`/`@for` anchors and `{{ }}` text). The only missing piece is the `Node` global itself.
+
+### The fix
+
+Polyfill a minimal `Node` **class** carrying the standard node-type constants, before Angular bootstraps. It ships as `preEntry` from `@blotch/rsbuild-plugin-angular-lynx` (`src/polyfills.js`) and defensively in the runtime (`packages/runtime/src/lib/runtime.ts`) for consumers not using the plugin — mirroring the existing `document` / `window` / `navigator` shims.
+
+It **must be a class, not a plain object**: a few dev/debug paths in Angular do `x instanceof Node`, which throws if the right-hand side is not callable. As a class, `instanceof` returns `false` for Lynx elements (correct — they are not DOM nodes) while the constants resolve to their spec values. Both guards check `typeof Node === 'undefined'`, so the shim is a no-op in the web bundle where `Node` is real.

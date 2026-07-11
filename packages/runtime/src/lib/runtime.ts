@@ -115,6 +115,50 @@ if (typeof globalThis.queueMicrotask !== 'function') {
   }
 }
 
+// Angular's i18n runtime (applyCreateOpCodes / applyMutableOpCodes in
+// @angular/core) branches on the DOM `Node` interface's node-type constants
+// (Node.COMMENT_NODE / Node.TEXT_NODE / Node.ELEMENT_NODE) to decide whether an
+// i18n opcode creates a comment, text, or element node. Any component with an
+// `i18n` attribute or a `$localize` string emits these opcodes at bootstrap;
+// Lynx's PrimJS has no DOM, so `Node` is undefined and the first opcode throws
+// "Node is not defined", aborting bootstrap. The rsbuild plugin's polyfills.js
+// provides this as preEntry — this defensive copy covers consumers not using
+// the plugin. Must be a class (not a plain object): Angular does `x instanceof
+// Node` in a few dev/debug paths, which throws on a non-callable right-hand
+// side; as a class it correctly returns false for Lynx elements while the
+// static constants (all the opcode dispatcher reads) resolve to spec values.
+// The shim alone is the complete fix: once `Node` resolves the opcodes dispatch
+// to renderer.createComment() / createText(), which the renderer already
+// implements (they also back @if/@for anchors and {{ }} interpolation). The
+// `typeof Node === 'undefined'` guard makes it a no-op on the web, where `Node`
+// is the real DOM global.
+if (typeof Node === 'undefined') {
+  try {
+    class LynxNode {}
+    Object.assign(LynxNode, {
+      ELEMENT_NODE: 1,
+      ATTRIBUTE_NODE: 2,
+      TEXT_NODE: 3,
+      CDATA_SECTION_NODE: 4,
+      PROCESSING_INSTRUCTION_NODE: 7,
+      COMMENT_NODE: 8,
+      DOCUMENT_NODE: 9,
+      DOCUMENT_TYPE_NODE: 10,
+      DOCUMENT_FRAGMENT_NODE: 11,
+      DOCUMENT_POSITION_DISCONNECTED: 1,
+      DOCUMENT_POSITION_PRECEDING: 2,
+      DOCUMENT_POSITION_FOLLOWING: 4,
+      DOCUMENT_POSITION_CONTAINS: 8,
+      DOCUMENT_POSITION_CONTAINED_BY: 16,
+      DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC: 32,
+    });
+    (globalThis as any).Node = LynxNode;
+  } catch {
+    // Read-only where Node is a non-configurable global (web main thread) —
+    // Node already exists there, nothing to do.
+  }
+}
+
 if (typeof document === 'undefined') {
   (globalThis as any).document = {
     // BrowserPlatformLocation uses document.defaultView to get the window

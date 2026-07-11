@@ -91,6 +91,57 @@ if (typeof queueMicrotask === 'undefined') {
     globalThis.queueMicrotaskPromiseCache.then(cb);
 }
 
+// Angular's i18n runtime (applyCreateOpCodes / applyMutableOpCodes /
+// createNodeWithoutHydration in @angular/core) branches on the DOM `Node`
+// interface's node-type constants — Node.COMMENT_NODE / Node.TEXT_NODE /
+// Node.ELEMENT_NODE — to decide whether each i18n opcode creates a comment,
+// text, or element node. Every component carrying an `i18n` attribute or a
+// `$localize` string emits these opcodes at bootstrap (ɵɵi18n → ɵɵi18nStart →
+// applyCreateOpCodes). Lynx's PrimJS runtime has no DOM, so `Node` is undefined
+// and the first opcode throws "Node is not defined", aborting bootstrap before
+// anything paints.
+//
+// A class (not a plain object) is required: a few dev/debug paths in Angular do
+// `x instanceof Node`, which throws if the right-hand side isn't callable. As a
+// class, `instanceof` correctly returns false for Lynx elements (they are not
+// DOM nodes) while the static constants resolve to their standard spec values —
+// which is all the i18n opcode dispatcher actually reads. Deprecated node types
+// (ENTITY_*, NOTATION_NODE) are omitted; Angular never references them.
+//
+// The shim alone is the complete fix. The constants are pure discriminators, so
+// once `Node` resolves the opcodes dispatch to renderer.createComment() /
+// createText() — already implemented and exercised by @if/@for anchors and
+// {{ }} interpolation, so nothing downstream is missing. The
+// `typeof Node === 'undefined'` guard makes this a no-op in the web bundle
+// (where `Node` is the real DOM global), which is why preEntry can run it
+// unconditionally on both the main and background threads.
+if (typeof Node === 'undefined') {
+  try {
+    class LynxNode {}
+    Object.assign(LynxNode, {
+      ELEMENT_NODE: 1,
+      ATTRIBUTE_NODE: 2,
+      TEXT_NODE: 3,
+      CDATA_SECTION_NODE: 4,
+      PROCESSING_INSTRUCTION_NODE: 7,
+      COMMENT_NODE: 8,
+      DOCUMENT_NODE: 9,
+      DOCUMENT_TYPE_NODE: 10,
+      DOCUMENT_FRAGMENT_NODE: 11,
+      DOCUMENT_POSITION_DISCONNECTED: 1,
+      DOCUMENT_POSITION_PRECEDING: 2,
+      DOCUMENT_POSITION_FOLLOWING: 4,
+      DOCUMENT_POSITION_CONTAINS: 8,
+      DOCUMENT_POSITION_CONTAINED_BY: 16,
+      DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC: 32,
+    });
+    globalThis.Node = LynxNode;
+  } catch {
+    // Read-only in some environments (e.g. web main thread where Node is a
+    // non-configurable global) — Node already exists there, nothing to do.
+  }
+}
+
 // Lynx runtime doesn't have browser globals. Mock them early (before Angular
 // platform initialization) so BrowserPlatformLocation's constructor doesn't
 // crash when accessing window.location / window.history.
