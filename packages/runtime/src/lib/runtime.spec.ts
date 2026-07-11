@@ -131,6 +131,18 @@ describe('runtime', () => {
       expect(result).toBe('ok');
     });
 
+    it('invokes a direct main-thread function handle ({ _fn }) used by gestures', () => {
+      // Fiber-arch gesture callbacks are wrapped as { _fn } objects so they land
+      // in the native lepus_object_ slot; runWorklet must unwrap and call _fn.
+      const fn = vi.fn().mockReturnValue('gestured');
+      const result = (globalThis as any).runWorklet({ _fn: fn }, [
+        'evt',
+        'mgr',
+      ]);
+      expect(fn).toHaveBeenCalledWith('evt', 'mgr');
+      expect(result).toBe('gestured');
+    });
+
     it('does nothing when the _wkltId is not registered', () => {
       expect(() =>
         (globalThis as any).runWorklet({ _wkltId: 'missing' }, []),

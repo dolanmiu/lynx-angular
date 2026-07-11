@@ -22,9 +22,26 @@ export enum GestureState {
 }
 
 export type GestureEvent = {
-  state: GestureState;
-  absoluteX: number;
-  absoluteY: number;
+  /**
+   * Optional: the native engine conveys the phase through the callback that
+   * fires (onBegin/onStart/onUpdate/onEnd), not a field on the event payload,
+   * so `state` is usually absent at runtime.
+   */
+  state?: GestureState;
+  /**
+   * Absolute (page-relative) coordinates, derived at runtime by mapGestureEvent
+   * from the native `pageX`/`pageY`. Optional (was required) because they're
+   * only present when the gesture's payload carries coordinates — making the
+   * type promise a `number` that isn't always there was a latent footgun.
+   */
+  absoluteX?: number;
+  absoluteY?: number;
+  /**
+   * The untouched native params dict (Lynx field names: scrollX, pageX, x, y,
+   * isAtStart, …). Escape hatch for reading fields that have no flat alias —
+   * the flat properties above are derived from it. See mapGestureEvent.
+   */
+  params?: Record<string, unknown>;
 };
 
 export type PanGestureEvent = {

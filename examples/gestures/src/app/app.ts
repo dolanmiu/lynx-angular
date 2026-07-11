@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 import {
   Gesture,
   LynxGestureDetector,
@@ -24,6 +24,7 @@ import {
           >
           <view
             [lynxGesture]="panGesture"
+            [style.transform]="panTransform()"
             class="justify-content mb-2 h-[100px] w-[100px] items-center rounded-[10px] bg-indigo-500"
           >
             <text class="text-sm font-medium text-white">Drag me</text>
@@ -71,15 +72,32 @@ export class App {
   readonly tapCount = signal(0);
   readonly action = signal('pan or tap this area');
 
+  // The box's live position = committed offset (#baseX/#baseY) + the current
+  // drag's translation. Driving the view's transform off this makes the box
+  // follow the finger.
+  readonly panTransform = computed(
+    () => `translate(${this.panX()}px, ${this.panY()}px)`,
+  );
+
+  // Where the box rests between drags. Lynx's translationX/Y is measured from
+  // each gesture's start, so we add it to this committed offset while dragging,
+  // then fold it in on release — that's what makes the box stay where dropped
+  // and the next drag continue from there (rather than snapping back).
+  #baseX = 0;
+  #baseY = 0;
+
   readonly panGesture = new PanGesture()
     .minDistance(5)
     .onUpdate((e) => {
-      this.panX.set(Math.round(e.translationX));
-      this.panY.set(Math.round(e.translationY));
+      this.panX.set(Math.round(this.#baseX + e.translationX));
+      this.panY.set(Math.round(this.#baseY + e.translationY));
     })
     .onEnd(() => {
-      this.panX.set(0);
-      this.panY.set(0);
+      // Commit the drop position (the value already shown) so the next drag
+      // continues from here. Reading the signal avoids depending on the end
+      // event carrying a final translation.
+      this.#baseX = this.panX();
+      this.#baseY = this.panY();
     });
 
   readonly tapGesture = new TapGesture().onEnd(() =>

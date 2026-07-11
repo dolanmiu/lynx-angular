@@ -287,9 +287,26 @@ const transformParams = (value: unknown): unknown => {
 
 // @ts-expect-error
 globalThis.runWorklet = (ctx: unknown, params: unknown[]) => {
-  // Legacy path: direct function callbacks (gestures, existing event handlers)
+  // Legacy path: direct function callbacks (existing event handlers registered
+  // via __AddEvent with a raw function value).
   if (typeof ctx === 'function') {
     return ctx(...params);
+  }
+  // Direct main-thread function handle: `{ _fn }`. Fiber-arch gesture callbacks
+  // MUST be objects, not raw functions — the native binding stores a callable
+  // callback in GestureCallback.lepus_function_, but the fiber-arch dispatch
+  // (touch_event_handler.cc TriggerFiberElementWorklet) only reads
+  // lepus_object_, so a function callback is silently dropped and the gesture
+  // never fires. The LynxGestureDetector directive therefore wraps each callback
+  // as `{ _fn }` (an object → lands in lepus_object_); we unwrap it here. Params
+  // are forwarded as-is (like the raw-function path) — the native engine already
+  // passes plain event objects.
+  if (
+    ctx &&
+    typeof ctx === 'object' &&
+    typeof (ctx as any)._fn === 'function'
+  ) {
+    return (ctx as any)._fn(...params);
   }
   // Worklet context path: look up by _wkltId
   if (ctx && typeof ctx === 'object' && '_wkltId' in ctx) {

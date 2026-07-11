@@ -50,7 +50,15 @@ export const normalizeOptions = (
     enableCSSInvalidation: false,
     enableCSSSelector: true,
     enableICU: false,
-    enableNewGesture: false,
+    // Default ON, unlike React Lynx (which defaults false). The native engine
+    // only processes __SetGestureDetector calls when this page-config flag is
+    // true (see radon_node.cc RadonNode::RadonDiffChildren -> GetEnableNewGesture);
+    // with it false, every gesture registered via the LynxGestureDetector
+    // directive is silently ignored. React Lynx keeps it off to preserve its
+    // legacy gesture system, but AngularLynx has no legacy gesture path — the
+    // "new gesture" API is the only one we ship, so leaving it off would make
+    // the entire (public, exported) gesture API dead on arrival.
+    enableNewGesture: true,
     enableParallelElement: true,
     defaultDisplayLinear: true,
     enableRemoveCSSScope: false,

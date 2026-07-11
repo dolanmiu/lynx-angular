@@ -39,18 +39,24 @@ describe('LynxGestureDetector', () => {
   let nativeEl: { element: typeof fakeRef };
   let setGestureDetector: ReturnType<typeof vi.fn>;
   let removeGestureDetector: ReturnType<typeof vi.fn>;
+  let setAttribute: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     nativeEl = { element: fakeRef };
     setGestureDetector = vi.fn();
     removeGestureDetector = vi.fn();
+    setAttribute = vi.fn();
     (globalThis as any).__SetGestureDetector = setGestureDetector;
     (globalThis as any).__RemoveGestureDetector = removeGestureDetector;
+    // The directive sets `flatten: false` so the element gets its own native
+    // layer (a flattened view can't receive gestures) — stub it here.
+    (globalThis as any).__SetAttribute = setAttribute;
   });
 
   afterEach(() => {
     delete (globalThis as any).__SetGestureDetector;
     delete (globalThis as any).__RemoveGestureDetector;
+    delete (globalThis as any).__SetAttribute;
   });
 
   describe('resolving gestures', () => {
@@ -139,20 +145,45 @@ describe('LynxGestureDetector', () => {
       expect(config.callbacks[0].name).toBe('onBegin');
     });
 
-    it('wraps each callback with a GestureStateManager', () => {
+    it('wraps each callback as a { _fn } object (fiber arch needs lepus_object_)', () => {
+      // A raw function callback lands in the native GestureCallback.lepus_function_
+      // slot, which fiber-arch dispatch ignores — so the callback MUST be an
+      // object. Passing a plain function here is the bug that made every gesture
+      // silently no-op.
       const g = new TapGesture();
-      const cb = vi.fn();
-      g.onBegin(cb);
+      g.onBegin(vi.fn());
       const directive = createDirective(nativeEl);
 
       applyGesture(directive, g);
 
       const [, , , config] = setGestureDetector.mock.calls[0];
-      const event = { state: 1, absoluteX: 0, absoluteY: 0 };
-      config.callbacks[0].callback(event);
+      expect(typeof config.callbacks[0].callback).toBe('object');
+      expect(typeof config.callbacks[0].callback._fn).toBe('function');
+    });
 
-      // The original callback receives (event, stateManager)
-      expect(cb).toHaveBeenCalledWith(event, expect.any(Object));
+    it('passes a mapped event (with derived translation) and a GestureStateManager', () => {
+      const g = new PanGesture();
+      const cb = vi.fn();
+      g.onUpdate(cb);
+      const directive = createDirective(nativeEl);
+
+      applyGesture(directive, g);
+
+      const [, , , config] = setGestureDetector.mock.calls[0];
+      const fire = config.callbacks[0].callback._fn;
+
+      // Native delivers a nested envelope with the finger position under `params`
+      // (pageX/pageY). Translation is derived from the first event's origin.
+      fire({ params: { pageX: 5, pageY: 6 } }); // anchors the origin
+      fire({ params: { pageX: 25, pageY: 16 } }); // moved +20, +10
+
+      expect(cb).toHaveBeenCalledTimes(2);
+      const [event, stateManager] = cb.mock.calls[1];
+      expect(event.absoluteX).toBe(25);
+      expect(event.absoluteY).toBe(16);
+      expect(event.translationX).toBe(20);
+      expect(event.translationY).toBe(10);
+      expect(stateManager).toEqual(expect.any(Object));
     });
 
     it('passes undefined for config when gesture has no config', () => {
@@ -187,6 +218,15 @@ describe('LynxGestureDetector', () => {
       expect(relationMap.waitFor).toEqual([g2.id]);
       expect(relationMap.simultaneous).toEqual([]);
       expect(relationMap.continueWith).toEqual([]);
+    });
+
+    it('marks the element non-flatten so it can receive gestures', () => {
+      const g = new TapGesture();
+      const directive = createDirective(nativeEl);
+
+      applyGesture(directive, g);
+
+      expect(setAttribute).toHaveBeenCalledWith(fakeRef, 'flatten', false);
     });
 
     it('detaches old gestures before attaching new ones on subsequent changes', () => {

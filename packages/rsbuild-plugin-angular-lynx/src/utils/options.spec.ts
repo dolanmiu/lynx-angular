@@ -12,7 +12,7 @@ describe('normalizeOptions', () => {
     expect(result.enableCSSInheritance).toBe(false);
     expect(result.enableCSSInvalidation).toBe(false);
     expect(result.enableCSSSelector).toBe(true);
-    expect(result.enableNewGesture).toBe(false);
+    expect(result.enableNewGesture).toBe(true);
     expect(result.enableParallelElement).toBe(true);
     expect(result.defaultDisplayLinear).toBe(true);
     expect(result.enableRemoveCSSScope).toBe(false);

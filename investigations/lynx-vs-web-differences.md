@@ -38,6 +38,36 @@ Do NOT put a `position: fixed`/`position: absolute` overlay element inside the s
 
 ---
 
+## Gestures have THREE independent silent-failure points: the `enableNewGesture` flag, object-wrapped callbacks, and the event payload shape
+
+Gestures via the `[lynxGesture]` directive (`PanGesture`, `TapGesture`, `Gesture.Exclusive`, …) fail silently in **three** independent ways. All must be fixed; fixing only some yields gestures that stay dead, or fire but produce `NaN` — never an error or log.
+
+### What you'd expect (web)
+
+You attach a gesture/pointer handler and it fires. There's no global build switch to flip first, and a handler function is just a function.
+
+### What Lynx does
+
+**(1) The `enableNewGesture` page-config flag — off by default.** `__SetGestureDetector` plus the `waitFor` / `simultaneousWith` / `continueWith` relations is Lynx's **"new gesture" system**, and the native engine only processes it when the page config has `enableNewGesture: true`. With the flag off, `RadonNode` skips gesture-detector flushing entirely (`GetEnableNewGesture()` gate in `core/renderer/dom/vdom/radon/radon_node.cc`), so every `__SetGestureDetector` call is dropped — no crash, no warning, no log. The flag is baked into the compiled template's `sourceContent.config` at build time (verify with `grep -a enableNewGesture dist/main.lynx.bundle`), not set at runtime.
+
+**(2) Gesture callbacks must be OBJECTS, not raw functions — under fiber arch.** The native binding (`renderer_functions.cc InnerCreateGestureDetector`) routes a *callable* callback into `GestureCallback.lepus_function_`, but a callback that is an *object* into `lepus_object_`. Under fiber architecture (`enableFiberArch: true`, hardcoded on in `LynxTemplatePlugin`), the dispatch path `TriggerFiberElementWorklet` (`core/renderer/events/touch_event_handler.cc`) reads **only `lepus_object_`** and bails immediately if it's empty. So a plain-function callback is registered, the gesture is recognized natively, and then the callback is **silently never invoked**. This is the subtle one: the gesture *works*, but your handler never runs — indistinguishable on-device from "gestures are dead."
+
+When it does fire, native calls the main-thread global `runWorklet(callbackObject, [event, gestureManager], { source })` — so the callback object must be something `runWorklet` can dispatch.
+
+Related native fact: `has-react-gesture` (which React Lynx sets alongside the detector) is **React-only bookkeeping** — the native core never reads it, so the Angular directive omits it.
+
+Also (Android-only): registering a gesture does **not** auto-mark the element non-flatten (unlike adding a DOM event listener, which does). A flattened view can't receive its own gestures, so the directive sets `flatten: false` explicitly, mirroring React Lynx. No-op on iOS.
+
+**(3) The event payload is a nested envelope, and Lynx gives position — never translation.** Once callbacks fire, the object handed to them is `{ type, timestamp, target, currentTarget, params: {...}, detail: {...} }` (built by `GetCustomEventParam`), where the data lives under `params`. Critically, the iOS handlers (`LynxPanGestureHandler` / `LynxBaseGestureHandler`) populate `params` with the finger's **position** — `x`/`y` (element-relative), `pageX`/`pageY` (page-relative), `clientX`/`clientY` — plus `scrollX`/`scrollY`, which are the gesture member's **scroll offset** (0 for a non-scrolling `<view>`), NOT the drag distance. There is **no** native `translationX`/`translationY`. So a react-native-gesture-handler-style handler reading `event.translationX` gets `undefined` → `NaN`; and naively aliasing it to `scrollX` gives `0` forever (a static view never scrolls). Accumulated translation has to be computed by the framework.
+
+### The fix
+
+1. `@blotch/rsbuild-plugin-angular-lynx` defaults `enableNewGesture` to **`true`** (unlike React Lynx, which defaults it `false` to keep its legacy gesture system — AngularLynx has no legacy gesture path, so nothing to preserve). Override only to explicitly disable: `pluginAngularLynx({ enableNewGesture: false })`.
+2. `LynxGestureDetector` wraps each callback as `{ _fn: (event) => … }` so it lands in `lepus_object_`, and `runtime.ts`'s `runWorklet` unwraps `_fn` and calls it. (Events registered via `__AddEvent` are a *different* native path that does accept raw functions — which is why events worked but gestures didn't, obscuring the asymmetry.)
+3. `mapGestureEvent` (`gesture/event.ts`) adapts the native envelope into AngularLynx's flat event: it spreads `params` (so every native field stays reachable, incl. `x`/`y`, pinch `scale`, rotation `rotation`, `isAtStart`/`isAtEnd`), keeps raw `params` as an escape hatch, maps `pageX`/`pageY`→`absoluteX`/`absoluteY`, and **derives** `translationX`/`translationY` by anchoring a per-gesture origin (`createGestureOrigin`, held by the directive) at the gesture's first event and subtracting — resetting it on `onEnd`. This reproduces react-native-gesture-handler's translation semantics on top of Lynx's position-only events.
+
+---
+
 ## `position: fixed` is absolute-relative-to-root, not viewport-fixed
 
 ### What you'd expect (web)

@@ -9,6 +9,7 @@ import {
 import type { BaseLynxElement } from '../lynx-element/types';
 import type { BaseGesture } from './base-gesture';
 import { ComposedGesture } from './composition';
+import { createGestureOrigin, mapGestureEvent } from './event';
 import { GestureStateManager } from './state-manager';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -20,6 +21,13 @@ type GestureInput = AnyGesture | AnyGesture[] | ComposedGesture;
  * system (__SetGestureDetector / __RemoveGestureDetector). Accepts a single
  * gesture, an array of gestures, or a ComposedGesture (simultaneous/exclusive).
  * Each gesture is registered with the native engine via its unique numeric ID.
+ *
+ * Cross-package prerequisite (easy to miss when debugging): the native engine
+ * silently ignores every __SetGestureDetector call unless the compiled page
+ * config has `enableNewGesture: true`. @blotch/rsbuild-plugin-angular-lynx
+ * defaults that flag ON, so this directive works out of the box — but if
+ * gestures ever go dead app-wide with no error, that build flag is the first
+ * thing to check, not this directive.
  */
 @Directive({
   selector: '[lynxGesture]',
@@ -39,20 +47,47 @@ export class LynxGestureDetector implements OnChanges, OnDestroy {
   ngOnChanges(_changes: SimpleChanges): void {
     this.#detachAll();
     const gestures = this.#resolveGestures();
+    if (gestures.length === 0) return;
+
+    // On the background thread the element is a virtual node with no native
+    // handle (.element is undefined); native gesture registration only happens
+    // on the main thread, so there's nothing to do here otherwise.
+    const elementRef = (this.#el as any).element;
+    if (!elementRef) return;
+
+    // Force the element onto its own native layer. Lynx "flattens" a view that
+    // has no event listeners and no non-flatten attributes into its parent's
+    // layer for performance, and a flattened view cannot receive its own
+    // gestures. Unlike adding a DOM event listener, registering a gesture
+    // detector does NOT auto-mark the element non-flatten, so we set it
+    // explicitly — mirroring React Lynx's processGesture. `flatten` is an
+    // Android-only concept (a no-op on iOS), but it's required for gestures to
+    // fire on Android.
+    __SetAttribute(elementRef, 'flatten', false);
 
     for (const g of gestures) {
-      const elementRef = (this.#el as any).element;
-      if (!elementRef) continue;
-
       // GestureStateManager allows callbacks to programmatically fail/activate
       // the gesture (e.g. to implement conditional gesture recognition).
       const stateManager = new GestureStateManager(elementRef, g.id);
+      // Per-gesture translation origin, shared across this gesture's callbacks
+      // so mapGestureEvent can derive translationX/Y from the finger's absolute
+      // position (Lynx reports position each event, never accumulated distance).
+      const origin = createGestureOrigin();
       const config = {
-        // Wrap each callback to inject the stateManager as the second argument.
-        // The native engine calls callback(event); we forward as cb(event, stateManager).
+        // Each callback is wrapped as `{ _fn }` — an OBJECT, not a raw function.
+        // This is mandatory under Lynx's fiber architecture: the native binding
+        // routes a callable callback into GestureCallback.lepus_function_, but
+        // the fiber-arch gesture dispatch only reads lepus_object_ (populated
+        // when the callback is an object), so a raw function is silently dropped
+        // and the gesture never fires. runtime.ts's runWorklet unwraps `_fn`.
+        // The inner wrapper injects the stateManager as the second argument so
+        // callbacks can programmatically fail/activate the gesture.
         callbacks: Object.entries(g._callbacks).map(([name, cb]) => ({
           name,
-          callback: (event: any) => (cb as any)(event, stateManager),
+          callback: {
+            _fn: (event: any) =>
+              (cb as any)(mapGestureEvent(event, name, origin), stateManager),
+          },
         })),
         config: Object.keys(g._config).length > 0 ? g._config : undefined,
       };
