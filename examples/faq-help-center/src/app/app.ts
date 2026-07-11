@@ -67,7 +67,9 @@ type FaqCategory = { title: string; items: FaqItem[] };
           <view class="rounded-2xl border border-zinc-200 bg-white p-4">
             <ui-collapsible [open]="true">
               <ui-collapsible-trigger>
-                <view class="flex-row items-center gap-2 py-2 flex justify-between">
+                <view
+                  class="flex-row items-center gap-2 py-2 flex justify-between"
+                >
                   <text class="text-base font-semibold text-zinc-900">{{
                     cat.title
                   }}</text>

@@ -40,7 +40,11 @@ import { cn } from '../../utils/cn';
            matching the dialog/bottom-sheet backdrop. A named color with an opacity
            modifier is required here: bg-black/50 compiles to rgb(0 0 0 / 0.5),
            which Lynx accepts, whereas opacity modifiers on semantic tokens don't. -->
-      <view #backdrop class="h-full w-full bg-black/50" (bindtap)="onBackdropTap()">
+      <view
+        #backdrop
+        class="h-full w-full bg-black/50"
+        (bindtap)="onBackdropTap()"
+      >
         <view
           #panel
           [class]="panelClass()"

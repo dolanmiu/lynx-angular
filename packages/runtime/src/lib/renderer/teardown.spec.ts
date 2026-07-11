@@ -329,7 +329,7 @@ describe('renderer teardown', () => {
     expect(findByClass('backdrop')).toHaveLength(0);
   });
 
-  it('fully removes a <block>\'s children instead of parking them on the page root', () => {
+  it("fully removes a <block>'s children instead of parking them on the page root", () => {
     const fixture = TestBed.createComponent(BlockHost);
     fixture.detectChanges();
 

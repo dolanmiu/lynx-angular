@@ -118,6 +118,9 @@ type Task = {
             />
           }
           @for (task of tasks; track task.id) {
+            <!-- Was (longpress) — same silent-no-op bug as notification-center's
+                 card: Lynx requires the bind/catch propagation prefix on event
+                 names, and drops unprefixed ones without any error. -->
             <view
               class="flex-row items-center gap-3 rounded-xl border border-zinc-200 bg-white px-4 py-3.5 flex"
               (bindlongpress)="openOptions(task)"

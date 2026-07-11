@@ -64,10 +64,6 @@ const stackTransform = (depth: number): string =>
   host: {
     '[class]': 'cardClass()',
     '[style]': 'hostStyle()',
-    // Overrides the `event-through: true` inherited from UiToaster's backdrop
-    // (see the <overlay> comment below) — without this, the card itself would
-    // let touches fall through to whatever is behind it instead of reacting.
-    '[attr.event-through]': 'false',
     '(bindtap)': 'onTap()',
     '(catchtouchstart)': 'onTouchStart($event)',
     '(catchtouchmove)': 'onTouchMove($event)',
@@ -146,13 +142,14 @@ export class UiToastItem implements OnInit {
     return this.depth() === 0;
   }
 
-  // Resting state: docked to the bottom of the full-screen container with the
-  // screen-edge inset (1rem sides) and safe-area lift, lifted/scaled into the
-  // stack slot, plus the live drag offset (front only). Height is left to auto
-  // so the card grows with its content — this is why the toasts are positioned
-  // against the full-height `h-full w-full` view (like bottom-sheet), NOT a
-  // zero-height wrapper: Lynx resolves an absolute element's auto height against
-  // its containing block, so a collapsed block squished the card (and its text).
+  // Resting state: docked to the bottom of UiToaster's stack container (which
+  // owns the screen-edge inset and safe-area lift — see its style comment),
+  // lifted/scaled into the stack slot, plus the live drag offset (front only).
+  // Height is left to auto so the card grows with its content — this is why
+  // the container gives absolutely-positioned children a *definite* (if
+  // small) height to resolve `bottom` against: Lynx resolves an absolute
+  // element's auto height against its containing block, so a collapsed block
+  // squished the card (and its text).
   //
   // The entrance/restack/exit animations run via element.animate() and override
   // `transform`/`opacity` while they play (fill:'forwards'); cancelling one (on
@@ -165,9 +162,10 @@ export class UiToastItem implements OnInit {
     // Subtle elevation, softening slightly with depth.
     const shadow = `0 ${6 - d}px ${16 - d * 3}px rgba(0, 0, 0, ${(0.15 - d * 0.03).toFixed(2)})`;
     return (
-      // left/right (not width) set the inset AND the width; bottom lifts the
-      // stack above the home-indicator safe area (matches the old pb-safe-4).
-      `position: absolute; left: 1rem; right: 1rem; bottom: calc(env(safe-area-inset-bottom) + 1rem); z-index: ${100 - d};` +
+      // left/right (not width) set the width to fill the container; bottom
+      // docks to its bottom edge (the container itself carries the safe-area
+      // and screen-edge insets, so this is 0, not calc(...) + 1rem).
+      `position: absolute; left: 0; right: 0; bottom: 0; z-index: ${100 - d};` +
       // Scale from the bottom edge so stacked toasts keep their base aligned and
       // recede upward — a cleaner fan than center-origin scaling.
       ` transform-origin: 50% 100%; transform: translateY(${ty}px) scale(${scale});` +
@@ -438,43 +436,39 @@ export class UiToastItem implements OnInit {
   imports: [LYNX_ELEMENTS, UiToastItem],
   encapsulation: ViewEncapsulation.None,
   template: `
-    <overlay [attr.visible]="overlayVisible()" [style]="overlayStyle()" mode="page">
-      <!--
-        The <overlay> is 0x0, establishes NO containing block, and sizes only its
-        FIRST child against the full screen — so that child must be a full-size
-        view. Every toast is position:absolute against THIS view (a definite,
-        full-height containing block): that's what lets each card resolve its
-        auto height from content. Positioning them against a zero-height wrapper
-        instead collapsed the cards (squished text). The toasts overlap and
-        bottom-dock here; each one's transform lifts/scales it into its stack
-        slot. Stays transparent (no backdrop) since toasts are non-modal.
-
-        Non-modal also means it must not steal touches for the rest of the
-        app: this backdrop covers the full screen, so without event-through
-        it would swallow every tap/longpress behind it (the native overlay has
-        no pointer-events support — that's a build error — and no
-        events-pass-through, which is web-only). event-through is a different,
-        view-level attribute that Lynx's overlay hit-testing itself honors
-        (confirmed against Harmony's UIOverlay::OnNodeEvent and iOS's
-        LynxOverlayContainer.hitTest, which both redispatch to the underlying
-        page when the hit element has it set) — see
-        investigations/lynx-vs-web-differences.md. It's inherited, so each
-        toast card explicitly sets it back to false on its own host to stay
-        interactive.
-
-        mode="page" (iOS only) matters just as much as event-through: left
-        unset, LynxUIOverlay defaults to LynxOverlayModeWindow — a genuinely
-        separate native UIWindow stacked on top of the app, not a sibling view.
-        event-through's hit-test redispatch is a same-window mechanism; across
-        two real windows it's a much less certain path (Lynx would need to
-        return a nil hit-test result all the way up to the overlay's own
-        window, then rely on UIKit to fall back to the window behind — a
-        different, fragile guarantee). mode="page" attaches the overlay inside
-        the same UIViewController/window as the rest of the page instead, so
-        it's the same single-window scenario event-through was confirmed
-        against.
-      -->
-      <view class="h-full w-full" [event-through]="true">
+    <!--
+      Deliberately NOT an <overlay>. The previous implementation wrapped the
+      stack in <overlay> (needed a full-screen first child to avoid Lynx's
+      "collapses to top-left" layout quirk — see the note below). Symptom:
+      while ANY toast was visible, every tap and long-press anywhere else in
+      the app — even a header button nowhere near the toast — silently did
+      nothing, for the toast's entire lifetime (confirmed with an on-screen
+      tap counter, since Lynx has no attachable console on-device).
+      Root cause: <overlay> is Lynx's modal-flavored native construct — a real
+      separate paint surface (a genuinely separate UIWindow on iOS unless
+      mode="page" is set) with its own bespoke hit-testing
+      (UIOverlay::OnNodeEvent / LynxOverlayContainer.hitTest on Harmony/iOS).
+      That's correct for action-sheet/dialog/bottom-sheet, which SHOULD block
+      the rest of the app. The toast is explicitly non-modal — the rest of the
+      app must stay interactive while it's showing — so it had no business
+      being built on a modal primitive at all.
+      event-through (an inheritable per-view attribute honored by <overlay>'s
+      hit-testing) looked like the fix and checked out against the native
+      source on paper, but did not stop full-screen touch capture in testing;
+      neither did also forcing mode="page" (which stops <overlay> from
+      defaulting to a separate native window) — see
+      investigations/lynx-vs-web-differences.md for the abandoned attempts.
+      A plain view sidesteps the whole question: ordinary Lynx views are hit
+      exactly where they're actually drawn, via the SAME hit-testing every
+      other element in the app already relies on — no special attribute
+      needed, nothing overlay-specific to get wrong.
+      @if (not [attr.visible]) is safe here (unlike for <overlay>) because
+      there's no live native window to orphan — that re-homing hazard is
+      specific to <overlay> (see the "orphaned <overlay>" note in
+      investigations/lynx-vs-web-differences.md).
+    -->
+    @if (hasToasts()) {
+      <view [style]="stackContainerStyle">
         @for (t of visible(); track t.id; let i = $index) {
           <ui-toast-item
             [data]="t"
@@ -483,22 +477,31 @@ export class UiToastItem implements OnInit {
           />
         }
       </view>
-    </overlay>
+    }
   `,
 })
 export class UiToaster {
   // Newest `MAX_VISIBLE`, in chronological order (last = newest = front).
   protected readonly visible = computed(() => toasts().slice(-MAX_VISIBLE));
 
-  // Kept visible as long as any toast exists. A dismissing toast stays in the
-  // array until its child emits `dismissed` (after its exit animation), so the
-  // overlay never hides mid-animation.
-  protected readonly overlayVisible = computed(() => toasts().length > 0);
-  protected readonly overlayStyle = computed(() =>
-    this.overlayVisible()
-      ? 'position: fixed; overflow: visible;'
-      : 'position: fixed; overflow: visible; display: none;',
-  );
+  // Kept mounted as long as any toast exists. A dismissing toast stays in the
+  // array until its child emits `dismissed` (after its exit animation), so
+  // the container never unmounts mid-animation.
+  protected readonly hasToasts = computed(() => toasts().length > 0);
+
+  // position:fixed reparents this to the page root and positions it against
+  // the full screen (Lynx-documented behavior), landing each toast card's
+  // absolute left/right/bottom in the same place <overlay>'s backdrop did.
+  // height is a small, explicit, DEFINITE value — not full-screen — so this
+  // container only occupies real screen space near the toast stack, and
+  // ordinary hit-testing naturally leaves the rest of the screen alone. It
+  // exists solely so the absolutely-positioned cards inside have a definite
+  // height to resolve `bottom: 0` against (an auto/collapsed height here
+  // squishes them — see UiToastItem.hostStyle); it does not need to match
+  // real toast content height, because `overflow: visible` lets both painting
+  // and hit-testing extend past it for any card taller than this floor.
+  protected readonly stackContainerStyle =
+    'position: fixed; left: 1rem; right: 1rem; bottom: calc(env(safe-area-inset-bottom) + 1rem); overflow: visible; height: 8rem;';
 
   protected onDismissed(id: string): void {
     // Removing here (after the child's exit animation) drops the toast from the

@@ -22,7 +22,7 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
         <overlay [attr.visible]="showModal()">
           <view
-            class="h-full w-full items-center flex justify-center bg-black/40"
+            class="h-full w-full items-center bg-black/40 flex justify-center"
             (bindtap)="close()"
           >
             <view

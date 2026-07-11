@@ -17,7 +17,7 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
         <view
           class="rounded-xl border border-zinc-200 bg-white p-4 overflow-hidden"
         >
-          <view class="mb-2.5 flex-row items-center justify-between flex">
+          <view class="mb-2.5 flex-row items-center flex justify-between">
             <text
               class="uppercase text-[11px] font-bold tracking-[0.5px] text-zinc-400"
               >{{ items().length }} Items</text

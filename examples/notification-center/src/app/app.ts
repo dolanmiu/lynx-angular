@@ -65,6 +65,11 @@ type Notification = {
         } @else {
           <view class="flex-col gap-2 p-4 flex">
             @for (n of notifications(); track n.id) {
+              <!-- Was (longpress), which silently did nothing on long-press: Lynx
+                   event names need a propagation prefix (bind/catch/...), and the
+                   renderer drops any event name it doesn't recognize as prefixed
+                   with no error or warning — it just never registers a native
+                   listener. "bindlongpress" is the actual native event name. -->
               <ui-card
                 [class.opacity-[0.55]]="n.read"
                 (bindlongpress)="openActionSheet(n)"
