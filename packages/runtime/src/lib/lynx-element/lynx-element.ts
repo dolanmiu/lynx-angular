@@ -3,7 +3,12 @@ import {
   type LynxAnimationOptions,
 } from '../animation/animation';
 import { devStats } from '../devtools/stats';
-import { __pageElementRef } from '../lynx-document/page-ref';
+// Imported by DIRECT file path (not the ../lynx-document barrel) on purpose:
+// the barrel re-exports LynxDocument, which imports LynxElement — pulling it in
+// here would form an import cycle. These two files import only element-creators
+// and types, so this path is cycle-free.
+import { createNativeRefByTag } from '../lynx-document/create-native-ref';
+import { getPageId } from '../lynx-document/page-ref';
 import type { ElementRef } from '../types/lynx';
 import {
   type BaseLynxElement,
@@ -12,20 +17,61 @@ import {
 } from './types';
 
 /**
- * True if `el` is an `<overlay>` or has one anywhere in its subtree. Used by
- * remove() to decide whether a subtree is safe to park on the page root during
- * an Angular detach: an orphaned overlay is a live native window with no owning
- * view (see remove() for why that crashes), so overlay-bearing subtrees are torn
- * down for real instead of parked. Walks the native tree via __GetTag; the depth
- * is bounded by the removed subtree, and removals are not on a hot path.
+ * True if attaching `candidate` under `parent` would form a cycle — i.e.
+ * `candidate` is `parent` itself or an ancestor of `parent` in the native tree.
+ *
+ * Lynx's element APIs do NOT guard against this. `FiberElement::InsertNode`
+ * auto-reparents a node that still has a parent, but never checks whether the
+ * new parent lives inside the node's own subtree, so it will happily build a
+ * self-referential tree. The native layout pass would then walk child→child
+ * forever, hanging the main thread until the OS watchdog SIGKILLs the app.
+ *
+ * Kept purely as defensive coding: a same-tick Angular reorder or re-projection
+ * can ask to re-insert an element underneath one of its own former descendants
+ * (e.g. two siblings swap and one lands inside the other), and appendChild/
+ * insertBefore skip that attach rather than corrupt the tree. NOTE: the
+ * `LynxTransition` panel freeze that first surfaced this guard was NOT actually a
+ * cycle — it was the old child-"parking" mechanism livelocking layout, and that
+ * mechanism has since been removed entirely (see #doRemove). The guard stays
+ * because the cyclic-attach hazard is genuinely possible and the check is cheap.
+ *
+ * This is the same ancestor check a browser performs in `insertBefore` (it
+ * throws HierarchyRequestError); we return the answer so callers can skip the
+ * attach instead of throwing. The walk is bounded by the depth of `parent`, and
+ * each step is two cheap native reads — comparable to the tree bookkeeping the
+ * attach itself does.
+ *
+ * Compares by unique ID rather than ref identity: native refs must not be used
+ * as map/Set keys (hashing one crashes the Lepus engine — see
+ * LynxDocument.createComment), and `__GetParent` is not guaranteed to return the
+ * same JS handle across calls.
  */
-const containsOverlay = (el: ElementRef): boolean => {
-  if (__GetTag(el) === 'overlay') return true;
-  return __GetChildren(el).some(containsOverlay);
+const wouldFormCycle = (parent: ElementRef, candidate: ElementRef): boolean => {
+  const candidateId = __GetElementUniqueID(candidate);
+  for (let cur: ElementRef | null = parent; cur; cur = __GetParent(cur)) {
+    if (__GetElementUniqueID(cur) === candidateId) return true;
+  }
+  return false;
 };
 
 export class LynxElement implements BaseLynxElement {
-  readonly element: ElementRef;
+  /**
+   * The native element ref this wrapper currently drives.
+   *
+   * Exposed through a getter (rather than a public `readonly` field) because
+   * `#recreateSubtree()` swaps in a FRESH native ref when this element is
+   * remounted after its painting node was destroyed by a cross-flush removal.
+   * Everything reads `this.element` through the getter, so it always sees the
+   * current ref. Angular, `viewChild`, and `ElementRef.nativeElement` hold the
+   * stable WRAPPER (this object), never the raw ref, so the swap is invisible to
+   * them. The one snapshot risk — `LynxAnimation`, which copies the ref — is
+   * safe because `#doRemove()` cancels animations before a removal, so none
+   * survive into a remount.
+   */
+  #nativeRef: ElementRef;
+  get element(): ElementRef {
+    return this.#nativeRef;
+  }
   tagName = '';
 
   /**
@@ -47,17 +93,100 @@ export class LynxElement implements BaseLynxElement {
   _virtualNext: LynxElement | null = null;
 
   // Tracks IDs of animations started on this element via animate().
-  // Canceled in remove() to clear stale animation state from Lynx's native
-  // element pool — without this, pooled elements retain animation values
-  // (e.g. opacity: 0) that poison newly-created elements reusing the slot.
+  // Canceled when the element is destroyed (see #doRemove) to clear stale
+  // animation state from Lynx's native element pool — without this, pooled
+  // elements retain animation values (e.g. opacity: 0) that poison
+  // newly-created elements reusing the slot.
   #activeAnimationIds: string[] = [];
 
+  // --- Recreation cache -------------------------------------------------------
+  // Lynx destroys an element's native painting node when it is removed in one
+  // flush and NOT re-inserted in that same flush (is_move=false in the core),
+  // and there is no API to re-create a painting node on a later re-insert. So a
+  // remounted element — e.g. content projected through <ng-content> inside an
+  // @if that toggles off then on again — would re-attach an empty native view.
+  // We fix it the way React Lynx does: recreate a fresh native element on
+  // remount. That requires replaying the element's state onto the new ref, so
+  // every state-mutating call below MIRRORS into these caches for
+  // #recreateSubtree() to replay. Caching is eager (every element, every write)
+  // because by the time a removal happens the setter calls are long gone — and
+  // event listeners in particular cannot be read back from the native side.
+  #attrs = new Map<string, unknown>();
+  #id: string | null = null;
+  #dataset: Record<string, unknown> = {};
+  /** Full space-separated class string, mirroring __SetClasses semantics. */
+  #classes = '';
+  /** Whole-string inline style set via setInlineStyles (style="..."). */
+  #inlineStyleWhole: string | null = null;
+  /** Per-key inline styles set via setStyle ([style.x] bindings). */
+  #inlineStyleKeys = new Map<string, unknown>();
+  #listeners: {
+    eventType: LynxEventType;
+    eventName: string;
+    listener: (event: any) => any;
+  }[] = [];
+  /** Text baked into a raw-text element at creation (see setInitialText). */
+  #text: string | undefined;
+  /**
+   * Ordered child wrappers, kept in lock-step with the native child order by
+   * appendChild/insertBefore/#doRemove. This is the CANONICAL wrapper list — the
+   * wrappers Angular stores in its LView — which is what recreation must rebuild;
+   * never the throwaway wrappers parentNode()/nextSibling()/querySelector mint.
+   */
+  #children: LynxElement[] = [];
+  /** Back-pointer to the JS parent, for O(1) detach from its #children. */
+  #jsParent: LynxElement | null = null;
+  /**
+   * True once this element's native painting node has been destroyed by a
+   * genuine (non-move) removal. The next appendChild/insertBefore rebuilds it.
+   */
+  #paintingDead = false;
+
+  /**
+   * Elements whose removal has been requested but not yet committed to the
+   * native tree. Angular performs a MOVE as detach-then-reinsert: it calls
+   * renderer.removeChild(el) immediately followed — in the SAME synchronous
+   * change-detection tick — by renderer.insertBefore(el, ...). If remove() tore
+   * the element out synchronously, the intermediate detached state could be
+   * committed between the two calls; queuing lets a same-tick re-insert cancel
+   * the removal so a move is a no-op at the native level.
+   *
+   * So remove() only QUEUES the element here; `processPendingRemovals()` commits
+   * the survivors from `LynxRendererFactory2.end()`, right before
+   * `__FlushElementTree()`, so a genuine removal lands in the SAME flush as the
+   * rest of the cycle's mutations. (It used to drain in a `queueMicrotask`, which
+   * fired AFTER that flush — so a removed subtree lingered in native layout,
+   * occupying space until some later cycle happened to flush. That was the
+   * "hidden element leaves a gap" bug.) A re-insert (appendChild/insertBefore)
+   * cancels the queued removal: the element is still natively attached, so
+   * __InsertElementBefore/__AppendElement auto-reparents it with its whole
+   * subtree intact — matching how React Lynx and the Lynx fiber core
+   * (InsertNodeBeforeInternal) handle moves.
+   *
+   * Keyed by the LynxElement wrapper, not the native ElementRef: Angular hands
+   * the SAME wrapper instance (the one stored in its LView) to both removeChild
+   * and insertBefore, so wrapper identity is stable across a move — and native
+   * refs can't be hashed anyway (doing so crashes the Lepus engine; see
+   * LynxDocument.createComment).
+   */
+  static #pendingRemovals = new Set<LynxElement>();
+
   constructor(element: ElementRef) {
-    this.element = element;
+    this.#nativeRef = element;
   }
 
   setProperty(name: string, value: any): void {
     this.setAttribute(name, value);
+  }
+
+  /**
+   * Seeds the cached text for a raw-text element so #recreateSubtree() can
+   * rebuild it via __CreateRawText. Called by LynxDocument right after
+   * construction — raw-text bakes its text in at creation, so it never flows
+   * through a cached setter.
+   */
+  setInitialText(text: string): void {
+    this.#text = text;
   }
   setAttribute(name: string, value: any): void {
     if (name === 'class') {
@@ -68,17 +197,32 @@ export class LynxElement implements BaseLynxElement {
       // so no CSS rule would ever match. __SetClasses correctly parses the
       // space-separated list. This matches how React Lynx handles className.
       __SetClasses(this.element, value ?? '');
+      this.#classes = value ?? '';
     } else if (name === 'style') {
       this.setInlineStyles(value);
     } else if (name === 'id') {
       __SetID(this.element, value);
+      this.#id = value ?? null;
     } else if (name.startsWith('data-')) {
       const data: Record<string, any> = {};
       const key = name.slice(5);
       data[key] = value;
       __SetDataset(this.element, data);
+      this.#dataset[key] = value;
     } else {
       __SetAttribute(this.element, name, value);
+      // Mirror for recreation. removeAttribute() funnels here with value=null,
+      // so drop the key then rather than replaying a cleared attribute. raw-text
+      // carries its text via the 'text' attribute (renderer.setValue) — keep
+      // #text in sync so a rebuilt raw-text bakes the current text in.
+      if (value == null) {
+        this.#attrs.delete(name);
+      } else {
+        this.#attrs.set(name, value);
+      }
+      if (this.tagName === 'raw-text' && name === 'text') {
+        this.#text = value == null ? undefined : String(value);
+      }
     }
   }
 
@@ -92,30 +236,85 @@ export class LynxElement implements BaseLynxElement {
 
   setStyle(key: string, value: unknown): void {
     __AddInlineStyle(this.element, key, value);
+    this.#inlineStyleKeys.set(key, value);
   }
   removeStyle(key: string): void {
     __AddInlineStyle(this.element, key, null);
+    this.#inlineStyleKeys.delete(key);
   }
   setInlineStyles(inlineStyle: string): void {
     __SetInlineStyles(this.element, inlineStyle);
+    this.#inlineStyleWhole = inlineStyle;
   }
 
   insertBefore(newChild: LynxElement, refChild: LynxElement | null): void {
     if (newChild.isRootPageElement) return;
+    // A queued removal immediately followed by a re-insert is an Angular MOVE —
+    // cancel the removal so the element keeps its children. It is still natively
+    // attached to its old parent, so __InsertElementBefore auto-reparents the
+    // whole subtree (see #pendingRemovals).
+    newChild.#cancelPendingRemoval();
+    // If the child was genuinely removed in a PREVIOUS cycle its native painting
+    // node is gone — rebuild a fresh native element + subtree before re-attaching
+    // (see #recreateSubtree). A same-tick move was cancelled just above and is
+    // never painting-dead, so the fast move path pays only a boolean check.
+    newChild.#recreateIfDead();
     if (refChild == null) {
       this.appendChild(newChild);
     } else {
+      // Never insert an element into its own subtree — Lynx would build a cyclic
+      // native tree and hang the layout pass (see wouldFormCycle). Skipping is
+      // safe: a cyclic insert is a corrupt request, and leaving newChild where it
+      // is beats freezing the app.
+      if (wouldFormCycle(this.element, newChild.element)) return;
       __InsertElementBefore(this.element, newChild.element, refChild.element);
+      this.#adoptChild(newChild, refChild);
     }
   }
 
   appendChild(newChild: LynxElement): void {
     if (newChild.isRootPageElement) return;
+    // See insertBefore: cancel a pending removal so a move keeps its subtree,
+    // then rebuild the child if its painting node was destroyed in a prior cycle.
+    newChild.#cancelPendingRemoval();
+    newChild.#recreateIfDead();
+    // Guard against a cycle-forming attach (see wouldFormCycle) — the same hang
+    // insertBefore protects against.
+    if (wouldFormCycle(this.element, newChild.element)) return;
     __AppendElement(this.element, newChild.element);
+    this.#adoptChild(newChild);
+  }
+
+  /**
+   * Records `newChild` in this element's ordered `#children`, first unlinking it
+   * from its previous JS parent (mirroring the native auto-reparent that
+   * __AppendElement/__InsertElementBefore perform). Keeping `#children` in
+   * lock-step with the native child order is what lets #recreateSubtree() rebuild
+   * a remounted subtree in the correct order. `refChild` positions the insert;
+   * when omitted the child is appended.
+   */
+  #adoptChild(newChild: LynxElement, refChild?: LynxElement): void {
+    const prev = newChild.#jsParent;
+    if (prev) {
+      const i = prev.#children.indexOf(newChild);
+      if (i >= 0) prev.#children.splice(i, 1);
+    }
+    newChild.#jsParent = this;
+    if (refChild) {
+      const idx = this.#children.indexOf(refChild);
+      this.#children.splice(idx < 0 ? this.#children.length : idx, 0, newChild);
+    } else {
+      this.#children.push(newChild);
+    }
   }
 
   addClass(name: string): void {
     __AddClass(this.element, name);
+    // Keep the cached class string in sync (deduped) so recreation replays the
+    // full class list in one __SetClasses.
+    const set = new Set(this.#classes.split(/\s+/).filter(Boolean));
+    set.add(name);
+    this.#classes = [...set].join(' ');
   }
 
   /**
@@ -125,21 +324,29 @@ export class LynxElement implements BaseLynxElement {
    */
   removeClass(name: string): void {
     const classes = __GetClasses(this.element).filter((c) => c !== name);
-    __SetClasses(this.element, classes.join(' '));
+    const joined = classes.join(' ');
+    __SetClasses(this.element, joined);
+    this.#classes = joined;
   }
 
   /**
-   * Two distinct removal paths:
-   * 1. Virtual parent (list) → delegate to removeVirtualChild(), which updates
-   *    the JS linked list and schedules an update-list-info diff. Does NOT call
-   *    __RemoveElement — list item removal is managed exclusively through
-   *    update-list-info's removeAction (calling both would double-remove and crash).
-   * 2. Normal parent → __RemoveElement detaches from the native element tree.
-   *    Note: __RemoveElement does NOT free the element's native pool slot —
-   *    there is no __ReleaseElement in Lynx's PAPI.
+   * Requests removal of this element. Two removal paths:
+   * 1. Virtual parent (list) → delegate to removeVirtualChild() SYNCHRONOUSLY,
+   *    which updates the JS linked list and schedules an update-list-info diff.
+   *    Does NOT call __RemoveElement — list item removal is managed exclusively
+   *    through update-list-info's removeAction (calling both would double-remove
+   *    and crash). This is never part of an Angular move, so it is not deferred.
+   * 2. Normal parent → QUEUED and committed at the end of the change-detection
+   *    cycle (see #pendingRemovals / commitPendingRemovals). If a re-insert
+   *    follows in the same cycle it is a move and gets cancelled; otherwise
+   *    #doRemove() detaches from the native tree.
    */
   remove() {
     if (this.isRootPageElement) return;
+    // Count the removal request on the synchronous path. `__PROFILE__` is a
+    // build-time `define` — read it here rather than from the deferred drain (in
+    // tests a leaked drain can run after the module's defines are gone, throwing
+    // "__PROFILE__ is not defined").
     if (__PROFILE__) devStats.elementRemoved++;
     if (this._virtualParent) {
       const vp = this._virtualParent as any;
@@ -148,6 +355,43 @@ export class LynxElement implements BaseLynxElement {
       }
       return;
     }
+    LynxElement.#pendingRemovals.add(this);
+  }
+
+  /**
+   * Commits every queued genuine removal. Called by `LynxRendererFactory2.end()`
+   * once per change-detection cycle, BEFORE `__FlushElementTree()`, so the
+   * `__RemoveElement` calls are committed to the main thread in the same flush as
+   * the cycle's other mutations (see #pendingRemovals for why the timing
+   * matters). Any element that was re-inserted (a move) has already removed
+   * itself from the set via #cancelPendingRemoval, so only genuine destroys
+   * remain.
+   */
+  static commitPendingRemovals(): void {
+    if (LynxElement.#pendingRemovals.size === 0) return;
+    const items = [...LynxElement.#pendingRemovals];
+    LynxElement.#pendingRemovals.clear();
+    for (const el of items) {
+      el.#doRemove();
+    }
+  }
+
+  /**
+   * Cancels a queued removal because the element is being re-inserted (a move).
+   * A no-op if the element was not pending (a plain append/insert of a fresh
+   * element).
+   */
+  #cancelPendingRemoval(): void {
+    LynxElement.#pendingRemovals.delete(this);
+  }
+
+  /**
+   * Commits a genuine removal (no re-insert cancelled it):
+   * __RemoveElement detaches from the native element tree. Note: __RemoveElement
+   * does NOT free the element's native pool slot — there is no __ReleaseElement
+   * in Lynx's PAPI.
+   */
+  #doRemove(): void {
     const parent = this.parentNode();
     if (!parent) {
       return;
@@ -171,46 +415,112 @@ export class LynxElement implements BaseLynxElement {
       __AddInlineStyle(this.element, 'transform', null);
       this.#activeAnimationIds.length = 0;
     }
-    // Park children at the page root before removing this element. On Lynx,
-    // elements trapped inside a removed subtree become permanently dead and
-    // can never be re-attached to a new parent. By moving children to the
-    // page root first, they stay alive in the native tree and can be moved
-    // to a new parent later (e.g. projected content re-projected by @if).
+    // Remove the whole subtree in one shot — no "parking" of children elsewhere.
+    // This runs ONLY for a genuine destroy: a move (remove-then-reinsert in the
+    // same tick) is cancelled before it reaches here (see #pendingRemovals), so a
+    // moved element keeps its children and is reparented intact.
     //
-    // Exception: never park a subtree that contains an <overlay>. Angular's
-    // detach pass removes only a subtree's root and relies on us to keep the
-    // rest alive — but an <overlay> is a standalone native window, not an
-    // in-flow element. Orphaning one on the page root leaves a live window with
-    // no owning Angular view, which corrupts the native window hierarchy on
-    // teardown (observed: crash to home screen when an @if that contains a
-    // select/sheet/dialog is destroyed). Overlays are always mounted and
-    // shown/hidden via their `visible` attribute — never re-projected through
-    // @if — so they never need parking to survive. Remove such subtrees for
-    // real instead, so the overlay window is properly torn down.
+    // Earlier revisions detached this element's children first and stashed them
+    // somewhere safe (the page root, then a `display:none` holder) so that
+    // projected content owned by a SURVIVING component could be re-projected after
+    // an ancestor `@if` toggled off. That machinery caused two on-device watchdog
+    // SIGKILLs: moving a parked child out of the laid-out page root into a deep
+    // descendant on re-show livelocked the layout pass, and children of a
+    // permanently-destroyed element leaked into the holder forever until tearing
+    // that tree down at shell-destroy blew the 5s watchdog. Removing the subtree
+    // as a unit sidesteps both — nothing is ever stranded or accumulated.
     //
-    // Second exception: never pick apart the children of a <block> being
-    // removed. <block> is backed by __CreateWrapperElement, a "layout-only"
-    // native element — its children have no native UI subtree of their own,
-    // they're flattened directly into the nearest real ancestor at the
-    // painting layer. Yanking them out individually here (leaving the wrapper
-    // momentarily childless before it too is removed) breaks that flatten
-    // bookkeeping — same "crash to home screen" symptom as the overlay case
-    // above, just via a different native mechanism. <block> exists for
-    // conditional grouping with no visual output, not content preservation
-    // across toggles, so removing its whole subtree in one shot (rather than
-    // parking each child) loses nothing a <block> user relies on. Callers
-    // that need projected content to survive an @if toggle should wrap it in
-    // a <view> instead, which keeps the normal (non-flattened) parking path.
-    if (__pageElementRef && this.tagName !== 'block') {
-      for (const child of __GetChildren(this.element)) {
-        if (containsOverlay(child)) {
-          __RemoveElement(this.element, child);
-        } else {
-          __AppendElement(__pageElementRef, child);
-        }
-      }
-    }
+    // Component-wrapped projection (e.g. `@if(open){ <view><ng-content/></view> }`,
+    // the accordion/collapsible shape) survives a re-show via recreate-on-remount:
+    // the consumer's projected content is recycled with this wrapper here, its
+    // painting node dies, and the next re-insert rebuilds it from cache (see
+    // #recreateSubtree). That is why we mark the whole subtree painting-dead just
+    // below rather than "parking" the children somewhere to keep them alive.
     __RemoveElement((parent as LynxElement).element, this.element);
+    // The native painting nodes of this element and its entire subtree are now
+    // gone (Lynx tears them down for a non-move removal — is_move=false). Unlink
+    // from the JS parent and mark the subtree painting-dead so the next re-insert
+    // rebuilds fresh native elements instead of re-attaching empty ones.
+    const jsParent = this.#jsParent;
+    if (jsParent) {
+      const i = jsParent.#children.indexOf(this);
+      if (i >= 0) jsParent.#children.splice(i, 1);
+      this.#jsParent = null;
+    }
+    this.#markPaintingDead();
+  }
+
+  /**
+   * Recursively flags this element and every cached descendant painting-dead,
+   * mirroring the native painting-node cascade when a subtree is removed. The
+   * caches themselves are kept intact — they are exactly what #recreateSubtree
+   * replays onto fresh refs.
+   */
+  #markPaintingDead(): void {
+    this.#paintingDead = true;
+    for (const child of this.#children) {
+      child.#markPaintingDead();
+    }
+  }
+
+  /**
+   * Rebuilds this element from its caches if its painting node was destroyed by
+   * a genuine removal. A no-op otherwise, so the common append/move path pays
+   * only a single boolean check.
+   */
+  #recreateIfDead(): void {
+    if (this.#paintingDead) this.#recreateSubtree();
+  }
+
+  /**
+   * Re-creates a fresh native element for this wrapper and its whole subtree,
+   * replaying the cached state onto the new refs. This mirrors React Lynx's
+   * "recreate on remount": Lynx cannot resurrect a painting node torn down by a
+   * cross-flush removal, so re-attaching the stale ref would render empty. Runs
+   * depth-first, bottom-up — children are rebuilt first and re-appended, so the
+   * new parent ref owns fresh, live child refs.
+   *
+   * 'list' and 'page' are never rebuilt: a list is a LynxListElement whose
+   * children are driven by update-list-info (not __AppendElement), and the page
+   * is the immutable singleton root. Both just clear the flag. (A consequence:
+   * a <list> nested directly inside a toggling @if remounts empty — a pre-existing
+   * limitation, not a regression, since its ref cannot be rebuilt from a raw tag.)
+   */
+  #recreateSubtree(): void {
+    if (!this.#paintingDead) return;
+    this.#paintingDead = false;
+    if (this.isRootPageElement || this.tagName === 'list') return;
+
+    const fresh = createNativeRefByTag(this.tagName, getPageId(), this.#text);
+    this.#nativeRef = fresh;
+
+    if (this.#id != null) __SetID(fresh, this.#id);
+    // Apply the dataset in one call so recreation is order- and merge-agnostic.
+    if (Object.keys(this.#dataset).length > 0) {
+      __SetDataset(fresh, this.#dataset);
+    }
+    for (const [name, value] of this.#attrs) {
+      __SetAttribute(fresh, name, value);
+    }
+    if (this.#classes) __SetClasses(fresh, this.#classes);
+    // Whole-string styles first, then per-key overrides — same order as the
+    // original setAttribute('style') vs [style.x] application.
+    if (this.#inlineStyleWhole != null) {
+      __SetInlineStyles(fresh, this.#inlineStyleWhole);
+    }
+    for (const [key, value] of this.#inlineStyleKeys) {
+      __AddInlineStyle(fresh, key, value);
+    }
+    for (const { eventType, eventName, listener } of this.#listeners) {
+      __AddEvent(fresh, eventType, eventName, {
+        type: 'worklet',
+        value: listener,
+      });
+    }
+    for (const child of this.#children) {
+      child.#recreateSubtree();
+      __AppendElement(fresh, child.element);
+    }
   }
 
   /**
@@ -336,6 +646,13 @@ export class LynxElement implements BaseLynxElement {
       return cb(event);
     };
 
+    // Cache the resolved handler so #recreateSubtree() can re-register it on a
+    // rebuilt native ref — native events don't survive a painting-node teardown
+    // and can't be read back from the native side, so template `(bind…)` handlers
+    // on projected content would go dead after a remount without this.
+    const entry = { eventType, eventName, listener };
+    this.#listeners.push(entry);
+
     // type: 'worklet' routes the callback through Lynx's worklet system
     // (runWorklet), which is the only way to receive events in the JS thread.
     // Direct function callbacks also work here (not just worklet handles) —
@@ -346,9 +663,21 @@ export class LynxElement implements BaseLynxElement {
     });
 
     return () => {
+      const i = this.#listeners.indexOf(entry);
+      if (i >= 0) this.#listeners.splice(i, 1);
       // Passing undefined as the listener tells the Lynx SDK to remove the
       // corresponding event listener for this type+name combination.
       __AddEvent(this.element, eventType, eventName, undefined);
     };
   }
 }
+
+/**
+ * Commits all queued genuine element removals — a free-function wrapper over
+ * `LynxElement.commitPendingRemovals()` so `LynxRendererFactory2.end()` can
+ * drain them (via the lynx-element barrel) right before `__FlushElementTree()`,
+ * keeping removals in the same flush as the cycle's other mutations.
+ */
+export const processPendingRemovals = (): void => {
+  LynxElement.commitPendingRemovals();
+};

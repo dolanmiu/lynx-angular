@@ -34,19 +34,31 @@
   font-size: 13px;
 }
 
-.fade-enter-active,
-.fade-leave-active {
-  transition:
-    opacity 300ms ease,
-    transform 300ms ease;
+@keyframes fade-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-.fade-enter-from {
-  opacity: 0;
-  transform: translateY(-16px);
+@keyframes fade-leave {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
 }
-.fade-leave-to {
-  opacity: 0;
-  transform: translateY(-16px);
+.fade-enter {
+  animation: fade-enter 300ms ease both;
+}
+.fade-leave {
+  animation: fade-leave 300ms ease both;
 }
 
 .list-item {
@@ -78,17 +90,29 @@
   font-weight: bold;
 }
 
-.list-enter-active,
-.list-leave-active {
-  transition:
-    opacity 300ms ease,
-    transform 300ms ease;
+@keyframes list-enter {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
-.list-enter-from {
-  opacity: 0;
-  transform: translateX(30px);
+@keyframes list-leave {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
 }
-.list-leave-to {
-  opacity: 0;
-  transform: translateX(-30px);
+.list-enter {
+  animation: list-enter 300ms ease both;
+}
+.list-leave {
+  animation: list-leave 300ms ease both;
 }

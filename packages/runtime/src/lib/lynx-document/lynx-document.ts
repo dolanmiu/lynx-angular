@@ -1,34 +1,12 @@
 import { devStats } from '../devtools/stats';
 import { LynxElement, type LynxListElement } from '../lynx-element';
-import type { ElementRef } from '../types/lynx';
 import { setPageElementRef } from './page-ref';
 
+import { createNativeRefByTag } from './create-native-ref';
 import {
-  createBlockElement,
-  createDefaultElement,
-  createForElement,
-  createFrameElement,
-  createIfElement,
-  createImageElement,
-  createInputElement,
+  createCommentElement,
   createListElement,
-  createListItemElement,
-  createOverlayElement,
   createPageElement,
-  createRawTextElement,
-  createRefreshElement,
-  createRefreshHeaderElement,
-  createScrollCoordinatorElement,
-  createScrollCoordinatorHeaderElement,
-  createScrollCoordinatorSlotElement,
-  createScrollCoordinatorToolbarElement,
-  createScrollViewElement,
-  createSvgElement,
-  createTextElement,
-  createTitleBarViewElement,
-  createViewElement,
-  createViewPagerElement,
-  createViewPagerItemElement,
 } from './element-creators';
 import type { LynxDocumentBase } from './types';
 
@@ -57,127 +35,42 @@ export class LynxDocument implements LynxDocumentBase {
   }
   createElement(tag: string, value?: string): LynxElement | LynxListElement {
     if (__PROFILE__) devStats.elementCreated++;
-    let element: ElementRef;
-    switch (tag) {
-      case 'view': {
-        element = createViewElement(this.#pageId);
-        break;
-      }
-      case 'image': {
-        element = createImageElement(this.#pageId);
-        break;
-      }
-      case 'text': {
-        element = createTextElement(this.#pageId);
-        break;
-      }
-      case 'raw-text': {
-        element = createRawTextElement(value ?? '');
-        break;
-      }
-      case 'scroll-view': {
-        element = createScrollViewElement(this.#pageId);
-        break;
-      }
-      case 'list': {
-        return createListElement(this.#pageId);
-      }
-      case 'list-item': {
-        element = createListItemElement(this.#pageId);
-        break;
-      }
-      case 'block': {
-        element = createBlockElement(this.#pageId);
-        break;
-      }
-      case 'if': {
-        element = createIfElement(this.#pageId);
-        break;
-      }
-      case 'for': {
-        element = createForElement(this.#pageId);
-        break;
-      }
-      case 'frame': {
-        element = createFrameElement(this.#pageId);
-        break;
-      }
-      case 'input':
-      case 'textarea': {
-        element = createInputElement(tag, this.#pageId);
-        break;
-      }
-      case 'overlay': {
-        element = createOverlayElement(this.#pageId);
-        break;
-      }
-      case 'svg': {
-        element = createSvgElement(this.#pageId);
-        break;
-      }
-      case 'viewpager': {
-        element = createViewPagerElement(this.#pageId);
-        break;
-      }
-      case 'viewpager-item': {
-        element = createViewPagerItemElement(this.#pageId);
-        break;
-      }
-      case 'refresh': {
-        element = createRefreshElement(this.#pageId);
-        break;
-      }
-      case 'refresh-header': {
-        element = createRefreshHeaderElement(this.#pageId);
-        break;
-      }
-      case 'title-bar-view': {
-        element = createTitleBarViewElement(this.#pageId);
-        break;
-      }
-      case 'scroll-coordinator': {
-        element = createScrollCoordinatorElement(this.#pageId);
-        break;
-      }
-      case 'scroll-coordinator-header': {
-        element = createScrollCoordinatorHeaderElement(this.#pageId);
-        break;
-      }
-      case 'scroll-coordinator-toolbar': {
-        element = createScrollCoordinatorToolbarElement(this.#pageId);
-        break;
-      }
-      case 'scroll-coordinator-slot': {
-        element = createScrollCoordinatorSlotElement(this.#pageId);
-        break;
-      }
-      case 'page': {
-        const result = createPageElement(this.page, this.#pageElementRequested);
-        this.#pageElementRequested = result.pageElementRequested;
-        return result.element;
-      }
-      default: {
-        element = createDefaultElement(tag, this.#pageId);
-      }
+    // 'list' returns a LynxListElement (a virtual-tree wrapper, not a raw ref)
+    // and 'page' returns the singleton root — both are special and are never
+    // recreated, so they are handled here rather than via the shared raw-ref
+    // dispatch (createNativeRefByTag), which the recreation path also uses.
+    if (tag === 'list') {
+      return createListElement(this.#pageId);
     }
+    if (tag === 'page') {
+      const result = createPageElement(this.page, this.#pageElementRequested);
+      this.#pageElementRequested = result.pageElementRequested;
+      return result.element;
+    }
+    const element = createNativeRefByTag(tag, this.#pageId, value);
     const el = new LynxElement(element);
     el.tagName = tag;
+    // raw-text bakes its text into the native element at creation, bypassing the
+    // cached setter path — seed the recreation cache so a remounted raw-text can
+    // be rebuilt via __CreateRawText with the same text.
+    if (tag === 'raw-text') {
+      el.setInitialText(value ?? '');
+    }
     return el;
   }
   createText(value: string): LynxElement {
     const text = __CreateRawText(value);
     const lynxElement = new LynxElement(text);
     lynxElement.tagName = 'raw-text';
+    // Seed the recreation cache: the text is baked into the native ref at
+    // creation and never flows through a cached setter, so without this a
+    // remounted raw-text would rebuild empty (see LynxElement.setInitialText /
+    // #recreateSubtree).
+    lynxElement.setInitialText(value);
     return lynxElement;
   }
   createComment(): LynxElement {
-    // Angular uses comment nodes as insertion anchors for dynamic views
-    // (createComponent, @if, @for, @switch). They must be valid tree
-    // participants — supporting __InsertElementBefore, __GetParent,
-    // __NextElement. __CreateNonElement crashes on these operations,
-    // so we use an invisible view instead.
-    const element = __CreateView(this.#pageId);
-    __AddInlineStyle(element, 'display', 'none');
+    const element = createCommentElement(this.#pageId);
     const el = new LynxElement(element);
     // tagName 'comment' is the SOLE marker LynxListElement.getUIChildren() uses
     // to skip these @for/@if insertion anchors. It deliberately does not go in a

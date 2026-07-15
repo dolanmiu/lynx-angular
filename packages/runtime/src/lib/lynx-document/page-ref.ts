@@ -14,3 +14,13 @@ export let __pageElementRef: ElementRef | null = null;
 export const setPageElementRef = (ref: ElementRef | null): void => {
   __pageElementRef = ref;
 };
+
+/**
+ * Unique ID of the root page element — the parent ID every `__Create*` call
+ * needs. `LynxElement.#recreateSubtree()` uses this to build a fresh native ref
+ * for a remounted element without holding a reference to `LynxDocument` (which
+ * would form an import cycle: lynx-document imports LynxElement). Returns 0 if
+ * called before the root exists, which never happens during change detection.
+ */
+export const getPageId = (): number =>
+  __pageElementRef ? __GetElementUniqueID(__pageElementRef) : 0;

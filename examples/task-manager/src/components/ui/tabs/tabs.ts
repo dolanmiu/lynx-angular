@@ -221,12 +221,27 @@ export class UiTabsTrigger {
   standalone: true,
   imports: [LYNX_ELEMENTS],
   encapsulation: ViewEncapsulation.None,
+  host: {
+    // Hide the WHOLE host when inactive so it reserves no layout space.
+    //
+    // The caller writes `class="flex-1"` on <ui-tabs-content>, and Angular
+    // applies that to the host element. All three content hosts live as siblings
+    // inside the flex-col <ui-tabs>, so three flex-1 hosts each grow to fill a
+    // third of the available height — pushing each panel lower than the last
+    // (the "Done tab starts at the very bottom" stacking). Hiding only the inner
+    // view doesn't help: the flex-1 host still claims its third.
+    //
+    // Toggling the host's own `display` collapses inactive hosts to 0×0 (Lynx
+    // `display: none`) so they claim no space at all, while the single active
+    // host keeps its flex-1 and fills the tabs area. `flex-direction: column`
+    // makes the host lay its content out vertically when shown.
+    '[style.display]': "isActive() ? 'flex' : 'none'",
+    '[style.flexDirection]': "'column'",
+  },
   template: `
-    @if (isActive()) {
-      <view #content [class]="contentClass()">
-        <ng-content />
-      </view>
-    }
+    <view #content [class]="contentClass()">
+      <ng-content />
+    </view>
   `,
 })
 export class UiTabsContent {
@@ -244,10 +259,21 @@ export class UiTabsContent {
   );
 
   constructor() {
-    // Animate content reveal when tab becomes active
+    // Animate content reveal when tab becomes active.
+    //
+    // The panel is ALWAYS rendered and shown/hidden via the host's `display`
+    // (see the `host` block) rather than wrapped in `@if`. On Lynx, destroying a
+    // subtree that holds projected `<ng-content>` sends that content through the
+    // renderer's "park on the page root" path (it must keep still-alive
+    // projected nodes from dying), which drops inactive panels at the bottom of
+    // the page and made re-showing them unreliable — the symptom was tab content
+    // that vanished and never came back. Keeping every panel mounted and only
+    // toggling `display` never destroys or re-parents anything: inactive panels
+    // collapse to 0×0 (Lynx `display: none`) so they take no space, and the
+    // active one simply reappears in place.
     effect(() => {
       if (!this.isActive()) return;
-      // Small delay to let the DOM render the content view
+      // Defer one tick so the display flip to 'flex' has applied before we animate.
       setTimeout(() => {
         const el = this.contentRef()?.nativeElement;
         if (!el) return;
@@ -270,6 +296,8 @@ export class UiTabsContent {
     });
   }
 
+  // Visibility is controlled at the host (see `host` block); the inner view is
+  // always a normal flex column that fills the shown host.
   protected readonly contentClass = computed(() =>
     cn('mt-2 flex-col flex', this.userClass()),
   );

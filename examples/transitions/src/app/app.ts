@@ -32,7 +32,22 @@ type Item = { id: number; label: string };
               showPanel() ? 'Hide Panel' : 'Show Panel'
             }}</text>
           </view>
-          <lynx-transition [show]="showPanel()" name="fade" [duration]="300">
+          <!-- Temporary on-screen diagnostics for the re-show freeze investigation.
+               Lynx has no console on-device, so we surface counters via <text>
+               instead (per project convention). Remove once confirmed fixed. -->
+          <text class="mb-2 text-[11px] text-zinc-400"
+            >taps={{ tapCount() }} enter={{ enterCount() }} leave={{
+              leaveCount()
+            }}
+            show={{ showPanel() }}</text
+          >
+          <lynx-transition
+            [show]="showPanel()"
+            name="fade"
+            [duration]="300"
+            (afterEnter)="enterCount.set(enterCount() + 1)"
+            (afterLeave)="leaveCount.set(leaveCount() + 1)"
+          >
             <view class="mb-2 rounded-lg bg-indigo-50 p-4">
               <text class="text-sm text-indigo-700"
                 >I fade and slide in/out!</text
@@ -83,34 +98,58 @@ type Item = { id: number; label: string };
   `,
   styles: [
     `
-      .fade-enter-active,
-      .fade-leave-active {
-        transition:
-          opacity 300ms ease,
-          transform 300ms ease;
+      @keyframes fade-enter {
+        from {
+          opacity: 0;
+          transform: translateY(-16px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
-      .fade-enter-from {
-        opacity: 0;
-        transform: translateY(-16px);
+      @keyframes fade-leave {
+        from {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        to {
+          opacity: 0;
+          transform: translateY(-16px);
+        }
       }
-      .fade-leave-to {
-        opacity: 0;
-        transform: translateY(-16px);
+      .fade-enter {
+        animation: fade-enter 300ms ease both;
+      }
+      .fade-leave {
+        animation: fade-leave 300ms ease both;
       }
 
-      .list-enter-active,
-      .list-leave-active {
-        transition:
-          opacity 300ms ease,
-          transform 300ms ease;
+      @keyframes list-enter {
+        from {
+          opacity: 0;
+          transform: translateX(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
       }
-      .list-enter-from {
-        opacity: 0;
-        transform: translateX(30px);
+      @keyframes list-leave {
+        from {
+          opacity: 1;
+          transform: translateX(0);
+        }
+        to {
+          opacity: 0;
+          transform: translateX(-30px);
+        }
       }
-      .list-leave-to {
-        opacity: 0;
-        transform: translateX(-30px);
+      .list-enter {
+        animation: list-enter 300ms ease both;
+      }
+      .list-leave {
+        animation: list-leave 300ms ease both;
       }
     `,
   ],
@@ -127,7 +166,13 @@ export class App {
 
   readonly trackById = (item: Item) => item.id;
 
+  // Diagnostics for the re-show freeze investigation — see the <text> above.
+  readonly tapCount = signal(0);
+  readonly enterCount = signal(0);
+  readonly leaveCount = signal(0);
+
   togglePanel(): void {
+    this.tapCount.update((v) => v + 1);
     setTimeout(() => this.showPanel.update((v) => !v), 0);
   }
 

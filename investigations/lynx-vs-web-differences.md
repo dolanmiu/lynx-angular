@@ -110,7 +110,27 @@ Don't use `<overlay>` for non-modal content at all. `<overlay>`'s bespoke hit-te
 
 ---
 
-## An orphaned `<overlay>` is a live native window — teardown must remove it, not re-home it
+## A move is remove-then-reinsert — it must not "park" the element's children
+
+### What you'd expect (web)
+
+Reordering `@for` items — or any `ViewContainerRef.move()` — relocates an element with its whole subtree intact. In the DOM the children come along automatically.
+
+### What Lynx does
+
+Angular implements a move as **detach-then-reinsert in the same change-detection tick**: `renderer.removeChild(el)` immediately followed by `renderer.insertBefore(el, …)`. The renderer's `remove()` used to run its full teardown on that detach — including "parking" the element's children (see the parking-crash entry below). So every moved item was gutted: its `<text>` label and buttons were re-homed away, and the re-inserted item arrived empty.
+
+This broke `examples/transitions`. Deleting a non-last item reorders every following item (each a `move()`), so their content vanished. Deleting the last item triggers no moves, so it stayed intact — the tell-tale signature.
+
+For a same-tick move this is completely safe: the element is removed and re-inserted in **one** flush (`is_move=true`), so both its fiber node and its native painting node survive. `RemoveNodeInternal` (`references/lynx/core/renderer/dom/fiber/fiber_element.cc`) only unlinks the node and clears its parent pointer; `InsertNodeBeforeInternal` auto-reparents it on re-insert, exactly as React Lynx moves reused nodes via `__RemoveElement` then `__InsertElementBefore` on the same element (`snapshot.ts`). (A removal that is **not** re-inserted in the same flush is different — its painting node dies and re-inserting the stale ref renders empty; see the recreate-on-remount entry below.)
+
+### The fix
+
+`remove()` defers its native teardown by one microtask (`#pendingRemovals` in `packages/runtime/src/lib/lynx-element/lynx-element.ts`). A re-insert in the same tick — `appendChild`/`insertBefore` — cancels the queued removal, so a move relocates the element with its subtree intact. Only a genuine destroy (never re-inserted) reaches `#doRemove()`. Covered by the reorder test in `packages/runtime/src/lib/renderer/teardown.spec.ts`.
+
+---
+
+## An orphaned `<overlay>` is a live native window — destroying its `@if` must tear it down with the whole subtree
 
 ### What you'd expect (web)
 
@@ -118,17 +138,99 @@ Removing a subtree from the DOM removes everything in it, including any overlay/
 
 ### What Lynx does
 
-An `<overlay>` is a standalone **native window**, not an in-flow element. The renderer's `remove()` (`packages/runtime/src/lib/lynx-element/lynx-element.ts`) works around a separate Lynx constraint — an element trapped inside a `__RemoveElement`'d subtree becomes permanently dead — by **re-homing a removed element's children to the page root** so content projected in from a surviving parent survives re-projection when an `@if` inside a component toggles (this is what makes `collapsible`/`accordion`/`tabs` re-expand correctly).
+An `<overlay>` is a standalone **native window**, not an in-flow element. When the `@if` containing one is destroyed (e.g. a `ui-select`/`dialog`/`sheet` inside a step that toggles off), the overlay's native window must be torn down with the rest of the subtree. An overlay left detached-but-alive with no owning Angular view is a live window that corrupts the native window hierarchy and **crashes to the home screen** (observed on `examples/checkout-form`: pressing Continue destroys the step-1 `@if`, which contains the Country `ui-select`).
 
-But when the destroyed subtree itself contains an `<overlay>` (e.g. a `ui-select` / `dialog` / `sheet` sitting inside an `@if` that is destroyed), re-homing leaves that overlay **orphaned on the page root** — a live native window with no owning Angular view. That corrupts the native window hierarchy and **crashes to the home screen** (observed on `examples/checkout-form`: pressing Continue destroys the step-1 `@if`, which contains the Country `ui-select`).
-
-Angular gives no usable signal to distinguish "re-projected" from "destroyed" here: `renderer.destroyNode` fires only for the top-level nodes of the _directly_ destroyed view (never nested/component-internal nodes like the overlay) and runs _after_ the detach/re-home pass.
+This once crashed for a subtler reason: the renderer's old child-"parking" mechanism (see the parking-crash entry below) re-homed a destroyed element's children onto the page root to rescue projected content — which left the overlay orphaned there. That mechanism has since been removed.
 
 ### The fix
 
-`remove()` skips re-homing any subtree that **contains an `<overlay>`** (checked by walking the native tree via `__GetTag`) and removes it for real instead, so the overlay window is properly torn down. Overlays are always mounted and shown/hidden via their `visible` attribute — never re-projected through `@if` — so they never need re-homing to survive. Covered by `packages/runtime/src/lib/renderer/teardown.spec.ts` (a TestBed harness over a fake native tree that models the "trapped element is dead" constraint, asserting both overlay teardown and `@if` re-projection).
+`#doRemove()` (`packages/runtime/src/lib/lynx-element/lynx-element.ts`) removes each subtree **as a single unit**, so an overlay is torn down together with its ancestor and no window is orphaned. No overlay-specific exception is needed any more, and the old page-root re-home **leak** (non-overlay subtrees stranded on the page root) is gone with it. Covered by `packages/runtime/src/lib/renderer/teardown.spec.ts` (a TestBed harness over a fake native tree, asserting overlay teardown as a unit, bare-`<ng-content>` re-projection, and `@for` reorder-as-move).
 
-Note: this fixes the crash but not the general re-home **leak** — non-overlay destroyed subtrees are still orphaned on the page root (see the native element-pool note below).
+---
+
+## Projected content in a toggled `@if` needs recreate-on-remount — the fiber survives a removal, but its painting node does not
+
+### What you'd expect (web)
+
+Toggle an `@if` off and on and the projected content comes back exactly as it was — the browser preserves the whole detached subtree and re-attaches it wherever Angular re-projects it.
+
+### What Lynx does
+
+Lynx has **two element layers**, and a removal treats them differently:
+
+- **Fiber layer** — `__RemoveElement` (`FiberElement::RemoveNodeInternal`, `references/lynx/core/renderer/dom/fiber/fiber_element.cc`) is a pure detach: it erases the node from its parent's `scoped_children_` and calls `set_parent(nullptr)`. The node and its whole subtree stay valid JS objects, re-insertable via `__AppendElement`/`__InsertElementBefore`.
+- **Painting layer** — the rendered native view. At flush (`ElementContainer::RemoveSelf` → `PaintingContext::RemovePaintingNode`), a node that was removed and **not** re-inserted in that *same* flush has `is_move=false` and its painting node is **destroyed**. There is **no** API to re-create a painting node on a later re-insert (`CreateElementContainer` runs once, under `kDirtyCreated`). Re-attaching such a node in a later flush renders an **empty** element.
+
+A same-tick MOVE stays `is_move=true` (removed and re-inserted in one flush), so it keeps its painting node — that's why `@for` reorders work (see the move entry above). But an `@if` toggle spans **two change-detection cycles**: the content is removed on collapse (painting node dies at that flush) and re-inserted on expand (a later flush).
+
+This bites projected content specifically. The projected nodes are owned by the **surviving consumer**, so Angular **reuses** the same element across the toggle instead of recreating it — and that reused element's painting node is already dead. On-device symptom: an accordion/collapsible panel shows on the first expand, then an **empty wrapper** on every expand after (`@if(open){ <view.slot><ng-content/></view> }`). The bare-`<ng-content>` shape (`LynxTransition`, `@if(show){ <ng-content/> }`) has the same failure — its projected root is likewise reused across the toggle.
+
+React Lynx (the production reference) never hits this: on unmount it drops the native refs, and on remount it **creates fresh** native elements (`reconstructInstanceTree` → `ensureElements` → `__CreateElement`), never re-inserting a dead painting node.
+
+### The fix
+
+**Recreate on remount**, mirroring React Lynx. `LynxElement` (`packages/runtime/src/lib/lynx-element/lynx-element.ts`) caches each element's state as it is set (tag, attributes, id, dataset, classes, inline styles, event listeners, text, ordered children). `#doRemove()` marks the removed subtree painting-dead; the next `appendChild`/`insertBefore` of a painting-dead element rebuilds a fresh native ref for it and its whole subtree from cache (`#recreateSubtree`), then attaches that. A same-tick move is cancelled before it becomes a removal, so it is never painting-dead and never recreated — the reorder fast-path is untouched.
+
+Covered by `packages/runtime/src/lib/renderer/teardown.spec.ts`, whose fake native tree models **both** layers (a removed node's painting node dies at flush unless reinserted in the same flush). The accordion-cycle, bare-`<ng-content>`, event-rebind, attribute-replay and raw-text tests fail without recreation and pass with it.
+
+**Known limitation:** native-only state not tracked by Angular (uncontrolled input text, scroll position, focus) resets on remount — the same semantics as Angular's web `@if`, which also destroys and rebuilds the DOM subtree on toggle.
+
+---
+
+## Attaching an element into its own subtree silently builds a cycle and hangs layout forever (no `HierarchyRequestError`)
+
+### What you'd expect (web)
+
+`parent.insertBefore(node, ref)` where `node` is an ancestor of `parent` throws `HierarchyRequestError` — the DOM refuses to create a cycle. Reparenting is always safe: the worst case is an exception, never a corrupt tree.
+
+### What Lynx does
+
+`FiberElement::InsertNode`/`InsertNodeBeforeInternal` auto-reparents a node that still has a parent, but **never checks whether the new parent lives inside the node's own subtree**. Ask it to attach an element under one of its own descendants and it happily writes a self-referential `parent`/`child` link. Nothing throws — the corruption would only bite at the next layout pass (a naive cycle-walk with no visited set would recurse forever).
+
+How the renderer could in principle hand Lynx a cyclic attach: an Angular reorder or re-projection can ask to re-insert an element underneath one of its own former descendants (e.g. two siblings swap places and one lands inside the other). The raw `__AppendElement`/`__InsertElementBefore` would then close the loop. This is a real, structurally-possible hazard, but **it turned out not to be what caused the observed `LynxTransition` panel freeze** — see the parking-crash entry below for the actual mechanism and why the crash signature (a shallow, ~7-frame recursion plus a watchdog timeout, not a near-instant stack overflow) doesn't match a true cyclic tree walk in the first place.
+
+### The fix
+
+`wouldFormCycle(parent, candidate)` (`packages/runtime/src/lib/lynx-element/lynx-element.ts`) walks `parent`→root via `__GetParent`, comparing `__GetElementUniqueID`s (native refs can't be used as keys or reliably `===`-compared). `appendChild` and `insertBefore` skip the attach when it would form a cycle — the DOM's ancestor check, minus the throw. The walk is bounded by tree depth, two cheap native reads per step. Kept as defensive coding for a real hazard even though it wasn't the cause below. Covered by `packages/runtime/src/lib/lynx-element/lynx-element-cycle.spec.ts`.
+
+---
+
+## Two watchdog crashes traced to the renderer's child-"parking" machinery (now removed)
+
+### What you'd expect (web)
+
+Detach a node to a scratch location and move it back later, and the browser lays it out wherever it ends up. There is no location that is toxic to detach to, and an offscreen scratch area doesn't accumulate cost over time.
+
+### What Lynx does
+
+To keep projected content **rendering** across an `@if` toggle, earlier renderer revisions **"parked"** a removed element's children somewhere live on a genuine destroy, then moved them back on re-insert. Parking was genuinely **load-bearing**: keeping the child attached to a live parent meant it was never left removed across a flush, so its painting node stayed alive (`is_move` never went false) — the real problem the pure-detach fiber layer does NOT solve on its own (see the recreate-on-remount entry above). But parking produced two main-thread **watchdog SIGKILLs** (`0x8BADF00D`, "failed to terminate gracefully after 5.0s"):
+
+1. **Page-root parking → layout livelock on re-show.** Parking onto the live, laid-out page root laid each child out as a direct in-flow child of `<page>`; moving it back out of that position into a deep descendant on re-show drove a *single* layout pass into a non-terminating state. Stack: `setTimeout` → `FiberFlushElementTree` → `LayoutContext::Layout` → stuck in `RemoveAlgorithmRecursive`. Not a cycle: `RemoveAlgorithmRecursive` is a per-relayout cache clear that recurses only to tree depth (~7 frames), and `Layout` calls `CalculateLayout` exactly once with no C++ loop — one pass failing to terminate on a pathological (lattice-shaped) tree, not a stack overflow (a real cycle overflows near-instantly as `EXC_BAD_ACCESS`).
+2. **`display:none`-holder parking → teardown hang.** Moving parking into a `display:none` holder (which layout skips wholesale) fixed the re-show livelock, but children of a *permanently* destroyed element leaked into the holder forever — nothing ever cleaned it. Eventually destroying that ever-growing tree at shell teardown (`LynxShell::Destroy` → `~LayoutContext` → destroying the `unordered_map<int, LayoutNode>`) blew the 5s watchdog on the next reload/startup.
+
+Also **disproven** along the way, recorded so they aren't re-attempted: a genuine tree cycle (ruled out by the crash signature above); and a "defer the restore to a macrotask" timing fix (the re-show crash was byte-identical after it shipped, proving the restore *timing* was irrelevant).
+
+### The fix
+
+Parking was **removed entirely** and replaced by **recreate-on-remount** (see the recreate-on-remount entry above). `#doRemove()` (`packages/runtime/src/lib/lynx-element/lynx-element.ts`) now removes each subtree as one unit and marks it painting-dead; a later re-insert rebuilds it from cache. So nothing is stranded on the page root, nothing accumulates in a holder, and the projected content still renders on re-show. Why parking couldn't just be fixed in place: content parked outside its component's own subtree can no longer be cleaned up by Angular on destroy (Angular removes only its own subtree, and `destroyNode` isn't called on the relocated nodes), so the holder leaks unrecoverably — proven by the leak test in `teardown.spec.ts`. Recreate-on-remount never relocates content, so it has no such leak. The move/destroy split (`#pendingRemovals`) and the `wouldFormCycle` guards are kept.
+
+**Confirmed on-device:** both watchdog crashes are gone — `examples/transitions` shows/hides/re-shows without freezing, and reloads without the teardown hang. Removing parking then surfaced a separate, pre-existing bug (removed elements leaving a layout gap / stale panels) that had been masked by the crashes — see the flush-timing entry below.
+
+---
+
+## Deferred element removals must be committed inside the CD flush, not a later microtask
+
+### What you'd expect (web)
+
+Remove a node during a framework's render pass and it's gone from layout by the time that pass paints. There's no gap where a removed node still occupies space.
+
+### What Lynx does
+
+Element mutations only reach the main thread (and layout) on `__FlushElementTree()`, which the renderer calls once per change-detection cycle in `LynxRendererFactory2.end()`. `remove()` **queues** a genuine removal rather than applying it immediately, so a same-tick re-insert can cancel it (an Angular move — see the postmortem above). The bug: that queue was drained in a `queueMicrotask`, which fires **after** `end()` has already flushed. So the `__RemoveElement` ran too late — the node was gone from the JS element tree but not committed to native until some *later* cycle happened to flush. Until then it kept occupying layout space, often invisibly: a `LynxTransition` panel whose leave animation faded it to `opacity: 0` "hid" but left a gap; an accordion panel collapsed with leftover padding.
+
+### The fix
+
+Drain the queue from `end()`, **before** `__FlushElementTree()`, via `processPendingRemovals()` (`packages/runtime/src/lib/lynx-element/lynx-element.ts`), so a genuine removal lands in the same flush as the cycle's other mutations. A move still cancels its queued removal during the render traversal, before `end()` runs, so moves are unaffected. Covered by `packages/runtime/src/lib/renderer/teardown.spec.ts`.
 
 ---
 
@@ -144,15 +246,52 @@ Lynx's native fiber engine has a dedicated `BlockElement` C++ class for exactly 
 
 React Lynx (the production reference) sidesteps this entirely: it never creates a `"block"`/`"if"`/`"for"`-tagged element at all. Its equivalent invisible container is `__CreateWrapperElement`, backed by the native `WrapperElement` class, which unconditionally sets `is_layout_only_ = true` — the native painting pipeline (`ElementContainer::CreatePaintingNode`) skips creating a UI for any layout-only element, so it never needs a registered native UI class. `__CreateWrapperElement` is implemented on both native platforms and the web platform (unlike `__CreateBlock`/`__CreateIf`/`__CreateFor`, which only exist natively — the web platform only implements the generic `__CreateElement`).
 
-A second, distinct issue surfaces once `<block>` is fixed to use `__CreateWrapperElement`: layout-only elements are **flattened** into the nearest real ancestor at the native painting layer — their children have no native UI subtree that belongs to the wrapper itself. The renderer's `remove()` (see the overlay entry above) "parks" a removed element's children onto the page root individually, one `__AppendElement` call per child, before removing the now-empty container — this works fine for ordinary (non-flattened) parents, but for a `<block>`, picking its children apart like that while the flattened wrapper is mid-teardown corrupts that native bookkeeping and **crashes to the home screen** — the same failure signature as parking an `<overlay>`'s subtree, via a different native mechanism.
+A second property matters for teardown once `<block>` uses `__CreateWrapperElement`: layout-only elements are **flattened** into the nearest real ancestor at the native painting layer — their children have no native UI subtree that belongs to the wrapper itself. Removing such a wrapper's children individually would corrupt that flatten bookkeeping and **crash to the home screen**. The renderer's old child-"parking" mechanism did exactly that — one `__AppendElement` per child before removing the now-empty container — so `<block>` once needed a special exception. Parking has since been removed and every subtree is removed as a unit, so this is handled for free.
 
 ### The fix
 
 - `createBlockElement()` (`packages/runtime/src/lib/lynx-document/element-creators/create-block-element.ts`) calls `__CreateWrapperElement(pageId)` instead of `__CreateElement('block', pageId)`.
-- `remove()` (`packages/runtime/src/lib/lynx-element/lynx-element.ts`) never parks a `<block>`'s children — it removes the whole subtree in one shot instead, mirroring the `<overlay>` exception. `<block>` exists for conditional grouping with no visual output, not content preservation across toggles, so this loses nothing a `<block>` user relies on. Content that must survive an `@if` toggle (e.g. re-projected `<ng-content>`) should be wrapped in a `<view>` instead, which keeps the normal parking path.
+- `#doRemove()` (`packages/runtime/src/lib/lynx-element/lynx-element.ts`) removes every subtree as a single unit, so a `<block>`'s flattened children are never picked apart mid-teardown. (This once needed a `<block>`-specific exception, back when the renderer "parked" children individually; parking has since been removed.)
 - Covered by `packages/runtime/src/lib/renderer/teardown.spec.ts`.
 
 `<if>` and `<for>` are still created via the generic `__CreateElement` path and share the same theoretical "unregistered native UI" risk as `<block>` did — but neither is exercised anywhere in the codebase today, so this is a known latent gap, not a confirmed bug.
+
+---
+
+## Enter/leave animations need a single `@keyframes` class, not a two-phase CSS `transition`
+
+### What you'd expect (web)
+
+Vue-style transitions mount an element in a `-enter-from` state, then swap to `-enter-to` one frame later (via `requestAnimationFrame`) so a CSS `transition` interpolates. The one-frame gap lets the browser paint the initial state first.
+
+### What Lynx does
+
+The two-phase approach is unreliable on Lynx's background thread, where Angular runs, for two reasons:
+
+- **No frame boundary.** `requestAnimationFrame` is microtask-mapped or absent (React Lynx maps it to a microtask; AngularLynx only polyfills it when `lynx.requestAnimationFrame` exists). Microtasks drain within the same native call frame, so they never separate two paints.
+- **No flush.** Class changes made from an rAF/`setTimeout` callback skip change detection, so they never reliably flush to the main thread. The element tree is committed once per CD cycle in `LynxRendererFactory2.end()`, and calling `__FlushElementTree` from `setTimeout` crashes the engine.
+
+Native `element.animate()` can't drive them either: it's main-thread-only and a no-op on the background thread (`packages/runtime/src/lib/animation/noop-animation.ts`).
+
+### The fix
+
+`LynxTransition` and `LynxTransitionGroup` toggle a single `@keyframes` class — `{name}-enter` on insertion, `{name}-leave` before removal — applied inside the effect (a CD pass) so it flushes in the same commit that mounts the element. The native engine then plays the keyframes from 0%. No rAF, no paint gap.
+
+```css
+@keyframes fade-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.fade-enter {
+  animation: fade-enter 300ms ease both;
+}
+```
+
+This mirrors the proven single-class pattern in `examples/animations`. Completion is timer-based (the `duration` input) because the background thread has no `animationend` bridge, so `duration` must match the CSS animation length.
 
 ---
 

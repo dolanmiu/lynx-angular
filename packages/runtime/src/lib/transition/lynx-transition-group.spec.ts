@@ -32,8 +32,6 @@ const setInputSignal = (signalFn: any, value: any): void => {
 type Item = { id: number; name: string };
 
 describe('LynxTransitionGroup', () => {
-  let rAFCallbacks: (() => void)[];
-
   beforeAll(() => {
     TestBed.initTestEnvironment(
       BrowserDynamicTestingModule,
@@ -42,24 +40,7 @@ describe('LynxTransitionGroup', () => {
   });
 
   beforeEach(() => {
-    rAFCallbacks = [];
-
     vi.useFakeTimers();
-
-    vi.stubGlobal(
-      'requestAnimationFrame',
-      vi.fn((cb: () => void) => {
-        rAFCallbacks.push(cb);
-        return rAFCallbacks.length;
-      }),
-    );
-    vi.stubGlobal(
-      'cancelAnimationFrame',
-      vi.fn((id: number) => {
-        if (id > 0 && id <= rAFCallbacks.length)
-          rAFCallbacks[id - 1] = () => {};
-      }),
-    );
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
@@ -71,14 +52,7 @@ describe('LynxTransitionGroup', () => {
   afterEach(() => {
     TestBed.resetTestingModule();
     vi.useRealTimers();
-    vi.unstubAllGlobals();
   });
-
-  const flushFrame = () => {
-    const cbs = [...rAFCallbacks];
-    rAFCallbacks.length = 0;
-    cbs.forEach((cb) => cb());
-  };
 
   /**
    * Creates the component with mocked contentChild/viewChild queries.
@@ -107,7 +81,12 @@ describe('LynxTransitionGroup', () => {
       },
     };
 
+    // Faithful ViewContainerRef stand-in: `move` reorders BOTH the tracked
+    // views array and the host DOM, and `get`/`length` are implemented, so the
+    // mock actually reflects reordering. (The previous no-op `move` is why the
+    // "leaving item bubbles to the bottom" bug slipped past unit tests.)
     const mockVcr = {
+      get: (index: number) => views[index] ?? null,
       createEmbeddedView: (template: any, context: any) => {
         const view = template.createEmbeddedView(context);
         views.push(view);
@@ -115,7 +94,16 @@ describe('LynxTransitionGroup', () => {
         return view;
       },
       indexOf: (view: any) => views.indexOf(view),
-      move: (_view: any, _index: number) => {},
+      move: (view: any, index: number) => {
+        const from = views.indexOf(view);
+        if (from < 0) return;
+        views.splice(from, 1);
+        views.splice(index, 0, view);
+        const node = view.rootNodes[0];
+        node.remove();
+        const refNode = views[index + 1]?.rootNodes[0] ?? null;
+        hostEl.insertBefore(node, refNode);
+      },
       remove: (index: number) => {
         const view = views[index];
         if (view) {
@@ -124,6 +112,9 @@ describe('LynxTransitionGroup', () => {
         }
       },
     };
+    // `length` must track the live array; defined via a getter (an object-literal
+    // `get length()` trips the arrow-function lint rule, so use defineProperty).
+    Object.defineProperty(mockVcr, 'length', { get: () => views.length });
 
     Object.defineProperty(comp, 'itemTemplate', {
       value: () => mockTemplate,
@@ -142,8 +133,8 @@ describe('LynxTransitionGroup', () => {
   const getItemEls = (hostEl: HTMLElement): HTMLElement[] =>
     Array.from(hostEl.querySelectorAll('.item'));
 
-  describe('animateEnter()', () => {
-    it('adds enter-from and enter-active classes', () => {
+  describe('enter', () => {
+    it('adds the enter keyframe class to a newly inserted item', () => {
       const { comp, hostEl } = create();
 
       setInputSignal(comp.each, [{ id: 1, name: 'A' }]);
@@ -151,170 +142,169 @@ describe('LynxTransitionGroup', () => {
 
       const items = getItemEls(hostEl);
       expect(items.length).toBe(1);
-      expect(items[0].classList.contains('v-enter-from')).toBe(true);
-      expect(items[0].classList.contains('v-enter-active')).toBe(true);
+      expect(items[0].classList.contains('v-enter')).toBe(true);
     });
 
-    it('transitions to enter-to on next frame', () => {
+    it('keeps the enter class after the duration (holds resting state) and emits afterEnter', () => {
       const { comp, hostEl } = create();
+      const entered: Item[] = [];
+      comp.afterEnter.subscribe((i) => entered.push(i));
 
       setInputSignal(comp.each, [{ id: 1, name: 'A' }]);
       TestBed.flushEffects();
-      flushFrame();
-
-      const items = getItemEls(hostEl);
-      expect(items[0].classList.contains('v-enter-active')).toBe(true);
-      expect(items[0].classList.contains('v-enter-to')).toBe(true);
-      expect(items[0].classList.contains('v-enter-from')).toBe(false);
-    });
-
-    it('cleans up all enter classes after duration', () => {
-      const { comp, hostEl } = create();
-
-      setInputSignal(comp.each, [{ id: 1, name: 'A' }]);
-      TestBed.flushEffects();
-      flushFrame();
       vi.advanceTimersByTime(300);
 
       const items = getItemEls(hostEl);
-      expect(items[0].classList.contains('v-enter-from')).toBe(false);
-      expect(items[0].classList.contains('v-enter-active')).toBe(false);
-      expect(items[0].classList.contains('v-enter-to')).toBe(false);
+      // fill: both holds the final frame, so the class stays until the item leaves.
+      expect(items[0].classList.contains('v-enter')).toBe(true);
+      expect(entered).toEqual([{ id: 1, name: 'A' }]);
     });
   });
 
-  describe('animateLeave()', () => {
-    it('adds leave-from and leave-active classes', () => {
-      const { comp, hostEl } = create();
-      // Initial render with item (no animation on first render).
-      setInputSignal(comp.each, [{ id: 1, name: 'A' }]);
-      TestBed.flushEffects();
-
-      const itemEl = getItemEls(hostEl)[0];
-
-      // Remove the item → triggers animateLeave.
-      setInputSignal(comp.each, []);
-      TestBed.flushEffects();
-
-      expect(itemEl.classList.contains('v-leave-from')).toBe(true);
-      expect(itemEl.classList.contains('v-leave-active')).toBe(true);
-    });
-
-    it('transitions to leave-to on next frame', () => {
+  describe('leave', () => {
+    it('adds the leave class and removes the enter class', () => {
       const { comp, hostEl } = create();
       setInputSignal(comp.each, [{ id: 1, name: 'A' }]);
       TestBed.flushEffects();
 
       const itemEl = getItemEls(hostEl)[0];
 
+      // Remove the item → triggers the leave animation.
       setInputSignal(comp.each, []);
       TestBed.flushEffects();
-      flushFrame();
 
-      expect(itemEl.classList.contains('v-leave-active')).toBe(true);
-      expect(itemEl.classList.contains('v-leave-to')).toBe(true);
-      expect(itemEl.classList.contains('v-leave-from')).toBe(false);
+      expect(itemEl.classList.contains('v-leave')).toBe(true);
+      expect(itemEl.classList.contains('v-enter')).toBe(false);
     });
 
-    it('removes entry from map after duration', () => {
+    it('destroys the item after the duration and emits afterLeave', () => {
       const { comp, hostEl } = create();
+      const left: Item[] = [];
+      comp.afterLeave.subscribe((i) => left.push(i));
+
       setInputSignal(comp.each, [{ id: 1, name: 'A' }]);
       TestBed.flushEffects();
 
       setInputSignal(comp.each, []);
       TestBed.flushEffects();
-      flushFrame();
       vi.advanceTimersByTime(300);
 
       expect(getItemEls(hostEl).length).toBe(0);
+      expect(left).toEqual([{ id: 1, name: 'A' }]);
     });
   });
 
-  describe('cancelLeave()', () => {
-    it('cleans up leave classes and resets leaving flag', () => {
+  describe('cancelLeave', () => {
+    it('drops the leave class when the item reappears mid-leave', () => {
       const { comp, hostEl } = create();
       setInputSignal(comp.each, [{ id: 1, name: 'A' }]);
       TestBed.flushEffects();
 
       const itemEl = getItemEls(hostEl)[0];
 
-      // Start leave.
+      // Start leave, then re-add the same item before the timer fires.
       setInputSignal(comp.each, []);
       TestBed.flushEffects();
-
-      // Cancel by re-adding the item.
       setInputSignal(comp.each, [{ id: 1, name: 'A' }]);
       TestBed.flushEffects();
 
-      expect(itemEl.classList.contains('v-leave-from')).toBe(false);
-      expect(itemEl.classList.contains('v-leave-active')).toBe(false);
-      expect(itemEl.classList.contains('v-leave-to')).toBe(false);
+      expect(itemEl.classList.contains('v-leave')).toBe(false);
     });
 
-    it('prevents leave timer from firing', () => {
+    it('prevents the cancelled leave timer from destroying the item', () => {
       const { comp, hostEl } = create();
       setInputSignal(comp.each, [{ id: 1, name: 'A' }]);
       TestBed.flushEffects();
 
-      // Start leave and advance to the timer phase.
       setInputSignal(comp.each, []);
       TestBed.flushEffects();
-      flushFrame();
-
-      // Cancel the leave by re-adding the item.
+      // Re-add before the leave timer fires.
       setInputSignal(comp.each, [{ id: 1, name: 'A' }]);
       TestBed.flushEffects();
       vi.advanceTimersByTime(500);
 
-      // The item should still be rendered.
-      expect(getItemEls(hostEl).length).toBeGreaterThan(0);
+      expect(getItemEls(hostEl).length).toBe(1);
     });
   });
 
-  describe('reconcile()', () => {
-    it('detects new items and calls animateEnter', () => {
+  describe('reconcile', () => {
+    it('enters a new item and leaves a removed one in a single update', () => {
       const { comp, hostEl } = create();
-
       setInputSignal(comp.each, [{ id: 1, name: 'A' }]);
+      TestBed.flushEffects();
+
+      const first = getItemEls(hostEl)[0];
+
+      // Swap item 1 out for item 2.
+      setInputSignal(comp.each, [{ id: 2, name: 'B' }]);
       TestBed.flushEffects();
 
       const items = getItemEls(hostEl);
-      expect(items.length).toBe(1);
-      expect(items[0].classList.contains('v-enter-from')).toBe(true);
-      expect(items[0].classList.contains('v-enter-active')).toBe(true);
+      // The leaving item is still present (animating out) with the leave class…
+      expect(first.classList.contains('v-leave')).toBe(true);
+      // …and the new item entered with the enter class.
+      const entering = items.find((el) => el.textContent === 'B')!;
+      expect(entering.classList.contains('v-enter')).toBe(true);
     });
 
-    it('detects removed items and calls animateLeave', () => {
+    it('keeps a removed middle item in its slot instead of moving it to the bottom', () => {
       const { comp, hostEl } = create();
-      setInputSignal(comp.each, [{ id: 1, name: 'A' }]);
+      setInputSignal(comp.each, [
+        { id: 1, name: 'A' },
+        { id: 2, name: 'B' },
+        { id: 3, name: 'C' },
+      ]);
+      TestBed.flushEffects();
+      expect(getItemEls(hostEl).map((el) => el.textContent)).toEqual([
+        'A',
+        'B',
+        'C',
+      ]);
+
+      // Delete the MIDDLE item.
+      setInputSignal(comp.each, [
+        { id: 1, name: 'A' },
+        { id: 3, name: 'C' },
+      ]);
       TestBed.flushEffects();
 
-      const itemEl = getItemEls(hostEl)[0];
+      // While leaving, B stays at index 1 (its original slot) — it must NOT be
+      // bubbled to the bottom to animate out there.
+      const during = getItemEls(hostEl);
+      expect(during.map((el) => el.textContent)).toEqual(['A', 'B', 'C']);
+      expect(during[1].textContent).toBe('B');
+      expect(during[1].classList.contains('v-leave')).toBe(true);
 
-      setInputSignal(comp.each, []);
-      TestBed.flushEffects();
-
-      expect(itemEl.classList.contains('v-leave-from')).toBe(true);
-      expect(itemEl.classList.contains('v-leave-active')).toBe(true);
+      // After the leave animation, B is destroyed and the list collapses.
+      vi.advanceTimersByTime(300);
+      expect(getItemEls(hostEl).map((el) => el.textContent)).toEqual([
+        'A',
+        'C',
+      ]);
     });
 
-    it('cancels leave when item reappears', () => {
+    it('reorders surviving items to match a reordered list', () => {
       const { comp, hostEl } = create();
-      setInputSignal(comp.each, [{ id: 1, name: 'A' }]);
+      setInputSignal(comp.each, [
+        { id: 1, name: 'A' },
+        { id: 2, name: 'B' },
+        { id: 3, name: 'C' },
+      ]);
       TestBed.flushEffects();
 
-      const itemEl = getItemEls(hostEl)[0];
-
-      // Start leave.
-      setInputSignal(comp.each, []);
+      // Reverse the list (no adds or removes).
+      setInputSignal(comp.each, [
+        { id: 3, name: 'C' },
+        { id: 2, name: 'B' },
+        { id: 1, name: 'A' },
+      ]);
       TestBed.flushEffects();
 
-      // Re-add the same item → should cancel leave.
-      setInputSignal(comp.each, [{ id: 1, name: 'A' }]);
-      TestBed.flushEffects();
-
-      expect(itemEl.classList.contains('v-leave-from')).toBe(false);
-      expect(itemEl.classList.contains('v-leave-active')).toBe(false);
+      expect(getItemEls(hostEl).map((el) => el.textContent)).toEqual([
+        'C',
+        'B',
+        'A',
+      ]);
     });
   });
 });

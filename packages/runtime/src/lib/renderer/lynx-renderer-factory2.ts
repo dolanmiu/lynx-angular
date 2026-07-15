@@ -8,7 +8,10 @@ import {
 } from '@angular/core';
 import { devStats } from '../devtools/stats';
 import type { LynxDocumentBase } from '../lynx-document';
-import { processPendingListUpdates } from '../lynx-element';
+import {
+  processPendingListUpdates,
+  processPendingRemovals,
+} from '../lynx-element';
 import { isFirstRenderPending } from '../lynx-render-lifecycle';
 import { EmulatedLynxRenderer } from './emulated-lynx-renderer';
 import { LynxRenderer } from './renderer';
@@ -57,9 +60,15 @@ export class LynxRendererFactory2 implements RendererFactory2 {
   /**
    * Called by Angular after every change detection cycle completes.
    * On the background thread this is a no-op — there's no native tree to flush.
-   * On the main thread, the flush order is critical:
-   *   1. __FlushElementTree() — commits all pending element mutations to native
-   *   2. processPendingListUpdates() — sends update-list-info for lists that
+   * On the main thread, the order is critical:
+   *   1. processPendingRemovals() — commits genuine element removals queued
+   *      during this cycle. MUST run before the flush so the __RemoveElement
+   *      calls land in the SAME flush as the cycle's other mutations; draining
+   *      them later (the old queueMicrotask) left removed subtrees occupying
+   *      native layout until a later cycle happened to flush ("hidden element
+   *      leaves a gap").
+   *   2. __FlushElementTree() — commits all pending element mutations to native
+   *   3. processPendingListUpdates() — sends update-list-info for lists that
    *      gained/lost children during this CD cycle, then does a targeted flush
    *      per list. This MUST run after the bare flush so list children's subtrees
    *      are already committed when componentAtIndex appends them.
@@ -89,6 +98,11 @@ export class LynxRendererFactory2 implements RendererFactory2 {
         devStats.flushCount++;
       }
 
+      // Commit queued removals into this cycle's flush (see doc above). Drained
+      // even while the first-render flush is skipped: the __RemoveElement calls
+      // mutate native elements directly, and native performs its own flush once
+      // renderPage returns.
+      processPendingRemovals();
       if (!isFirstRenderPending()) {
         __FlushElementTree();
       }

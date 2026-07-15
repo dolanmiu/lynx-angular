@@ -48,7 +48,12 @@ const setupGlobals = () => {
   globalThis.__CreateBlock = mock(() => makeRef());
   globalThis.__CreateWrapperElement = mock(() => makeRef());
   globalThis.__CreateFrame = mock(() => makeRef());
-  globalThis.__GetElementUniqueID = mock(() => 42);
+  // Return each ref's own _id so distinct elements get distinct unique IDs —
+  // a constant would make cycle checks (wouldFormCycle) treat every element as
+  // the same node. Falls back to 42 for refs without an _id.
+  globalThis.__GetElementUniqueID = mock(
+    (ref: ElementRef) => (ref as unknown as { _id?: number })?._id ?? 42,
+  );
   globalThis.__AppendElement = mock(() => makeRef());
   globalThis.__RemoveElement = mock(() => makeRef());
   globalThis.__InsertElementBefore = mock(() => makeRef());

@@ -314,8 +314,9 @@ describe('LynxSessionStorage', () => {
       const result = await service.getItem('theme');
 
       expect(result).toEqual({ mode: 'light' });
-      expect((globalThis as any).lynx.getSessionStorageItem)
-        .toHaveBeenCalledWith('theme');
+      expect(
+        (globalThis as any).lynx.getSessionStorageItem,
+      ).toHaveBeenCalledWith('theme');
     });
 
     it('getItem resolves undefined for an unset key without throwing', async () => {
@@ -360,6 +361,85 @@ describe('LynxSessionStorage', () => {
         service.watch('theme', { injector });
         destroyCallbacks.forEach((cb) => cb());
       }).not.toThrow();
+    });
+
+    it('setItem wraps primitives in an object before calling native API', () => {
+      const setMock = vi.fn();
+      (globalThis as any).lynx = {
+        setSessionStorageItem: setMock,
+        getSessionStorageItem: vi.fn(),
+      };
+      const service = new LynxSessionStorage();
+
+      service.setItem('counter', 42);
+
+      expect(setMock).toHaveBeenCalledWith('counter', { __data: 42 });
+    });
+
+    it('setItem does not double-wrap objects on main thread', () => {
+      const setMock = vi.fn();
+      (globalThis as any).lynx = {
+        setSessionStorageItem: setMock,
+        getSessionStorageItem: vi.fn(),
+      };
+      const service = new LynxSessionStorage();
+
+      service.setItem('config', { mode: 'dark' });
+
+      expect(setMock).toHaveBeenCalledWith('config', { mode: 'dark' });
+    });
+
+    it('getItem unwraps primitives stored via setItem', async () => {
+      vi.unstubAllGlobals();
+      vi.stubGlobal('__MAIN_THREAD__', true);
+      (globalThis as any).lynx = {
+        setSessionStorageItem: vi.fn(),
+        getSessionStorageItem: vi.fn(() => ({ __data: 99 })),
+      };
+      const service = new LynxSessionStorage();
+
+      const result = await service.getItem('counter');
+
+      expect(result).toBe(99);
+    });
+
+    it('getItem does not unwrap actual object properties named __data', async () => {
+      vi.unstubAllGlobals();
+      vi.stubGlobal('__MAIN_THREAD__', true);
+      (globalThis as any).lynx = {
+        setSessionStorageItem: vi.fn(),
+        getSessionStorageItem: vi.fn(() => ({ __data: 10, other: 20 })),
+      };
+      const service = new LynxSessionStorage();
+
+      const result = await service.getItem('config');
+
+      expect(result).toEqual({ __data: 10, other: 20 });
+    });
+
+    it('setItem notifies local subscribers on the main thread', () => {
+      const service = new LynxSessionStorage();
+      const callback = vi.fn();
+      service.subscribe('counter', callback);
+
+      service.setItem('counter', 5);
+
+      // The main thread has no native pub/sub, so setItem must drive the
+      // local listener map itself — this is the bridge watch() depends on.
+      expect(callback).toHaveBeenCalledWith(5);
+    });
+
+    it('setItem drives a watch() signal on the main thread (regression)', () => {
+      const service = new LynxSessionStorage();
+      const { injector } = createMockInjector();
+
+      const counter = service.watch<number>('counter', { injector });
+
+      service.setItem('counter', 1);
+      expect(counter()).toBe(1);
+
+      service.setItem('counter', 2);
+      expect(counter()).toBe(2);
     });
   });
 });

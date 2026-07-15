@@ -1,4 +1,5 @@
 export { createBlockElement } from './create-block-element';
+export { createCommentElement } from './create-comment-element';
 export { createDefaultElement } from './create-default-element';
 export { createForElement } from './create-for-element';
 export { createFrameElement } from './create-frame-element';

@@ -1,5 +1,5 @@
 export { LynxBackgroundElement } from './lynx-background-element';
-export { LynxElement } from './lynx-element';
+export { LynxElement, processPendingRemovals } from './lynx-element';
 export {
   LynxListElement,
   processPendingListUpdates,

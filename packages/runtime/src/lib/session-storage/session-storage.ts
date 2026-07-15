@@ -75,16 +75,17 @@ export class LynxSessionStorage {
   }
 
   /**
-   * Stores a value in session storage, shared across all LynxViews.
-   * Existing subscribers for this key will be notified of the change.
+   * Notifies every locally-registered listener for a key. Extracted so the
+   * two callers that must drive the local pub/sub layer — the in-memory
+   * fallback and the main-thread native path — share one implementation
+   * instead of duplicating the map walk (the main-thread path originally
+   * omitted it entirely, which is what left watched signals stale).
+   *
+   * On the main thread native pub/sub does not exist, so {@link watch}'s
+   * subscription lives entirely in this local map and only this call reaches
+   * it.
    */
-  setItem<T = unknown>(key: string, value: T): void {
-    if (this.#hasNativeSessionStorage()) {
-      (lynx as any).setSessionStorageItem(key, value);
-      return;
-    }
-
-    this.#store.set(key, value);
+  #notifyLocalListeners(key: string, value: unknown): void {
     const keyListeners = this.#listeners.get(key);
     if (keyListeners) {
       for (const [, cb] of keyListeners) cb(value);
@@ -92,14 +93,85 @@ export class LynxSessionStorage {
   }
 
   /**
+   * Stores a value in session storage, shared across all LynxViews.
+   * Existing subscribers for this key will be notified of the change.
+   *
+   * Two main-thread quirks are handled here, both discovered as on-device
+   * crashes/bugs in the session-storage example:
+   *
+   * 1. **Values must be objects.** The main thread's native
+   *    setSessionStorageItem rejects primitives with a fatal
+   *    "SetSessionStorageItem param 1 should be Object" error, so a bare
+   *    `setItem('counter', 1)` would crash on Increment. We wrap primitives
+   *    in `{ __data }` (getItem unwraps them symmetrically).
+   *
+   * 2. **No native pub/sub.** The main thread registers only get/set — there
+   *    is no subscribeSessionStorage — so {@link watch}'s subscription falls
+   *    back to the local listener map (see {@link subscribe}). A native write
+   *    alone therefore never reaches those listeners: the counter signal stays
+   *    on its seed value and the UI shows "not set" no matter how many times
+   *    the user taps Increment. We bridge the gap by firing the local
+   *    listeners ourselves right after the native write.
+   *
+   * The background thread deliberately does NOT call #notifyLocalListeners:
+   * there, watch() subscribes through native subscribeSessionStorage, and the
+   * native layer already fans the change out to every LynxView (including this
+   * one). Firing local listeners too would double-notify. There is no infinite
+   * loop in either case — #notifyLocalListeners only invokes stored callbacks,
+   * it never calls setItem back.
+   */
+  setItem<T = unknown>(key: string, value: T): void {
+    if (this.#hasNativeSessionStorage()) {
+      // Main thread requires values to be objects; wrap primitives.
+      if (typeof __MAIN_THREAD__ !== 'undefined' && __MAIN_THREAD__) {
+        const wrapped =
+          typeof value === 'object' && value !== null
+            ? value
+            : { __data: value };
+        (lynx as any).setSessionStorageItem(key, wrapped);
+        // Native subscribe/unsubscribe don't exist on the main thread, so
+        // bridge the write to the local listener map that watch() relies on —
+        // without this the watched signal never updates and the UI stays stale.
+        this.#notifyLocalListeners(key, value);
+        return;
+      }
+      // Background thread: native pub/sub notifies subscribers, so we don't.
+      (lynx as any).setSessionStorageItem(key, value);
+      return;
+    }
+
+    // In-memory fallback (web preview, tests, SSR): the local map is both the
+    // store and the pub/sub layer, so write then notify.
+    this.#store.set(key, value);
+    this.#notifyLocalListeners(key, value);
+  }
+
+  /**
    * Reads a value from session storage. The native API is callback-based;
    * this wraps it in a Promise for ergonomic use with `async`/`await`.
+   *
+   * On the main thread, wrapped primitives are unwrapped here to match
+   * the user's expectation that the value they stored is the value they get.
    */
   getItem<T = unknown>(key: string): Promise<T> {
     if (this.#hasNativeSessionStorage()) {
       // Main thread: synchronous, single-arg — see the class-level doc comment.
       if (typeof __MAIN_THREAD__ !== 'undefined' && __MAIN_THREAD__) {
-        return Promise.resolve((lynx as any).getSessionStorageItem(key) as T);
+        const raw = (lynx as any).getSessionStorageItem(key);
+        // Undo setItem's primitive wrapping so callers get back exactly what
+        // they stored. The `Object.keys(raw).length === 1` guard is what keeps
+        // this from mangling genuine user objects: a real payload that happens
+        // to have a `__data` key (e.g. `{ __data, other }`) has more than one
+        // key and is returned untouched, so only our own single-key wrapper
+        // { __data } is unwrapped.
+        const unwrapped =
+          raw != null &&
+          typeof raw === 'object' &&
+          '__data' in raw &&
+          Object.keys(raw).length === 1
+            ? (raw.__data as T)
+            : (raw as T);
+        return Promise.resolve(unwrapped);
       }
 
       return new Promise<T>((resolve) => {

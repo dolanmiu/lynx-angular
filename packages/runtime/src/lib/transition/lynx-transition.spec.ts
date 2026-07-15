@@ -30,8 +30,6 @@ const setInputSignal = (signalFn: any, value: any): void => {
 };
 
 describe('LynxTransition', () => {
-  let rAFCallbacks: (() => void)[];
-
   beforeAll(() => {
     TestBed.initTestEnvironment(
       BrowserDynamicTestingModule,
@@ -40,24 +38,7 @@ describe('LynxTransition', () => {
   });
 
   beforeEach(() => {
-    rAFCallbacks = [];
-
     vi.useFakeTimers();
-
-    vi.stubGlobal(
-      'requestAnimationFrame',
-      vi.fn((cb: () => void) => {
-        rAFCallbacks.push(cb);
-        return rAFCallbacks.length;
-      }),
-    );
-    vi.stubGlobal(
-      'cancelAnimationFrame',
-      vi.fn((id: number) => {
-        if (id > 0 && id <= rAFCallbacks.length)
-          rAFCallbacks[id - 1] = () => {};
-      }),
-    );
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
@@ -69,17 +50,10 @@ describe('LynxTransition', () => {
   afterEach(() => {
     TestBed.resetTestingModule();
     vi.useRealTimers();
-    vi.unstubAllGlobals();
   });
 
-  const flushFrame = () => {
-    const cbs = [...rAFCallbacks];
-    rAFCallbacks.length = 0;
-    cbs.forEach((cb) => cb());
-  };
-
   /**
-   * Creates the component and runs the initial effect (show=false → shouldRender=false).
+   * Creates the component and runs the initial effect (show=false → hidden).
    */
   const create = () => {
     const fixture = TestBed.createComponent(LynxTransition);
@@ -96,7 +70,7 @@ describe('LynxTransition', () => {
   };
 
   /**
-   * Starts with show=true (initial render), then triggers leave.
+   * Starts with show=true (initial render, no animation), then triggers leave.
    */
   const createShowing = () => {
     const fixture = TestBed.createComponent(LynxTransition);
@@ -112,112 +86,98 @@ describe('LynxTransition', () => {
     TestBed.flushEffects();
   };
 
-  describe('enter()', () => {
-    it('results in enter-from and enter-active classes present', () => {
+  describe('enter', () => {
+    it('adds the enter keyframe class and clears any leave class', () => {
       const fixture = create();
       triggerEnter(fixture);
 
       const el = fixture.nativeElement as HTMLElement;
-      expect(el.classList.contains('v-enter-from')).toBe(true);
-      expect(el.classList.contains('v-enter-active')).toBe(true);
+      expect(el.classList.contains('v-enter')).toBe(true);
+      expect(el.classList.contains('v-leave')).toBe(false);
     });
 
-    it('sets shouldRender to true', () => {
+    it('mounts the content (shouldRender true)', () => {
       const fixture = create();
       triggerEnter(fixture);
 
       expect(fixture.componentInstance.shouldRender()).toBe(true);
     });
 
-    it('on next frame: has enter-to and enter-active, no enter-from', () => {
+    it('keeps the enter class after the duration (holds resting state) and emits afterEnter', () => {
       const fixture = create();
-      triggerEnter(fixture);
-      flushFrame();
+      let emitted = false;
+      fixture.componentInstance.afterEnter.subscribe(() => (emitted = true));
 
-      const el = fixture.nativeElement as HTMLElement;
-      expect(el.classList.contains('v-enter-active')).toBe(true);
-      expect(el.classList.contains('v-enter-to')).toBe(true);
-      expect(el.classList.contains('v-enter-from')).toBe(false);
-    });
-
-    it('after duration: all enter classes removed', () => {
-      const fixture = create();
       triggerEnter(fixture);
-      flushFrame();
       vi.advanceTimersByTime(300);
 
       const el = fixture.nativeElement as HTMLElement;
-      expect(el.classList.contains('v-enter-active')).toBe(false);
-      expect(el.classList.contains('v-enter-to')).toBe(false);
-      expect(el.classList.contains('v-enter-from')).toBe(false);
+      // animation-fill-mode: both holds the final frame = the resting state, so
+      // the class stays applied until the element leaves.
+      expect(el.classList.contains('v-enter')).toBe(true);
+      expect(emitted).toBe(true);
     });
   });
 
-  describe('leave()', () => {
-    it('results in leave-from and leave-active classes present', () => {
+  describe('leave', () => {
+    it('adds the leave keyframe class and clears any enter class', () => {
       const fixture = createShowing();
       triggerLeave(fixture);
 
       const el = fixture.nativeElement as HTMLElement;
-      expect(el.classList.contains('v-leave-from')).toBe(true);
-      expect(el.classList.contains('v-leave-active')).toBe(true);
+      expect(el.classList.contains('v-leave')).toBe(true);
+      expect(el.classList.contains('v-enter')).toBe(false);
     });
 
-    it('on next frame: has leave-to and leave-active, no leave-from', () => {
+    it('keeps content mounted during the leave, then unmounts after the duration', () => {
       const fixture = createShowing();
       triggerLeave(fixture);
-      flushFrame();
 
-      const el = fixture.nativeElement as HTMLElement;
-      expect(el.classList.contains('v-leave-active')).toBe(true);
-      expect(el.classList.contains('v-leave-to')).toBe(true);
-      expect(el.classList.contains('v-leave-from')).toBe(false);
-    });
+      // Still mounted while the leave animation plays.
+      expect(fixture.componentInstance.shouldRender()).toBe(true);
 
-    it('after duration: sets shouldRender false and all leave classes removed', () => {
-      const fixture = createShowing();
-      triggerLeave(fixture);
-      flushFrame();
       vi.advanceTimersByTime(300);
 
-      const el = fixture.nativeElement as HTMLElement;
       expect(fixture.componentInstance.shouldRender()).toBe(false);
-      expect(el.classList.contains('v-leave-active')).toBe(false);
-      expect(el.classList.contains('v-leave-to')).toBe(false);
-      expect(el.classList.contains('v-leave-from')).toBe(false);
+    });
+
+    it('emits afterLeave after the duration', () => {
+      const fixture = createShowing();
+      let emitted = false;
+      fixture.componentInstance.afterLeave.subscribe(() => (emitted = true));
+
+      triggerLeave(fixture);
+      vi.advanceTimersByTime(300);
+
+      expect(emitted).toBe(true);
     });
   });
 
   describe('cancellation', () => {
-    it('enter cancels in-progress leave', () => {
+    it('enter cancels an in-progress leave', () => {
       const fixture = createShowing();
       triggerLeave(fixture);
       triggerEnter(fixture);
 
       const el = fixture.nativeElement as HTMLElement;
-      expect(el.classList.contains('v-leave-from')).toBe(false);
-      expect(el.classList.contains('v-leave-active')).toBe(false);
-      expect(el.classList.contains('v-enter-from')).toBe(true);
-      expect(el.classList.contains('v-enter-active')).toBe(true);
+      expect(el.classList.contains('v-leave')).toBe(false);
+      expect(el.classList.contains('v-enter')).toBe(true);
     });
 
-    it('leave cancels in-progress enter', () => {
+    it('leave cancels an in-progress enter', () => {
       const fixture = create();
       triggerEnter(fixture);
       triggerLeave(fixture);
 
       const el = fixture.nativeElement as HTMLElement;
-      expect(el.classList.contains('v-enter-from')).toBe(false);
-      expect(el.classList.contains('v-enter-active')).toBe(false);
-      expect(el.classList.contains('v-leave-from')).toBe(true);
-      expect(el.classList.contains('v-leave-active')).toBe(true);
+      expect(el.classList.contains('v-enter')).toBe(false);
+      expect(el.classList.contains('v-leave')).toBe(true);
     });
 
-    it('cancelled leave timer does not fire', () => {
+    it('a cancelled leave does not unmount the content', () => {
       const fixture = createShowing();
       triggerLeave(fixture);
-      flushFrame();
-
+      // Re-show before the leave timer fires — cancels the pending unmount.
       triggerEnter(fixture);
       vi.advanceTimersByTime(500);
 

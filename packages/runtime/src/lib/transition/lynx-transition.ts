@@ -10,40 +10,43 @@ import {
 } from '@angular/core';
 
 /**
- * Animates the enter/leave of projected content using CSS transitions.
+ * Animates the enter/leave of projected content using CSS `@keyframes`.
  *
- * Follows the same CSS class convention as Vue's `<Transition>`:
+ * Two classes are toggled on the host element:
  *
- * | Phase        | Classes applied                                  |
- * |--------------|--------------------------------------------------|
- * | Enter start  | `{name}-enter-from`, `{name}-enter-active`       |
- * | Enter active | `{name}-enter-to`, `{name}-enter-active`         |
- * | Leave start  | `{name}-leave-from`, `{name}-leave-active`       |
- * | Leave active | `{name}-leave-to`, `{name}-leave-active`         |
+ * | Phase | Class applied   | Plays                                  |
+ * |-------|-----------------|----------------------------------------|
+ * | Enter | `{name}-enter`  | on mount, until `duration` elapses     |
+ * | Leave | `{name}-leave`  | then the element is unmounted          |
  *
- * Uses timer-based completion (setTimeout) instead of transitionend events
- * because the Lynx background thread has no access to CSS computed values —
- * transitionend fires on the native main thread but there's no bridge to
- * deliver it to the JS background thread. The `duration` input (default 300ms)
- * must match your CSS transition length (same constraint as Vue Lynx).
+ * **Why keyframes, not a two-phase CSS `transition`.** The obvious Vue-style
+ * approach (mount in a `-enter-from` state, then swap to `-enter-to` one frame
+ * later so a `transition` interpolates) needs a real paint gap between the two
+ * states. Lynx's background thread — where Angular runs — has no reliable frame
+ * boundary: `requestAnimationFrame` is microtask-mapped/absent, and class
+ * mutations made from an rAF/`setTimeout` callback don't go through change
+ * detection so they never reliably flush to the main thread (the element tree is
+ * committed once per CD cycle in `LynxRendererFactory2.end()`). A `@keyframes`
+ * animation sidesteps all of it: a SINGLE class, applied inside the effect (a CD
+ * pass) so it flushes in the same commit that mounts the element, and the native
+ * engine plays the keyframes from 0%. This mirrors the proven single-class
+ * pattern in `examples/animations`.
+ *
+ * Completion is timer-based (`duration`) because the background thread has no
+ * `animationend` bridge — `duration` must match your CSS animation length.
  *
  * @usageNotes
  * ```html
  * <lynx-transition [show]="isVisible()" name="fade" [duration]="300">
- *   <view class="panel">
- *     <text>Hello</text>
- *   </view>
+ *   <view class="panel"><text>Hello</text></view>
  * </lynx-transition>
  * ```
  *
  * ```css
- * .fade-enter-active, .fade-leave-active {
- *   transition-property: opacity;
- *   transition-duration: 300ms;
- * }
- * .fade-enter-from, .fade-leave-to {
- *   opacity: 0;
- * }
+ * @keyframes fade-enter { from { opacity: 0; } to { opacity: 1; } }
+ * @keyframes fade-leave { from { opacity: 1; } to { opacity: 0; } }
+ * .fade-enter { animation: fade-enter 300ms ease both; }
+ * .fade-leave { animation: fade-leave 300ms ease both; }
  * ```
  */
 @Component({
@@ -66,10 +69,8 @@ export class LynxTransition {
   readonly #renderer = inject(Renderer2);
   readonly #el = inject(ElementRef);
   #initialized = false;
-  #leaveTimer: ReturnType<typeof setTimeout> | null = null;
   #enterTimer: ReturnType<typeof setTimeout> | null = null;
-  #enterRaf: number | null = null;
-  #leaveRaf: number | null = null;
+  #leaveTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     effect(() => {
@@ -93,97 +94,55 @@ export class LynxTransition {
   }
 
   #enter(): void {
-    this.#cancelLeave();
+    this.#clearTimers();
 
     const el = this.#el.nativeElement;
     const name = this.name();
-    const duration = this.duration();
 
-    // Apply enter-from + enter-active BEFORE rendering the element so the
-    // initial state (e.g. opacity: 0) is present on first paint.
-    this.#renderer.addClass(el, `${name}-enter-from`);
-    this.#renderer.addClass(el, `${name}-enter-active`);
+    // Swap to the enter keyframe and mount in the same change-detection pass, so
+    // both are committed to the main thread together and the native engine plays
+    // `${name}-enter` from 0% on the freshly-mounted element. Removing a stale
+    // leave class first handles a quick hide→show toggle.
+    this.#renderer.removeClass(el, `${name}-leave`);
+    this.#renderer.addClass(el, `${name}-enter`);
     this.shouldRender.set(true);
 
-    // requestAnimationFrame gives the browser one paint cycle to apply enter-from,
-    // then swaps to enter-to to start the transition. Without this one-frame gap,
-    // the element would jump straight to its final state with no animation.
-    this.#enterRaf = requestAnimationFrame(() => {
-      this.#enterRaf = null;
-      this.#renderer.removeClass(el, `${name}-enter-from`);
-      this.#renderer.addClass(el, `${name}-enter-to`);
-
-      // setTimeout matches the CSS transition duration — then cleans up classes.
-      // We can't use transitionend because the Lynx background thread has no
-      // access to CSS computed values (transitionend fires on the native thread).
-      this.#enterTimer = setTimeout(() => {
-        this.#enterTimer = null;
-        this.#renderer.removeClass(el, `${name}-enter-active`);
-        this.#renderer.removeClass(el, `${name}-enter-to`);
-        this.afterEnter.emit();
-      }, duration);
-    });
+    // Timer-based completion (no animationend bridge on the background thread).
+    // The enter class holds the final frame (animation-fill-mode: both) = the
+    // resting state, so it's safe to leave applied until the next leave.
+    this.#enterTimer = setTimeout(() => {
+      this.#enterTimer = null;
+      this.afterEnter.emit();
+    }, this.duration());
   }
 
   #leave(): void {
-    this.#cancelEnter();
+    this.#clearTimers();
 
     const el = this.#el.nativeElement;
     const name = this.name();
-    const duration = this.duration();
 
-    // Same two-frame approach as enter: apply leave-from so CSS can read the
-    // starting state, then swap to leave-to on the next frame to start the
-    // transition. shouldRender stays true until the animation completes so
-    // the element isn't removed before it finishes leaving.
-    this.#renderer.addClass(el, `${name}-leave-from`);
-    this.#renderer.addClass(el, `${name}-leave-active`);
+    this.#renderer.removeClass(el, `${name}-enter`);
+    this.#renderer.addClass(el, `${name}-leave`);
 
-    this.#leaveRaf = requestAnimationFrame(() => {
-      this.#leaveRaf = null;
-      this.#renderer.removeClass(el, `${name}-leave-from`);
-      this.#renderer.addClass(el, `${name}-leave-to`);
-
-      this.#leaveTimer = setTimeout(() => {
-        this.#leaveTimer = null;
-        // Only unmount the element after the leave transition completes.
-        this.shouldRender.set(false);
-        this.#renderer.removeClass(el, `${name}-leave-active`);
-        this.#renderer.removeClass(el, `${name}-leave-to`);
-        this.afterLeave.emit();
-      }, duration);
-    });
+    // Keep the content mounted until the leave animation finishes, then unmount.
+    // shouldRender is a signal, so flipping it runs change detection and flushes
+    // the unmount (the leave class stays put; the next enter removes it).
+    this.#leaveTimer = setTimeout(() => {
+      this.#leaveTimer = null;
+      this.shouldRender.set(false);
+      this.afterLeave.emit();
+    }, this.duration());
   }
 
-  #cancelEnter(): void {
-    if (this.#enterRaf !== null) {
-      cancelAnimationFrame(this.#enterRaf);
-      this.#enterRaf = null;
-    }
+  #clearTimers(): void {
     if (this.#enterTimer !== null) {
       clearTimeout(this.#enterTimer);
       this.#enterTimer = null;
-    }
-    const el = this.#el.nativeElement;
-    const name = this.name();
-    this.#renderer.removeClass(el, `${name}-enter-from`);
-    this.#renderer.removeClass(el, `${name}-enter-active`);
-    this.#renderer.removeClass(el, `${name}-enter-to`);
-  }
-
-  #cancelLeave(): void {
-    if (this.#leaveRaf !== null) {
-      cancelAnimationFrame(this.#leaveRaf);
-      this.#leaveRaf = null;
     }
     if (this.#leaveTimer !== null) {
       clearTimeout(this.#leaveTimer);
       this.#leaveTimer = null;
     }
-    const el = this.#el.nativeElement;
-    const name = this.name();
-    this.#renderer.removeClass(el, `${name}-leave-from`);
-    this.#renderer.removeClass(el, `${name}-leave-active`);
-    this.#renderer.removeClass(el, `${name}-leave-to`);
   }
 }
