@@ -1,0 +1,84 @@
+<view class="container">
+  <view class="flex-col gap-2 p-4 flex">
+    <ui-text variant="h3">Exposure</ui-text>
+    <ui-badge variant="secondary">Platform</ui-badge>
+  </view>
+
+  <!-- Section 1: Directive-based per-element visibility -->
+  <view class="section">
+    <text class="section-title">Directive: Per-Element Visibility</text>
+    <text class="info-text"
+      >Each item uses lynxExposure to track its own visibility</text
+    >
+    <scroll-view
+      class="item-scroll"
+      scroll-orientation="vertical"
+      style="height: 120px"
+    >
+      @for (label of itemLabels; track label) {
+      <view class="item" lynxExposure #exp="lynxExposure">
+        <text class="item-label">{{ label }}</text>
+        <text class="item-status" [class.visible]="exp.visible()">
+          {{ exp.visible() ? 'VISIBLE' : 'HIDDEN' }}
+        </text>
+      </view>
+      }
+    </scroll-view>
+  </view>
+
+  <!-- Section 2: Service-based global exposure events -->
+  <view class="section">
+    <text class="section-title">Service: Global Exposure Events</text>
+    <text class="info-text"
+      >Elements with exposure-id report to LynxGlobalExposure</text
+    >
+    <view class="stats-row">
+      <view class="stat-box">
+        <text class="stat-value">{{ lastExposureCount() }}</text>
+        <text class="stat-label">Exposed</text>
+      </view>
+      <view class="stat-box">
+        <text class="stat-value">{{ lastDisexposureCount() }}</text>
+        <text class="stat-label">Disexposed</text>
+      </view>
+    </view>
+    <view class="id-row">
+      <text class="debug-text">IDs: {{ lastExposedIds() || 'none' }}</text>
+    </view>
+
+    <scroll-view
+      class="item-scroll"
+      scroll-orientation="vertical"
+      style="height: 120px"
+    >
+      <view exposure-id="banner-1" class="exposure-item">
+        <text class="item-label">Banner 1</text>
+      </view>
+      <view exposure-id="banner-2" class="exposure-item">
+        <text class="item-label">Banner 2</text>
+      </view>
+      <view exposure-id="banner-3" class="exposure-item">
+        <text class="item-label">Banner 3</text>
+      </view>
+      <view exposure-id="banner-4" class="exposure-item">
+        <text class="item-label">Banner 4</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- Section 3: Pause / Resume -->
+  <view class="section">
+    <text class="section-title">Pause / Resume</text>
+    <text class="info-text"
+      >stopExposure() pauses global events; resumeExposure() restores them</text
+    >
+    <view class="toggle-btn" (bindtap)="toggleExposure()">
+      <text class="toggle-btn-text">
+        {{ active() ? 'Pause Exposure' : 'Resume Exposure' }}
+      </text>
+    </view>
+    <text class="debug-text">
+      Active: {{ active() }} | Toggled {{ toggleCount() }}x
+    </text>
+  </view>
+</view>

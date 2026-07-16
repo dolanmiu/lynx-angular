@@ -33,7 +33,7 @@ Full documentation at [angularlynx.dev](https://angularlynx.dev).
 | --- | --- |
 | [`@blotch/angular-lynx`](./packages/runtime) | Angular `Renderer2` bridging to Lynx's native element APIs |
 | [`@blotch/rsbuild-plugin-angular-lynx`](./packages/rsbuild-plugin-angular-lynx) | Rsbuild plugin — Angular AOT compiler + Lynx dual-thread bundling |
-| [`packages/kitchen-sink-app`](./packages/kitchen-sink-app) | Demo app with routing, signals, and Lynx native elements |
+| [`examples/kitchen-sink-app`](./examples/kitchen-sink-app) | Flagship demo app (`npm run demo`) — routing, signals, and `@blotch/dolan` UI components on Lynx |
 
 ## Architecture
 

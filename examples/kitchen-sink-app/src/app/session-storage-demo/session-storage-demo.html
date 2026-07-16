@@ -1,0 +1,44 @@
+<app-demo-screen
+  heading="Session Storage"
+  category="Forms & Input"
+  description="Persisting state with session storage."
+>
+  <!-- Section 1: Reactive watch() -->
+  <view class="section">
+    <text class="section-title">Reactive Signal (watch)</text>
+    <text class="info-text"
+      >Uses watch() to create a signal that auto-updates when any LynxView
+      writes to the "counter" key</text
+    >
+    <view class="value-display">
+      <text class="value-label">counter:</text>
+      <text class="value-text">{{ counter() ?? 'undefined' }}</text>
+    </view>
+    <view class="button-row">
+      <view class="button primary" (bindtap)="increment()">
+        <text class="button-text">Increment</text>
+      </view>
+      <view class="button danger" (bindtap)="reset()">
+        <text class="button-text">Reset</text>
+      </view>
+    </view>
+    <text class="info-text">Writes so far: {{ writeCount() }}</text>
+  </view>
+
+  <!-- Section 2: One-shot read -->
+  <view class="section">
+    <text class="section-title">One-Shot Read (getItem)</text>
+    <text class="info-text"
+      >Uses getItem() to perform a single async read of the current value</text
+    >
+    <view class="value-display">
+      <text class="value-label">Result:</text>
+      <text class="value-text">{{ lastRead() }}</text>
+    </view>
+    <view class="button-row">
+      <view class="button secondary" (bindtap)="readOnce()">
+        <text class="button-text">Read Once</text>
+      </view>
+    </view>
+  </view>
+</app-demo-screen>

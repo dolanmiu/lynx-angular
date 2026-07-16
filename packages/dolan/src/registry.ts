@@ -21,6 +21,8 @@ export const registry: RegistryEntry[] = [
   { name: 'input', dependencies: [] },
   { name: 'label', dependencies: [] },
   { name: 'list', dependencies: [] },
+  // nav-drawer renders a hamburger trigger via <ui-icon>, so it pulls in `icon`.
+  { name: 'nav-drawer', dependencies: ['icon'] },
   { name: 'pagination', dependencies: [] },
   { name: 'progress', dependencies: [] },
   { name: 'radio-group', dependencies: [] },

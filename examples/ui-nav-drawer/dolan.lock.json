@@ -3,10 +3,10 @@
   "components": {
     "nav-drawer": {
       "index.ts": {
-        "hash": "51e43e6d441b7cabc78e27ca31500e45e9fae500fda2268230d862d487f21f33"
+        "hash": "51e43e6d441b7cab"
       },
       "nav-drawer.ts": {
-        "hash": "271b7dfb441d12ac48b6ff87bd1907d4b536a714d2a718bf272a45382f66a1b6"
+        "hash": "4e423e15ac76fbef"
       }
     },
     "icon": {

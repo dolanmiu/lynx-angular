@@ -337,7 +337,7 @@ A scrollable container with `overflow: scroll` and `height: 100%` or similar wil
 
 `scroll-view` is forced into linear layout. Without an explicit height, it **expands to fit its content** — no overflow means no scrolling.
 
-Every `scroll-view` must have an explicit `height` (e.g., `height: 100vh`, `height: 300px`) or a flex constraint (`flex: 1` inside a sized flex parent) that bounds it. Content that exceeds that bound becomes scrollable.
+Every `scroll-view` must have an explicit `height` (e.g., `height: 100vh`, `height: 300px`) or inherit one via `h-full` from a parent that is itself bounded. Content that exceeds that bound becomes scrollable.
 
 ```css
 /* Required — scroll-view won't scroll without this */
@@ -346,6 +346,63 @@ Every `scroll-view` must have an explicit `height` (e.g., `height: 100vh`, `heig
   width: 100vw;
 }
 ```
+
+**`flex: 1` directly on the `scroll-view` does NOT bound it.** Because the
+scroll-view expands to fit its content, it ignores the flex-computed height and
+grows past its slot — e.g. a long list inside a header/scroll/footer column
+spills over the footer instead of scrolling. The fix has two parts:
+
+1. Put `flex: 1` on the **plain view that is the actual flex child** — a plain
+   view honours flex sizing where the scroll-view won't. Make that view a
+   **column** container (`flex flex-col`), NOT the default `flex` (which is a
+   **row** — its child then shrinks to content width, so the scroll-view no
+   longer fills the width). A `flex-col` parent also stretches the child to full
+   width by default (Lynx `align-items: stretch`).
+2. Give the scroll-view `h-full w-full` so it fills that now-definite height.
+
+```html
+<!-- Header/scroll/footer column: the middle section scrolls -->
+<view class="flex-col flex" style="height: 100vh">
+  <view><!-- header --></view>
+  <view class="flex-1 flex-col flex">        <!-- column, claims remaining height -->
+    <scroll-view scroll-orientation="vertical" class="h-full w-full">
+      <!-- long content scrolls here -->
+    </scroll-view>
+  </view>
+  <view><!-- footer --></view>
+</view>
+```
+
+**When the scrollable section is its own component, the `flex: 1` must go on the
+component's HOST element, not an inner view** — the host is the real flex child
+of the parent column. An inner-only `flex: 1` leaves the host sizing to content,
+so the section still overflows. Set it via `host` metadata (same lesson as
+`ui-tabs-content` and `ui-separator`):
+
+```ts
+@Component({
+  selector: 'ui-nav-drawer-content',
+  host: { class: 'flex-1 flex-col flex' },   // host = the flex child
+  template: `<scroll-view scroll-orientation="vertical" class="h-full w-full"><ng-content /></scroll-view>`,
+})
+```
+
+This is the pattern the app shell, `demo-screen`, and `ui-nav-drawer-content`
+all use.
+
+**A routed component's host is itself a flex child that must claim the height.**
+Angular's `<router-outlet>` inserts each routed component as a *real Lynx
+element* (`<app-home>`, `<app-motion-demo>`, …) — a sibling of `<router-outlet>`
+inside the outlet's container. That host arrives unstyled (no flex-grow, no
+height), so it collapses to its content and every `scroll-view` inside the route
+resolves `h-full` against a content-sized ancestor and expands instead of
+scrolling. The container must be a bounded `flex flex-col`, and **each routed
+screen must carry `flex-1 flex-col flex` on its own host** — an inner wrapper is
+not enough, exactly as with a scrollable child component above. In
+`kitchen-sink-app` this is centralised in a shared `ScreenHost` directive applied
+via `hostDirectives` to every routed screen and to the `demo-screen` frame; the
+app shell's outlet container is `<view class="flex-1 flex-col flex">`. Symptom
+without it: no route scrolls, even though each route's own markup looks correct.
 
 ---
 

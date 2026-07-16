@@ -1,0 +1,204 @@
+import { Component, inject, signal } from '@angular/core';
+import { Router, RouterOutlet } from '@angular/router';
+import { LYNX_ELEMENTS, LynxLogger } from '@blotch/angular-lynx';
+import { type IconName, UiIcon } from '../components/ui/icon';
+import {
+  UiNavDrawer,
+  UiNavDrawerContent,
+  UiNavDrawerFooter,
+  UiNavDrawerHeader,
+  UiNavDrawerItem,
+  UiNavDrawerTrigger,
+} from '../components/ui/nav-drawer';
+import { UiSeparator } from '../components/ui/separator';
+import { UiText } from '../components/ui/typography';
+
+type NavItem = { path: string; label: string; icon: IconName };
+type NavGroup = { title: string; items: NavItem[] };
+
+@Component({
+  selector: 'app-root',
+  imports: [
+    RouterOutlet,
+    LYNX_ELEMENTS,
+    UiNavDrawer,
+    UiNavDrawerHeader,
+    UiNavDrawerContent,
+    UiNavDrawerItem,
+    UiNavDrawerFooter,
+    UiNavDrawerTrigger,
+    UiIcon,
+    UiSeparator,
+    UiText,
+  ],
+  template: `
+    <view class="h-full flex-col bg-background flex">
+      <!-- Persistent app bar. The hamburger opens the nav drawer and is
+           available on every screen, so screens don't need their own back
+           button — the drawer is the single navigation surface.
+
+           Fixes: on-device the hamburger trigger and title were drawn behind
+           the status bar / notch / dynamic island — the bar started at y=0 with
+           a flat py-2, so its content sat under the system inset.
+           Fix: split the vertical padding — keep pb-2 (0.5rem) at the bottom,
+           and use pt-safe-2 at the top = calc(0.5rem + env(safe-area-inset-top)),
+           which preserves the original 0.5rem base padding AND adds the device
+           top inset. Degrades to plain 0.5rem where the inset is 0 (web preview),
+           so no platform fork is needed. -->
+      <view
+        class="flex-row items-center border-b border-border bg-background px-2 pb-2 pt-safe-2 flex"
+      >
+        <ui-nav-drawer-trigger (pressed)="openDrawer()" />
+        <ui-text variant="large" class="ml-2">AngularLynx</ui-text>
+      </view>
+
+      <!-- Routed demo content fills the remaining height. This must be a
+           bounded flex-col container (not a plain view): each routed component
+           is inserted as a real Lynx element here and, via ScreenHost, claims
+           this height with flex-1 so its inner scroll-view can actually scroll.
+           A plain flex-1 view leaves the routed host content-sized, so every
+           route's scroll-view expands to fit instead of scrolling. -->
+      <view class="flex-1 flex-col flex">
+        <router-outlet />
+      </view>
+
+      <ui-nav-drawer [(open)]="drawerOpen">
+        <ui-nav-drawer-header>
+          <ui-text variant="large">AngularLynx</ui-text>
+          <ui-text variant="muted">Kitchen sink · Angular on Lynx</ui-text>
+        </ui-nav-drawer-header>
+        <ui-nav-drawer-content>
+          <ui-nav-drawer-item
+            [active]="currentPath() === 'home'"
+            (pressed)="navigateTo('home')"
+          >
+            <ui-icon name="heart" size="sm" />
+            <text class="text-sm text-foreground">Home</text>
+          </ui-nav-drawer-item>
+          <ui-separator />
+          @for (group of navGroups; track group.title) {
+            <view class="px-4 pb-1 pt-4 flex">
+              <ui-text variant="small" class="text-muted-foreground">
+                {{ group.title }}
+              </ui-text>
+            </view>
+            @for (item of group.items; track item.path) {
+              <ui-nav-drawer-item
+                [active]="currentPath() === item.path"
+                (pressed)="navigateTo(item.path)"
+              >
+                <ui-icon [name]="item.icon" size="sm" />
+                <text class="text-sm text-foreground">{{ item.label }}</text>
+              </ui-nav-drawer-item>
+            }
+          }
+        </ui-nav-drawer-content>
+        <ui-nav-drawer-footer>
+          <ui-text variant="muted">
+            Proof of concept · built with @blotch/dolan
+          </ui-text>
+        </ui-nav-drawer-footer>
+      </ui-nav-drawer>
+    </view>
+  `,
+})
+export class App {
+  #router = inject(Router);
+  #logger = inject(LynxLogger);
+
+  readonly drawerOpen = signal(false);
+  readonly currentPath = signal('home');
+
+  readonly navGroups: NavGroup[] = [
+    {
+      title: 'Elements',
+      items: [
+        { path: 'showcase', label: 'Elements Showcase', icon: 'star' },
+        { path: 'list-example', label: 'List', icon: 'menu' },
+        { path: 'scroll-example', label: 'Scroll View', icon: 'chevron-down' },
+      ],
+    },
+    {
+      title: 'Components',
+      items: [
+        {
+          path: 'content-projection-demo',
+          label: 'Content Projection',
+          icon: 'circle',
+        },
+        { path: 'tailwind-demo', label: 'Tailwind', icon: 'eye' },
+        { path: 'css-modules-demo', label: 'CSS Modules', icon: 'circle' },
+      ],
+    },
+    {
+      title: 'Motion',
+      items: [
+        { path: 'motion-demo', label: 'Motion', icon: 'star' },
+        { path: 'overlay-motion-demo', label: 'Overlay + Motion', icon: 'eye' },
+        {
+          path: 'transition-demo',
+          label: 'Transitions',
+          icon: 'chevron-right',
+        },
+        { path: 'refresh-demo', label: 'Pull to Refresh', icon: 'loader' },
+      ],
+    },
+    {
+      title: 'Forms & Input',
+      items: [
+        { path: 'forms-demo', label: 'Forms', icon: 'check' },
+        {
+          path: 'session-storage-demo',
+          label: 'Session Storage',
+          icon: 'settings',
+        },
+      ],
+    },
+    {
+      title: 'Platform',
+      items: [
+        { path: 'query-selector-demo', label: 'querySelector', icon: 'search' },
+        { path: 'defer-demo', label: 'Defer', icon: 'loader' },
+        { path: 'gesture-demo', label: 'Gestures', icon: 'circle' },
+        { path: 'fonts-demo', label: 'Custom Fonts', icon: 'info' },
+        { path: 'text-measure-demo', label: 'Text Measure', icon: 'info' },
+        { path: 'exposure-demo', label: 'Exposure', icon: 'eye' },
+        { path: 'main-thread-demo', label: 'Main Thread', icon: 'settings' },
+        {
+          path: 'worklet-directive-demo',
+          label: 'Worklet Directive',
+          icon: 'settings',
+        },
+        { path: 'i18n-demo', label: 'i18n', icon: 'info' },
+        { path: 'ssr-demo', label: 'SSR', icon: 'settings' },
+      ],
+    },
+    {
+      title: 'Validation',
+      items: [
+        { path: 'css-var-validation', label: 'CSS Variables', icon: 'info' },
+        {
+          path: 'text-projection-validation',
+          label: 'Text Projection',
+          icon: 'info',
+        },
+      ],
+    },
+  ];
+
+  openDrawer(): void {
+    this.drawerOpen.set(true);
+  }
+
+  navigateTo(path: string): void {
+    this.currentPath.set(path);
+    // Defer navigation out of the Lynx worklet event callback. Angular's Router
+    // processes navigation synchronously, triggering __RemoveElement/__CreateView
+    // during the worklet — moving to a macrotask keeps the mutations in a clean
+    // tick. (The signal write above is safe: zoneless CD runs asynchronously.)
+    setTimeout(() => {
+      this.#router.navigateByUrl(path);
+      this.#logger.log('navigated to', path);
+    }, 0);
+  }
+}

@@ -3,7 +3,7 @@
   "components": {
     "accordion": {
       "accordion.ts": {
-        "hash": "8124de672e2d4502"
+        "hash": "e62fea7cd92462a6"
       },
       "index.ts": {
         "hash": "8751913a8ed8016e"
@@ -11,7 +11,7 @@
     },
     "collapsible": {
       "collapsible.ts": {
-        "hash": "2c46617b929c7275"
+        "hash": "d9de60a4ba573b7f"
       },
       "index.ts": {
         "hash": "2ff1aa9a6b200d26"

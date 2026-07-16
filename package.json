@@ -14,7 +14,7 @@
     "build": "turbo run build",
     "test": "turbo run test",
     "test:no-cache": "turbo run test --force",
-    "demo": "turbo run start --filter=kitchen-sink-app",
+    "demo": "turbo run start --filter=@angular-lynx-example/kitchen-sink-app",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "format": "turbo run format",

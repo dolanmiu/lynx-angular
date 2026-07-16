@@ -193,8 +193,19 @@ export class UiNavDrawer {
 export class UiNavDrawerHeader {
   readonly userClass = input<string>('', { alias: 'class' });
 
+  // Fixes: the header title/subtitle were drawn behind the device status bar /
+  // notch / dynamic island. The drawer panel is positioned top: 0; bottom: 0
+  // (see UiNavDrawer.panelPositionStyle), so it spans the full screen height and
+  // the header — its first child — starts at y=0, under the system inset.
+  // Fix: split the padding — keep `px-4 pb-4` (1rem) and swap the top for
+  // `pt-safe-4` = calc(1rem + env(safe-area-inset-top)), preserving the original
+  // p-4 top padding while clearing the inset. Degrades to plain 1rem where the
+  // inset is 0 (e.g. the web preview), so no platform fork is needed.
   protected readonly containerClass = computed(() =>
-    cn('flex-col gap-1.5 border-b border-border p-4 flex', this.userClass()),
+    cn(
+      'flex-col gap-1.5 border-b border-border px-4 pb-4 flex pt-safe-4',
+      this.userClass(),
+    ),
   );
 }
 
@@ -203,6 +214,35 @@ export class UiNavDrawerHeader {
   standalone: true,
   imports: [LYNX_ELEMENTS],
   encapsulation: ViewEncapsulation.None,
+  // Fixes: a long item list scrolled nowhere and spilled over the header and
+  // footer instead of scrolling within its own section.
+  //
+  // Root cause: Lynx forces `scroll-view` into linear layout, where it EXPANDS
+  // to fit its content rather than accepting a flex-computed height (see
+  // investigations/lynx-vs-web-differences.md, "scroll-view requires an explicit
+  // height constraint to scroll"). It therefore has no bound to scroll within
+  // and grows past its slot in the panel's flex-col.
+  //
+  // Two approaches were tried and failed, hence this shape:
+  //   1. `flex-1` directly on the scroll-view — ignored, because the scroll-view
+  //      sizes to content, not to the flex track. Still overflowed.
+  //   2. wrapping the scroll-view in an inner `flex-1` view — the inner view is
+  //      NOT the flex child of the panel; the host element is. The host still
+  //      sized to content and overflowed, and the wrapper being `flex` (a ROW)
+  //      also shrank the scroll-view to its content WIDTH.
+  //
+  // Working fix: put the flex sizing on the HOST element (the real flex child of
+  // the panel's flex-col — same lesson as ui-tabs-content / ui-separator).
+  // `flex-1` claims the space left between the header and footer; `flex flex-col`
+  // makes the host lay the scroll-view out vertically to fill that height. The
+  // panel's flex-col stretches the host to full width by default (Lynx
+  // align-items: stretch), so no width class is needed on the host.
+  host: {
+    class: 'flex-1 flex-col flex',
+  },
+  // With the host now a definite height, the scroll-view fills it with `h-full`
+  // (the explicit height Lynx requires to actually scroll) and `w-full` to span
+  // the host width. This is the bound the scroll-view was missing above.
   template: `
     <scroll-view scroll-orientation="vertical" [class]="contentClass()">
       <ng-content />
@@ -213,7 +253,7 @@ export class UiNavDrawerContent {
   readonly userClass = input<string>('', { alias: 'class' });
 
   protected readonly contentClass = computed(() =>
-    cn('flex-1', this.userClass()),
+    cn('h-full w-full', this.userClass()),
   );
 }
 
@@ -296,8 +336,17 @@ export class UiNavDrawerItem {
 export class UiNavDrawerFooter {
   readonly userClass = input<string>('', { alias: 'class' });
 
+  // Fixes (mirror of the header): the footer content was drawn behind the home
+  // indicator. The footer is the last child of the top: 0; bottom: 0 panel, so
+  // its lower edge reaches the very bottom of the screen, under the inset.
+  // Fix: keep `px-4 pt-4` (1rem) and swap the bottom for `pb-safe-4` =
+  // calc(1rem + env(safe-area-inset-bottom)), preserving the original p-4 bottom
+  // padding while lifting the content clear of the inset.
   protected readonly containerClass = computed(() =>
-    cn('flex-col gap-2 border-t border-border p-4 flex', this.userClass()),
+    cn(
+      'flex-col gap-2 border-t border-border px-4 pt-4 flex pb-safe-4',
+      this.userClass(),
+    ),
   );
 }
 

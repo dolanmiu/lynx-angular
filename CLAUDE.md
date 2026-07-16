@@ -11,7 +11,7 @@ Lynx uses a dual-thread model: **main thread** (native UI rendering) and **backg
 - `packages/runtime` — Core Angular renderer for Lynx (published as `@blotch/angular-lynx`)
 - `packages/rsbuild-plugin-angular-lynx` — Rsbuild plugin for building AngularLynx apps (published as `@blotch/rsbuild-plugin-angular-lynx`)
 - `packages/create-angular-lynx` — Zero-setup scaffolder: `npm create angular-lynx <name>` runs `ng new` then `ng add @blotch/angular-lynx` automatically
-- `packages/kitchen-sink-app` — Kitchen sink Angular app running on Lynx
+- `examples/kitchen-sink-app` — Kitchen sink Angular app running on Lynx (the `npm run demo` target; consumes `@blotch/dolan` UI components)
 - `references/lynx-stack-main/packages/react` — **React Lynx** (production-proven reference implementation). Always refer to how React Lynx does things — it's battle-tested and used in production. When unsure about renderer design, element handling, or Lynx API usage, check this reference first.
 - `references/lynx-website-main` — **Lynx official documentation website**. Contains API docs, guides, element/CSS/native API compatibility data, and examples. Reference for understanding Lynx platform capabilities, supported elements, CSS properties, and API status across platforms.
 - `references/lynx` — **Lynx core source code**. The actual C++/JS implementation of the Lynx runtime. Check here to understand how native elements, the dual-thread model, and platform APIs are implemented under the hood.

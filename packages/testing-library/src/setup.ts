@@ -163,6 +163,22 @@ for (const tag of ['block', 'for', 'frame', 'if']) {
  */
 (globalThis as any).__SetConfig = () => {};
 
+/**
+ * Invokes a native UI method by name (e.g. the `setValue` UIMethod that Lynx
+ * inputs/textareas require for programmatic text updates — see
+ * LynxElement.invoke() in the runtime). LynxElement.invoke() always passes an
+ * empty result callback, so a no-op that still calls back (matching the real
+ * host's async {code, data} contract) is sufficient here.
+ */
+(globalThis as any).__InvokeUIMethod = (
+  _element: unknown,
+  _methodName: string,
+  _params: unknown,
+  callback?: (result: { code: number; data?: unknown }) => void,
+): void => {
+  callback?.({ code: 0 });
+};
+
 // ─── After reset ─────────────────────────────────────────────────────────────
 
 // lynxTestingEnv.reset() re-injects globals from scratch. Re-establish main
