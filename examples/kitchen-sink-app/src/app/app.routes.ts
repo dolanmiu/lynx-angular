@@ -21,6 +21,11 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'images-demo',
+    loadComponent: () =>
+      import('./images-demo/images-demo').then((m) => m.ImagesDemo),
+  },
+  {
     path: 'query-selector-demo',
     loadComponent: () =>
       import('./query-selector-demo/query-selector-demo').then(

@@ -83,3 +83,21 @@ export const runAfterFirstRender = (callback: () => void): void => {
   }
   deferredCallbacks.push(callback);
 };
+
+// True only while a renderer begin()/end() change-detection cycle is executing
+// (set by LynxRendererFactory2). Native element creation/attachment that happens
+// while this is FALSE is happening OUTSIDE Angular's change-detection flush —
+// the canonical case is a lazy-loaded route component instantiated by
+// RouterOutlet DURING navigation, before Angular's next tick. end() only flushes
+// per CD cycle, so such content is committed to the fiber tree yet never laid out
+// or painted until an unrelated later CD flushes (e.g. a tap). The <list> path
+// already guards this (LynxListElement.#scheduleUpdate); scheduleSettleFlush()
+// in lynx-element.ts is the equivalent guard for every other element, and it
+// reads this flag to know a flush is not already coming from end().
+let insideChangeDetection = false;
+
+export const setInsideChangeDetection = (value: boolean): void => {
+  insideChangeDetection = value;
+};
+
+export const isInsideChangeDetection = (): boolean => insideChangeDetection;

@@ -9,6 +9,19 @@ describe('LynxElement', () => {
   beforeEach(() => {
     fakeRef = {} as ElementRef;
 
+    // LynxElement's constructor registers itself in a native-id → wrapper map
+    // (see #byNativeId), so every construction needs a unique id. Hand out a
+    // stable id per ref object.
+    const uidByRef = new WeakMap<object, number>();
+    let nextUid = 1;
+    globalThis.__GetElementUniqueID = vi.fn((ref: object) => {
+      let id = uidByRef.get(ref);
+      if (id == null) {
+        id = nextUid++;
+        uidByRef.set(ref, id);
+      }
+      return id;
+    });
     globalThis.__AddClass = vi.fn();
     globalThis.__SetClasses = vi.fn();
     globalThis.__GetClasses = vi.fn(() => []);

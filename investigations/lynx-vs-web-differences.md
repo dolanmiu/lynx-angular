@@ -234,6 +234,55 @@ Drain the queue from `end()`, **before** `__FlushElementTree()`, via `processPen
 
 ---
 
+## Native mutations made outside a change-detection cycle need their own flush
+
+Content created outside a `begin()`/`end()` bracket paints only after a later, unrelated change-detection cycle. Arm a settle flush so it paints immediately.
+
+### What you'd expect (web)
+
+Create elements at any time — from a router navigation, a dynamic `createComponent()`, a timer — and they show up on the next frame. There is no "commit" step you have to trigger.
+
+### What Lynx does
+
+`__FlushElementTree()` is what commits (lays out and paints) element mutations, and the renderer calls it once per CD cycle from `LynxRendererFactory2.end()`. Work done *outside* a CD cycle never hits that call. Angular's `RouterOutlet` builds a lazy route component **during navigation** — before any `begin()`/`end()` bracket — so its freshly created native elements land in the fiber tree but sit unflushed. The core's `OnPatchFinishForFiber` lays out only when a flush actually runs (`references/lynx/core/renderer/dom/element_manager.cc`), so the content stays invisible until something else triggers a cycle.
+
+The `<list>` path already guarded this exact case (`LynxListElement.#scheduleUpdate`'s `queueMicrotask` safety net, whose comment names "lazy-loaded route components on first navigation"); nothing covered non-list content.
+
+**Scope:** this is about content *created* out of cycle. A different bug made `@if`/`@for` content vanish specifically on route **re-entry** — that was a canonical-wrapper mismatch, not a missed flush; see the next entry.
+
+### The fix
+
+`scheduleSettleFlush()` (`packages/runtime/src/lib/lynx-element/lynx-element.ts`) schedules ONE coalesced `queueMicrotask` flush whenever native work happens outside a CD cycle. Two call sites arm it:
+
+- `LynxDocument`'s element creators — for content *created* out of cycle (first navigation to a lazy route, a dynamic `createComponent()`).
+- `LynxElement.#recreateIfDead()` — recreate-on-remount builds fresh refs via `createNativeRefByTag` directly (bypassing `LynxDocument.createElement`), and a route re-attach runs out of cycle, so the rebuilt subtree needs its own flush.
+
+`LynxRendererFactory2.begin()`/`end()` maintain the in-cycle flag (`setInsideChangeDetection`, `packages/runtime/src/lib/lynx-render-lifecycle.ts`), so in-cycle rendering stays a no-op — its `end()` already flushes. It uses `queueMicrotask`, never `setTimeout` (a macrotask flush crashes the native engine), stands down if a real CD cycle starts first, and is skipped while the first render is pending (native flushes after `renderPage`). Covered by `packages/runtime/src/lib/lynx-element/settle-flush.spec.ts`.
+
+---
+
+## `@if`/`@for` content vanishes after leaving and returning to a route
+
+Nested `@if`/`@for` content renders on first visit, then comes back **blank** after you navigate away and return — while static template content survives. The cause: embedded-view content was adopted into a throwaway parent wrapper, so recreate-on-remount could not rebuild it.
+
+### What you'd expect (web)
+
+Navigate away from a route and back, and the whole view returns exactly as it was — `@if` blocks, `@for` rows, interpolated text, images, all of it.
+
+### What Lynx does
+
+`LynxRouteReuseStrategy` **detaches** a route on navigate-away and re-**inserts** the same view on return (to spare the finite native element pool — see the route-reuse entry below). Angular re-attaches a detached view by re-inserting only its **top-level** native node; nested `@if`/`@for` containers ride that node's subtree (`applyNodes` in `@angular/core` walks children only for `ng-container`/projection, not plain elements). On Lynx that subtree's painting nodes were destroyed on detach, so the renderer must rebuild the whole subtree from cache via `#recreateSubtree()`.
+
+That rebuild walks each wrapper's **canonical** `#children` — the wrapper list Angular stores in its LView. The break: `parentNode()`/`nextSibling()/querySelector()` used to mint a **throwaway** `LynxElement` for a native ref (there is no native-ref → wrapper lookup). Angular finds an embedded view's insertion parent via `renderer.parentNode(anchorComment)`, so `@if`/`@for` content was inserted through that throwaway and adopted into *its* `#children`, not the canonical parent's. It rendered fine on first paint (the throwaway drives the same native ref), but was invisible to `#recreateSubtree` — so on route re-entry the containers rebuilt and the embedded content did not.
+
+Static template content survives because its wrappers are adopted canonically at creation; only embedded-view content routed through `parentNode()` hit the throwaway.
+
+### The fix
+
+A native-id → canonical-wrapper registry, `LynxElement.#byNativeId` (`packages/runtime/src/lib/lynx-element/lynx-element.ts`), keyed by `__GetElementUniqueID` (a number — hashing a native ref crashes the Lepus engine). The constructor registers each wrapper; `parentNode()`/`nextSibling()`/`querySelector()` return the registered canonical wrapper instead of a throwaway, so every adoption lands in the canonical tree. `#recreateSubtree` moves the entry from the stale ref's id to the fresh one on remount, and `LynxRenderer.destroyNode` (now non-null) drops the entry when Angular tears the element down. Covered by the route-reuse test in `packages/runtime/src/lib/renderer/teardown.spec.ts`, which drives `ViewContainerRef.detach()` + `insert()` with an intervening settle-flush — the detach/reattach path every prior remount test missed (they all toggled a signal, which creates a *fresh* embedded view).
+
+---
+
 ## `<block>` has no native paintable UI — it must be created as a layout-only element, and its children can't be picked apart on teardown
 
 ### What you'd expect (web)

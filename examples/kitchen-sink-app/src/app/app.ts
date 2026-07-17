@@ -46,7 +46,7 @@ type NavGroup = { title: string; items: NavItem[] };
            top inset. Degrades to plain 0.5rem where the inset is 0 (web preview),
            so no platform fork is needed. -->
       <view
-        class="flex-row items-center border-b border-border bg-background px-2 pb-2 pt-safe-2 flex"
+        class="flex-row items-center border-b border-border bg-background px-2 pb-2 flex pt-safe-2"
       >
         <ui-nav-drawer-trigger (pressed)="openDrawer()" />
         <ui-text variant="large" class="ml-2">AngularLynx</ui-text>
@@ -114,6 +114,7 @@ export class App {
       title: 'Elements',
       items: [
         { path: 'showcase', label: 'Elements Showcase', icon: 'star' },
+        { path: 'images-demo', label: 'Images', icon: 'eye' },
         { path: 'list-example', label: 'List', icon: 'menu' },
         { path: 'scroll-example', label: 'Scroll View', icon: 'chevron-down' },
       ],

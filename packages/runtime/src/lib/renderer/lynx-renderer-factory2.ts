@@ -12,7 +12,10 @@ import {
   processPendingListUpdates,
   processPendingRemovals,
 } from '../lynx-element';
-import { isFirstRenderPending } from '../lynx-render-lifecycle';
+import {
+  isFirstRenderPending,
+  setInsideChangeDetection,
+} from '../lynx-render-lifecycle';
 import { EmulatedLynxRenderer } from './emulated-lynx-renderer';
 import { LynxRenderer } from './renderer';
 import { LYNX_DOCUMENT } from './token';
@@ -56,7 +59,17 @@ export class LynxRendererFactory2 implements RendererFactory2 {
     }
     return renderer;
   }
-  begin?(): void {}
+  /**
+   * Angular calls begin()/end() around every change-detection tick. We track
+   * whether a cycle is in progress so element creation can tell in-cycle
+   * rendering (flushed by end() below) apart from content built OUTSIDE a cycle
+   * — e.g. a lazy route component instantiated by RouterOutlet during
+   * navigation — which needs its own safety-net flush (see scheduleSettleFlush
+   * in lynx-element.ts).
+   */
+  begin?(): void {
+    setInsideChangeDetection(true);
+  }
   /**
    * Called by Angular after every change detection cycle completes.
    * On the background thread this is a no-op — there's no native tree to flush.
@@ -86,6 +99,11 @@ export class LynxRendererFactory2 implements RendererFactory2 {
    * independent of flushing.
    */
   end?(): void {
+    // This change-detection cycle is finishing: clear the flag first, on EVERY
+    // return path, so mutations after this point are correctly seen as
+    // outside-a-cycle (see begin() / scheduleSettleFlush). The flush below is
+    // unconditional, so clearing the flag now does not affect it.
+    setInsideChangeDetection(false);
     if (__MAIN_THREAD__) {
       // During SSR hydration the native tree already exists from the snapshot
       // — flushing would be redundant and could cause visual glitches.

@@ -37,9 +37,12 @@ import '@angular/compiler';
 import {
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
+  Directive,
+  inject,
   provideZonelessChangeDetection,
   RendererFactory2,
   signal,
+  ViewContainerRef,
   ViewEncapsulation,
 } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -197,6 +200,9 @@ const installNativeFakes = (): void => {
   g.__GetAttributeByName = (n: FakeEl, name: string) => n.attrs.get(name);
   g.__SetID = (n: FakeEl, id: string) => n.attrs.set('id', id);
   g.__SetDataset = () => {};
+  // Image elements are created via createImageElement, which seeds native config
+  // (mode/fadeIn/loadingPlaceholder). Inert here — we only assert tree/painting.
+  g.__SetConfig = () => {};
   g.__AddInlineStyle = (n: FakeEl, key: string, value: unknown) => {
     if (value == null) n.styles.delete(key);
     else n.styles.set(key, value);
@@ -564,6 +570,69 @@ class ReprojRawTextHost {
   readonly label = signal('dynamic');
 }
 
+/**
+ * Route re-entry scenario (LynxRouteReuseStrategy). The strategy DETACHES a route
+ * view on navigate-away and re-INSERTS the same view on return — it never
+ * re-evaluates the route's `@if`/`@for`, whose conditions are unchanged. Angular
+ * re-attaches a detached view by re-inserting only its TOP-LEVEL native node
+ * (applyNodes doesn't walk children of plain elements); the nested embedded
+ * content rides that node's native subtree. On Lynx that subtree's painting nodes
+ * were destroyed on detach, so recreate-on-remount must rebuild the WHOLE subtree
+ * — including the nested `@if`/`@for` content — from cache. This component is a
+ * stand-in "route page" with nested embedded views whose conditions never change.
+ */
+@Component({
+  selector: 'route-page',
+  standalone: true,
+  encapsulation: ViewEncapsulation.None,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <view class="page">
+      <view class="card">
+        @if (cond) {
+          <image class="cond-img" src="x" />
+        }
+        @for (n of rows; track n) {
+          <text class="row">{{ n }}</text>
+        }
+      </view>
+    </view>
+  `,
+})
+class RoutePage {
+  // Never toggled — the route-reuse path re-attaches WITHOUT re-running these.
+  readonly cond = true;
+  readonly rows = [1, 2, 3];
+}
+
+/**
+ * Captures the ViewContainerRef anchored at an <ng-container>, exactly as
+ * RouterOutlet does. viewChild does not resolve in this jsdom + Lynx-renderer
+ * TestBed (see the note by ReprojSlot), so a directive grabs it on construction.
+ */
+let lastOutletVcr: ViewContainerRef;
+
+@Directive({ selector: '[outletAnchor]', standalone: true })
+class OutletAnchor {
+  constructor() {
+    lastOutletVcr = inject(ViewContainerRef);
+  }
+}
+
+/**
+ * Stands in for the RouterOutlet's ViewContainerRef: the anchor a route view is
+ * created in, then detached from and re-inserted into (the reuse-strategy path).
+ */
+@Component({
+  selector: 'route-outlet-host',
+  standalone: true,
+  imports: [OutletAnchor],
+  encapsulation: ViewEncapsulation.None,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `<view class="outlet"><ng-container outletAnchor /></view>`,
+})
+class RouteOutletHost {}
+
 describe('renderer teardown', () => {
   beforeAll(() => {
     TestBed.initTestEnvironment(
@@ -917,5 +986,47 @@ describe('renderer teardown', () => {
     // called only on an anchor node, never this one). So it is stranded in the
     // holder forever — the unbounded leak that hung teardown.
     expect(holder.children).toContain(content);
+  });
+
+  it('restores nested @if/@for content when a detached route view is re-attached (route reuse)', async () => {
+    const fixture = TestBed.createComponent(RouteOutletHost);
+    fixture.detectChanges();
+    await flush();
+    const vcr = lastOutletVcr;
+
+    // "Activate route": create the page component inside the outlet's container,
+    // exactly as RouterOutlet.activateWith does.
+    const ref = vcr.createComponent(RoutePage);
+    fixture.detectChanges();
+    await flush();
+
+    // Nested @if image and @for rows are rendered on first activation.
+    expect(findRenderedByClass('cond-img')).toHaveLength(1);
+    expect(findRenderedByClass('row')).toHaveLength(3);
+
+    // "Navigate away": LynxRouteReuseStrategy detaches (keeps the ComponentRef);
+    // Angular removes only the top-level route node from the native tree.
+    vcr.detach(0);
+    // Intervening flush — in the app this is the settle-flush armed by the next
+    // lazy route's element creation. It commits the queued removal, so the whole
+    // detached subtree's painting nodes die (is_move=false) BEFORE re-attach.
+    fixture.detectChanges();
+    await flush();
+
+    // "Navigate back": re-insert the SAME view. The route's @if/@for are NOT
+    // re-evaluated (conditions unchanged), so recreate-on-remount is the only
+    // thing that can bring the nested embedded content back.
+    vcr.insert(ref.hostView);
+    fixture.detectChanges();
+    await flush();
+
+    // The nested @if image and @for rows must be RENDERED again (live painting
+    // nodes) — findRenderedByClass prunes dead-ref subtrees, so a remount that
+    // fails to rebuild the embedded content shows up as missing here, matching
+    // the on-device "blank after returning to the route" symptom. This regressed
+    // because @if/@for content was adopted into a throwaway parentNode() wrapper
+    // instead of the canonical #children (fixed via LynxElement.#byNativeId).
+    expect(findRenderedByClass('cond-img')).toHaveLength(1);
+    expect(findRenderedByClass('row')).toHaveLength(3);
   });
 });

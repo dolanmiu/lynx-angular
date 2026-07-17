@@ -31,9 +31,19 @@ describe('LynxRenderer', () => {
   });
 
   describe('destroyNode', () => {
-    it('is null', () => {
+    it('deregisters the node from the canonical-wrapper registry', () => {
+      // Non-null so Angular walks a destroyed view and cleans up each node's
+      // native-id → wrapper entry (see LynxElement.#byNativeId). It must be a
+      // no-op for nodes without the method (background/SSR elements).
       const { renderer } = createRenderer();
-      expect(renderer.destroyNode).toBeNull();
+      expect(renderer.destroyNode).toBeTypeOf('function');
+
+      const node = { deregisterNative: vi.fn() };
+      renderer.destroyNode!(node);
+      expect(node.deregisterNative).toHaveBeenCalledTimes(1);
+
+      const bare = {};
+      expect(() => renderer.destroyNode!(bare)).not.toThrow();
     });
   });
 

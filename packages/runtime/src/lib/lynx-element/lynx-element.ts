@@ -9,6 +9,10 @@ import { devStats } from '../devtools/stats';
 // and types, so this path is cycle-free.
 import { createNativeRefByTag } from '../lynx-document/create-native-ref';
 import { getPageId } from '../lynx-document/page-ref';
+import {
+  isFirstRenderPending,
+  isInsideChangeDetection,
+} from '../lynx-render-lifecycle';
 import type { ElementRef } from '../types/lynx';
 import {
   type BaseLynxElement,
@@ -171,8 +175,61 @@ export class LynxElement implements BaseLynxElement {
    */
   static #pendingRemovals = new Set<LynxElement>();
 
+  /**
+   * Native-ref → canonical wrapper registry, keyed by the native unique ID.
+   *
+   * Angular locates an insertion parent for embedded views (@if/@for content)
+   * via `renderer.parentNode(anchorComment)`, and Lynx exposes only the raw
+   * native parent ref — with no way to map it back to the CANONICAL LynxElement
+   * wrapper (the one Angular stores in its LView, whose `#children` recreation
+   * walks). parentNode()/nextSibling()/querySelector() therefore used to MINT a
+   * fresh throwaway wrapper (empty `#children`); when Angular then inserted the
+   * embedded content into that throwaway, the content was adopted into the
+   * throwaway's `#children` and was ABSENT from the canonical parent's. It still
+   * rendered on first paint (the throwaway drives the same native ref), but
+   * `#recreateSubtree()` — which rebuilds a remounted subtree from the canonical
+   * `#children` — could never find it, so it vanished on route re-entry (the
+   * reuse-strategy remount). This registry lets those methods return the
+   * CANONICAL wrapper instead, so every adoption lands in the canonical tree.
+   *
+   * Keyed by `__GetElementUniqueID` (a number), never the ref itself — hashing a
+   * native ref crashes the Lepus engine (see LynxDocument.createComment).
+   */
+  static #byNativeId = new Map<number, LynxElement>();
+
+  /**
+   * Returns the canonical wrapper driving `ref`, or a fresh wrapper if none is
+   * registered (an element never created through LynxDocument, e.g. a raw query
+   * hit). Read-only callers (parentNode/nextSibling/querySelector) use this so
+   * they never mint a competing throwaway for an element that already has a
+   * canonical wrapper.
+   */
+  static #canonicalFor(ref: ElementRef): LynxElement {
+    const existing = LynxElement.#byNativeId.get(__GetElementUniqueID(ref));
+    return existing ?? new LynxElement(ref);
+  }
+
   constructor(element: ElementRef) {
     this.#nativeRef = element;
+    // Register as the canonical wrapper for this native ref. #canonicalFor()
+    // checks the map before constructing, so this never overwrites an existing
+    // canonical wrapper with a throwaway.
+    LynxElement.#byNativeId.set(__GetElementUniqueID(element), this);
+  }
+
+  /**
+   * Drops this wrapper's current native id from the registry. Called when the
+   * native ref is swapped (recreate-on-remount) for the STALE id, and by the
+   * renderer's destroyNode when Angular tears the element down, so the registry
+   * doesn't retain wrappers for dead native refs.
+   */
+  deregisterNative(): void {
+    const id = __GetElementUniqueID(this.#nativeRef);
+    // Only clear if WE are the registered wrapper — a later element that reused
+    // this id (native id reuse) must keep its entry.
+    if (LynxElement.#byNativeId.get(id) === this) {
+      LynxElement.#byNativeId.delete(id);
+    }
   }
 
   setProperty(name: string, value: any): void {
@@ -469,7 +526,17 @@ export class LynxElement implements BaseLynxElement {
    * only a single boolean check.
    */
   #recreateIfDead(): void {
-    if (this.#paintingDead) this.#recreateSubtree();
+    if (!this.#paintingDead) return;
+    this.#recreateSubtree();
+    // Recreation is the one native-mutating path that bypasses
+    // LynxDocument.createElement (it calls createNativeRefByTag directly), so it
+    // is also the one place that builds fresh native refs WITHOUT arming the
+    // out-of-cycle safety-net flush. A route re-attach (RouterOutlet re-insert)
+    // runs OUTSIDE a begin()/end() cycle, so without this the rebuilt subtree
+    // would sit unflushed until some unrelated later CD. scheduleSettleFlush is
+    // self-guarding (a no-op inside a CD cycle — the @if-toggle path — and during
+    // first render) and coalesced, so nested remounts still cost one flush.
+    scheduleSettleFlush();
   }
 
   /**
@@ -491,8 +558,13 @@ export class LynxElement implements BaseLynxElement {
     this.#paintingDead = false;
     if (this.isRootPageElement || this.tagName === 'list') return;
 
+    // Swapping the native ref changes this wrapper's unique id — move its
+    // registry entry from the stale (destroyed) ref's id to the fresh one so
+    // parentNode()/#canonicalFor keep resolving to this canonical wrapper.
+    this.deregisterNative();
     const fresh = createNativeRefByTag(this.tagName, getPageId(), this.#text);
     this.#nativeRef = fresh;
+    LynxElement.#byNativeId.set(__GetElementUniqueID(fresh), this);
 
     if (this.#id != null) __SetID(fresh, this.#id);
     // Apply the dataset in one call so recreation is order- and merge-agnostic.
@@ -534,7 +606,11 @@ export class LynxElement implements BaseLynxElement {
     if (this._virtualParent) return this._virtualParent;
     const parent = __GetParent(this.element);
     if (!parent) return null;
-    return new LynxElement(parent);
+    // Return the CANONICAL wrapper, not a throwaway: Angular uses this as the
+    // insertion parent for embedded-view (@if/@for) content, and adopting that
+    // content into a throwaway's #children (instead of the canonical parent's)
+    // is exactly what made it vanish on route re-entry (see #byNativeId).
+    return LynxElement.#canonicalFor(parent);
   }
 
   nextSibling(): LynxElement | null {
@@ -542,17 +618,24 @@ export class LynxElement implements BaseLynxElement {
     if (this._virtualParent) return this._virtualNext;
     const nextSibling = __NextElement(this.element);
     if (!nextSibling) return null;
-    return new LynxElement(nextSibling);
+    // Return the canonical wrapper (see #canonicalFor / parentNode). Angular can
+    // hand a nextSibling() result back as a refChild to insertBefore, so it must
+    // be the same wrapper whose #children recreation walks — never a throwaway.
+    return LynxElement.#canonicalFor(nextSibling);
   }
 
   querySelector(selector: string): LynxElement | null {
     const element = __QuerySelector(this.element, selector, {});
     if (!element) return null;
-    return new LynxElement(element);
+    // Canonical wrapper, not a throwaway: a caller that mutates the query result
+    // (appendChild, setAttribute) must drive the SAME wrapper the rest of the
+    // tree references, or those mutations are lost on the next remount.
+    return LynxElement.#canonicalFor(element);
   }
   querySelectorAll(selector: string): LynxElement[] {
-    return __QuerySelectorAll(this.element, selector, {}).map(
-      (e) => new LynxElement(e),
+    // Same canonical-wrapper requirement as querySelector, per hit.
+    return __QuerySelectorAll(this.element, selector, {}).map((e) =>
+      LynxElement.#canonicalFor(e),
     );
   }
   /**
@@ -680,4 +763,53 @@ export class LynxElement implements BaseLynxElement {
  */
 export const processPendingRemovals = (): void => {
   LynxElement.commitPendingRemovals();
+};
+
+let settleFlushScheduled = false;
+
+/**
+ * Safety-net flush for native mutations made OUTSIDE a begin()/end() change-
+ * detection cycle. `LynxRendererFactory2.end()` calls `__FlushElementTree()`
+ * once per CD tick, which is what commits (lays out + paints) the cycle's
+ * element mutations. But a lazy-loaded route component is instantiated by
+ * `RouterOutlet` DURING navigation — outside any such cycle — so its freshly
+ * created elements land in the fiber tree yet are never flushed. On-device
+ * symptom: the route's static shell renders, but its `@if`/`@for`/interpolation
+ * content stays invisible until an unrelated CD (e.g. a tap) triggers the next
+ * end() flush. (Bootstrap sidesteps this via native's implicit post-renderPage
+ * flush.) This mirrors the `<list>` path's own guard for the exact same case —
+ * see `LynxListElement.#scheduleUpdate`.
+ *
+ * Called from `LynxDocument`'s element creators — which only ever run on the
+ * main thread (the background thread uses LynxBackgroundDocument, which does not
+ * touch the native tree), so no thread guard is needed here. It schedules ONE
+ * coalesced microtask (matching the list guard's `queueMicrotask`, not
+ * `setTimeout` — flushing from a macrotask crashes the native engine), and is a
+ * no-op while:
+ *  - inside a CD cycle — end() will flush;
+ *  - the first render is pending — native flushes after renderPage, and any
+ *    `<list>` defers its own first flush (see isFirstRenderPending()).
+ * The near-no-op cost when nothing is layout-dirty (the core's `need_layout_`
+ * gate) keeps the steady-state overhead negligible.
+ */
+export const scheduleSettleFlush = (): void => {
+  if (
+    settleFlushScheduled ||
+    isInsideChangeDetection() ||
+    isFirstRenderPending()
+  ) {
+    return;
+  }
+  settleFlushScheduled = true;
+  queueMicrotask(() => {
+    settleFlushScheduled = false;
+    // A CD cycle began in the meantime — its end() will flush; don't double up
+    // (and avoid a re-entrant flush).
+    if (isInsideChangeDetection()) return;
+    // Mirror end()'s ordering: commit any queued removals so they land in the
+    // same flush as the new content (see #pendingRemovals). List children are
+    // driven by their own update-list-info path, so no list handling here.
+    LynxElement.commitPendingRemovals();
+    __FlushElementTree();
+  });
 };

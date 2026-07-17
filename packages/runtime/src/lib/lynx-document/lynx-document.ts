@@ -1,5 +1,9 @@
 import { devStats } from '../devtools/stats';
-import { LynxElement, type LynxListElement } from '../lynx-element';
+import {
+  LynxElement,
+  type LynxListElement,
+  scheduleSettleFlush,
+} from '../lynx-element';
 import { setPageElementRef } from './page-ref';
 
 import { createNativeRefByTag } from './create-native-ref';
@@ -35,6 +39,10 @@ export class LynxDocument implements LynxDocumentBase {
   }
   createElement(tag: string, value?: string): LynxElement | LynxListElement {
     if (__PROFILE__) devStats.elementCreated++;
+    // Ensure content created outside a CD cycle (e.g. a lazy route component
+    // built by RouterOutlet during navigation) still gets flushed — see
+    // scheduleSettleFlush(). A no-op during normal in-cycle rendering.
+    scheduleSettleFlush();
     // 'list' returns a LynxListElement (a virtual-tree wrapper, not a raw ref)
     // and 'page' returns the singleton root — both are special and are never
     // recreated, so they are handled here rather than via the shared raw-ref
@@ -59,6 +67,7 @@ export class LynxDocument implements LynxDocumentBase {
     return el;
   }
   createText(value: string): LynxElement {
+    scheduleSettleFlush();
     const text = __CreateRawText(value);
     const lynxElement = new LynxElement(text);
     lynxElement.tagName = 'raw-text';
@@ -70,6 +79,7 @@ export class LynxDocument implements LynxDocumentBase {
     return lynxElement;
   }
   createComment(): LynxElement {
+    scheduleSettleFlush();
     const element = createCommentElement(this.#pageId);
     const el = new LynxElement(element);
     // tagName 'comment' is the SOLE marker LynxListElement.getUIChildren() uses

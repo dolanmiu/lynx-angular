@@ -35,7 +35,14 @@ export class LynxRenderer implements Renderer2 {
   createText(value: string): BaseLynxElement {
     return this.#document.createText(value);
   }
-  destroyNode: ((node: unknown) => void) | null = null;
+  // Angular walks a destroyed view and calls destroyNode() per node ONLY when
+  // this is non-null (see destroyLView in @angular/core). We use it to drop the
+  // node from LynxElement's native-ref → canonical-wrapper registry, so the
+  // registry doesn't retain wrappers for genuinely-destroyed elements. A no-op
+  // for nodes without the method (background-thread / SSR elements).
+  destroyNode: ((node: unknown) => void) | null = (node: unknown): void => {
+    (node as { deregisterNative?: () => void }).deregisterNative?.();
+  };
 
   appendChild(parent: BaseLynxElement, newChild: BaseLynxElement): void {
     parent.appendChild(newChild);
