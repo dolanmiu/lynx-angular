@@ -79,7 +79,7 @@ src/
     app.ts                         # Root component — nav-drawer shell
     home/                          # Landing page (logo, inputs, overlay dialog)
     demo-screen/                   # Shared per-screen heading/category/description frame
-    elements-showcase/             # Showcases all supported Lynx elements
+    events-demo/                   # Native event bindings (tap, catch, longpress, touch)
     list-example/                  # list usage example
     scroll-example/                # scroll-view usage example
     forms-demo/                    # Reactive forms (native inputs, dolan chrome)

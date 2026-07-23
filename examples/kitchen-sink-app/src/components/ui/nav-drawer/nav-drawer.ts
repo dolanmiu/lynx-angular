@@ -35,7 +35,18 @@ import { UiIcon } from '../icon';
   encapsulation: ViewEncapsulation.None,
   template: `
     <overlay [attr.visible]="overlayVisible()" [style]="overlayStyle()">
-      <view #backdrop class="h-full w-full" (bindtap)="onBackdropTap()">
+      <!-- bg-black/50 dims the content behind the drawer. The fadeIn/fadeOut in
+           #animateIn/#animateOut already tween this element's opacity over
+           DURATION.normal, so the dim animates in lockstep with the panel slide —
+           matching the dialog/action-sheet/bottom-sheet backdrop. A named color
+           with an opacity modifier is required here: bg-black/50 compiles to
+           rgb(0 0 0 / 0.5), which Lynx accepts, whereas opacity modifiers on
+           semantic tokens don't. -->
+      <view
+        #backdrop
+        class="h-full w-full bg-black/50"
+        (bindtap)="onBackdropTap()"
+      >
         <view
           #panel
           [class]="panelClass()"

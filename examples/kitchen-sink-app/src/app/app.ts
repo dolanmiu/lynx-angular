@@ -113,7 +113,6 @@ export class App {
     {
       title: 'Elements',
       items: [
-        { path: 'showcase', label: 'Elements Showcase', icon: 'star' },
         { path: 'images-demo', label: 'Images', icon: 'eye' },
         { path: 'list-example', label: 'List', icon: 'menu' },
         { path: 'scroll-example', label: 'Scroll View', icon: 'chevron-down' },
@@ -160,6 +159,7 @@ export class App {
       items: [
         { path: 'query-selector-demo', label: 'querySelector', icon: 'search' },
         { path: 'defer-demo', label: 'Defer', icon: 'loader' },
+        { path: 'events', label: 'Events', icon: 'bell' },
         { path: 'gesture-demo', label: 'Gestures', icon: 'circle' },
         { path: 'fonts-demo', label: 'Custom Fonts', icon: 'info' },
         { path: 'text-measure-demo', label: 'Text Measure', icon: 'info' },

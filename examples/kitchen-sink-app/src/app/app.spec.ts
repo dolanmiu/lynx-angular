@@ -7,7 +7,7 @@ import { App } from './app';
 // cleanly inside the test.
 const routes = [
   { path: 'home', children: [] },
-  { path: 'showcase', children: [] },
+  { path: 'events', children: [] },
 ];
 
 let destroyApp: (() => void) | null = null;
@@ -52,8 +52,8 @@ describe('App', () => {
     destroyApp = destroy;
 
     // currentPath is set synchronously; the navigation itself is deferred.
-    instance.navigateTo('showcase');
-    expect(instance.currentPath()).toBe('showcase');
+    instance.navigateTo('events');
+    expect(instance.currentPath()).toBe('events');
   });
 
   it('groups every route in the nav drawer', async () => {
@@ -63,7 +63,7 @@ describe('App', () => {
     destroyApp = destroy;
 
     const paths = instance.navGroups.flatMap((g) => g.items.map((i) => i.path));
-    expect(paths).toContain('showcase');
+    expect(paths).toContain('events');
     expect(paths).toContain('forms-demo');
     expect(paths.length).toBeGreaterThan(20);
   });

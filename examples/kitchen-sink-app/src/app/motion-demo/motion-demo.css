@@ -83,8 +83,16 @@
 }
 
 .keyframe-row {
+  /*
+   * Lynx defaults <view> to `display: linear`, where `gap`, `flex-direction`,
+   * and `justify-content` are all ignored — the boxes stacked vertically with
+   * no spacing. `display: flex` is required for these to take effect.
+   */
+  display: flex;
   flex-direction: row;
-  gap: 16px;
+  /* gap-5 (20px) also clears the Rotate box's corner as it spins (its
+     half-diagonal reaches ~56.6px vs. 40px at rest). */
+  gap: 20px;
   align-items: center;
 }
 

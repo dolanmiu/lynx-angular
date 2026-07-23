@@ -52,6 +52,7 @@ declare global {
       { resolve: (v: unknown) => void; reject: (e: unknown) => void }
     >;
     __lynxMtsNextResolveId: () => number;
+    __lynxRunMainThreadWorklet: (wkltId: string, args: unknown[]) => unknown;
   }
   // eslint-disable-next-line no-var
   var registerWorklet: (type: string, id: string, fn: Function) => void;
@@ -64,6 +65,10 @@ declare global {
   >;
   // eslint-disable-next-line no-var
   var __lynxMtsNextResolveId: () => number;
+  // Synchronously runs a registered worklet by id — used when runOnMainThread()
+  // is invoked from code already executing on the main thread (see runtime.ts).
+  // eslint-disable-next-line no-var
+  var __lynxRunMainThreadWorklet: (wkltId: string, args: unknown[]) => unknown;
   // Available on main thread only — dispatches a function call to the background thread
   function runOnBackground(
     handle: { _wkltId: string },

@@ -505,6 +505,30 @@ if (!__MAIN_THREAD__) {
 globalThis.__lynxMtsPendingResolvers = __pendingResolvers;
 globalThis.__lynxMtsNextResolveId = () => __nextResolveId++;
 
+/**
+ * Synchronously invoke a registered worklet by its _wkltId with raw,
+ * already-in-process args. Used by LynxMainThread.runOnMainThread() when it is
+ * called from code that is ALREADY running on the main thread — e.g. an Angular
+ * `(bind*)`/`(catch*)` event handler, which the renderer registers as a
+ * main-thread worklet and Lynx therefore invokes on the Lepus thread. In that
+ * situation there is no background→main thread hop to perform, so we run the
+ * target worklet in-place instead of dispatching a cross-thread RPC that would
+ * have no counterpart to answer it. Mirrors the cross-thread runWorkletCtx
+ * listener above, which likewise calls the registered fn with unmodified params.
+ * Exposed as a global (rather than imported) because runtime.ts's __workletMap
+ * is a module-load side-effect while LynxMainThread is DI-instantiated later.
+ */
+globalThis.__lynxRunMainThreadWorklet = (
+  wkltId: string,
+  args: unknown[],
+): unknown => {
+  const fn = __workletMap[wkltId];
+  if (!fn) {
+    throw new Error(`[angular-lynx] Main-thread worklet not found: ${wkltId}`);
+  }
+  return fn(...args);
+};
+
 const pageReady = new Subject<void>();
 
 /**

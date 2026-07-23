@@ -25,6 +25,10 @@ import { ScreenHost } from '../screen-host';
 
 @Component({
   selector: 'app-home',
+  // `home` gives the host a positioned containing block so the fixed emerald
+  // backdrop (`.home__bg`) can fill it precisely. See home.css for why the
+  // backdrop is a sibling *before* the scroll-view rather than a child.
+  host: { class: 'home' },
   hostDirectives: [ScreenHost],
   imports: [
     LYNX_ELEMENTS,
@@ -44,7 +48,14 @@ import { ScreenHost } from '../screen-host';
     UiText,
   ],
   template: `
-    <scroll-view scroll-orientation="vertical" class="h-full w-full bg-background">
+    <!-- Fixed emerald backdrop. Declared as a sibling BEFORE the scroll-view
+         (never inside it): an absolute layer within a scroll-view sits above it
+         in z-order and swallows the scroll gesture. As a first sibling it paints
+         underneath and, living outside the scrolling container, stays put while
+         the content scrolls over it. -->
+    <view class="home__bg" />
+
+    <scroll-view scroll-orientation="vertical" class="h-full w-full">
       <view class="flex-col items-center gap-6 p-6 flex">
         <view class="logo" (bindtap)="onTap($event)">
           @if (alterLogo()) {
@@ -55,10 +66,12 @@ import { ScreenHost } from '../screen-host';
         </view>
 
         <view class="flex-col items-center gap-1 flex">
-          <ui-text variant="h1">Angular</ui-text>
-          <ui-text variant="lead">on Lynx</ui-text>
+          <ui-text variant="h1" class="text-zinc-900">Angular</ui-text>
+          <ui-text variant="lead" class="text-zinc-600">on Lynx</ui-text>
         </view>
-        <ui-text variant="muted">Tap the logo and have fun!</ui-text>
+        <ui-text variant="muted" class="text-zinc-600">
+          Tap the logo and have fun!
+        </ui-text>
 
         <ui-card class="w-full">
           <ui-card-header>
@@ -90,7 +103,9 @@ import { ScreenHost } from '../screen-host';
           </ui-card-content>
         </ui-card>
 
-        <ui-text variant="muted">Edit src/app/home/home.ts</ui-text>
+        <ui-text variant="muted" class="text-zinc-600">
+          Edit src/app/home/home.ts
+        </ui-text>
       </view>
 
       <ui-dialog [(open)]="showDialog">

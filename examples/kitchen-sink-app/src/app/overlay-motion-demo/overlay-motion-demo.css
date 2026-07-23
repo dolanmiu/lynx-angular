@@ -64,6 +64,10 @@
 }
 
 .dialog-actions {
+  /* Lynx defaults to `display: linear`, where `gap`, `flex-direction`, and
+     `justify-content` are all ignored — the buttons stack with no spacing.
+     `display: flex` is required for these flex properties to take effect. */
+  display: flex;
   flex-direction: row;
   justify-content: flex-end;
   gap: 12px;

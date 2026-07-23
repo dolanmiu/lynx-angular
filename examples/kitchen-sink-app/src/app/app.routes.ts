@@ -14,11 +14,9 @@ export const routes: Routes = [
   },
   { path: 'scroll-example', component: ScrollExample },
   {
-    path: 'showcase',
+    path: 'events',
     loadComponent: () =>
-      import('./elements-showcase/elements-showcase').then(
-        (m) => m.ElementsShowcase,
-      ),
+      import('./events-demo/events-demo').then((m) => m.EventsDemo),
   },
   {
     path: 'images-demo',
