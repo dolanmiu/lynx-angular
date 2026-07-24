@@ -92,7 +92,7 @@ export class LynxRendererFactory2 implements RendererFactory2 {
    * function's doc comment. Every CD cycle that runs as part of the initial
    * bootstrap is still nested inside the native engine's own renderPage call;
    * we avoid driving a layout-triggering flush (which, for pages with a
-   * <list>, re-entrantly calls back into componentAtIndex) from inside a call
+   * <list>, reentrantly calls back into componentAtIndex) from inside a call
    * frame native hasn't finished unwinding. Native performs its own implicit
    * flush once renderPage returns, so skipping this is safe — element
    * creation/attribute calls above already mutate native elements directly,

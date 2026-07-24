@@ -9,6 +9,8 @@ import { LynxGestureDetector } from './gesture-detector';
 import { Gesture } from './composition';
 import { TapGesture } from './tap-gesture';
 import { PanGesture } from './pan-gesture';
+import { PinchGesture } from './pinch-gesture';
+import { LongPressGesture } from './long-press-gesture';
 import { GestureType } from './types';
 
 /**
@@ -187,7 +189,9 @@ describe('LynxGestureDetector', () => {
     });
 
     it('passes undefined for config when gesture has no config', () => {
-      const g = new TapGesture();
+      // PinchGesture seeds no defaults, so its config stays empty — unlike
+      // Tap/LongPress/Pan which always carry a full default config.
+      const g = new PinchGesture();
       const directive = createDirective(nativeEl);
 
       applyGesture(directive, g);
@@ -196,14 +200,20 @@ describe('LynxGestureDetector', () => {
       expect(config.config).toBeUndefined();
     });
 
-    it('passes the config object when gesture has config values', () => {
+    it('passes the full config object (defaults merged with overrides)', () => {
       const g = new TapGesture().numberOfTaps(2);
       const directive = createDirective(nativeEl);
 
       applyGesture(directive, g);
 
       const [, , , config] = setGestureDetector.mock.calls[0];
-      expect(config.config).toEqual({ numberOfTaps: 2 });
+      // Defaults are always present so iOS never reads a missing key as 0.
+      expect(config.config).toEqual({
+        enabled: true,
+        maxDuration: 500,
+        maxDistance: 10,
+        numberOfTaps: 2,
+      });
     });
 
     it('passes relation map IDs derived from waitFor, simultaneousWith, continueWith', () => {
@@ -240,6 +250,115 @@ describe('LynxGestureDetector', () => {
       // g1 should have been removed before g2 was attached
       expect(removeGestureDetector).toHaveBeenCalledWith(fakeRef, g1.id);
       expect(setGestureDetector).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('onEnd normalization (discrete gestures)', () => {
+    /**
+     * Fetches the wrapped native `_fn` for a callback by name from the most
+     * recent __SetGestureDetector call.
+     */
+    const fnFor = (name: string): ((event: unknown) => void) => {
+      const [, , , config] = setGestureDetector.mock.calls[0];
+      return config.callbacks.find((c: { name: string }) => c.name === name)
+        .callback._fn;
+    };
+
+    it('suppresses onEnd for a failed tap (onEnd with no preceding onStart)', () => {
+      // Lynx fires the native onEnd on failure too; without a prior onStart the
+      // tap was never recognized, so the user callback must NOT fire.
+      const g = new TapGesture();
+      const onEnd = vi.fn();
+      g.onEnd(onEnd);
+      const directive = createDirective(nativeEl);
+
+      applyGesture(directive, g);
+      fnFor('onEnd')({ params: {} });
+
+      expect(onEnd).not.toHaveBeenCalled();
+    });
+
+    it('delivers onEnd for a recognized tap (onStart then onEnd)', () => {
+      const g = new TapGesture();
+      const onEnd = vi.fn();
+      g.onEnd(onEnd);
+      const directive = createDirective(nativeEl);
+
+      applyGesture(directive, g);
+      fnFor('onStart')({ params: {} }); // native reports recognition
+      fnFor('onEnd')({ params: {} });
+
+      expect(onEnd).toHaveBeenCalledOnce();
+    });
+
+    it('resets recognition between cycles (a later failed tap is suppressed)', () => {
+      const g = new TapGesture();
+      const onEnd = vi.fn();
+      g.onEnd(onEnd);
+      const directive = createDirective(nativeEl);
+
+      applyGesture(directive, g);
+      fnFor('onStart')({ params: {} });
+      fnFor('onEnd')({ params: {} }); // recognized → delivered
+      fnFor('onEnd')({ params: {} }); // next cycle, failed → suppressed
+
+      expect(onEnd).toHaveBeenCalledOnce();
+    });
+
+    it('registers an onStart observer even when the user only set onEnd', () => {
+      const g = new TapGesture();
+      g.onEnd(vi.fn());
+      const directive = createDirective(nativeEl);
+
+      applyGesture(directive, g);
+
+      const [, , , config] = setGestureDetector.mock.calls[0];
+      const names = config.callbacks.map((c: { name: string }) => c.name);
+      expect(names).toContain('onStart');
+      expect(names).toContain('onEnd');
+    });
+
+    it('forwards the user onStart while also observing recognition (no duplicate onStart entry)', () => {
+      const g = new TapGesture();
+      const onStart = vi.fn();
+      const onEnd = vi.fn();
+      g.onStart(onStart).onEnd(onEnd);
+      const directive = createDirective(nativeEl);
+
+      applyGesture(directive, g);
+      fnFor('onStart')({ params: {} });
+      fnFor('onEnd')({ params: {} });
+
+      expect(onStart).toHaveBeenCalledOnce();
+      expect(onEnd).toHaveBeenCalledOnce();
+      const [, , , config] = setGestureDetector.mock.calls[0];
+      expect(
+        config.callbacks.filter((c: { name: string }) => c.name === 'onStart'),
+      ).toHaveLength(1);
+    });
+
+    it('normalizes long-press too (suppresses onEnd with no onStart)', () => {
+      const g = new LongPressGesture();
+      const onEnd = vi.fn();
+      g.onEnd(onEnd);
+      const directive = createDirective(nativeEl);
+
+      applyGesture(directive, g);
+      fnFor('onEnd')({ params: {} });
+
+      expect(onEnd).not.toHaveBeenCalled();
+    });
+
+    it('does NOT normalize continuous gestures — pan onEnd fires without onStart', () => {
+      const g = new PanGesture();
+      const onEnd = vi.fn();
+      g.onEnd(onEnd);
+      const directive = createDirective(nativeEl);
+
+      applyGesture(directive, g);
+      fnFor('onEnd')({ params: {} });
+
+      expect(onEnd).toHaveBeenCalledOnce();
     });
   });
 

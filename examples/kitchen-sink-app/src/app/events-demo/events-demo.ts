@@ -76,7 +76,7 @@ import { ScreenHost } from '../screen-host';
               >Tap anywhere in this box</text
             >
           </view>
-          <view class="flex-row items-center justify-between flex">
+          <view class="flex-row items-center flex justify-between">
             <ui-badge [animated]="false">Taps: {{ tapCount() }}</ui-badge>
             <ui-button size="sm" variant="outline" (pressed)="resetTap()">
               Reset
@@ -136,11 +136,7 @@ import { ScreenHost } from '../screen-host';
               >Stops: {{ catchCount() }}</ui-badge
             >
           </view>
-          <ui-button
-            size="sm"
-            variant="outline"
-            (pressed)="resetPropagation()"
-          >
+          <ui-button size="sm" variant="outline" (pressed)="resetPropagation()">
             Reset
           </ui-button>
         </ui-card-content>
@@ -263,7 +259,7 @@ export class EventsDemo {
   }
 
   /**
-   * catchtap on the child stops the tap here — onOuterTap() never runs. 
+   * catchtap on the child stops the tap here — onOuterTap() never runs.
    */
   onCatchTap(): void {
     this.catchCount.update((v) => v + 1);

@@ -36,11 +36,17 @@ export class GestureDemo {
   // ── Tap gesture state ──
   readonly tapCount = signal(0);
 
+  // onEnd counts every recognized tap. LynxGestureDetector normalizes onEnd for
+  // discrete gestures, so a drag that overshoots the tap threshold no longer
+  // counts (Lynx's native engine fires onEnd on failure too — see the directive).
   readonly tapGesture = new TapGesture().onEnd(() => {
     this.tapCount.update((v) => v + 1);
   });
 
-  readonly doubleTapGesture = new TapGesture().numberOfTaps(2).onEnd(() => {
+  // A single tap resets the counter. This was a "double-tap" demo, but Lynx
+  // native does not implement numberOfTaps (it's a no-op on-device), so a real
+  // double-tap isn't possible here — a plain tap is the honest showcase.
+  readonly resetGesture = new TapGesture().onEnd(() => {
     this.tapCount.set(0);
   });
 

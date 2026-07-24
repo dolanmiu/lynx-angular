@@ -24,7 +24,10 @@ import { ScreenHost } from '../screen-host';
   // flex-col host to span the full width.
   hostDirectives: [ScreenHost],
   template: `
-    <scroll-view scroll-orientation="vertical" class="h-full w-full bg-background">
+    <scroll-view
+      scroll-orientation="vertical"
+      class="h-full w-full bg-background"
+    >
       <view class="flex-col gap-4 p-4 flex">
         <view class="flex-col gap-2 flex">
           <ui-text variant="h3">{{ heading() }}</ui-text>

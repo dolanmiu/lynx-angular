@@ -1,8 +1,19 @@
 import { ContinuousGesture } from './base-gesture';
+import { DEFAULT_PAN_MIN_DISTANCE } from './const';
 import { type PanGestureEvent, GestureType } from './types';
 
 export class PanGesture extends ContinuousGesture<PanGestureEvent, PanGesture> {
   readonly type = GestureType.PAN;
+
+  /**
+   * Seed the default config on construction so a complete config is always sent
+   * to native, keeping behaviour consistent with the other gestures. Mirrors
+   * Lynx's own gesture-runtime PanGesture defaults. See ./const.
+   */
+  override _config: Record<string, unknown> = {
+    enabled: true,
+    minDistance: DEFAULT_PAN_MIN_DISTANCE,
+  };
 
   minDistance(distance: number): this {
     this._config['minDistance'] = distance;

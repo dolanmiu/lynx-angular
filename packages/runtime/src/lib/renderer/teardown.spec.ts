@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-// cspell:words reproj
+// cspell:words reproj bkinner rawtext regs relinks tappy
 //
 // Integration harness that drives the REAL main-thread renderer path
 // (LynxDocument + LynxElement) against an in-memory fake of the native element
@@ -47,9 +47,9 @@ import {
 } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
-  BrowserDynamicTestingModule,
-  platformBrowserDynamicTesting,
-} from '@angular/platform-browser-dynamic/testing';
+  BrowserTestingModule,
+  platformBrowserTesting,
+} from '@angular/platform-browser/testing';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { processPendingRemovals } from '../lynx-element';
 import { LynxDocument } from '../lynx-document';
@@ -635,10 +635,7 @@ class RouteOutletHost {}
 
 describe('renderer teardown', () => {
   beforeAll(() => {
-    TestBed.initTestEnvironment(
-      BrowserDynamicTestingModule,
-      platformBrowserDynamicTesting(),
-    );
+    TestBed.initTestEnvironment(BrowserTestingModule, platformBrowserTesting());
   });
 
   beforeEach(() => {

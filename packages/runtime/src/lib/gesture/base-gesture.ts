@@ -43,11 +43,25 @@ export abstract class BaseGesture<
     return this as unknown as TSelf;
   }
 
+  /**
+   * Fires when the gesture is RECOGNIZED (transitions to active). For a tap this
+   * is the only callback that fires exclusively on success — see `onEnd`.
+   */
   onStart(cb: GestureCallbackWithState<TEvent>): TSelf {
     this._callbacks['onStart'] = cb as GestureCallback<TEvent>;
     return this as unknown as TSelf;
   }
 
+  /**
+   * Fires when the gesture ends.
+   *
+   * For discrete gestures (tap, long-press) LynxGestureDetector normalizes this
+   * to fire ONLY when the gesture was actually recognized. Lynx's native engine
+   * emits `onEnd` on failure too — the iOS `fail` path calls it — so a drag that
+   * overshoots a tap's `maxDistance` would otherwise still trigger `onEnd`. The
+   * directive suppresses that failed-gesture `onEnd`; continuous gestures pass
+   * through unchanged. See gesture-detector.ts.
+   */
   onEnd(cb: GestureCallbackWithState<TEvent>): TSelf {
     this._callbacks['onEnd'] = cb as GestureCallback<TEvent>;
     return this as unknown as TSelf;

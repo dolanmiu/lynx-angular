@@ -22,15 +22,23 @@
     <ui-card>
       <ui-card-content class="flex-col gap-4 p-4 flex">
         <view class="flex-row gap-3 flex">
-          <view class="flex-1 items-center gap-1 rounded-lg bg-muted px-1 py-3 flex-col flex">
-            <ui-text variant="h3" class="text-primary">{{ visibleCount() }}</ui-text>
+          <view
+            class="flex-1 flex-col items-center gap-1 rounded-lg bg-muted px-1 py-3 flex"
+          >
+            <ui-text variant="h3" class="text-primary"
+              >{{ visibleCount() }}</ui-text
+            >
             <ui-text variant="muted">On screen</ui-text>
           </view>
-          <view class="flex-1 items-center gap-1 rounded-lg bg-muted px-1 py-3 flex-col flex">
+          <view
+            class="flex-1 flex-col items-center gap-1 rounded-lg bg-muted px-1 py-3 flex"
+          >
             <ui-text variant="h3">{{ totalExposures() }}</ui-text>
             <ui-text variant="muted">Exposures</ui-text>
           </view>
-          <view class="flex-1 items-center gap-1 rounded-lg bg-muted px-1 py-3 flex-col flex">
+          <view
+            class="flex-1 flex-col items-center gap-1 rounded-lg bg-muted px-1 py-3 flex"
+          >
             <ui-text variant="h3">{{ totalDisexposures() }}</ui-text>
             <ui-text variant="muted">Disexposures</ui-text>
           </view>
@@ -40,13 +48,13 @@
         <view class="flex-col gap-2 flex">
           <ui-text variant="small">Currently tracked on screen</ui-text>
           @if (visibleList().length) {
-            <view class="flex-row flex-wrap gap-2 flex">
-              @for (id of visibleList(); track id) {
-                <ui-badge variant="secondary">{{ id }}</ui-badge>
-              }
-            </view>
+          <view class="flex-row flex-wrap gap-2 flex">
+            @for (id of visibleList(); track id) {
+            <ui-badge variant="secondary">{{ id }}</ui-badge>
+            }
+          </view>
           } @else {
-            <ui-text variant="muted">Nothing tracked is on screen yet.</ui-text>
+          <ui-text variant="muted">Nothing tracked is on screen yet.</ui-text>
           }
         </view>
       </ui-card-content>
@@ -75,13 +83,14 @@
       </view>
       <ui-text variant="muted">
         Pausing freezes the counts above, but each card's own badge keeps
-        updating — the per-element directive is independent of the global stream.
+        updating — the per-element directive is independent of the global
+        stream.
       </ui-text>
     </view>
   </view>
 
   <!-- Feed heading -->
-  <view class="flex-row items-center justify-between px-4 pb-2 flex">
+  <view class="flex-row items-center px-4 pb-2 flex justify-between">
     <ui-text variant="small">Impression feed</ui-text>
     <ui-text variant="muted">scroll to fire events ↓</ui-text>
   </view>
@@ -96,28 +105,30 @@
     <scroll-view class="h-full w-full" scroll-orientation="vertical">
       <view class="flex-col gap-3 pb-4 flex">
         @for (item of feedItems; track item.id) {
-          <!--
+        <!--
             Both APIs on one element: `exposure-id` feeds the global stream (the
             counters), while `lynxExposure` exposes a per-element visible() signal
             driving this card's own badge.
           -->
+        <view
+          class="flex-row items-center gap-3 rounded-xl border border-border bg-card p-3 flex"
+          [attr.exposure-id]="item.id"
+          lynxExposure
+          #exp="lynxExposure"
+        >
           <view
-            class="flex-row items-center gap-3 rounded-xl border border-border bg-card p-3 flex"
-            [attr.exposure-id]="item.id"
-            lynxExposure
-            #exp="lynxExposure"
+            class="h-10 w-10 items-center rounded-lg bg-muted flex justify-center"
           >
-            <view class="h-10 w-10 items-center justify-center rounded-lg bg-muted flex">
-              <ui-text variant="small">{{ item.tag }}</ui-text>
-            </view>
-            <view class="flex-1 flex-col gap-1 flex">
-              <ui-text variant="large">{{ item.title }}</ui-text>
-              <ui-text variant="muted">{{ item.subtitle }}</ui-text>
-            </view>
-            <ui-badge [variant]="exp.visible() ? 'default' : 'secondary'">
-              {{ exp.visible() ? 'Visible' : 'Hidden' }}
-            </ui-badge>
+            <ui-text variant="small">{{ item.tag }}</ui-text>
           </view>
+          <view class="flex-1 flex-col gap-1 flex">
+            <ui-text variant="large">{{ item.title }}</ui-text>
+            <ui-text variant="muted">{{ item.subtitle }}</ui-text>
+          </view>
+          <ui-badge [variant]="exp.visible() ? 'default' : 'secondary'">
+            {{ exp.visible() ? 'Visible' : 'Hidden' }}
+          </ui-badge>
+        </view>
         }
       </view>
     </scroll-view>

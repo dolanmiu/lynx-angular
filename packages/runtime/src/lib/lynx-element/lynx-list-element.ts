@@ -192,7 +192,7 @@ export class LynxListElement extends LynxElement {
    * The UI children list as of the last _processUpdate() call, pre-filtered
    * and cached — for componentAtIndex/componentAtIndexes (create-list-element.ts)
    * to read via plain array indexing. See their call sites' doc comments:
-   * native invokes them synchronously, re-entrantly, from deep inside its own
+   * native invokes them synchronously, reentrantly, from deep inside its own
    * list layout pass, and calling ANY WeakSet/Map method (even a single
    * `.has()`) from within that reentrant call was observed to crash the
    * Lepus QuickJS context with a refcounting assertion inside
@@ -295,7 +295,7 @@ export class LynxListElement extends LynxElement {
 
     // Commit NOW, before update-list-info/flush below — not at the end of
     // this method. componentAtIndex reads via getCommittedUIChildren(), and
-    // it can run re-entrantly from inside the __FlushElementTree() call
+    // it can run reentrantly from inside the __FlushElementTree() call
     // further down (native invokes it synchronously as part of the list's
     // own layout pass); by then this must already reflect the new list.
     // #committedIds is committed in lock-step so the NEXT update's oldIds line

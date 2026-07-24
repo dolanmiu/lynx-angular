@@ -13,6 +13,7 @@ export const registry: RegistryEntry[] = [
   { name: 'badge', dependencies: [] },
   { name: 'bottom-sheet', dependencies: [] },
   { name: 'button', dependencies: ['spinner'] },
+  { name: 'button-group', dependencies: [] },
   { name: 'card', dependencies: [] },
   { name: 'checkbox', dependencies: [] },
   { name: 'collapsible', dependencies: [] },

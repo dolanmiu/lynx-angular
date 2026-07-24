@@ -9,8 +9,13 @@ import {
 import type { BaseLynxElement } from '../lynx-element/types';
 import type { BaseGesture } from './base-gesture';
 import { ComposedGesture } from './composition';
-import { createGestureOrigin, mapGestureEvent } from './event';
+import {
+  type GestureOrigin,
+  createGestureOrigin,
+  mapGestureEvent,
+} from './event';
 import { GestureStateManager } from './state-manager';
+import { GestureType } from './types';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyGesture = BaseGesture<any, any>;
@@ -74,21 +79,7 @@ export class LynxGestureDetector implements OnChanges, OnDestroy {
       // position (Lynx reports position each event, never accumulated distance).
       const origin = createGestureOrigin();
       const config = {
-        // Each callback is wrapped as `{ _fn }` — an OBJECT, not a raw function.
-        // This is mandatory under Lynx's fiber architecture: the native binding
-        // routes a callable callback into GestureCallback.lepus_function_, but
-        // the fiber-arch gesture dispatch only reads lepus_object_ (populated
-        // when the callback is an object), so a raw function is silently dropped
-        // and the gesture never fires. runtime.ts's runWorklet unwraps `_fn`.
-        // The inner wrapper injects the stateManager as the second argument so
-        // callbacks can programmatically fail/activate the gesture.
-        callbacks: Object.entries(g._callbacks).map(([name, cb]) => ({
-          name,
-          callback: {
-            _fn: (event: any) =>
-              (cb as any)(mapGestureEvent(event, name, origin), stateManager),
-          },
-        })),
+        callbacks: buildGestureCallbacks(g, origin, stateManager),
         config: Object.keys(g._config).length > 0 ? g._config : undefined,
       };
       // Relationship map tells the native gesture system how gestures interact:
@@ -134,3 +125,109 @@ export class LynxGestureDetector implements OnChanges, OnDestroy {
     return [this.lynxGesture];
   }
 }
+
+/**
+ * Native gesture callback entry expected by __SetGestureDetector. The callback
+ * MUST be an OBJECT (`{ _fn }`), not a raw function: under Lynx's fiber
+ * architecture the native binding routes a callable into
+ * GestureCallback.lepus_function_, but fiber-arch gesture dispatch only reads
+ * lepus_object_ (populated when the callback is an object), so a raw function is
+ * silently dropped and the gesture never fires. runtime.ts's runWorklet unwraps
+ * `_fn`.
+ */
+type NativeCallbackEntry = {
+  name: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  callback: { _fn: (event: any) => void };
+};
+
+/**
+ * Builds the native callback list for one gesture, wrapping each user callback
+ * as `{ _fn }` and injecting the mapped event plus the stateManager (its second
+ * argument, so callbacks can programmatically fail/activate the gesture).
+ *
+ * Discrete gestures (tap, long-press) get a normalization pass. Lynx's native
+ * engine fires `onEnd` on BOTH success and failure — the iOS `fail` path emits
+ * it — whereas `onStart` fires only on recognition. To give React-Native-
+ * Gesture-Handler-style semantics (where `onEnd` means "the gesture actually
+ * happened"), we observe `onStart` — registering our own observer when the user
+ * didn't — to learn whether the gesture was recognized, then drop the
+ * failed-gesture `onEnd`. Continuous gestures pass through untouched.
+ */
+const buildGestureCallbacks = (
+  gesture: AnyGesture,
+  origin: GestureOrigin,
+  stateManager: GestureStateManager,
+): NativeCallbackEntry[] => {
+  const wrap = (
+    name: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    cb: any,
+  ): NativeCallbackEntry => ({
+    name,
+    callback: {
+      _fn: (event: any) =>
+        cb(mapGestureEvent(event, name, origin), stateManager),
+    },
+  });
+
+  const userEnd = gesture._callbacks['onEnd'];
+  const isDiscrete =
+    gesture.type === GestureType.TAP || gesture.type === GestureType.LONGPRESS;
+
+  // Only a discrete gesture with an onEnd handler needs success/failure
+  // disambiguation; everything else is a straight passthrough.
+  if (!isDiscrete || !userEnd) {
+    return Object.entries(gesture._callbacks).map(([name, cb]) =>
+      wrap(name, cb),
+    );
+  }
+
+  const userStart = gesture._callbacks['onStart'];
+  // Per-registration recognition flag: `started` flips true only when the native
+  // engine reports the gesture became active (onStart). A failed tap never does.
+  const lifecycle = { started: false };
+  const callbacks: NativeCallbackEntry[] = [
+    {
+      name: 'onStart',
+      callback: {
+        _fn: (event: any) => {
+          lifecycle.started = true;
+          // Forward only if the user registered onStart — this entry exists
+          // primarily as our recognition observer.
+          if (userStart) {
+            (userStart as (event: unknown, sm: GestureStateManager) => void)(
+              mapGestureEvent(event, 'onStart', origin),
+              stateManager,
+            );
+          }
+        },
+      },
+    },
+    {
+      name: 'onEnd',
+      callback: {
+        _fn: (event: any) => {
+          const recognized = lifecycle.started;
+          lifecycle.started = false;
+          // Drop the native onEnd that fires when the tap/long-press failed.
+          if (recognized) {
+            (userEnd as (event: unknown, sm: GestureStateManager) => void)(
+              mapGestureEvent(event, 'onEnd', origin),
+              stateManager,
+            );
+          }
+        },
+      },
+    },
+  ];
+
+  // Pass through every other callback (onBegin, onTouchesDown/Up, …) as-is; only
+  // onStart (forced observer) and onEnd (suppressed on failure) are special.
+  for (const [name, cb] of Object.entries(gesture._callbacks)) {
+    if (name === 'onStart' || name === 'onEnd') continue;
+    callbacks.push(wrap(name, cb));
+  }
+
+  return callbacks;
+};

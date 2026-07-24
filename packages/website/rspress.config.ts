@@ -74,6 +74,7 @@ export default defineConfig({
         { dividerType: 'solid' },
         { sectionHeaderText: 'General' },
         { text: 'Button', link: '/dolan/button' },
+        { text: 'Button Group', link: '/dolan/button-group' },
         { text: 'Icon', link: '/dolan/icon' },
         { text: 'Typography', link: '/dolan/typography' },
         { dividerType: 'solid' },

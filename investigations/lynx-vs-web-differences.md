@@ -68,6 +68,30 @@ Also (Android-only): registering a gesture does **not** auto-mark the element no
 
 ---
 
+## A discrete gesture's `onEnd` fires on failure too, `numberOfTaps` is a native no-op, and partial configs zero the rest
+
+Three separate Lynx gesture facts break naive `TapGesture`/`LongPressGesture` handlers. Each fails silently: the wrong callback runs, or a config value you never set becomes `0`.
+
+### What you'd expect (web / react-native-gesture-handler)
+
+`onEnd` fires when a gesture succeeds. Setting one config option leaves the others at their documented defaults. `numberOfTaps(2)` gives you a double-tap.
+
+### What Lynx does
+
+**(1) `onEnd` fires on success AND failure.** The iOS `LynxTapGestureHandler` calls `onEnd` from its `fail` override (`LynxTapGestureHandler.m`), not only on a recognized tap. A drag past `maxDistance` fails the tap but still emits `onEnd`. So counting taps on `onEnd` counts every drag and long-hold as well. Only `onStart` fires exclusively on recognition: the success path is `activate → onStart → onEnd`, the failure path is just `fail → onEnd`. Long-press behaves the same way.
+
+**(2) `numberOfTaps` is a no-op on-device.** No native platform implements multi-tap counting — a whole-tree search of the Lynx source for `numberOfTaps` returns nothing. `TapGesture().numberOfTaps(2)` recognizes on the FIRST tap. A real native double-tap is impossible; time successive taps yourself.
+
+**(3) A partial config zeroes every key you didn't set.** The iOS handlers read each option with `[[config objectForKey:@"maxDuration"] floatValue]`, and `[nil floatValue]` is `0`. The built-in defaults (`maxDistance = 10`, `maxDuration = 500`) apply only when the WHOLE config is absent — `handleConfigMap` early-returns on a nil map. Send `{ numberOfTaps: 2 }` and both `maxDuration` and `maxDistance` become `0`. `maxDuration = 0` then schedules the tap to fail on a 0 ms timer the instant a finger lands. That fires `onEnd` (see #1) before you lift — an instant, phantom "tap". `renderer_functions.cc InnerCreateGestureDetector` passes the JS config straight through to this handler.
+
+### The fix
+
+1. **Always send a full default config.** `TapGesture` / `LongPressGesture` / `PanGesture` seed the complete default set into `_config` on construction (`gesture/const.ts`), so a partial config can never zero a native key. This mirrors Lynx's own gesture-runtime, which seeds defaults for the same reason.
+2. **`onEnd` normalized for discrete gestures.** `LynxGestureDetector` (`gesture/gesture-detector.ts`) observes `onStart` — registering its own observer when you didn't — to learn whether a tap/long-press was recognized, then drops the failed-gesture `onEnd`. `onEnd` now means "the gesture happened", matching react-native-gesture-handler. Continuous gestures (pan/fling/rotation/pinch) pass through unchanged.
+3. **`numberOfTaps` documented as a no-op.** Kept on `TapGesture` for API parity, with a JSDoc warning. For a double-tap, time taps in your own callback.
+
+---
+
 ## `position: fixed` is absolute-relative-to-root, not viewport-fixed
 
 ### What you'd expect (web)
@@ -3729,3 +3753,67 @@ It is subtle because the constants are pure discriminators — once resolved, th
 Polyfill a minimal `Node` **class** carrying the standard node-type constants, before Angular bootstraps. It ships as `preEntry` from `@blotch/rsbuild-plugin-angular-lynx` (`src/polyfills.js`) and defensively in the runtime (`packages/runtime/src/lib/runtime.ts`) for consumers not using the plugin — mirroring the existing `document` / `window` / `navigator` shims.
 
 It **must be a class, not a plain object**: a few dev/debug paths in Angular do `x instanceof Node`, which throws if the right-hand side is not callable. As a class, `instanceof` returns `false` for Lynx elements (correct — they are not DOM nodes) while the constants resolve to their spec values. Both guards check `typeof Node === 'undefined'`, so the shim is a no-op in the web bundle where `Node` is real.
+
+---
+
+## `scrollIntoView` takes different param shapes on native vs web
+
+### What you'd expect (web)
+
+`element.scrollIntoView({ block: 'center', behavior: 'auto' })` — the DOM API takes a flat `ScrollIntoViewOptions` object. You'd assume the Lynx UI method mirrors it.
+
+### What Lynx does
+
+`scrollIntoView` is a base `LynxUI`/`LynxBaseUI` UI method. Invoked on **any** direct or indirect child of a scroll container, it walks up to the nearest `scroll-view` and scrolls that container. But each platform reads the invoke params from a different place:
+
+- **Native (iOS/Android)** reads a **nested** `params.scrollIntoViewOptions.{block,inline,behavior}`. A flat `{ block }` is ignored and the view does not move.
+- **Web** maps `invoke(el, 'scrollIntoView', params)` straight onto the DOM `el.scrollIntoView(params)`, so it reads the **top-level** `{ block, behavior }` and ignores a nested `scrollIntoViewOptions`.
+
+Nothing warns when the wrong shape is sent — the element simply doesn't scroll, which reads as "the method isn't supported" rather than "the params are in the wrong place."
+
+### The fix
+
+Send **both** shapes in one call; each platform reads its own keys and ignores the rest:
+
+```ts
+element.invoke('scrollIntoView', {
+  scrollIntoViewOptions: { block: 'center', behavior: 'auto' }, // native Lynx
+  block: 'center',
+  behavior: 'auto', // web (DOM ScrollIntoViewOptions)
+});
+```
+
+Used by `ui-nav-drawer` to reveal the active route when the drawer opens.
+
+Prefer `scrollIntoView` over index/offset-based `scroll-view` `scrollTo`. It targets the element itself, so it's immune to the `display:none` control-flow anchor `<view>`s Angular interleaves as `scroll-view` children for `@if`/`@for`. Those anchors shift child indices and corrupt any index-based scroll.
+
+---
+
+## Tailwind `ring-*` / `shadow-*` utilities render nothing — use an inline `box-shadow`
+
+### What you'd expect (web)
+
+`ring-2 ring-ring` paints a 2px focus ring; `shadow-md` drops an elevation shadow. Both are stock Tailwind utilities.
+
+### What Lynx does
+
+They render **nothing** — no ring, no shadow, no build error. Tailwind composes both through CSS variables: its `box-shadow` output is `var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)`. The Lynx tailwind preset (`packages/ui/src/lib/theme/tailwind-plugin.ts`) never defines those variables, so every reference falls back to its empty `0 0 #0000` default and the shadow is blank. The failure is silent — the web preview looks correct while the device shows a bare element.
+
+### The fix
+
+Write the shadow as an inline `box-shadow`, the one shadow form Lynx honors. Lynx supports the full syntax including the spread radius (`offset-x offset-y blur spread color`), so a focus ring is `0 0 0 2px <color>` — 2px spread, no offset or blur — and it follows the element's `border-radius`.
+
+```html
+<!-- focus ring (element's only inline style → per-key binding) -->
+<view [style.box-shadow]="focused() ? '0 0 0 2px var(--ring)' : null" />
+
+<!-- elevation shadow (static) -->
+<view style="box-shadow: 0 2px 16px rgba(0, 0, 0, 0.15);" />
+```
+
+Color it with `var(--ring)` / `var(--destructive)`: `var()` resolves in inline styles on Lynx and tracks dark mode. Exemplars: `input`/`textarea` (focus ring), `action-sheet`/`toast` (elevation).
+
+Two caveats:
+
+- **Not animatable.** `box-shadow` is `animatable: no` on Lynx — it snaps on/off, so keep it out of transitions. `toast` deliberately holds its shadow in a static style, separate from its animated `transform`/`opacity`.
+- **Don't mix binding paths on one element.** `[style.box-shadow]` routes through `__AddInlineStyle` (per-key); a whole-string `[style]="..."` routes through `__SetInlineStyles` (replaces all inline styles). On an element that already has a whole-string `[style]`, fold the shadow into that string instead — a later whole-string set clobbers the per-key one. Because `__SetInlineStyles` replaces rather than merges, omitting the shadow from the string clears it (`textarea` folds its ring into `wrapperStyle()` for exactly this reason).

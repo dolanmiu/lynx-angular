@@ -29,6 +29,7 @@ and a `ui-nav-drawer` grouping every route by category (Elements, Components,
 Motion, Forms & Input, Platform, Validation). `<router-outlet>` fills the body.
 
 Every route wraps its content in either:
+
 - `src/app/demo-screen/demo-screen.ts` (`<app-demo-screen>`) — owns the page
   scroll-view; provides a heading/category/description header. Use for demos
   with **no** scroll-view/list/gesture surface of their own.

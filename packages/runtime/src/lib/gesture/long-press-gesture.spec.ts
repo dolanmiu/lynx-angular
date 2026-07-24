@@ -7,6 +7,16 @@ describe('LongPressGesture', () => {
     expect(new LongPressGesture().type).toBe(GestureType.LONGPRESS);
   });
 
+  it('seeds a full default config so calling only minDuration() cannot zero maxDistance', () => {
+    // Without a default maxDistance, a partial config would make iOS read
+    // maxDistance as 0 — failing the long-press on any finger jitter. See ./const.
+    expect(new LongPressGesture()._config).toEqual({
+      enabled: true,
+      minDuration: 500,
+      maxDistance: 10,
+    });
+  });
+
   describe('minDuration()', () => {
     it('sets the minDuration config value in milliseconds', () => {
       const g = new LongPressGesture();
@@ -45,6 +55,10 @@ describe('LongPressGesture', () => {
     const result = g.minDuration(500).maxDistance(10);
 
     expect(result).toBe(g);
-    expect(g._config).toEqual({ minDuration: 500, maxDistance: 10 });
+    expect(g._config).toEqual({
+      enabled: true,
+      minDuration: 500,
+      maxDistance: 10,
+    });
   });
 });

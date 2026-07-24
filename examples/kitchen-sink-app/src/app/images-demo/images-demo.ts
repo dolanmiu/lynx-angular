@@ -1,7 +1,8 @@
 import { Component, signal } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 import angularLogo from '../../assets/angular-logo.png';
-import lynxLogo from '../../assets/lynx-logo.png';
+import angularMascot from '../../assets/Google_Angular_Mascot_2D_Superhero.png';
+import landscapeImage from '../../assets/landscape-image.jpg';
 import { UiButton } from '../../components/ui/button';
 import {
   UiCard,
@@ -55,7 +56,7 @@ import { ScreenHost } from '../screen-host';
         </ui-card-header>
         <ui-card-content class="flex-row items-center gap-6 flex">
           <image [src]="angularLogo" class="h-[80px] w-[80px]" />
-          <image [src]="lynxLogo" class="h-[80px] w-[80px]" />
+          <image [src]="angularMascot" class="h-[80px] w-[80px]" />
         </ui-card-content>
       </ui-card>
 
@@ -69,13 +70,16 @@ import { ScreenHost } from '../screen-host';
           </ui-card-description>
         </ui-card-header>
         <ui-card-content class="items-center flex">
-          <image [src]="lynxLogo" class="logo-spin h-[80px] w-[80px]" />
+          <image [src]="angularMascot" class="logo-spin h-[80px] w-[80px]" />
         </ui-card-content>
       </ui-card>
 
       <!-- The same image inside a fixed box under each scaling mode. mode is a
            native attribute (unlike the image config we set at creation, which
-           the native layer ignores), so it actually reaches the element. -->
+           the native layer ignores), so it actually reaches the element. A
+           landscape photo is used here on purpose: because its aspect ratio
+           differs from the square box, the three modes render visibly
+           differently (letterboxed vs. cropped vs. stretched). -->
       <ui-card class="w-full">
         <ui-card-header>
           <ui-card-title>Scaling modes</ui-card-title>
@@ -90,7 +94,7 @@ import { ScreenHost } from '../screen-host';
                 class="h-[72px] w-[72px] items-center rounded-md bg-muted flex justify-center overflow-hidden"
               >
                 <image
-                  [src]="angularLogo"
+                  [src]="landscapeImage"
                   [attr.mode]="mode"
                   class="h-full w-full"
                 />
@@ -132,7 +136,7 @@ import { ScreenHost } from '../screen-host';
             {{ showConditional() ? 'Hide' : 'Show' }} image
           </ui-button>
           @if (showConditional()) {
-            <image [src]="lynxLogo" class="h-[80px] w-[80px]" />
+            <image [src]="angularMascot" class="h-[80px] w-[80px]" />
           }
         </ui-card-content>
       </ui-card>
@@ -142,7 +146,8 @@ import { ScreenHost } from '../screen-host';
 })
 export class ImagesDemo {
   readonly angularLogo = angularLogo;
-  readonly lynxLogo = lynxLogo;
+  readonly angularMascot = angularMascot;
+  readonly landscapeImage = landscapeImage;
 
   /** Native <image> scaling modes, shown side by side in the same fixed box. */
   readonly modes = ['aspectFit', 'aspectFill', 'scaleToFill'];

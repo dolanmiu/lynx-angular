@@ -3,9 +3,9 @@ import '@angular/compiler';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
-  BrowserDynamicTestingModule,
-  platformBrowserDynamicTesting,
-} from '@angular/platform-browser-dynamic/testing';
+  BrowserTestingModule,
+  platformBrowserTesting,
+} from '@angular/platform-browser/testing';
 import {
   afterEach,
   beforeAll,
@@ -31,10 +31,7 @@ const setInputSignal = (signalFn: any, value: any): void => {
 
 describe('LynxTransition', () => {
   beforeAll(() => {
-    TestBed.initTestEnvironment(
-      BrowserDynamicTestingModule,
-      platformBrowserDynamicTesting(),
-    );
+    TestBed.initTestEnvironment(BrowserTestingModule, platformBrowserTesting());
   });
 
   beforeEach(() => {

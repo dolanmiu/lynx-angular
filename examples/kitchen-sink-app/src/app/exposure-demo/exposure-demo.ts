@@ -79,18 +79,78 @@ export class ExposureDemo {
    * exposure/disexposure events this demo is showing off.
    */
   readonly feedItems: readonly FeedItem[] = [
-    { id: 'hero-banner', tag: 'AD', title: 'Hero banner', subtitle: 'Top-of-feed promo slot' },
-    { id: 'story-01', tag: '01', title: 'Morning digest', subtitle: 'Editorial story' },
-    { id: 'story-02', tag: '02', title: 'Trending now', subtitle: 'Ranked by engagement' },
-    { id: 'promo-01', tag: 'AD', title: 'Sponsored: Nimbus', subtitle: 'Paid placement' },
-    { id: 'story-03', tag: '03', title: 'Deep dive', subtitle: 'Long-read feature' },
-    { id: 'story-04', tag: '04', title: 'Around the web', subtitle: 'Link roundup' },
-    { id: 'video-01', tag: '▶', title: 'Watch: highlights', subtitle: 'Autoplay when visible' },
-    { id: 'story-05', tag: '05', title: 'Community picks', subtitle: 'Reader favorites' },
-    { id: 'promo-02', tag: 'AD', title: 'Sponsored: Atlas', subtitle: 'Paid placement' },
-    { id: 'story-06', tag: '06', title: 'Weekend guide', subtitle: 'Curated events' },
-    { id: 'story-07', tag: '07', title: 'The wrap-up', subtitle: 'End-of-feed summary' },
-    { id: 'footer-cta', tag: '★', title: 'You are all caught up', subtitle: 'End of feed' },
+    {
+      id: 'hero-banner',
+      tag: 'AD',
+      title: 'Hero banner',
+      subtitle: 'Top-of-feed promo slot',
+    },
+    {
+      id: 'story-01',
+      tag: '01',
+      title: 'Morning digest',
+      subtitle: 'Editorial story',
+    },
+    {
+      id: 'story-02',
+      tag: '02',
+      title: 'Trending now',
+      subtitle: 'Ranked by engagement',
+    },
+    {
+      id: 'promo-01',
+      tag: 'AD',
+      title: 'Sponsored: Nimbus',
+      subtitle: 'Paid placement',
+    },
+    {
+      id: 'story-03',
+      tag: '03',
+      title: 'Deep dive',
+      subtitle: 'Long-read feature',
+    },
+    {
+      id: 'story-04',
+      tag: '04',
+      title: 'Around the web',
+      subtitle: 'Link roundup',
+    },
+    {
+      id: 'video-01',
+      tag: '▶',
+      title: 'Watch: highlights',
+      subtitle: 'Autoplay when visible',
+    },
+    {
+      id: 'story-05',
+      tag: '05',
+      title: 'Community picks',
+      subtitle: 'Reader favorites',
+    },
+    {
+      id: 'promo-02',
+      tag: 'AD',
+      title: 'Sponsored: Atlas',
+      subtitle: 'Paid placement',
+    },
+    {
+      id: 'story-06',
+      tag: '06',
+      title: 'Weekend guide',
+      subtitle: 'Curated events',
+    },
+    {
+      id: 'story-07',
+      tag: '07',
+      title: 'The wrap-up',
+      subtitle: 'End-of-feed summary',
+    },
+    {
+      id: 'footer-cta',
+      tag: '★',
+      title: 'You are all caught up',
+      subtitle: 'End of feed',
+    },
   ];
 
   constructor() {
@@ -110,7 +170,7 @@ export class ExposureDemo {
   }
 
   /**
-   * Pause/resume the global exposure stream. 
+   * Pause/resume the global exposure stream.
    */
   toggle(): void {
     if (this.active()) {

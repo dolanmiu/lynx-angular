@@ -1,122 +1,106 @@
-.demo-container {
-  padding: 16px;
+/*
+ * This file owns only what Tailwind + dolan components can't express: the CSS
+ * `transition` declaration for the switch and the looping `@keyframes` presets.
+ * Every layout and color choice lives in the template via Tailwind classes.
+ *
+ * Colors reference the theme's CSS custom properties directly (e.g.
+ * `var(--primary)`). The @blotch/ui theme stores each token as a complete
+ * `rgba()` value, so these stay dark-mode aware without any per-mode CSS here.
+ */
+
+/* ── CSS Transition: an iOS-style toggle switch ──────────────────────────────
+   The track eases its background-color and the knob eases its translateX; both
+   animate purely because the class flip changes properties that carry a
+   `transition`. Native colors would swap instantly without these declarations. */
+.motion-track {
+  width: 84px;
+  height: 44px;
+  padding: 4px;
+  border-radius: 9999px;
+  background-color: var(--muted);
+  transition: background-color 0.35s ease;
+}
+.motion-track.is-on {
+  background-color: var(--primary);
 }
 
-.section-title {
-  font-size: 16px;
-  font-weight: bold;
-  margin-bottom: 12px;
-  color: #333;
+.motion-knob {
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  /* `--background` is white in light mode and near-black in dark mode — the
+     inverse of `--primary`, so the knob always contrasts the on-state track. */
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  /* Spring easing gives the knob a subtle overshoot as it slides across. */
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.motion-knob.is-on {
+  transform: translateX(40px);
 }
 
-.demo-section {
-  margin-bottom: 24px;
-  padding: 16px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-}
+/* ── Keyframe presets ────────────────────────────────────────────────────────
+   Names are prefixed `mo-` to avoid colliding with keyframes defined in other
+   demos' global stylesheets. Each `.anim-<name>` matches a tile's `name`. */
 
-/* ── CSS Transition Demo ── */
-
-.transition-box {
-  width: 150px;
-  height: 80px;
-  background-color: #6200ee;
-  border-radius: 8px;
-  justify-content: center;
-  align-items: center;
-  transition: background-color 0.5s ease-in-out;
-}
-
-.transition-box-active {
-  background-color: #03dac6;
-}
-
-.transition-label {
-  color: white;
-  font-size: 14px;
-}
-
-/* ── CSS Keyframe Animation Demo ── */
-
-@keyframes rotate {
-  0% {
+@keyframes mo-spin {
+  from {
     transform: rotate(0deg);
   }
-  100% {
+  to {
     transform: rotate(360deg);
   }
 }
+.anim-spin {
+  animation: mo-spin 1.6s linear infinite;
+}
 
-@keyframes pulse {
-  0% {
+@keyframes mo-pulse {
+  0%,
+  100% {
+    transform: scale(1);
     opacity: 1;
   }
   50% {
-    opacity: 0.5;
+    transform: scale(1.2);
+    opacity: 0.6;
   }
+}
+.anim-pulse {
+  animation: mo-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes mo-bounce {
+  0%,
   100% {
-    opacity: 1;
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
   }
 }
-
-.keyframe-box {
-  width: 80px;
-  height: 80px;
-  background-color: #ff5722;
-  border-radius: 8px;
-  justify-content: center;
-  align-items: center;
+.anim-bounce {
+  animation: mo-bounce 0.9s ease-in-out infinite;
 }
 
-.keyframe-box-rotating {
-  animation: rotate 2s linear infinite;
+@keyframes mo-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-4px);
+  }
+  40% {
+    transform: translateX(4px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(4px);
+  }
 }
-
-.keyframe-box-pulsing {
-  animation: pulse 1.5s ease-in-out infinite;
-}
-
-.keyframe-label {
-  color: white;
-  font-size: 12px;
-}
-
-.keyframe-row {
-  /*
-   * Lynx defaults <view> to `display: linear`, where `gap`, `flex-direction`,
-   * and `justify-content` are all ignored — the boxes stacked vertically with
-   * no spacing. `display: flex` is required for these to take effect.
-   */
-  display: flex;
-  flex-direction: row;
-  /* gap-5 (20px) also clears the Rotate box's corner as it spins (its
-     half-diagonal reaches ~56.6px vs. 40px at rest). */
-  gap: 20px;
-  align-items: center;
-}
-
-/* ── JS Animate API Demo ── */
-
-.animate-box {
-  width: 100px;
-  height: 100px;
-  background-color: #4a90e2;
-  border-radius: 8px;
-  justify-content: center;
-  align-items: center;
-}
-
-.animate-label {
-  color: white;
-  font-size: 12px;
-  text-align: center;
-}
-
-/* ── Shared ── */
-
-.tap-hint {
-  font-size: 12px;
-  color: #666;
-  margin-top: 8px;
+.anim-shake {
+  animation: mo-shake 0.6s ease-in-out infinite;
 }

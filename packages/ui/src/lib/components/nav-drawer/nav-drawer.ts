@@ -3,6 +3,7 @@ import {
   Component,
   ViewEncapsulation,
   computed,
+  contentChildren,
   effect,
   inject,
   input,
@@ -254,18 +255,65 @@ export class UiNavDrawerHeader {
   // With the host now a definite height, the scroll-view fills it with `h-full`
   // (the explicit height Lynx requires to actually scroll) and `w-full` to span
   // the host width. This is the bound the scroll-view was missing above.
+  //
+  // (bindcontentsizechanged) fires once the scroll-view finishes laying out its
+  // content (iOS/Android). That's the exact moment child frames exist, so it's
+  // the precise trigger for scrolling the active item into view when the drawer
+  // is first shown — see onContentLayout().
   template: `
-    <scroll-view scroll-orientation="vertical" [class]="contentClass()">
+    <scroll-view
+      scroll-orientation="vertical"
+      [class]="contentClass()"
+      (bindcontentsizechanged)="onContentLayout()"
+    >
       <ng-content />
     </scroll-view>
   `,
 })
 export class UiNavDrawerContent {
+  readonly #drawer = inject(UiNavDrawer);
+
   readonly userClass = input<string>('', { alias: 'class' });
+
+  // Every nav item projected into this section (Home + each group item). Used to
+  // find the active one when the drawer opens. `descendants: true` reaches items
+  // nested inside the @for group wrappers, not just the direct content children.
+  readonly items = contentChildren(UiNavDrawerItem, { descendants: true });
 
   protected readonly contentClass = computed(() =>
     cn('h-full w-full', this.userClass()),
   );
+
+  constructor() {
+    // When the drawer opens, land the user on their current route instead of the
+    // top of a potentially long nav list. The <overlay> is display:none until
+    // open, so the scroll-view has no laid-out child frames until it's shown —
+    // defer a tick so the just-shown content is measured before we read it.
+    //
+    // This open-driven path is the fallback: it covers the web preview (where
+    // contentsizechanged isn't emitted) and re-opens that don't trigger a
+    // relayout. On device, onContentLayout() below is the precise trigger. Both
+    // call the same instant scroll, so firing twice is a harmless no-op.
+    effect(() => {
+      if (!this.#drawer.open()) return;
+      setTimeout(() => this.#scrollActiveIntoView(), 0);
+    });
+  }
+
+  /**
+   * Fired by the scroll-view once its content finishes layout. Gated on the
+   * drawer being open so a close-time relayout (content collapsing as the overlay
+   * hides) doesn't scroll an already-dismissed panel.
+   */
+  protected onContentLayout(): void {
+    if (this.#drawer.open()) this.#scrollActiveIntoView();
+  }
+
+  #scrollActiveIntoView(): void {
+    this.items()
+      .find((item) => item.active())
+      ?.scrollIntoView();
+  }
 }
 
 @Component({
@@ -330,6 +378,33 @@ export class UiNavDrawerItem {
     if (this.autoClose()) {
       this.#drawer.close();
     }
+  }
+
+  /**
+   * Scrolls the enclosing scroll-view so this item is visible. `scrollIntoView`
+   * is a base LynxUI UIMethod bound to ANY (direct or indirect) child of a
+   * scroll container: it walks up to the nearest <scroll-view> and scrolls that
+   * container itself. Because it targets the element — not a child index/offset —
+   * it's immune to the display:none control-flow anchor <view>s Angular
+   * interleaves as scroll-view children for @if/@for (which would corrupt any
+   * index-based scroll). UiNavDrawerContent calls this to reveal the active route
+   * when the drawer opens.
+   *
+   * block:'center' centers the item in the viewport; behavior:'auto' positions
+   * instantly (not animated) so the drawer appears already-scrolled as it slides
+   * in, instead of visibly jumping after it settles.
+   */
+  scrollIntoView(): void {
+    // The param shape differs by platform, so send both — each side reads its
+    // own keys and ignores the rest:
+    //  - Native Lynx (iOS/Android) reads params.scrollIntoViewOptions.
+    //  - Web maps invoke() onto the DOM element.scrollIntoView(params), which
+    //    reads top-level ScrollIntoViewOptions (block/behavior).
+    this.containerRef()?.nativeElement.invoke('scrollIntoView', {
+      scrollIntoViewOptions: { block: 'center', behavior: 'auto' },
+      block: 'center',
+      behavior: 'auto',
+    });
   }
 }
 

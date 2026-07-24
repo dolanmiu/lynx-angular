@@ -45,7 +45,7 @@ type FontSpecimen = {
            can see exactly what each face contributes. -->
       @for (font of fonts; track font.family) {
         <view class="rounded-lg border border-border bg-card p-4">
-          <view class="mb-3 flex-row items-center justify-between flex">
+          <view class="mb-3 flex-row items-center flex justify-between">
             <text class="text-[15px] font-semibold text-foreground">
               {{ font.name }}
             </text>
@@ -65,8 +65,10 @@ type FontSpecimen = {
             {{ font.sample }}
           </text>
 
-          <view class="flex-row items-center justify-between flex">
-            <text class="text-[12px] text-muted-foreground">{{ font.note }}</text>
+          <view class="flex-row items-center flex justify-between">
+            <text class="text-[12px] text-muted-foreground">{{
+              font.note
+            }}</text>
             <!-- Echo the CSS value in monospace so the wiring is obvious. -->
             <text
               class="text-[11px] text-muted-foreground"
@@ -88,7 +90,10 @@ type FontSpecimen = {
         <text class="mb-1 text-[12px] text-muted-foreground">
           Roboto (custom @font-face)
         </text>
-        <text class="mb-4 text-[18px] text-foreground" style="font-family: Roboto">
+        <text
+          class="mb-4 text-[18px] text-foreground"
+          style="font-family: Roboto"
+        >
           The quick brown fox jumps over the lazy dog
         </text>
 
@@ -144,7 +149,10 @@ type FontSpecimen = {
           >
             abcdefghijklmnopqrstuvwxyz
           </text>
-          <text class="text-[13px] text-foreground" style="font-family: SpaceMono">
+          <text
+            class="text-[13px] text-foreground"
+            style="font-family: SpaceMono"
+          >
             0123456789 !&#64;#$%^&amp;*()
           </text>
         </view>
@@ -161,7 +169,10 @@ type FontSpecimen = {
           the family by name:
         </text>
         <view class="mb-3 rounded-md bg-muted p-3">
-          <text class="text-[12px] text-foreground" style="font-family: SpaceMono">
+          <text
+            class="text-[12px] text-foreground"
+            style="font-family: SpaceMono"
+          >
             {{ fontFaceSnippet }}
           </text>
         </view>

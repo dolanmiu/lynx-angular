@@ -99,7 +99,7 @@ export class SessionStorageDemo {
   }
 
   /**
-   * Prepend an entry, keeping only the most recent few so the feed stays tidy. 
+   * Prepend an entry, keeping only the most recent few so the feed stays tidy.
    */
   #log(kind: Activity['kind'], message: string): void {
     const entry: Activity = { id: this.#nextActivityId++, kind, message };

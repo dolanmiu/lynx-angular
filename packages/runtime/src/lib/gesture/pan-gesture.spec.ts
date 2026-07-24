@@ -7,6 +7,13 @@ describe('PanGesture', () => {
     expect(new PanGesture().type).toBe(GestureType.PAN);
   });
 
+  it('seeds a default config (enabled + minDistance)', () => {
+    expect(new PanGesture()._config).toEqual({
+      enabled: true,
+      minDistance: 0,
+    });
+  });
+
   describe('minDistance()', () => {
     it('sets the minDistance config value', () => {
       const g = new PanGesture();
@@ -151,6 +158,7 @@ describe('PanGesture', () => {
 
     expect(result).toBe(g);
     expect(g._config).toEqual({
+      enabled: true,
       minDistance: 5,
       activeOffsetX: 10,
       activeOffsetY: 10,

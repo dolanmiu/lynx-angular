@@ -7,6 +7,16 @@ describe('TapGesture', () => {
     expect(new TapGesture().type).toBe(GestureType.TAP);
   });
 
+  it('seeds a full default config so partial configs never zero native keys', () => {
+    // iOS reads absent config keys as 0 once any config is present, so every
+    // key must always be sent. See ./const.
+    expect(new TapGesture()._config).toEqual({
+      enabled: true,
+      maxDuration: 500,
+      maxDistance: 10,
+    });
+  });
+
   describe('numberOfTaps()', () => {
     it('sets the numberOfTaps config value', () => {
       const g = new TapGesture();
@@ -62,6 +72,7 @@ describe('TapGesture', () => {
 
     expect(result).toBe(g);
     expect(g._config).toEqual({
+      enabled: true,
       numberOfTaps: 2,
       maxDuration: 500,
       maxDistance: 20,

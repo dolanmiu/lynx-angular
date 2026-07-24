@@ -119,14 +119,30 @@ export class UiTextarea implements FormValueControl<string> {
       // No min-height here — the minimum is now enforced by the textarea's own
       // min-height (minLines) so callers can go below the old 3-line floor.
       'rounded-xl bg-muted px-3.5 py-2.5',
-      this.error()
-        ? 'ring-destructive ring-2'
-        : this.#isFocused()
-          ? 'ring-ring ring-2'
-          : '',
       this.disabled() && 'opacity-50',
     ),
   );
+
+  /**
+   * Focus ring as an inline box-shadow. Tailwind's ring-* utilities render
+   * nothing on Lynx — the preset doesn't wire up the --tw-ring-* variables they
+   * compose into box-shadow — so the ring has to be an inline box-shadow, the
+   * one shadow form Lynx honors (incl. iOS). A 2px spread with no offset/blur is
+   * exactly a ring, and it inherits the wrapper's rounded-xl corners.
+   * var(--ring)/var(--destructive) resolve at runtime and track dark mode. This
+   * is folded into wrapperStyle() rather than bound via [style.box-shadow]
+   * because the wrapper already has a whole-string [style]: mixing whole-string
+   * (__SetInlineStyles) and per-key (__AddInlineStyle) inline styles on one
+   * element lets the whole-string set clobber the per-key one. Returns '' when
+   * unfocused/error-free so it drops out of the joined string (and, since
+   * __SetInlineStyles replaces rather than merges, the ring clears on blur).
+   * Error takes precedence over focus so an invalid field always shows red.
+   */
+  protected readonly focusRing = computed(() => {
+    if (this.error()) return 'box-shadow: 0 0 0 2px var(--destructive)';
+    if (this.#isFocused()) return 'box-shadow: 0 0 0 2px var(--ring)';
+    return '';
+  });
 
   // Sizing lives on the wrapper so the textarea (height:100%) grows it with
   // content between min and max, then scrolls at the cap — the native textarea
@@ -143,6 +159,7 @@ export class UiTextarea implements FormValueControl<string> {
     return [
       `min-height: ${this.minLines() * lineHeight + verticalPadding}px`,
       max != null ? `max-height: ${max * lineHeight + verticalPadding}px` : '',
+      this.focusRing(),
     ]
       .filter(Boolean)
       .join('; ');

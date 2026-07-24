@@ -1,3 +1,4 @@
+// cspell:words ULLONG
 /**
  * Tracks whether we're still inside the native engine's very first
  * LoadTemplate → renderPage call, and lets callers defer work until it's
@@ -5,7 +6,7 @@
  *
  * Why this exists: a `<list>`'s `componentAtIndex` callback (registered via
  * `__CreateList`) always runs in the main-thread "Lepus" QuickJS context,
- * invoked synchronously and re-entrantly by native's own list layout pass
+ * invoked synchronously and reentrantly by native's own list layout pass
  * whenever the list's data changes and a layout tick runs. That reentrancy is
  * fine in steady state (React Lynx relies on it on every scroll). We defer the
  * list's FIRST `update-list-info` + layout-triggering flush out of the initial
