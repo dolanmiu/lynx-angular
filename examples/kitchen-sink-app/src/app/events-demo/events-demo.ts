@@ -58,7 +58,7 @@ import { ScreenHost } from '../screen-host';
     >
       <!-- ── Tap: the basic (bindtap) handler ── -->
       <ui-card class="w-full">
-        <ui-card-header class="gap-1">
+        <ui-card-header class="gap-1 p-4">
           <view class="flex-row items-center gap-2 flex">
             <ui-icon name="circle" size="sm" />
             <ui-card-title class="text-lg">Tap</ui-card-title>
@@ -67,7 +67,7 @@ import { ScreenHost } from '../screen-host';
             Fires a handler on every (bindtap).
           </ui-card-description>
         </ui-card-header>
-        <ui-card-content class="flex-col gap-3 flex">
+        <ui-card-content class="flex-col gap-3 p-4 pt-0 flex">
           <view
             class="items-center rounded-lg border border-dashed border-border bg-muted py-8 flex justify-center"
             (bindtap)="onTap()"
@@ -87,7 +87,7 @@ import { ScreenHost } from '../screen-host';
 
       <!-- ── Propagation: (bindtap) bubbles, (catchtap) stops ── -->
       <ui-card class="w-full">
-        <ui-card-header class="gap-1">
+        <ui-card-header class="gap-1 p-4">
           <view class="flex-row items-center gap-2 flex">
             <ui-icon name="chevron-up" size="sm" />
             <ui-card-title class="text-lg">Propagation</ui-card-title>
@@ -97,7 +97,7 @@ import { ScreenHost } from '../screen-host';
             bubble through.
           </ui-card-description>
         </ui-card-header>
-        <ui-card-content class="flex-col gap-3 flex">
+        <ui-card-content class="flex-col gap-3 p-4 pt-0 flex">
           <!-- The outer view has its own (bindtap). Tapping empty space here, or
                the "Bubbles" child (also bindtap), increments Outer. The "Stops"
                child uses (catchtap), so its tap never reaches this handler. -->
@@ -144,7 +144,7 @@ import { ScreenHost } from '../screen-host';
 
       <!-- ── Long press: (bindlongpress), distinct from tap ── -->
       <ui-card class="w-full">
-        <ui-card-header class="gap-1">
+        <ui-card-header class="gap-1 p-4">
           <view class="flex-row items-center gap-2 flex">
             <ui-icon name="loader" size="sm" />
             <ui-card-title class="text-lg">Long press</ui-card-title>
@@ -153,7 +153,7 @@ import { ScreenHost } from '../screen-host';
             Hold to fire (bindlongpress) — a quick tap fires (bindtap) instead.
           </ui-card-description>
         </ui-card-header>
-        <ui-card-content class="flex-col gap-3 flex">
+        <ui-card-content class="flex-col gap-3 p-4 pt-0 flex">
           <view
             class="items-center rounded-lg border border-dashed border-border bg-muted py-8 flex justify-center"
             (bindtap)="onLongPressAreaTap()"
@@ -174,7 +174,7 @@ import { ScreenHost } from '../screen-host';
 
       <!-- ── Touch stream: live coordinates from the full TouchEvent ── -->
       <ui-card class="w-full">
-        <ui-card-header class="gap-1">
+        <ui-card-header class="gap-1 p-4">
           <view class="flex-row items-center gap-2 flex">
             <ui-icon name="eye" size="sm" />
             <ui-card-title class="text-lg">Touch tracking</ui-card-title>
@@ -183,7 +183,7 @@ import { ScreenHost } from '../screen-host';
             Reads live coordinates from the TouchEvent as your finger moves.
           </ui-card-description>
         </ui-card-header>
-        <ui-card-content class="flex-col gap-3 flex">
+        <ui-card-content class="flex-col gap-3 p-4 pt-0 flex">
           <!-- catch* (not bind*) so the drag is consumed here instead of bubbling
                up to the demo-screen scroll-view — otherwise a vertical drag would
                scroll the page instead of tracking. The pad tints while active so

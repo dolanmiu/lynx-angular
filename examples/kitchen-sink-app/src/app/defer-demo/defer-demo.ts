@@ -84,7 +84,7 @@ const MANUAL_LOADING_MS = 900;
     >
       <!-- ── 1. The lifecycle: concept + the three states ── -->
       <ui-card class="w-full">
-        <ui-card-header class="gap-1">
+        <ui-card-header class="gap-1 p-4">
           <view class="flex-row items-center gap-2 flex">
             <ui-icon name="info" size="sm" />
             <ui-card-title class="text-lg">The lifecycle</ui-card-title>
@@ -95,7 +95,7 @@ const MANUAL_LOADING_MS = 900;
             the moment a trigger fires — the initial bundle never pays for it.
           </ui-card-description>
         </ui-card-header>
-        <ui-card-content class="flex-col gap-3 flex">
+        <ui-card-content class="flex-col gap-3 p-4 pt-0 flex">
           <view class="flex-row items-center gap-3 flex">
             <view
               class="h-8 w-8 items-center rounded-full bg-muted flex justify-center"
@@ -144,7 +144,7 @@ const MANUAL_LOADING_MS = 900;
 
       <!-- ── 2. Manual (when): the interactive centerpiece ── -->
       <ui-card class="w-full">
-        <ui-card-header class="gap-1">
+        <ui-card-header class="gap-1 p-4">
           <view class="flex-row items-center flex justify-between">
             <view class="flex-row items-center gap-2 flex">
               <ui-icon name="plus" size="sm" />
@@ -158,7 +158,7 @@ const MANUAL_LOADING_MS = 900;
             is instant.
           </ui-card-description>
         </ui-card-header>
-        <ui-card-content class="flex-col gap-4 flex">
+        <ui-card-content class="flex-col gap-4 p-4 pt-0 flex">
           <!-- Live stepper: highlights the state the block is currently in. -->
           <view class="flex-row items-center gap-2 flex">
             @for (step of steps; track step.key) {
@@ -228,7 +228,7 @@ const MANUAL_LOADING_MS = 900;
 
       <!-- ── 3. Automatic (timer / idle): two compact rows, same chunk ── -->
       <ui-card class="w-full">
-        <ui-card-header class="gap-1">
+        <ui-card-header class="gap-1 p-4">
           <view class="flex-row items-center gap-2 flex">
             <ui-icon name="loader" size="sm" />
             <ui-card-title class="text-lg">Automatic triggers</ui-card-title>
@@ -238,7 +238,7 @@ const MANUAL_LOADING_MS = 900;
             share the same heavy.js chunk as the manual demo above.
           </ui-card-description>
         </ui-card-header>
-        <ui-card-content class="flex-col gap-4 flex">
+        <ui-card-content class="flex-col gap-4 p-4 pt-0 flex">
           <!-- on timer: auto-loads a fixed delay after the block renders. -->
           <view class="flex-col gap-2 flex">
             <view class="flex-row items-center flex justify-between">

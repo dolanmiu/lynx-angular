@@ -3817,3 +3817,87 @@ Two caveats:
 
 - **Not animatable.** `box-shadow` is `animatable: no` on Lynx — it snaps on/off, so keep it out of transitions. `toast` deliberately holds its shadow in a static style, separate from its animated `transform`/`opacity`.
 - **Don't mix binding paths on one element.** `[style.box-shadow]` routes through `__AddInlineStyle` (per-key); a whole-string `[style]="..."` routes through `__SetInlineStyles` (replaces all inline styles). On an element that already has a whole-string `[style]`, fold the shadow into that string instead — a later whole-string set clobbers the per-key one. Because `__SetInlineStyles` replaces rather than merges, omitting the shadow from the string clears it (`textarea` folds its ring into `wrapperStyle()` for exactly this reason).
+
+---
+
+## `setTimeout` invokes its callback with an empty object, not `undefined` — which crashes Angular's `@defer (on idle)`
+
+### What you'd expect (web)
+
+`setTimeout(cb)` calls `cb()` with no arguments (`arguments.length === 0`, first arg `undefined`). And `requestIdleCallback(cb)` exists and calls `cb(deadline)` with a real `IdleDeadline` (`{ didTimeout, timeRemaining() }`).
+
+### What Lynx does
+
+Two differences compound:
+
+1. **No `requestIdleCallback`/`cancelIdleCallback`.** Neither exists as a global on any thread — a whole-tree search of the Lynx core returns nothing. Only `setTimeout`/`clearTimeout` are registered (as *global* functions on the main-thread Lepus context via `RegisterGlobalFunction`, and on the `lynx` object on the background thread).
+
+2. **`setTimeout` passes an empty object to the callback.** The Lepus timed-task dispatcher invokes the stored callback with `Dictionary::Create()` — an empty `{}` — as its single argument (`core/runtime/lepus/tasks/lepus_callback_manager.cc`, `SetTimeTask`: `func->Execute({lepus::Value(lepus::Dictionary::Create())})`). So on Lynx `setTimeout(cb)` effectively calls `cb({})`, not `cb()`.
+
+Together these crash Angular's `@defer (on idle)`. With no `requestIdleCallback`, Angular's `RequestIdleCallbackService` falls back to `cb => setTimeout(cb)`, then its `IdleScheduler` does:
+
+```js
+const callback = deadline => {
+  for (const cb of bucket.queue) {
+    cb(); this.applicationRef._tick(); /* … */
+    if (deadline && deadline.timeRemaining() === 0 && !deadline.didTimeout) break;
+  }
+};
+```
+
+The `deadline` it receives is Lynx's empty `{}` — truthy, but with no `timeRemaining`. `deadline.timeRemaining()` is therefore a call on `undefined` → **`TypeError: not a function`**, crashing the main-thread frame the instant an `@defer (on idle)` block renders. It is **main-thread-only**: the web build has a genuine `requestIdleCallback` and never reaches the fallback, so the same demo runs in the browser preview but dies on-device.
+
+### The fix
+
+`runtime.ts` polyfills a matched `requestIdleCallback`/`cancelIdleCallback` pair (mapped to `setTimeout`/`clearTimeout`) that invokes the callback with a correctly-shaped `IdleDeadline` (`{ didTimeout: false, timeRemaining: () => 50 }`). This keeps Angular off the broken fallback entirely. **Both** must be defined, never just one: Angular reuses a single `typeof requestIdleCallback !== 'undefined'` guard to also select `cancelIdleCallback`, so a lone `requestIdleCallback` would make it bind an `undefined` cancel and crash the same way. Sits right after the existing `setTimeout`/`clearTimeout`/`requestAnimationFrame` polyfills so both are resolvable on either thread. React Lynx never hit this because it has no equivalent of Angular's `@defer (on idle)`.
+
+## `@font-face` fonts fail to load with "unsupported URL" — CSS `url()` assets get an unfetchable `webpack://` scheme
+
+### What you'd expect (web)
+
+A custom font registered in a stylesheet loads and renders:
+
+```css
+@font-face {
+  font-family: 'Roboto';
+  src: url('./assets/fonts/Roboto-Light.ttf') format('truetype');
+}
+```
+
+The bundler emits the `.ttf` as a static asset and rewrites the `url()` to a real, fetchable path (e.g. `/static/font/Roboto-Light.<hash>.ttf`), resolved against the page origin.
+
+### What Lynx does
+
+On-device the font never loads and the runtime logs:
+
+```
+Load font with genericResourceFetcher Failed: Error Domain=NSURLErrorDomain
+Code=-1002 "unsupported URL" …
+NSErrorFailingURLStringKey=webpack:///static/font/Roboto-Light.<hash>.ttf
+```
+
+`NSURLErrorDomain -1002` is **"unsupported URL"**, not a network failure — iOS rejected the URL scheme outright and never made a request. (So this is *not* a firewall/connectivity problem; a blocked network yields a timeout, `-1001`/`-1004`/`-1009`.)
+
+The culprit is the scheme: `webpack:///static/font/…`. Assets referenced from CSS `url()` are resolved by `@lynx-js/css-extract-webpack-plugin`'s child compilation, which hardcodes `const BASE_URI = 'webpack://'` (`lib/loader.js`) and does **not** inherit the runtime `publicPath`. Every `url()` gets joined against that base, so the extracted CSS bakes in an absolute `webpack:///static/font/<name>.<hash>.ttf`.
+
+That URL is absolute — it carries the `webpack://` scheme — so Lynx never re-resolves it against the bundle origin.
+
+**Images work precisely because they stay relative.** A JS-imported `<image src>` resolves through the *main* compilation as `__webpack_require__.p + "static/image/…"`, producing a root-relative `/static/image/…`. Lynx resolves that against the bundle's loading origin, so it fetches. Fonts never take this path.
+
+`output.dataUriLimit` does **not** help. The css-loader `url()` request matches the font rule's `?__inline=false` `asset/resource` branch before the size threshold is ever consulted, so raising the limit changes nothing.
+
+### The fix
+
+Force `@font-face` fonts to inline as Base64 data URIs on the Lynx target (`packages/rsbuild-plugin-angular-lynx/src/css.ts`, in `applyCSS`):
+
+```ts
+if (environment.name === 'lynx' && chain.module.rules.has(CHAIN_ID.RULE.FONT)) {
+  const fontRule = chain.module.rule(CHAIN_ID.RULE.FONT);
+  fontRule.oneOfs.clear();        // drop the asset/resource + ?url/?inline/?raw branches
+  fontRule.type('asset/inline');  // inline every matched font, ignoring any css-loader query
+}
+```
+
+A data URI is absolute, so it survives the `webpack://` base-URI join untouched. It needs no `publicPath`, no network fetch, and no host font loader — exactly what the [Lynx `@font-face` docs](https://lynxjs.org/api/css/at-rule/font-face) recommend ("Base64-encoded fonts").
+
+The `environment.name === 'lynx'` guard keeps the change Lynx-only. The **web preview bundle keeps the same broken `webpack:///` font URLs**; its ideal fix is a correct `publicPath` serving fonts over HTTP, not inlining, which would bloat the browser bundle. React Lynx never hit this — it has no equivalent global-stylesheet `@font-face` build path.

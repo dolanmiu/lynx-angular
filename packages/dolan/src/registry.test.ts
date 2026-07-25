@@ -58,6 +58,13 @@ describe('resolveDependencies', () => {
     expect(resolveDependencies(['sheet'])).toEqual(['bottom-sheet', 'sheet']);
   });
 
+  it('resolves line-chart with its cartesian-chart dependency', () => {
+    expect(resolveDependencies(['line-chart'])).toEqual([
+      'cartesian-chart',
+      'line-chart',
+    ]);
+  });
+
   it('deduplicates bottom-sheet when both select and sheet are selected', () => {
     expect(resolveDependencies(['select', 'sheet'])).toEqual([
       'bottom-sheet',

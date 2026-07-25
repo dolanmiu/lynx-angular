@@ -48,13 +48,13 @@ import { ScreenHost } from '../screen-host';
       <!-- Bundled assets bound with [src] — the exact pattern the home logo
            uses (a build-time PNG import fed through a property binding). -->
       <ui-card class="w-full">
-        <ui-card-header>
+        <ui-card-header class="p-4">
           <ui-card-title>Bundled assets</ui-card-title>
           <ui-card-description>
             PNGs imported at build time, bound with [src].
           </ui-card-description>
         </ui-card-header>
-        <ui-card-content class="flex-row items-center gap-6 flex">
+        <ui-card-content class="flex-row items-center gap-6 p-4 pt-0 flex">
           <image [src]="angularLogo" class="h-[80px] w-[80px]" />
           <image [src]="angularMascot" class="h-[80px] w-[80px]" />
         </ui-card-content>
@@ -63,13 +63,13 @@ import { ScreenHost } from '../screen-host';
       <!-- Same bundled asset, but under an infinite CSS animation, matching the
            home logo's spin/shake. -->
       <ui-card class="w-full">
-        <ui-card-header>
+        <ui-card-header class="p-4">
           <ui-card-title>Animated</ui-card-title>
           <ui-card-description>
             A bundled logo driven by a CSS keyframe animation.
           </ui-card-description>
         </ui-card-header>
-        <ui-card-content class="items-center flex">
+        <ui-card-content class="items-center p-4 pt-0 flex">
           <image [src]="angularMascot" class="logo-spin h-[80px] w-[80px]" />
         </ui-card-content>
       </ui-card>
@@ -81,13 +81,13 @@ import { ScreenHost } from '../screen-host';
            differs from the square box, the three modes render visibly
            differently (letterboxed vs. cropped vs. stretched). -->
       <ui-card class="w-full">
-        <ui-card-header>
+        <ui-card-header class="p-4">
           <ui-card-title>Scaling modes</ui-card-title>
           <ui-card-description>
             The same image in a fixed box under different mode values.
           </ui-card-description>
         </ui-card-header>
-        <ui-card-content class="flex-row gap-4 flex">
+        <ui-card-content class="flex-row gap-4 p-4 pt-0 flex">
           @for (mode of modes; track mode) {
             <view class="flex-col items-center gap-1 flex">
               <view
@@ -107,13 +107,13 @@ import { ScreenHost } from '../screen-host';
 
       <!-- A network image, to contrast bundled assets with remote URLs. -->
       <ui-card class="w-full">
-        <ui-card-header>
+        <ui-card-header class="p-4">
           <ui-card-title>Remote URL</ui-card-title>
           <ui-card-description
             >Loaded over the network from angular.dev.</ui-card-description
           >
         </ui-card-header>
-        <ui-card-content class="items-center flex">
+        <ui-card-content class="items-center p-4 pt-0 flex">
           <image
             src="https://angular.dev/assets/images/press-kit/angular_icon_gradient.gif"
             mode="aspectFit"
@@ -125,13 +125,13 @@ import { ScreenHost } from '../screen-host';
       <!-- Toggling an image in and out of the tree with @if — the remount path
            within a single screen (distinct from the leave-and-return remount). -->
       <ui-card class="w-full">
-        <ui-card-header>
+        <ui-card-header class="p-4">
           <ui-card-title>Conditional</ui-card-title>
           <ui-card-description>
             Toggling an image in and out of the tree with a conditional block.
           </ui-card-description>
         </ui-card-header>
-        <ui-card-content class="flex-col items-center gap-3 flex">
+        <ui-card-content class="flex-col items-center gap-3 p-4 pt-0 flex">
           <ui-button (pressed)="toggleConditional()">
             {{ showConditional() ? 'Hide' : 'Show' }} image
           </ui-button>

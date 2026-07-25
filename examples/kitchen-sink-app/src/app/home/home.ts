@@ -74,13 +74,13 @@ import { ScreenHost } from '../screen-host';
         </ui-text>
 
         <ui-card class="w-full">
-          <ui-card-header>
+          <ui-card-header class="p-4">
             <ui-card-title>Native inputs</ui-card-title>
             <ui-card-description>
               Dolan form controls wrapping Lynx native input fields.
             </ui-card-description>
           </ui-card-header>
-          <ui-card-content class="flex-col gap-3 flex">
+          <ui-card-content class="flex-col gap-3 p-4 pt-0 flex">
             <ui-input label="Name" placeholder="Enter text" [(value)]="name" />
             <ui-textarea
               label="Message"
@@ -91,14 +91,14 @@ import { ScreenHost } from '../screen-host';
         </ui-card>
 
         <ui-card class="w-full">
-          <ui-card-header>
+          <ui-card-header class="p-4">
             <ui-card-title>Overlay dialog</ui-card-title>
             <ui-card-description>
               A modal rendered outside the document flow via the native overlay
               element.
             </ui-card-description>
           </ui-card-header>
-          <ui-card-content>
+          <ui-card-content class="p-4 pt-0">
             <ui-button (pressed)="showDialog.set(true)">Open Dialog</ui-button>
           </ui-card-content>
         </ui-card>

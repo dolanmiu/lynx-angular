@@ -172,7 +172,7 @@ const flashElement = mainThreadFn((color: string, elementSelector: string) => {
 
       <!-- ── Main thread: instant color ── -->
       <ui-card class="w-full">
-        <ui-card-header class="gap-1">
+        <ui-card-header class="gap-1 p-4">
           <view class="flex-row items-center flex justify-between">
             <view class="flex-row items-center gap-2 flex">
               <ui-icon name="star" size="sm" />
@@ -187,7 +187,7 @@ const flashElement = mainThreadFn((color: string, elementSelector: string) => {
             Angular.
           </ui-card-description>
         </ui-card-header>
-        <ui-card-content class="flex-col gap-3 flex">
+        <ui-card-content class="flex-col gap-3 p-4 pt-0 flex">
           <view
             class="items-center rounded-lg bg-indigo-500 py-10 flex justify-center"
             [mainThreadBindtap]="handleTap"
@@ -201,7 +201,7 @@ const flashElement = mainThreadFn((color: string, elementSelector: string) => {
 
       <!-- ── Main thread: live opacity ── -->
       <ui-card class="w-full">
-        <ui-card-header class="gap-1">
+        <ui-card-header class="gap-1 p-4">
           <view class="flex-row items-center flex justify-between">
             <view class="flex-row items-center gap-2 flex">
               <ui-icon name="eye" size="sm" />
@@ -216,7 +216,7 @@ const flashElement = mainThreadFn((color: string, elementSelector: string) => {
             the main thread.
           </ui-card-description>
         </ui-card-header>
-        <ui-card-content class="flex-col gap-3 flex">
+        <ui-card-content class="flex-col gap-3 p-4 pt-0 flex">
           <view
             class="items-center rounded-lg bg-teal-500 py-10 flex justify-center"
             [mainThreadBindtouchmove]="handleTouchMove"
@@ -231,7 +231,7 @@ const flashElement = mainThreadFn((color: string, elementSelector: string) => {
 
       <!-- ── Main → Background (runOnBackground) ── -->
       <ui-card class="w-full">
-        <ui-card-header class="gap-1">
+        <ui-card-header class="gap-1 p-4">
           <view class="flex-row items-center flex justify-between">
             <view class="flex-row items-center gap-2 flex">
               <ui-icon name="arrow-right" size="sm" />
@@ -244,7 +244,7 @@ const flashElement = mainThreadFn((color: string, elementSelector: string) => {
             Angular via runOnBackground() to bump the counter.
           </ui-card-description>
         </ui-card-header>
-        <ui-card-content class="flex-col gap-3 flex">
+        <ui-card-content class="flex-col gap-3 p-4 pt-0 flex">
           <view
             class="items-center rounded-lg bg-violet-500 py-10 flex justify-center"
             [mainThreadBindtap]="handleCrossThreadTap"
@@ -269,7 +269,7 @@ const flashElement = mainThreadFn((color: string, elementSelector: string) => {
 
       <!-- ── Background → Main (runOnMainThread) ── -->
       <ui-card class="w-full">
-        <ui-card-header class="gap-1">
+        <ui-card-header class="gap-1 p-4">
           <view class="flex-row items-center flex justify-between">
             <view class="flex-row items-center gap-2 flex">
               <ui-icon name="arrow-left" size="sm" />
@@ -282,7 +282,7 @@ const flashElement = mainThreadFn((color: string, elementSelector: string) => {
             component re-render involved.
           </ui-card-description>
         </ui-card-header>
-        <ui-card-content class="flex-col gap-3 flex">
+        <ui-card-content class="flex-col gap-3 p-4 pt-0 flex">
           <view
             class="flash-target items-center rounded-lg border border-dashed border-border bg-muted py-10 flex justify-center"
           >
@@ -298,7 +298,7 @@ const flashElement = mainThreadFn((color: string, elementSelector: string) => {
 
       <!-- ── Background thread only (comparison) ── -->
       <ui-card class="w-full">
-        <ui-card-header class="gap-1">
+        <ui-card-header class="gap-1 p-4">
           <view class="flex-row items-center flex justify-between">
             <view class="flex-row items-center gap-2 flex">
               <ui-icon name="info" size="sm" />
@@ -311,7 +311,7 @@ const flashElement = mainThreadFn((color: string, elementSelector: string) => {
             a round trip before anything updates.
           </ui-card-description>
         </ui-card-header>
-        <ui-card-content class="flex-col gap-3 flex">
+        <ui-card-content class="flex-col gap-3 p-4 pt-0 flex">
           <view
             class="items-center rounded-lg border border-dashed border-border bg-muted py-10 flex justify-center"
             (bindtap)="onBackgroundTap()"

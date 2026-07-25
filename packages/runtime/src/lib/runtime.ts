@@ -230,6 +230,49 @@ if (
   }
 }
 
+// Angular's `@defer (on idle)` trigger schedules work through its internal
+// RequestIdleCallbackService. On any platform that lacks `requestIdleCallback`
+// Angular falls back to `cb => setTimeout(cb)` and then, inside IdleScheduler,
+// reads `deadline.timeRemaining()` on whatever object the scheduled callback was
+// invoked with. Browsers invoke it with a real IdleDeadline; Lynx does NOT —
+// its native `setTimeout` calls the callback with an *empty object* (the Lepus
+// runtime dispatches timed tasks with `Dictionary::Create()` — see
+// core/runtime/lepus/tasks/lepus_callback_manager.cc `SetTimeTask`). So
+// `deadline.timeRemaining` is `undefined`, and Angular's `deadline.timeRemaining()`
+// call throws "TypeError: not a function", crashing the main-thread frame the
+// instant an `@defer (on idle)` block renders. This is main-thread-only: the web
+// build has a genuine requestIdleCallback and never reaches the fallback, which is
+// why the same demo works in the browser preview but dies on-device.
+//
+// Fix: supply a matched requestIdleCallback/cancelIdleCallback pair that hands the
+// callback a correctly-shaped IdleDeadline. We define BOTH (never just one) because
+// Angular reuses the single `typeof requestIdleCallback !== 'undefined'` guard to
+// pick cancelIdleCallback too — a lone requestIdleCallback would make it bind an
+// undefined cancelIdleCallback. Defined after the timer polyfill above so
+// setTimeout/clearTimeout are already resolvable on both threads.
+if (
+  typeof (globalThis as any).requestIdleCallback !== 'function' ||
+  typeof (globalThis as any).cancelIdleCallback !== 'function'
+) {
+  (globalThis as any).requestIdleCallback = (
+    callback: (deadline: {
+      didTimeout: boolean;
+      timeRemaining: () => number;
+    }) => void,
+  ): number =>
+    // A fresh idle period reports ~50ms remaining in browsers; returning a
+    // positive value lets Angular's IdleScheduler drain its whole queue in one
+    // pass rather than treating the period as already exhausted (which would make
+    // it re-schedule endlessly). setTimeout(_, 0) mirrors the zoneless CD
+    // scheduler's own use of a macrotask elsewhere in this file.
+    setTimeout(
+      () => callback({ didTimeout: false, timeRemaining: () => 50 }),
+      0,
+    ) as unknown as number;
+  (globalThis as any).cancelIdleCallback = (id: number): void =>
+    clearTimeout(id as unknown as ReturnType<typeof setTimeout>);
+}
+
 /**
  * Lynx lifecycle callbacks. The engine calls these globals at specific points:
  * - renderPage: called once when the page is ready to render. On the main thread,

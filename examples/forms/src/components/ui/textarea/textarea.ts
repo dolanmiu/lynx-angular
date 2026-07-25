@@ -25,7 +25,11 @@ import { cn } from '@blotch/dolan/utils/cn';
       @if (label()) {
         <text [class]="labelClass()">{{ label() }}</text>
       }
-      <view [class]="textareaWrapperClass()">
+      <!-- Focus ring is an inline box-shadow, not a Tailwind ring-* class:
+           ring-* utilities compose through the --tw-ring-* CSS variables, which
+           the Lynx tailwind preset doesn't wire up, so they render nothing on
+           device (incl. iOS). box-shadow is the one shadow form Lynx honors. -->
+      <view [class]="textareaWrapperClass()" [style.box-shadow]="focusRing()">
         <!-- [attr.disabled]="disabled() || undefined": passing 'undefined'
              removes the attribute entirely; passing 'false' would set
              disabled="false" which Lynx still treats as disabled. -->
@@ -93,14 +97,24 @@ export class UiTextarea implements FormValueControl<string> {
   protected readonly textareaWrapperClass = computed(() =>
     cn(
       'min-h-20 rounded-xl bg-muted px-3.5 py-2.5',
-      this.error()
-        ? 'ring-2 ring-destructive'
-        : this.#isFocused()
-          ? 'ring-2 ring-ring'
-          : '',
       this.disabled() && 'opacity-50',
     ),
   );
+
+  /**
+   * Focus ring as an inline box-shadow (see the template comment for why
+   * Tailwind ring-* can't be used on Lynx). A 2px spread with no offset/blur is
+   * exactly a ring, and it inherits the wrapper's rounded-xl corners. The color
+   * uses var(--ring)/var(--destructive) so it resolves at runtime and tracks
+   * dark mode. Returns null when unfocused/error-free so Angular clears the
+   * shadow (removeStyle) rather than painting a transparent one. Error takes
+   * precedence over focus so an invalid field always shows the destructive ring.
+   */
+  protected readonly focusRing = computed(() => {
+    if (this.error()) return '0 0 0 2px var(--destructive)';
+    if (this.#isFocused()) return '0 0 0 2px var(--ring)';
+    return null;
+  });
 
   protected readonly helperClass = computed(() =>
     cn('text-xs text-muted-foreground'),

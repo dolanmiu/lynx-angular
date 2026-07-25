@@ -1,0 +1,140 @@
+# Line Chart
+
+Plot a series of points as a connected line — drawn entirely from Lynx views, with no SVG or canvas. Built on a reusable **cartesian chart base**, so bar and area charts can share the same axes.
+
+<Go example="ui-line-chart" defaultFile="src/app/app.ts" />
+
+## Installation
+
+```bash
+npx @blotch/dolan add line-chart
+```
+
+:::tip
+The base **`cartesian-chart`** (axes, gridlines, scales) is a dependency and installs automatically.
+:::
+
+```typescript
+import { UiLineChart } from '@/components/ui/line-chart';
+```
+
+## Usage
+
+Pass an array of `{ x, y }` points. The wrapper picks rounded axis ranges for you.
+
+```angular-html
+<ui-line-chart [data]="revenue" [width]="280" [height]="180" />
+```
+
+```typescript
+revenue = [
+  { x: 1, y: 12 },
+  { x: 2, y: 19 },
+  { x: 3, y: 15 },
+  { x: 4, y: 25 },
+];
+```
+
+### Color and thickness
+
+`color` accepts any CSS color. It sets both the line and the dots.
+
+```angular-html
+<ui-line-chart
+  [data]="downloads"
+  [color]="'rgba(59, 130, 246, 1)'"
+  [strokeWidth]="3"
+  [dotRadius]="4"
+/>
+```
+
+### Handle taps
+
+`pointTap` emits the tapped `{ x, y }` point.
+
+```angular-html
+<ui-line-chart [data]="revenue" (pointTap)="onPointTap($event)" />
+```
+
+### Multiple series
+
+For more than one line, use the base `<ui-cartesian-chart>` with one `<ui-line-series>` per line. The series read the shared axes from the chart, so they line up automatically.
+
+```angular-html
+<ui-cartesian-chart
+  [xDomain]="[1, 6]"
+  [yDomain]="[0, 40]"
+  [xTicks]="[1, 2, 3, 4, 5, 6]"
+  [yTicks]="[0, 10, 20, 30, 40]"
+  [width]="280"
+  [height]="180"
+>
+  <ui-line-series [data]="thisYear" [color]="'rgba(59, 130, 246, 1)'" />
+  <ui-line-series [data]="lastYear" [color]="'rgba(34, 197, 94, 1)'" />
+</ui-cartesian-chart>
+```
+
+:::info Why explicit `width` and `height`?
+Lynx has no `<line>`, so each segment is a rotated view. Computing the rotation needs **pixel** sizes — hence the explicit `width`/`height` instead of stretch-to-fit.
+:::
+
+## API
+
+### UiLineChart
+
+The single-series convenience wrapper. Auto-computes the axes from `data`.
+
+| Input         | Type                      | Default          | Description                          |
+| ------------- | ------------------------- | ---------------- | ------------------------------------ |
+| `data`        | `ChartPoint[]`            | _required_       | Points to plot, each `{ x, y }`      |
+| `color`       | `string`                  | `'var(--primary)'` | Line and dot color (any CSS color) |
+| `width`       | `number`                  | `320`            | Chart width in px                    |
+| `height`      | `number`                  | `200`            | Chart height in px                   |
+| `tickCount`   | `number`                  | `5`              | Target number of axis ticks          |
+| `strokeWidth` | `number`                  | `2`              | Line thickness in px                 |
+| `dotRadius`   | `number`                  | `3`              | Data point radius in px              |
+| `showDots`    | `boolean`                 | `true`           | Draw a dot at each point             |
+| `xTickFormat` | `(value: number) => string` | rounds to 2 decimals  | Formats x-axis labels                |
+| `yTickFormat` | `(value: number) => string` | rounds to 2 decimals  | Formats y-axis labels                |
+| `class`       | `string`                  | `''`             | Additional CSS classes               |
+
+| Output     | Type         | Description                          |
+| ---------- | ------------ | ------------------------------------ |
+| `pointTap` | `ChartPoint` | Emits the point when a dot is tapped |
+
+### UiCartesianChart
+
+The reusable base: draws gridlines and axis labels, and shares its scales with any series inside it.
+
+| Input         | Type                        | Default            | Description                                  |
+| ------------- | --------------------------- | ------------------ | -------------------------------------------- |
+| `xDomain`     | `[number, number]`          | `[0, 1]`           | X value range                                |
+| `yDomain`     | `[number, number]`          | `[0, 1]`           | Y value range                                |
+| `xTicks`      | `number[]`                  | _auto_             | Explicit x tick values (else evenly spaced)  |
+| `yTicks`      | `number[]`                  | _auto_             | Explicit y tick values (else evenly spaced)  |
+| `width`       | `number`                    | `320`              | Chart width in px                            |
+| `height`      | `number`                    | `200`              | Chart height in px                           |
+| `yAxisWidth`  | `number`                    | `32`               | Left gutter width for y labels (px)          |
+| `xAxisHeight` | `number`                    | `20`               | Bottom gutter height for x labels (px)       |
+| `tickCount`   | `number`                    | `5`                | Target number of ticks when auto-generating  |
+| `showGrid`    | `boolean`                   | `true`             | Draw horizontal gridlines                    |
+| `xTickFormat` | `(value: number) => string` | rounds to 2 decimals      | Formats x-axis labels                        |
+| `yTickFormat` | `(value: number) => string` | rounds to 2 decimals      | Formats y-axis labels                        |
+| `class`       | `string`                    | `''`               | Additional CSS classes                       |
+
+### UiLineSeries
+
+One line inside a `<ui-cartesian-chart>`.
+
+| Input         | Type           | Default            | Description                     |
+| ------------- | -------------- | ------------------ | ------------------------------- |
+| `data`        | `ChartPoint[]` | _required_         | Points to plot, each `{ x, y }` |
+| `color`       | `string`       | `'var(--primary)'` | Line and dot color              |
+| `strokeWidth` | `number`       | `2`                | Line thickness in px            |
+| `dotRadius`   | `number`       | `3`                | Data point radius in px         |
+| `showDots`    | `boolean`      | `true`             | Draw a dot at each point        |
+| `class`       | `string`       | `''`               | Additional CSS classes          |
+
+| Output     | Type         | Description                          |
+| ---------- | ------------ | ------------------------------------ |
+| `pointTap` | `ChartPoint` | Emits the point when a dot is tapped |

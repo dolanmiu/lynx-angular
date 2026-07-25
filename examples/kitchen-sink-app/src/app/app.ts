@@ -126,6 +126,7 @@ export class App {
           label: 'Content Projection',
           icon: 'circle',
         },
+        { path: 'line-chart-demo', label: 'Line Chart', icon: 'star' },
         { path: 'tailwind-demo', label: 'Tailwind', icon: 'eye' },
         { path: 'css-modules-demo', label: 'CSS Modules', icon: 'circle' },
       ],

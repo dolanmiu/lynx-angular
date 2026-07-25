@@ -143,6 +143,38 @@ export const applyCSS = (
       removeLightningCSS(rule);
     }
 
+    // Inline `@font-face` fonts as Base64 data URIs on Lynx.
+    //
+    // A font referenced from CSS `@font-face { src: url(...) }` is resolved by
+    // css-extract's child compilation, which hardcodes a `webpack://` base URI
+    // and does NOT inherit the runtime publicPath the way JS-imported assets
+    // (e.g. an `<image src>` import) do. The result is a baked-in
+    // `webpack:///static/font/<name>.<hash>.ttf` URL — a scheme the native Lynx
+    // `GenericResourceFetcher` cannot fetch (iOS reports NSURLErrorDomain -1002
+    // "unsupported URL"), so every custom font silently fails to load. Because
+    // the URL is absolute (it carries the `webpack://` scheme) Lynx does not
+    // re-resolve it against the bundle origin, unlike the root-relative
+    // `/static/image/...` paths that make images work.
+    //
+    // `output.dataUriLimit` can't fix this: the `url()` request matches
+    // css-loader's `?__inline=false` asset/resource branch before the size
+    // threshold is ever consulted. Instead, force fonts to inline. Data URIs are
+    // absolute, so they survive the `webpack://` base-URI join untouched and
+    // need no network fetch or publicPath at all — exactly what the Lynx
+    // `@font-face` docs recommend ("Base64-encoded fonts"). Only the Lynx target
+    // is affected; web keeps normal asset/resource fonts served over HTTP.
+    if (
+      environment.name === 'lynx' &&
+      chain.module.rules.has(CHAIN_ID.RULE.FONT)
+    ) {
+      const fontRule = chain.module.rule(CHAIN_ID.RULE.FONT);
+      // Drop the oneOf branches (asset/resource plus the `?url`/`?inline`/`?raw`
+      // query variants) that would emit a separate font file Lynx can't fetch,
+      // and inline every matched font instead regardless of any css-loader query.
+      fontRule.oneOfs.clear();
+      fontRule.type('asset/inline');
+    }
+
     chain
       .plugin(CHAIN_ID.PLUGIN.MINI_CSS_EXTRACT)
       .tap(([options]) => {

@@ -88,6 +88,7 @@ export default defineConfig({
         { sectionHeaderText: 'Data Display' },
         { text: 'Avatar', link: '/dolan/avatar' },
         { text: 'Badge', link: '/dolan/badge' },
+        { text: 'Line Chart', link: '/dolan/line-chart' },
         { text: 'Progress', link: '/dolan/progress' },
         { text: 'Skeleton', link: '/dolan/skeleton' },
         { text: 'Spinner', link: '/dolan/spinner' },

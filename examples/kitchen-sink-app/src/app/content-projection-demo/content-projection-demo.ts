@@ -174,7 +174,7 @@ export class QueryProbe {
     >
       <!-- ── Single slot: the basic <ng-content /> ── -->
       <ui-card class="w-full">
-        <ui-card-header class="gap-1">
+        <ui-card-header class="gap-1 p-4">
           <view class="flex-row items-center gap-2 flex">
             <ui-icon name="circle" size="sm" />
             <ui-card-title class="text-lg">Single slot</ui-card-title>
@@ -184,7 +184,7 @@ export class QueryProbe {
             &lt;ng-content /&gt;.
           </ui-card-description>
         </ui-card-header>
-        <ui-card-content class="flex-col gap-3 flex">
+        <ui-card-content class="flex-col gap-3 p-4 pt-0 flex">
           <app-slot-frame>
             <text class="text-sm text-foreground"
               >This text is projected into the frame.</text
@@ -203,7 +203,7 @@ export class QueryProbe {
 
       <!-- ── Named slots: <ng-content select="[slot=header]" /> ── -->
       <ui-card class="w-full">
-        <ui-card-header class="gap-1">
+        <ui-card-header class="gap-1 p-4">
           <view class="flex-row items-center gap-2 flex">
             <ui-icon name="menu" size="sm" />
             <ui-card-title class="text-lg">Named slots</ui-card-title>
@@ -213,7 +213,7 @@ export class QueryProbe {
             through to the default one.
           </ui-card-description>
         </ui-card-header>
-        <ui-card-content>
+        <ui-card-content class="p-4 pt-0">
           <app-labeled-panel>
             <text
               slot="header"
@@ -233,7 +233,7 @@ export class QueryProbe {
 
       <!-- ── Conditional projection: <ng-content /> inside an @if ── -->
       <ui-card class="w-full">
-        <ui-card-header class="gap-1">
+        <ui-card-header class="gap-1 p-4">
           <view class="flex-row items-center gap-2 flex">
             <ui-icon name="eye" size="sm" />
             <ui-card-title class="text-lg">Conditional</ui-card-title>
@@ -243,7 +243,7 @@ export class QueryProbe {
             it renders at all.
           </ui-card-description>
         </ui-card-header>
-        <ui-card-content>
+        <ui-card-content class="p-4 pt-0">
           <app-reveal>
             <text class="text-sm text-foreground"
               >This content only exists while it's shown.</text
@@ -258,7 +258,7 @@ export class QueryProbe {
 
       <!-- ── Nested projection: a wrapper inside a wrapper ── -->
       <ui-card class="w-full">
-        <ui-card-header class="gap-1">
+        <ui-card-header class="gap-1 p-4">
           <view class="flex-row items-center gap-2 flex">
             <ui-icon name="chevron-right" size="sm" />
             <ui-card-title class="text-lg">Nested wrappers</ui-card-title>
@@ -267,7 +267,7 @@ export class QueryProbe {
             Projection composes — a frame can wrap a panel, two levels deep.
           </ui-card-description>
         </ui-card-header>
-        <ui-card-content>
+        <ui-card-content class="p-4 pt-0">
           <app-slot-frame>
             <app-labeled-panel>
               <text
@@ -285,7 +285,7 @@ export class QueryProbe {
 
       <!-- ── Content queries: contentChild / contentChildren ── -->
       <ui-card class="w-full">
-        <ui-card-header class="gap-1">
+        <ui-card-header class="gap-1 p-4">
           <view class="flex-row items-center gap-2 flex">
             <ui-icon name="search" size="sm" />
             <ui-card-title class="text-lg">Content queries</ui-card-title>
@@ -295,7 +295,7 @@ export class QueryProbe {
             and contentChildren.
           </ui-card-description>
         </ui-card-header>
-        <ui-card-content>
+        <ui-card-content class="p-4 pt-0">
           <app-query-probe>
             <text #main class="text-sm font-semibold text-foreground"
               >Main content (#main)</text

@@ -84,6 +84,11 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'line-chart-demo',
+    loadComponent: () =>
+      import('./line-chart-demo/line-chart-demo').then((m) => m.LineChartDemo),
+  },
+  {
     path: 'exposure-demo',
     loadComponent: () =>
       import('./exposure-demo/exposure-demo').then((m) => m.ExposureDemo),

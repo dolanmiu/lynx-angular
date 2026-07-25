@@ -15,12 +15,16 @@ export const registry: RegistryEntry[] = [
   { name: 'button', dependencies: ['spinner'] },
   { name: 'button-group', dependencies: [] },
   { name: 'card', dependencies: [] },
+  // Reusable foundation for cartesian charts (line, bar, …); has no example/docs
+  // of its own, like bottom-sheet — it's consumed by chart components.
+  { name: 'cartesian-chart', dependencies: [] },
   { name: 'checkbox', dependencies: [] },
   { name: 'collapsible', dependencies: [] },
   { name: 'dialog', dependencies: [] },
   { name: 'empty-state', dependencies: ['icon'] },
   { name: 'input', dependencies: [] },
   { name: 'label', dependencies: [] },
+  { name: 'line-chart', dependencies: ['cartesian-chart'] },
   { name: 'list', dependencies: [] },
   // nav-drawer renders a hamburger trigger via <ui-icon>, so it pulls in `icon`.
   { name: 'nav-drawer', dependencies: ['icon'] },

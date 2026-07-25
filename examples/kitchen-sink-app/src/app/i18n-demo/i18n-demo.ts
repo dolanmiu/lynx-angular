@@ -110,7 +110,7 @@ const LANGUAGES: readonly Language[] = [
         </view>
 
         <!-- Hero: the active translation language + the picker that drives it. -->
-        <ui-card class="flex-col gap-4 p-5 flex">
+        <ui-card class="flex-col gap-4 p-4 flex">
           <view class="flex-row items-center gap-4 flex">
             <text class="text-5xl leading-none">{{ currentLang().flag }}</text>
             <view class="flex-1 flex-col gap-0.5 flex">

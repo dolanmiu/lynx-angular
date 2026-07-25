@@ -110,7 +110,7 @@ const expectedNull = (el: unknown): Pick<QueryRow, 'state' | 'detail'> =>
     >
       <!-- ── How it works ── -->
       <ui-card class="w-full">
-        <ui-card-header class="gap-1">
+        <ui-card-header class="gap-1 p-4">
           <view class="flex-row items-center gap-2 flex">
             <ui-icon name="search" size="sm" />
             <ui-card-title class="text-lg"
@@ -128,7 +128,7 @@ const expectedNull = (el: unknown): Pick<QueryRow, 'state' | 'detail'> =>
 
       <!-- ── The subject tree being queried ── -->
       <ui-card class="w-full">
-        <ui-card-header class="gap-1">
+        <ui-card-header class="gap-1 p-4">
           <view class="flex-row items-center gap-2 flex">
             <ui-icon name="menu" size="sm" />
             <ui-card-title class="text-lg">Element tree</ui-card-title>
@@ -138,7 +138,7 @@ const expectedNull = (el: unknown): Pick<QueryRow, 'state' | 'detail'> =>
             element matches.
           </ui-card-description>
         </ui-card-header>
-        <ui-card-content class="flex-col gap-2 flex">
+        <ui-card-content class="flex-col gap-2 p-4 pt-0 flex">
           <!-- #subject is the root querySelector runs against. The qs-* classes
                and id="qs-first" are the hooks the queries target. -->
           <view #subject class="flex-col gap-2 flex">
@@ -198,7 +198,7 @@ const expectedNull = (el: unknown): Pick<QueryRow, 'state' | 'detail'> =>
 
       <!-- ── Query results ── -->
       <ui-card class="w-full">
-        <ui-card-header class="gap-1">
+        <ui-card-header class="gap-1 p-4">
           <view class="flex-row items-center flex justify-between">
             <view class="flex-row items-center gap-2 flex">
               <ui-icon name="check" size="sm" />
@@ -212,7 +212,7 @@ const expectedNull = (el: unknown): Pick<QueryRow, 'state' | 'detail'> =>
             Each selector run against the tree above.
           </ui-card-description>
         </ui-card-header>
-        <ui-card-content class="flex-col flex">
+        <ui-card-content class="flex-col p-4 pt-0 flex">
           @for (q of queries(); track q.selector; let last = $last) {
             <view class="flex-row items-center gap-3 py-3 flex">
               <ui-icon
