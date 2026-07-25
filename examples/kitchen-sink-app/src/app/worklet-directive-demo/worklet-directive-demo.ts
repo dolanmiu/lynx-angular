@@ -176,7 +176,7 @@ const flashMain = (event: MainThread.TouchEvent) => {
         </ui-text>
 
         <view
-          class="min-h-[104px] items-center rounded-xl bg-[#6366f1] p-5 flex justify-center"
+          class="min-h-[104px] items-center rounded-xl bg-[#6366f1] p-4 flex justify-center"
           [mainThreadBindtap]="recolor"
         >
           <text class="text-base font-semibold text-white">Tap me</text>
@@ -203,7 +203,7 @@ const flashMain = (event: MainThread.TouchEvent) => {
         </ui-text>
 
         <view
-          class="min-h-[104px] items-center rounded-xl bg-[#8b5cf6] p-5 flex justify-center"
+          class="min-h-[104px] items-center rounded-xl bg-[#8b5cf6] p-4 flex justify-center"
           [mainThreadBindtouchmove]="dimToFinger"
           [mainThreadBindtouchend]="resetDim"
         >
@@ -233,7 +233,7 @@ const flashMain = (event: MainThread.TouchEvent) => {
         </ui-text>
 
         <view
-          class="min-h-[104px] items-center rounded-xl bg-[#10b981] p-5 flex justify-center"
+          class="min-h-[104px] items-center rounded-xl bg-[#10b981] p-4 flex justify-center"
           [mainThreadBindtap]="springPress"
         >
           <text class="text-base font-semibold text-white">Press me</text>

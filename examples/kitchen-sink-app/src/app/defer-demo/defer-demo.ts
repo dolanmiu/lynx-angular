@@ -175,7 +175,7 @@ const MANUAL_LOADING_MS = 900;
             <app-heavy label="manually" />
           } @placeholder {
             <view
-              class="flex-col items-center gap-3 rounded-lg border border-dashed border-border bg-muted p-6 flex"
+              class="flex-col items-center gap-3 rounded-lg border border-dashed border-border bg-muted p-4 flex"
             >
               <view
                 class="h-12 w-12 items-center rounded-full bg-background flex justify-center"
@@ -193,7 +193,7 @@ const MANUAL_LOADING_MS = 900;
             </view>
           } @loading (minimum 900ms) {
             <view
-              class="flex-col items-center gap-3 rounded-lg border border-border bg-muted p-6 flex"
+              class="flex-col items-center gap-3 rounded-lg border border-border bg-muted p-4 flex"
             >
               <ui-spinner size="md" />
               <text class="text-sm text-muted-foreground"

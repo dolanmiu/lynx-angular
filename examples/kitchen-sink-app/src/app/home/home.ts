@@ -56,7 +56,7 @@ import { ScreenHost } from '../screen-host';
     <view class="home__bg" />
 
     <scroll-view scroll-orientation="vertical" class="h-full w-full">
-      <view class="flex-col items-center gap-6 p-6 flex">
+      <view class="flex-col items-center gap-4 p-4 flex">
         <view class="logo" (bindtap)="onTap($event)">
           @if (alterLogo()) {
             <image [src]="angularLogo" class="logo--angular" />
