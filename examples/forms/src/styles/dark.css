@@ -35,6 +35,8 @@ page.dark {
   --border: rgba(39, 39, 42, 1);
   --input: rgba(39, 39, 42, 1);
   --ring: rgba(212, 212, 216, 1);
+  /* Translucent variant of --ring for a softer focus outline (see default.css). */
+  --ring-subtle: rgba(212, 212, 216, 0.4);
 
   --radius: 8px;
 }

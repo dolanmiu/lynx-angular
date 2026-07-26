@@ -9,6 +9,7 @@ import {
   getComponentSourceDir,
   rewriteImports,
 } from '../utils/resolve-paths.js';
+import { formatContent } from '../utils/format.js';
 import { getOrCreateLockfile, hashContent } from '../lockfile.js';
 import {
   analyzeFile,
@@ -158,8 +159,10 @@ const analyzeComponent = (
 
   for (const file of files) {
     const srcContent = readFileSync(join(srcDir, file), 'utf-8');
-    const newContent = rewriteImports(srcContent);
     const destPath = join(destDir, file);
+    // Match how add/update canonicalize upstream content, or every file would
+    // read as drifted against the formatted hash recorded in the lockfile.
+    const newContent = formatContent(rewriteImports(srcContent), destPath);
 
     const currentContent = existsSync(destPath)
       ? readFileSync(destPath, 'utf-8')

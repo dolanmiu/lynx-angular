@@ -65,6 +65,15 @@ describe('resolveDependencies', () => {
     ]);
   });
 
+  it('resolves area-chart with its transitive chart dependencies in order', () => {
+    // area-chart → line-chart → cartesian-chart; the base must land first.
+    expect(resolveDependencies(['area-chart'])).toEqual([
+      'cartesian-chart',
+      'line-chart',
+      'area-chart',
+    ]);
+  });
+
   it('deduplicates bottom-sheet when both select and sheet are selected', () => {
     expect(resolveDependencies(['select', 'sheet'])).toEqual([
       'bottom-sheet',

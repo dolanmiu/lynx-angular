@@ -34,6 +34,10 @@ page {
   --border: rgba(228, 228, 231, 1);
   --input: rgba(228, 228, 231, 1);
   --ring: rgba(24, 24, 27, 1);
+  /* Translucent variant of --ring for a softer focus outline. A separate
+     pre-composed value is needed because Tailwind opacity modifiers can't
+     apply to the opaque --ring, and Lynx can't inject alpha into it either. */
+  --ring-subtle: rgba(24, 24, 27, 0.4);
 
   --radius: 8px;
 }

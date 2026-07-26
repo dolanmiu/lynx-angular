@@ -1,9 +1,10 @@
 import * as p from '@clack/prompts';
-import { existsSync, mkdirSync, copyFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import pc from 'picocolors';
 import { configExists, writeConfig } from '../config.js';
 import { getUiSourceDir } from '../utils/resolve-paths.js';
+import { formatContent } from '../utils/format.js';
 import { printBanner } from '../utils/banner.js';
 
 export const initCommand = async () => {
@@ -67,18 +68,27 @@ export const initCommand = async () => {
   const themeDir = resolve(cwd, config.theme);
   mkdirSync(themeDir, { recursive: true });
 
-  const themeFiles = ['default.css', 'dark.css'];
-  for (const file of themeFiles) {
+  /**
+   * Write theme files through formatContent so they match EXACTLY what
+   * `dolan update` recomputes for them. `update` normalizes upstream content to
+   * the consumer's oxfmt config; if init copied verbatim instead, the one JS/TS
+   * theme file (`tailwind-plugin.ts`) would land unformatted here but come back
+   * formatted from the next update in an oxfmt project — surfacing a spurious
+   * "conflict" on a file the user never touched. `.css` files pass through
+   * formatContent unchanged, and non-oxfmt projects get verbatim content, so
+   * this is a no-op copy everywhere except the case it fixes.
+   */
+  const installThemeFile = (file: string) => {
     const src = join(uiSrc, 'theme', file);
-    if (existsSync(src)) {
-      copyFileSync(src, join(themeDir, file));
-    }
-  }
+    if (!existsSync(src)) return;
+    const destPath = join(themeDir, file);
+    writeFileSync(destPath, formatContent(readFileSync(src, 'utf-8'), destPath));
+  };
 
-  copyFileSync(
-    join(uiSrc, 'theme', 'tailwind-plugin.ts'),
-    join(themeDir, 'tailwind-plugin.ts'),
-  );
+  for (const file of ['default.css', 'dark.css']) {
+    installThemeFile(file);
+  }
+  installThemeFile('tailwind-plugin.ts');
 
   s.stop('Setup complete!');
 

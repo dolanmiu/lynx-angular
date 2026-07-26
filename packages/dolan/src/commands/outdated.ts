@@ -9,6 +9,7 @@ import {
   getComponentSourceDir,
   rewriteImports,
 } from '../utils/resolve-paths.js';
+import { formatContent } from '../utils/format.js';
 
 import { getOrCreateLockfile, hashContent } from '../lockfile.js';
 import {
@@ -101,8 +102,10 @@ export const outdatedCommand = async (options: { json?: boolean }) => {
         join(getComponentSourceDir(name), file),
         'utf-8',
       );
-      const newContent = rewriteImports(srcContent);
       const destPath = join(destDir, file);
+      // Canonicalize like add/update so drift detection compares apples to
+      // apples against the formatted hash stored in the lockfile.
+      const newContent = formatContent(rewriteImports(srcContent), destPath);
 
       const currentContent = existsSync(destPath)
         ? readFileSync(destPath, 'utf-8')

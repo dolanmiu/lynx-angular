@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "components": {
+    "cartesian-chart": {
+      "cartesian-chart.test.ts": {
+        "hash": "65ced4bba2a7499b"
+      },
+      "cartesian-chart.ts": {
+        "hash": "0a70c3dfc018884f"
+      },
+      "index.ts": {
+        "hash": "83519804ffd23c31"
+      }
+    },
+    "line-chart": {
+      "index.ts": {
+        "hash": "b7b22c479077fb29"
+      },
+      "line-chart.test.ts": {
+        "hash": "f3df8622973230ab"
+      },
+      "line-chart.ts": {
+        "hash": "cd7dea03d1abb1be"
+      }
+    },
+    "area-chart": {
+      "area-chart.test.ts": {
+        "hash": "bfeeeed86aec5507"
+      },
+      "area-chart.ts": {
+        "hash": "f4214f84d2a97f5d"
+      },
+      "index.ts": {
+        "hash": "472fe87dc80ccb22"
+      }
+    }
+  },
+  "theme": {}
+}

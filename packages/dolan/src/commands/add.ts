@@ -13,6 +13,7 @@ import {
   getComponentSourceDir,
   rewriteImports,
 } from '../utils/resolve-paths.js';
+import { formatContent } from '../utils/format.js';
 import {
   getOrCreateLockfile,
   hashContent,
@@ -146,9 +147,14 @@ export const addCommand = async (components: string[]) => {
       // `@blotch/ui/components/button` which won't resolve in the user's
       // project — rewriteImports rewrites them to the user's alias
       // (e.g. `@/components/ui/button`) per dolan.config.json.
+      const destPath = join(destDir, file);
       const content = readFileSync(join(srcDir, file), 'utf-8');
-      const rewritten = rewriteImports(content);
-      writeFileSync(join(destDir, file), rewritten);
+      // Normalize to the consumer's oxfmt config so what we write already
+      // satisfies their formatter (the import rewrite can push lines past
+      // printWidth). The hash below must be of this normalized content — see
+      // formatContent's doc comment on the lockfile-base invariant.
+      const rewritten = formatContent(rewriteImports(content), destPath);
+      writeFileSync(destPath, rewritten);
       // Hash the *rewritten* content (not the source) so subsequent
       // dolan-diff/dolan-update compare apples to apples — they re-rewrite
       // the registry source and hash the result the same way.

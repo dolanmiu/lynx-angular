@@ -89,6 +89,7 @@ export default defineConfig({
         { text: 'Avatar', link: '/dolan/avatar' },
         { text: 'Badge', link: '/dolan/badge' },
         { text: 'Line Chart', link: '/dolan/line-chart' },
+        { text: 'Area Chart', link: '/dolan/area-chart' },
         { text: 'Progress', link: '/dolan/progress' },
         { text: 'Skeleton', link: '/dolan/skeleton' },
         { text: 'Spinner', link: '/dolan/spinner' },

@@ -8,6 +8,9 @@ export const registry: RegistryEntry[] = [
   { name: 'accordion', dependencies: [] },
   { name: 'alert', dependencies: [] },
   { name: 'alert-dialog', dependencies: [] },
+  // Area chart = a filled line chart, so it reuses <ui-line-series> from
+  // line-chart (which in turn builds on the cartesian-chart base).
+  { name: 'area-chart', dependencies: ['cartesian-chart', 'line-chart'] },
   { name: 'aspect-ratio', dependencies: [] },
   { name: 'avatar', dependencies: ['skeleton'] },
   { name: 'badge', dependencies: [] },

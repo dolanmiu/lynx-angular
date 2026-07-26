@@ -35,8 +35,8 @@ describe('QuerySelectorDemo', () => {
   // The component resolves its query results in ngAfterViewInit via a
   // `viewChild.required('subject')` ElementRef. That template-ref query does NOT
   // resolve in the jsdom test renderer (Lynx-created elements aren't tracked as
-  // Angular local refs here — the same limitation the overlay-motion-demo spec
-  // documents), so the component's result signals stay 'pending' under test and
+  // Angular local refs here — the same limitation the motion-demo overlay tests
+  // document), so the component's result signals stay 'pending' under test and
   // can't be asserted directly. Instead we verify the underlying capability the
   // component relies on: querySelector/querySelectorAll against the rendered
   // element tree. `container` is that exact tree — the virtual DOM the component

@@ -37,7 +37,7 @@ type AnimatePreset = 'pop' | 'shake' | 'flash';
     <app-demo-screen
       heading="Motion"
       category="Motion"
-      description="Three ways to move pixels on Lynx: CSS transitions, looping @keyframes, and the imperative JS animate() API."
+      description="Four ways to move pixels on Lynx: CSS transitions, looping @keyframes, the imperative JS animate() API, and animating a native overlay."
     >
       <!-- ── CSS Transitions ────────────────────────────────────────────────
            A property change (background-color + transform) interpolated over
@@ -163,6 +163,71 @@ type AnimatePreset = 'pop' | 'shake' | 'flash';
         </view>
       </ui-card>
 
+      <!-- ── Overlay Animation ──────────────────────────────────────────────
+           The JS animate() API driving a native <overlay> — a separate render
+           layer outside the document flow. Same imperative API as above, but
+           coordinating two elements (backdrop fade + dialog spring). -->
+      <ui-card class="p-4">
+        <view class="mb-1 flex-row items-center flex justify-between">
+          <ui-text variant="large">Overlay Animation</ui-text>
+          <ui-badge variant="outline">overlay</ui-badge>
+        </view>
+        <ui-text variant="muted" class="mb-4">
+          Animate a native overlay — rendered on its own layer, above everything
+          else — with the same animate() API. The backdrop fades in while the
+          dialog springs up, and both reverse on close.
+        </ui-text>
+
+        <ui-button (pressed)="openOverlay()">Open Animated Dialog</ui-button>
+
+        <!-- The overlay renders outside this card's tree on a dedicated native
+             layer, so it fills the whole screen regardless of where it sits in
+             the template. The fixed + overflow-visible classes mirror ui-dialog. -->
+        <overlay
+          [attr.visible]="overlayVisible()"
+          class="fixed overflow-visible"
+        >
+          <view
+            #overlayBackdrop
+            class="overlay-backdrop h-full w-full items-center bg-black/50 flex justify-center"
+            (bindtap)="closeOverlay()"
+          >
+            <view
+              #overlayDialog
+              class="overlay-dialog w-4/5 flex-col rounded-2xl border border-border bg-card p-6 flex"
+              (catchtap)="onDialogTap()"
+            >
+              <view class="mb-3 flex-row items-center gap-2 flex">
+                <view
+                  class="h-9 w-9 items-center rounded-full bg-secondary flex justify-center"
+                >
+                  <ui-icon name="star" size="sm" />
+                </view>
+                <ui-text variant="large">Animated Dialog</ui-text>
+              </view>
+              <ui-text variant="muted" class="mb-5">
+                This overlay fades its backdrop and springs the panel in with a
+                combined scale + fade, then reverses on close — all driven by
+                element.animate().
+              </ui-text>
+              <view class="flex-row gap-2 flex justify-end">
+                <ui-button
+                  class="flex-1"
+                  variant="outline"
+                  size="sm"
+                  (pressed)="closeOverlay()"
+                >
+                  Cancel
+                </ui-button>
+                <ui-button class="flex-1" size="sm" (pressed)="closeOverlay()">
+                  Confirm
+                </ui-button>
+              </view>
+            </view>
+          </view>
+        </overlay>
+      </ui-card>
+
       <!-- ── How it works ───────────────────────────────────────────────────
            A short mental model so the demo teaches, not just entertains. -->
       <ui-card class="p-4">
@@ -189,6 +254,13 @@ type AnimatePreset = 'pop' | 'shake' | 'flash';
               Imperative one-shots triggered from code, cancellable mid-flight.
             </ui-text>
           </view>
+          <view class="flex-row items-center gap-2 flex">
+            <ui-badge variant="outline">overlay</ui-badge>
+            <ui-text variant="muted" class="flex-1">
+              A native layer above the page, animated with the same animate()
+              API.
+            </ui-text>
+          </view>
         </view>
         <ui-text variant="muted" class="mt-4">
           On Lynx, Angular runs on the background thread, which has no
@@ -210,6 +282,16 @@ export class MotionDemo {
   readonly animateBoxRef = viewChild<ElementRef>('animateBox');
 
   #currentAnimation: LynxAnimation | null = null;
+
+  /** Whether the native overlay layer is mounted and visible. */
+  readonly overlayVisible = signal(false);
+
+  /** Native elements for the overlay's backdrop and dialog, animated by hand. */
+  readonly overlayBackdropRef = viewChild<ElementRef>('overlayBackdrop');
+  readonly overlayDialogRef = viewChild<ElementRef>('overlayDialog');
+
+  #backdropAnim: LynxAnimation | null = null;
+  #dialogAnim: LynxAnimation | null = null;
 
   /** The four looping presets, each with a matching class in the stylesheet. */
   readonly keyframeTiles: readonly KeyframeTile[] = [
@@ -299,5 +381,88 @@ export class MotionDemo {
           break;
       }
     }, 0);
+  }
+
+  /**
+   * Two-phase open: make the overlay visible so its elements mount into the
+   * native tree, then animate on the next frame — Lynx's animate() requires the
+   * target to already exist. Deferred via setTimeout so the signal write never
+   * happens synchronously inside the button's native tap callback.
+   */
+  openOverlay(): void {
+    setTimeout(() => {
+      this.overlayVisible.set(true);
+      setTimeout(() => this.#animateOverlayIn(), 0);
+    }, 0);
+  }
+
+  closeOverlay(): void {
+    setTimeout(() => this.#animateOverlayOut(), 0);
+  }
+
+  /**
+   * No-op tap handler for the dialog panel. `catchtap` already stops the tap
+   * from bubbling to the backdrop (which would close the dialog) — Lynx controls
+   * propagation via the event prefix, not `event.stopPropagation()`.
+   */
+  onDialogTap(): void {}
+
+  #animateOverlayIn(): void {
+    const backdrop = this.overlayBackdropRef()?.nativeElement;
+    const dialog = this.overlayDialogRef()?.nativeElement;
+    if (!backdrop || !dialog) return;
+
+    this.#backdropAnim?.cancel();
+    this.#dialogAnim?.cancel();
+
+    // Backdrop: fade the dim layer in.
+    this.#backdropAnim = backdrop.animate([{ opacity: 0 }, { opacity: 1 }], {
+      duration: 250,
+      easing: 'ease-out',
+      fill: 'forwards',
+    });
+
+    // Dialog: spring up + fade in. The spring easing gives a gentle overshoot.
+    this.#dialogAnim = dialog.animate(
+      [
+        { transform: 'scale(0.85) translateY(20px)', opacity: 0 },
+        { transform: 'scale(1) translateY(0px)', opacity: 1 },
+      ],
+      {
+        duration: 300,
+        easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+        fill: 'forwards',
+      },
+    );
+  }
+
+  #animateOverlayOut(): void {
+    const backdrop = this.overlayBackdropRef()?.nativeElement;
+    const dialog = this.overlayDialogRef()?.nativeElement;
+    if (!backdrop || !dialog) return;
+
+    this.#backdropAnim?.cancel();
+    this.#dialogAnim?.cancel();
+
+    // Backdrop: fade the dim layer out.
+    this.#backdropAnim = backdrop.animate([{ opacity: 1 }, { opacity: 0 }], {
+      duration: 200,
+      easing: 'ease-in',
+      fill: 'forwards',
+    });
+
+    // Dialog: scale down + fade out (the reverse of the entrance).
+    this.#dialogAnim = dialog.animate(
+      [
+        { transform: 'scale(1) translateY(0px)', opacity: 1 },
+        { transform: 'scale(0.85) translateY(20px)', opacity: 0 },
+      ],
+      { duration: 200, easing: 'ease-in', fill: 'forwards' },
+    );
+
+    // Unmount the overlay once the exit finishes. Lynx doesn't fire
+    // animationend for the JS animate() API on the background thread, so the
+    // caller manages the timing — matched to the longest exit duration.
+    setTimeout(() => this.overlayVisible.set(false), 220);
   }
 }

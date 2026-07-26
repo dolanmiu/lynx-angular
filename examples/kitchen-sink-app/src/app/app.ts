@@ -127,6 +127,7 @@ export class App {
           icon: 'circle',
         },
         { path: 'line-chart-demo', label: 'Line Chart', icon: 'star' },
+        { path: 'area-chart-demo', label: 'Area Chart', icon: 'chevron-up' },
         { path: 'tailwind-demo', label: 'Tailwind', icon: 'eye' },
         { path: 'css-modules-demo', label: 'CSS Modules', icon: 'circle' },
       ],
@@ -135,7 +136,6 @@ export class App {
       title: 'Motion',
       items: [
         { path: 'motion-demo', label: 'Motion', icon: 'star' },
-        { path: 'overlay-motion-demo', label: 'Overlay + Motion', icon: 'eye' },
         {
           path: 'transition-demo',
           label: 'Transitions',

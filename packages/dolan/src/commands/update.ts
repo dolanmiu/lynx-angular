@@ -16,6 +16,7 @@ import {
   getUiSourceDir,
   rewriteImports,
 } from '../utils/resolve-paths.js';
+import { formatContent } from '../utils/format.js';
 import {
   getOrCreateLockfile,
   hashContent,
@@ -333,8 +334,10 @@ export const updateCommand = async (options: {
         join(getComponentSourceDir(name), file),
         'utf-8',
       );
-      const newContent = rewriteImports(srcContent);
       const destPath = join(destDir, file);
+      // Normalize to the consumer's oxfmt config before hashing/diffing so the
+      // lockfile base, the shown diff, and the written file all agree.
+      const newContent = formatContent(rewriteImports(srcContent), destPath);
 
       const currentContent = existsSync(destPath)
         ? readFileSync(destPath, 'utf-8')
@@ -370,8 +373,10 @@ export const updateCommand = async (options: {
     const src = join(uiSrc, 'theme', file);
     if (!existsSync(src)) continue;
 
-    const newContent = readFileSync(src, 'utf-8');
     const destPath = join(themeDir, file);
+    // Theme files include `.css` (passed through untouched) and
+    // `tailwind-plugin.ts` (normalized to the consumer's oxfmt config).
+    const newContent = formatContent(readFileSync(src, 'utf-8'), destPath);
     const currentContent = existsSync(destPath)
       ? readFileSync(destPath, 'utf-8')
       : null;

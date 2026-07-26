@@ -128,8 +128,10 @@ export class UiTextarea implements FormValueControl<string> {
    * nothing on Lynx — the preset doesn't wire up the --tw-ring-* variables they
    * compose into box-shadow — so the ring has to be an inline box-shadow, the
    * one shadow form Lynx honors (incl. iOS). A 2px spread with no offset/blur is
-   * exactly a ring, and it inherits the wrapper's rounded-xl corners.
-   * var(--ring)/var(--destructive) resolve at runtime and track dark mode. This
+   * exactly a ring, and it inherits the wrapper's rounded-xl corners. Focus uses
+   * the translucent var(--ring-subtle) for a softer outline than the opaque
+   * --ring; error keeps solid var(--destructive). Both resolve at runtime and
+   * track dark mode. This
    * is folded into wrapperStyle() rather than bound via [style.box-shadow]
    * because the wrapper already has a whole-string [style]: mixing whole-string
    * (__SetInlineStyles) and per-key (__AddInlineStyle) inline styles on one
@@ -140,7 +142,7 @@ export class UiTextarea implements FormValueControl<string> {
    */
   protected readonly focusRing = computed(() => {
     if (this.error()) return 'box-shadow: 0 0 0 2px var(--destructive)';
-    if (this.#isFocused()) return 'box-shadow: 0 0 0 2px var(--ring)';
+    if (this.#isFocused()) return 'box-shadow: 0 0 0 2px var(--ring-subtle)';
     return '';
   });
 

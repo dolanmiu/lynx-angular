@@ -41,13 +41,6 @@ export const routes: Routes = [
       import('./motion-demo/motion-demo').then((m) => m.MotionDemo),
   },
   {
-    path: 'overlay-motion-demo',
-    loadComponent: () =>
-      import('./overlay-motion-demo/overlay-motion-demo').then(
-        (m) => m.OverlayMotionDemo,
-      ),
-  },
-  {
     path: 'css-modules-demo',
     loadComponent: () =>
       import('./css-modules-demo/css-modules-demo').then(
@@ -87,6 +80,11 @@ export const routes: Routes = [
     path: 'line-chart-demo',
     loadComponent: () =>
       import('./line-chart-demo/line-chart-demo').then((m) => m.LineChartDemo),
+  },
+  {
+    path: 'area-chart-demo',
+    loadComponent: () =>
+      import('./area-chart-demo/area-chart-demo').then((m) => m.AreaChartDemo),
   },
   {
     path: 'exposure-demo',

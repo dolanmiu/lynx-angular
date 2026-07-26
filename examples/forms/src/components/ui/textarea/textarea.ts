@@ -104,15 +104,17 @@ export class UiTextarea implements FormValueControl<string> {
   /**
    * Focus ring as an inline box-shadow (see the template comment for why
    * Tailwind ring-* can't be used on Lynx). A 2px spread with no offset/blur is
-   * exactly a ring, and it inherits the wrapper's rounded-xl corners. The color
-   * uses var(--ring)/var(--destructive) so it resolves at runtime and tracks
+   * exactly a ring, and it inherits the wrapper's rounded-xl corners. Focus uses
+   * the translucent var(--ring-subtle) for a softer outline than the opaque
+   * --ring; error keeps solid var(--destructive) since it signals a problem (and
+   * never shows alongside the focus ring). Both resolve at runtime and track
    * dark mode. Returns null when unfocused/error-free so Angular clears the
    * shadow (removeStyle) rather than painting a transparent one. Error takes
    * precedence over focus so an invalid field always shows the destructive ring.
    */
   protected readonly focusRing = computed(() => {
     if (this.error()) return '0 0 0 2px var(--destructive)';
-    if (this.#isFocused()) return '0 0 0 2px var(--ring)';
+    if (this.#isFocused()) return '0 0 0 2px var(--ring-subtle)';
     return null;
   });
 
