@@ -9,9 +9,11 @@ import {
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
 import {
+  type ChartPadding,
   type ChartPoint,
   UiCartesianChart,
   niceScale,
+  sampleSmoothLine,
 } from '../cartesian-chart/cartesian-chart';
 
 // ---------------------------------------------------------------------------
@@ -112,6 +114,9 @@ export class UiLineSeries {
   readonly strokeWidth = input(2);
   readonly dotRadius = input(3);
   readonly showDots = input(true);
+  /** Draw a smooth (monotone-cubic) curve through the points instead of straight
+   * segments. Dots still sit on the raw data points. */
+  readonly smooth = input(false);
   readonly userClass = input<string>('', { alias: 'class' });
 
   readonly pointTap = output<ChartPoint>();
@@ -132,7 +137,12 @@ export class UiLineSeries {
   protected readonly segments = computed(() => {
     const stroke = this.strokeWidth();
     const fill = this.color();
-    return computeLineSegments(this.#pixelPoints()).map((s) => ({
+    // Smooth mode replaces the raw polyline with a dense monotone-cubic
+    // resampling; `computeLineSegments` then rasterizes it identically — the
+    // curve is just made of many more, shorter rotated views.
+    const pixels = this.#pixelPoints();
+    const line = this.smooth() ? sampleSmoothLine(pixels) : pixels;
+    return computeLineSegments(line).map((s) => ({
       style:
         `position: absolute; left: ${px(s.x)}; top: ${px(s.y - stroke / 2)}; ` +
         `width: ${px(s.length)}; height: ${px(stroke)}; ` +
@@ -179,6 +189,10 @@ export class UiLineSeries {
       [width]="width()"
       [height]="height()"
       [tickCount]="tickCount()"
+      [showXGrid]="showXGrid()"
+      [xAxisLabel]="xAxisLabel()"
+      [yAxisLabel]="yAxisLabel()"
+      [padding]="padding()"
       [xTickFormat]="xTickFormat()"
       [yTickFormat]="yTickFormat()"
       [class]="userClass()"
@@ -189,6 +203,7 @@ export class UiLineSeries {
         [strokeWidth]="strokeWidth()"
         [dotRadius]="dotRadius()"
         [showDots]="showDots()"
+        [smooth]="smooth()"
         (pointTap)="pointTap.emit($event)"
       />
     </ui-cartesian-chart>
@@ -203,20 +218,42 @@ export class UiLineChart {
   readonly strokeWidth = input(2);
   readonly dotRadius = input(3);
   readonly showDots = input(true);
+  /** Draw a smooth (monotone-cubic) curve through the points. */
+  readonly smooth = input(false);
+  /** Draw vertical gridlines at each x tick. */
+  readonly showXGrid = input(false);
+  /** Title for the x-axis (centred below the tick labels). */
+  readonly xAxisLabel = input<string>('');
+  /** Title for the y-axis (rotated in the left gutter). */
+  readonly yAxisLabel = input<string>('');
+  /** Inner inset of the plot area, each side a fraction (0–1) — see {@link ChartPadding}. */
+  readonly padding = input<ChartPadding>({});
+  /** Force the x-axis lower/upper bound instead of deriving it from the data —
+   * e.g. `xMin={0}` to anchor the origin. Omitted bounds fall back to the data. */
+  readonly xMin = input<number | undefined>(undefined);
+  readonly xMax = input<number | undefined>(undefined);
+  /** Force the y-axis lower/upper bound (e.g. `yMin={0}` to start at zero). */
+  readonly yMin = input<number | undefined>(undefined);
+  readonly yMax = input<number | undefined>(undefined);
   readonly xTickFormat = input<(value: number) => string>(defaultTickFormat);
   readonly yTickFormat = input<(value: number) => string>(defaultTickFormat);
   readonly userClass = input<string>('', { alias: 'class' });
 
   readonly pointTap = output<ChartPoint>();
 
-  // Auto-compute rounded axes from the data extremes. `Math.min/max(...[])`
-  // yield ±Infinity for empty data, which `niceScale` handles by padding.
+  // Auto-compute rounded axes from the data extremes, letting an explicit
+  // min/max override either end. `Math.min/max(...[])` yield ±Infinity for empty
+  // data, which `niceScale` handles by padding.
   protected readonly xAxis = computed(() => {
     const xs = this.data().map((p) => p.x);
-    return niceScale(Math.min(...xs), Math.max(...xs), this.tickCount());
+    const lo = this.xMin() ?? Math.min(...xs);
+    const hi = this.xMax() ?? Math.max(...xs);
+    return niceScale(lo, hi, this.tickCount());
   });
   protected readonly yAxis = computed(() => {
     const ys = this.data().map((p) => p.y);
-    return niceScale(Math.min(...ys), Math.max(...ys), this.tickCount());
+    const lo = this.yMin() ?? Math.min(...ys);
+    const hi = this.yMax() ?? Math.max(...ys);
+    return niceScale(lo, hi, this.tickCount());
   });
 }

@@ -9,9 +9,11 @@ import {
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
 
 import {
+  type ChartPadding,
   type ChartPoint,
   UiCartesianChart,
   niceScale,
+  sampleSmoothLine,
 } from '../cartesian-chart/cartesian-chart';
 import { UiLineSeries } from '../line-chart/line-chart';
 
@@ -167,6 +169,7 @@ const STRIP_WIDTH = 3;
       [strokeWidth]="strokeWidth()"
       [dotRadius]="dotRadius()"
       [showDots]="showDots()"
+      [smooth]="smooth()"
       (pointTap)="pointTap.emit($event)"
     />
   `,
@@ -182,6 +185,9 @@ export class UiAreaSeries {
   readonly fillOpacity = input(0.2);
   /** Data-space y the fill descends to (the flat edge of the area). */
   readonly baseline = input(0);
+  /** Fill under a smooth (monotone-cubic) curve instead of straight segments.
+   * Forwarded to the nested line so the crisp edge matches the fill's top. */
+  readonly smooth = input(false);
   readonly userClass = input<string>('', { alias: 'class' });
 
   readonly pointTap = output<ChartPoint>();
@@ -210,8 +216,13 @@ export class UiAreaSeries {
       0,
       this.#chart.plotHeight(),
     );
+    // In smooth mode the fill traces the same monotone-cubic curve as the line:
+    // sampling the polyline densely means `computeAreaColumns` (which linearly
+    // interpolates the height at each strip) closely follows the curve's top edge.
+    const pixels = this.#pixelPoints();
+    const line = this.smooth() ? sampleSmoothLine(pixels) : pixels;
     return computeAreaColumns(
-      this.#pixelPoints(),
+      line,
       baseY,
       this.#chart.plotWidth(),
       STRIP_WIDTH,
@@ -243,6 +254,10 @@ export class UiAreaSeries {
       [width]="width()"
       [height]="height()"
       [tickCount]="tickCount()"
+      [showXGrid]="showXGrid()"
+      [xAxisLabel]="xAxisLabel()"
+      [yAxisLabel]="yAxisLabel()"
+      [padding]="padding()"
       [xTickFormat]="xTickFormat()"
       [yTickFormat]="yTickFormat()"
       [class]="userClass()"
@@ -255,6 +270,7 @@ export class UiAreaSeries {
         [showDots]="showDots()"
         [fillOpacity]="fillOpacity()"
         [baseline]="baseline()"
+        [smooth]="smooth()"
         (pointTap)="pointTap.emit($event)"
       />
     </ui-cartesian-chart>
@@ -271,28 +287,48 @@ export class UiAreaChart {
   readonly showDots = input(true);
   readonly fillOpacity = input(0.2);
   readonly baseline = input(0);
+  /** Fill under a smooth (monotone-cubic) curve instead of straight segments. */
+  readonly smooth = input(false);
+  /** Draw vertical gridlines at each x tick. */
+  readonly showXGrid = input(false);
+  /** Title for the x-axis (centred below the tick labels). */
+  readonly xAxisLabel = input<string>('');
+  /** Title for the y-axis (rotated in the left gutter). */
+  readonly yAxisLabel = input<string>('');
+  /** Inner inset of the plot area, each side a fraction (0–1) — see {@link ChartPadding}. */
+  readonly padding = input<ChartPadding>({});
+  /** Force the x-axis lower/upper bound instead of deriving it from the data.
+   * Omitted bounds fall back to the data extremes. */
+  readonly xMin = input<number | undefined>(undefined);
+  readonly xMax = input<number | undefined>(undefined);
+  /** Force the y-axis lower/upper bound. The `baseline` is still folded in, so
+   * `yMin` only lowers the floor further — it can't clip the fill's base off. */
+  readonly yMin = input<number | undefined>(undefined);
+  readonly yMax = input<number | undefined>(undefined);
   readonly xTickFormat = input<(value: number) => string>(defaultTickFormat);
   readonly yTickFormat = input<(value: number) => string>(defaultTickFormat);
   readonly userClass = input<string>('', { alias: 'class' });
 
   readonly pointTap = output<ChartPoint>();
 
-  // Auto-compute rounded axes from the data extremes. `Math.min/max(...[])`
-  // yield ±Infinity for empty data, which `niceScale` handles by padding.
+  // Auto-compute rounded axes from the data extremes, letting an explicit
+  // min/max override either end. `Math.min/max(...[])` yield ±Infinity for empty
+  // data, which `niceScale` handles by padding.
   protected readonly xAxis = computed(() => {
     const xs = this.data().map((p) => p.x);
-    return niceScale(Math.min(...xs), Math.max(...xs), this.tickCount());
+    const lo = this.xMin() ?? Math.min(...xs);
+    const hi = this.xMax() ?? Math.max(...xs);
+    return niceScale(lo, hi, this.tickCount());
   });
   // Fold the baseline into the y-extent so the axis always spans the whole filled
   // region: a positive-only series still shows the baseline at the bottom, and
-  // negative values pull the domain below it.
+  // negative values pull the domain below it. An explicit yMin/yMax overrides the
+  // corresponding data-derived end (the baseline still participates in the other).
   protected readonly yAxis = computed(() => {
     const ys = this.data().map((p) => p.y);
     const base = this.baseline();
-    return niceScale(
-      Math.min(base, ...ys),
-      Math.max(base, ...ys),
-      this.tickCount(),
-    );
+    const lo = this.yMin() ?? Math.min(base, ...ys);
+    const hi = this.yMax() ?? Math.max(base, ...ys);
+    return niceScale(lo, hi, this.tickCount());
   });
 }

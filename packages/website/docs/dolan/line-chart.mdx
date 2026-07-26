@@ -48,6 +48,45 @@ revenue = [
 />
 ```
 
+### Smooth curve
+
+Set `smooth` to draw a curved line through the points instead of straight segments. Dots still sit on the raw data.
+
+```angular-html
+<ui-line-chart [data]="revenue" [smooth]="true" />
+```
+
+The curve is a **monotone cubic** (like D3's `curveMonotoneX`): it never overshoots the data, so the line stays inside the plotted values.
+
+### Label the axes
+
+Set `xAxisLabel` / `yAxisLabel` for axis titles. `showXGrid` adds vertical gridlines (horizontal ones are on by default).
+
+```angular-html
+<ui-line-chart
+  [data]="revenue"
+  xAxisLabel="Month"
+  yAxisLabel="Revenue ($k)"
+  [showXGrid]="true"
+/>
+```
+
+### Fix the axis range
+
+By default the axes fit the data. Pass `yMin` / `yMax` (or `xMin` / `xMax`) to pin a bound — most often `yMin={0}` to anchor the baseline at zero.
+
+```angular-html
+<ui-line-chart [data]="revenue" [yMin]="0" />
+```
+
+### Pad the plot edges
+
+`padding` insets the plotted area, each side a fraction (`0`–`1`) of the plot size. Use it to keep the first and last dots off the axes.
+
+```angular-html
+<ui-line-chart [data]="revenue" [padding]="{ left: 0.05, right: 0.05 }" />
+```
+
 ### Handle taps
 
 `pointTap` emits the tapped `{ x, y }` point.
@@ -84,19 +123,28 @@ Lynx has no `<line>`, so each segment is a rotated view. Computing the rotation 
 
 The single-series convenience wrapper. Auto-computes the axes from `data`.
 
-| Input         | Type                      | Default          | Description                          |
-| ------------- | ------------------------- | ---------------- | ------------------------------------ |
-| `data`        | `ChartPoint[]`            | _required_       | Points to plot, each `{ x, y }`      |
-| `color`       | `string`                  | `'var(--primary)'` | Line and dot color (any CSS color) |
-| `width`       | `number`                  | `320`            | Chart width in px                    |
-| `height`      | `number`                  | `200`            | Chart height in px                   |
-| `tickCount`   | `number`                  | `5`              | Target number of axis ticks          |
-| `strokeWidth` | `number`                  | `2`              | Line thickness in px                 |
-| `dotRadius`   | `number`                  | `3`              | Data point radius in px              |
-| `showDots`    | `boolean`                 | `true`           | Draw a dot at each point             |
-| `xTickFormat` | `(value: number) => string` | rounds to 2 decimals  | Formats x-axis labels                |
-| `yTickFormat` | `(value: number) => string` | rounds to 2 decimals  | Formats y-axis labels                |
-| `class`       | `string`                  | `''`             | Additional CSS classes               |
+| Input         | Type                        | Default              | Description                               |
+| ------------- | --------------------------- | -------------------- | ----------------------------------------- |
+| `data`        | `ChartPoint[]`              | _required_           | Points to plot, each `{ x, y }`           |
+| `color`       | `string`                    | `'var(--primary)'`   | Line and dot color (any CSS color)        |
+| `width`       | `number`                    | `320`                | Chart width in px                         |
+| `height`      | `number`                    | `200`                | Chart height in px                        |
+| `tickCount`   | `number`                    | `5`                  | Target number of axis ticks               |
+| `strokeWidth` | `number`                    | `2`                  | Line thickness in px                      |
+| `dotRadius`   | `number`                    | `3`                  | Data point radius in px                   |
+| `showDots`    | `boolean`                   | `true`               | Draw a dot at each point                  |
+| `smooth`      | `boolean`                   | `false`              | Draw a smooth monotone-cubic curve        |
+| `showXGrid`   | `boolean`                   | `false`              | Draw vertical gridlines at x ticks        |
+| `xAxisLabel`  | `string`                    | `''`                 | X-axis title                              |
+| `yAxisLabel`  | `string`                    | `''`                 | Y-axis title                              |
+| `padding`     | `ChartPadding`              | `{}`                 | Inner inset, each side a `0`–`1` fraction |
+| `xMin`        | `number`                    | _auto_               | Force x-axis lower bound                  |
+| `xMax`        | `number`                    | _auto_               | Force x-axis upper bound                  |
+| `yMin`        | `number`                    | _auto_               | Force y-axis lower bound                  |
+| `yMax`        | `number`                    | _auto_               | Force y-axis upper bound                  |
+| `xTickFormat` | `(value: number) => string` | rounds to 2 decimals | Formats x-axis labels                     |
+| `yTickFormat` | `(value: number) => string` | rounds to 2 decimals | Formats y-axis labels                     |
+| `class`       | `string`                    | `''`                 | Additional CSS classes                    |
 
 | Output     | Type         | Description                          |
 | ---------- | ------------ | ------------------------------------ |
@@ -106,34 +154,41 @@ The single-series convenience wrapper. Auto-computes the axes from `data`.
 
 The reusable base: draws gridlines and axis labels, and shares its scales with any series inside it.
 
-| Input         | Type                        | Default            | Description                                  |
-| ------------- | --------------------------- | ------------------ | -------------------------------------------- |
-| `xDomain`     | `[number, number]`          | `[0, 1]`           | X value range                                |
-| `yDomain`     | `[number, number]`          | `[0, 1]`           | Y value range                                |
-| `xTicks`      | `number[]`                  | _auto_             | Explicit x tick values (else evenly spaced)  |
-| `yTicks`      | `number[]`                  | _auto_             | Explicit y tick values (else evenly spaced)  |
-| `width`       | `number`                    | `320`              | Chart width in px                            |
-| `height`      | `number`                    | `200`              | Chart height in px                           |
-| `yAxisWidth`  | `number`                    | `32`               | Left gutter width for y labels (px)          |
-| `xAxisHeight` | `number`                    | `20`               | Bottom gutter height for x labels (px)       |
-| `tickCount`   | `number`                    | `5`                | Target number of ticks when auto-generating  |
-| `showGrid`    | `boolean`                   | `true`             | Draw horizontal gridlines                    |
-| `xTickFormat` | `(value: number) => string` | rounds to 2 decimals      | Formats x-axis labels                        |
-| `yTickFormat` | `(value: number) => string` | rounds to 2 decimals      | Formats y-axis labels                        |
-| `class`       | `string`                    | `''`               | Additional CSS classes                       |
+| Input         | Type                        | Default              | Description                                 |
+| ------------- | --------------------------- | -------------------- | ------------------------------------------- |
+| `xDomain`     | `[number, number]`          | `[0, 1]`             | X value range                               |
+| `yDomain`     | `[number, number]`          | `[0, 1]`             | Y value range                               |
+| `xTicks`      | `number[]`                  | _auto_               | Explicit x tick values (else evenly spaced) |
+| `yTicks`      | `number[]`                  | _auto_               | Explicit y tick values (else evenly spaced) |
+| `width`       | `number`                    | `320`                | Chart width in px                           |
+| `height`      | `number`                    | `200`                | Chart height in px                          |
+| `yAxisWidth`  | `number`                    | `32`                 | Left gutter width for y labels (px)         |
+| `xAxisHeight` | `number`                    | `20`                 | Bottom gutter height for x labels (px)      |
+| `tickCount`   | `number`                    | `5`                  | Target number of ticks when auto-generating |
+| `showGrid`    | `boolean`                   | `true`               | Draw horizontal gridlines at y ticks        |
+| `showXGrid`   | `boolean`                   | `false`              | Draw vertical gridlines at x ticks          |
+| `xAxisLabel`  | `string`                    | `''`                 | X-axis title (centred below tick labels)    |
+| `yAxisLabel`  | `string`                    | `''`                 | Y-axis title (rotated in the left gutter)   |
+| `padding`     | `ChartPadding`              | `{}`                 | Inner inset, each side a `0`–`1` fraction   |
+| `xTickFormat` | `(value: number) => string` | rounds to 2 decimals | Formats x-axis labels                       |
+| `yTickFormat` | `(value: number) => string` | rounds to 2 decimals | Formats y-axis labels                       |
+| `class`       | `string`                    | `''`                 | Additional CSS classes                      |
+
+`ChartPadding` is `{ top?, right?, bottom?, left? }`, each a fraction (`0`–`1`) of the plot size; omitted sides default to `0`.
 
 ### UiLineSeries
 
 One line inside a `<ui-cartesian-chart>`.
 
-| Input         | Type           | Default            | Description                     |
-| ------------- | -------------- | ------------------ | ------------------------------- |
-| `data`        | `ChartPoint[]` | _required_         | Points to plot, each `{ x, y }` |
-| `color`       | `string`       | `'var(--primary)'` | Line and dot color              |
-| `strokeWidth` | `number`       | `2`                | Line thickness in px            |
-| `dotRadius`   | `number`       | `3`                | Data point radius in px         |
-| `showDots`    | `boolean`      | `true`             | Draw a dot at each point        |
-| `class`       | `string`       | `''`               | Additional CSS classes          |
+| Input         | Type           | Default            | Description                        |
+| ------------- | -------------- | ------------------ | ---------------------------------- |
+| `data`        | `ChartPoint[]` | _required_         | Points to plot, each `{ x, y }`    |
+| `color`       | `string`       | `'var(--primary)'` | Line and dot color                 |
+| `strokeWidth` | `number`       | `2`                | Line thickness in px               |
+| `dotRadius`   | `number`       | `3`                | Data point radius in px            |
+| `showDots`    | `boolean`      | `true`             | Draw a dot at each point           |
+| `smooth`      | `boolean`      | `false`            | Draw a smooth monotone-cubic curve |
+| `class`       | `string`       | `''`               | Additional CSS classes             |
 
 | Output     | Type         | Description                          |
 | ---------- | ------------ | ------------------------------------ |

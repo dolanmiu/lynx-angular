@@ -15,7 +15,7 @@ vi.mock('@blotch/angular-lynx', () => ({
   LYNX_ELEMENTS: [],
 }));
 
-const { linearScale, niceNum, niceScale, generateTicks } =
+const { linearScale, niceNum, niceScale, generateTicks, sampleSmoothLine } =
   await import('./cartesian-chart');
 
 describe('linearScale', () => {
@@ -94,5 +94,82 @@ describe('generateTicks', () => {
 
   it('returns a single tick when count is 1', () => {
     expect(generateTicks([0, 10], 1)).toEqual([0]);
+  });
+});
+
+describe('sampleSmoothLine', () => {
+  it('returns fewer-than-three points unchanged (no curve possible)', () => {
+    expect(sampleSmoothLine([])).toEqual([]);
+    expect(sampleSmoothLine([{ x: 1, y: 2 }])).toEqual([{ x: 1, y: 2 }]);
+    expect(
+      sampleSmoothLine([
+        { x: 0, y: 0 },
+        { x: 10, y: 5 },
+      ]),
+    ).toEqual([
+      { x: 0, y: 0 },
+      { x: 10, y: 5 },
+    ]);
+  });
+
+  it('passes exactly through every original data point', () => {
+    const points = [
+      { x: 0, y: 0 },
+      { x: 1, y: 8 },
+      { x: 2, y: 3 },
+      { x: 3, y: 10 },
+    ];
+    const curve = sampleSmoothLine(points, 8);
+    for (const p of points) {
+      const hit = curve.find((c) => Math.abs(c.x - p.x) < 1e-9);
+      expect(hit).toBeDefined();
+      expect(hit?.y).toBeCloseTo(p.y);
+    }
+  });
+
+  it('keeps a straight line straight (collinear points do not bow)', () => {
+    // y = 2x sampled at the curve's x values must stay on the line.
+    const curve = sampleSmoothLine(
+      [
+        { x: 0, y: 0 },
+        { x: 5, y: 10 },
+        { x: 10, y: 20 },
+      ],
+      6,
+    );
+    for (const c of curve) {
+      expect(c.y).toBeCloseTo(c.x * 2);
+    }
+  });
+
+  it('never overshoots the data range (monotone: no bulge past a peak)', () => {
+    const points = [
+      { x: 0, y: 0 },
+      { x: 1, y: 10 },
+      { x: 2, y: 10 },
+      { x: 3, y: 0 },
+    ];
+    const curve = sampleSmoothLine(points, 16);
+    const ys = curve.map((c) => c.y);
+    // The plateau at 10 is the max and 0 the min — a monotone cubic must stay
+    // inside them (Catmull-Rom would overshoot above 10 approaching the plateau).
+    expect(Math.max(...ys)).toBeLessThanOrEqual(10 + 1e-9);
+    expect(Math.min(...ys)).toBeGreaterThanOrEqual(0 - 1e-9);
+  });
+
+  it('emits a denser, x-ascending point set', () => {
+    const curve = sampleSmoothLine(
+      [
+        { x: 0, y: 0 },
+        { x: 1, y: 5 },
+        { x: 2, y: 2 },
+      ],
+      10,
+    );
+    // 2 segments × 10 samples + 1 closing point.
+    expect(curve).toHaveLength(21);
+    for (let i = 1; i < curve.length; i++) {
+      expect(curve[i].x).toBeGreaterThanOrEqual(curve[i - 1].x);
+    }
   });
 });

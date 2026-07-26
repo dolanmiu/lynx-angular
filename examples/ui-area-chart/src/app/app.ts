@@ -45,6 +45,19 @@ import { UiAreaChart, UiAreaSeries } from '../components/ui/area-chart';
           </view>
         </view>
 
+        <!-- Smooth (monotone-cubic) curve + fill instead of straight segments -->
+        <view class="flex-col gap-2 flex">
+          <text class="text-sm font-medium text-foreground">Smooth curve</text>
+          <view class="rounded-lg border border-border bg-card p-4">
+            <ui-area-chart
+              [data]="revenue"
+              [width]="280"
+              [height]="180"
+              [smooth]="true"
+            />
+          </view>
+        </view>
+
         <!-- Negative values straddling the baseline (area-specific) -->
         <view class="flex-col gap-2 flex">
           <text class="text-sm font-medium text-foreground">
@@ -62,6 +75,24 @@ import { UiAreaChart, UiAreaSeries } from '../components/ui/area-chart';
           <text class="text-xs text-muted-foreground">
             The fill hangs from the line down to y = 0, above and below it.
           </text>
+        </view>
+
+        <!-- Axis titles + vertical gridlines + inner padding -->
+        <view class="flex-col gap-2 flex">
+          <text class="text-sm font-medium text-foreground"
+            >Labeled axes &amp; grid</text
+          >
+          <view class="rounded-lg border border-border bg-card p-4">
+            <ui-area-chart
+              [data]="revenue"
+              [width]="280"
+              [height]="180"
+              xAxisLabel="Month"
+              yAxisLabel="Revenue ($k)"
+              [showXGrid]="true"
+              [padding]="{ left: 0.05, right: 0.05 }"
+            />
+          </view>
         </view>
 
         <!-- Multiple series overlaid via the base component -->

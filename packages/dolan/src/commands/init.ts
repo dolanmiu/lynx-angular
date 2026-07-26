@@ -82,7 +82,10 @@ export const initCommand = async () => {
     const src = join(uiSrc, 'theme', file);
     if (!existsSync(src)) return;
     const destPath = join(themeDir, file);
-    writeFileSync(destPath, formatContent(readFileSync(src, 'utf-8'), destPath));
+    writeFileSync(
+      destPath,
+      formatContent(readFileSync(src, 'utf-8'), destPath),
+    );
   };
 
   for (const file of ['default.css', 'dark.css']) {

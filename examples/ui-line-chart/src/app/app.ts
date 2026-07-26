@@ -20,7 +20,9 @@ import {
 
         <!-- Basic single-series chart via the convenience wrapper -->
         <view class="flex-col gap-2 flex">
-          <text class="text-sm font-medium text-foreground">Revenue (basic)</text>
+          <text class="text-sm font-medium text-foreground"
+            >Revenue (basic)</text
+          >
           <view class="rounded-lg border border-border bg-card p-4">
             <ui-line-chart [data]="revenue" [width]="280" [height]="180" />
           </view>
@@ -37,6 +39,52 @@ import {
               [color]="blue"
               [strokeWidth]="3"
               [dotRadius]="4"
+            />
+          </view>
+        </view>
+
+        <!-- Smooth (monotone-cubic) curve instead of straight segments -->
+        <view class="flex-col gap-2 flex">
+          <text class="text-sm font-medium text-foreground">Smooth curve</text>
+          <view class="rounded-lg border border-border bg-card p-4">
+            <ui-line-chart
+              [data]="revenue"
+              [width]="280"
+              [height]="180"
+              [smooth]="true"
+            />
+          </view>
+        </view>
+
+        <!-- Axis titles + vertical gridlines + inner padding -->
+        <view class="flex-col gap-2 flex">
+          <text class="text-sm font-medium text-foreground"
+            >Labeled axes &amp; grid</text
+          >
+          <view class="rounded-lg border border-border bg-card p-4">
+            <ui-line-chart
+              [data]="revenue"
+              [width]="280"
+              [height]="180"
+              xAxisLabel="Month"
+              yAxisLabel="Revenue ($k)"
+              [showXGrid]="true"
+              [padding]="{ left: 0.05, right: 0.05 }"
+            />
+          </view>
+        </view>
+
+        <!-- Force the y-axis to start at zero instead of fitting the data -->
+        <view class="flex-col gap-2 flex">
+          <text class="text-sm font-medium text-foreground"
+            >Fixed y-axis (0…)</text
+          >
+          <view class="rounded-lg border border-border bg-card p-4">
+            <ui-line-chart
+              [data]="revenue"
+              [width]="280"
+              [height]="180"
+              [yMin]="0"
             />
           </view>
         </view>

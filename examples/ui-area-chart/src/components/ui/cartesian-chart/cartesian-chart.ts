@@ -16,6 +16,21 @@ export type ChartDomain = readonly [number, number];
 /** Maps a data value on one axis to a pixel offset inside the plot area. */
 export type ChartScale = (value: number) => number;
 
+/**
+ * Inner inset applied to the plot area, one value per side as a **fraction**
+ * (`0`–`1`) of the plot's width/height. It shrinks the range the scales map into,
+ * so every projected series is pushed clear of the frame at once — the common use
+ * is keeping the first/last dot from sitting flush against the axis. Fractions
+ * (not pixels) keep the inset proportional as the chart is resized. Omitted sides
+ * default to `0`.
+ */
+export type ChartPadding = {
+  top?: number;
+  right?: number;
+  bottom?: number;
+  left?: number;
+};
+
 // ---------------------------------------------------------------------------
 // Pure geometry (exported so it can be unit-tested without Angular)
 // ---------------------------------------------------------------------------
@@ -129,6 +144,114 @@ export const generateTicks = (domain: ChartDomain, count: number): number[] => {
   return ticks;
 };
 
+/**
+ * Resamples a polyline into a dense run of points that trace a smooth
+ * **monotone cubic** curve through the originals — the shared smoothing
+ * primitive both the line and the area series build on so that "smooth" behaves
+ * identically for either.
+ *
+ * ## Why monotone cubic (Fritsch–Carlson), not Catmull-Rom
+ * A monotone cubic never overshoots its data: between two points the curve stays
+ * inside their y-range, so a smoothed line never bulges past a peak and a
+ * smoothed area fill never pokes above the plot or dips below its baseline. That
+ * matters here because the axis domain is derived from the *raw* data extremes —
+ * an overshooting curve (which Catmull-Rom produces) would render outside the
+ * plot and clip. This is the same curve D3 draws for `curveMonotoneX` and the
+ * default Recharts `type="monotone"`.
+ *
+ * ## Why resample instead of emitting a path
+ * Lynx has no SVG path: a line is drawn as many short rotated `<view>` segments
+ * and an area as sampled column heights. So rather than describe the curve, we
+ * return closely-spaced points *on* it, and each caller rasterizes them with the
+ * exact same code it already uses for raw data (`computeLineSegments` /
+ * `computeAreaColumns`). "Smooth" then costs nothing but a denser point set.
+ *
+ * Points must be sorted ascending by x (as cartesian data always is). Fewer than
+ * three points can't define a curve — two already draw a single straight
+ * segment — so they're returned unchanged. `samplesPerSegment` is how many
+ * straight chords approximate each original segment; higher is smoother but emits
+ * proportionally more native views.
+ */
+export const sampleSmoothLine = (
+  points: readonly ChartPoint[],
+  samplesPerSegment = 12,
+): ChartPoint[] => {
+  const n = points.length;
+  if (n < 3) return points.map((p) => ({ x: p.x, y: p.y }));
+
+  // Secant slope between each consecutive pair. A zero-width x-gap (duplicate x)
+  // has no defined slope, so treat it as flat to avoid dividing by zero — the
+  // sampler then draws a near-vertical chord across the repeated x.
+  const secants: number[] = [];
+  for (let i = 0; i < n - 1; i++) {
+    const dx = points[i + 1].x - points[i].x;
+    secants.push(dx === 0 ? 0 : (points[i + 1].y - points[i].y) / dx);
+  }
+
+  // Tangent at each point. Endpoints borrow their single adjacent secant;
+  // interior points average their two neighbours, but a sign change (a local
+  // peak or trough) forces a flat tangent so the curve turns without overshoot.
+  const tangents: number[] = Array.from({ length: n });
+  tangents[0] = secants[0];
+  tangents[n - 1] = secants[n - 2];
+  for (let i = 1; i < n - 1; i++) {
+    const prev = secants[i - 1];
+    const next = secants[i];
+    tangents[i] = prev * next <= 0 ? 0 : (prev + next) / 2;
+  }
+
+  // Fritsch–Carlson monotonicity fix: keep each Hermite segment monotone by
+  // clamping the tangents. Normalise them by the secant into (alpha, beta); if
+  // that point falls outside a circle of radius 3, scale both back onto it. A
+  // flat secant (equal endpoints) can't be normalised, so its tangents are
+  // pinned to 0 instead.
+  for (let i = 0; i < n - 1; i++) {
+    const secant = secants[i];
+    if (secant === 0) {
+      tangents[i] = 0;
+      tangents[i + 1] = 0;
+      continue;
+    }
+    const alpha = tangents[i] / secant;
+    const beta = tangents[i + 1] / secant;
+    const magnitude = alpha * alpha + beta * beta;
+    if (magnitude > 9) {
+      const scale = 3 / Math.sqrt(magnitude);
+      tangents[i] = scale * alpha * secant;
+      tangents[i + 1] = scale * beta * secant;
+    }
+  }
+
+  // Evaluate the cubic Hermite spline on each segment. Sampling `t` from 0
+  // (inclusive) up to — but not including — 1 hits every original point exactly
+  // once via the next segment's t=0; the very last point is appended at the end.
+  const samples = Math.max(1, samplesPerSegment);
+  const out: ChartPoint[] = [];
+  for (let i = 0; i < n - 1; i++) {
+    const p0 = points[i];
+    const p1 = points[i + 1];
+    const h = p1.x - p0.x;
+    const m0 = tangents[i];
+    const m1 = tangents[i + 1];
+    for (let s = 0; s < samples; s++) {
+      const t = s / samples;
+      const t2 = t * t;
+      const t3 = t2 * t;
+      // Hermite basis functions for value (h00, h01) and tangent (h10, h11).
+      const h00 = 2 * t3 - 3 * t2 + 1;
+      const h10 = t3 - 2 * t2 + t;
+      const h01 = -2 * t3 + 3 * t2;
+      const h11 = t3 - t2;
+      out.push({
+        x: p0.x + t * h,
+        y: h00 * p0.y + h10 * h * m0 + h01 * p1.y + h11 * h * m1,
+      });
+    }
+  }
+  out.push({ x: points[n - 1].x, y: points[n - 1].y });
+  return out;
+};
+
 // ---------------------------------------------------------------------------
 // Rendering helpers
 // ---------------------------------------------------------------------------
@@ -153,12 +276,22 @@ const LABEL_GUTTER_GAP = 6;
 const X_LABEL_WIDTH = 44;
 const X_LABEL_GAP = 4;
 
+// Extra gutter reserved when an axis *title* is set: a strip to the left of the
+// y tick-labels for the (rotated) y-title, and a band below the x tick-labels for
+// the x-title. 16px comfortably fits the 10px title font plus its line box.
+const Y_AXIS_LABEL_SPACE = 16;
+const X_AXIS_LABEL_SPACE = 16;
+// Approximate line box of the 10px title font — used to size the rotated y-title.
+const AXIS_LABEL_LINE_HEIGHT = 12;
+
 /**
  * The reusable foundation for cartesian (x/y) charts — line, bar, scatter, …
  *
- * It draws the *frame* (horizontal gridlines + axis tick labels) and hosts a
- * definite-size **plot area** into which chart marks are projected via
- * `<ng-content>`. It carries no marks of its own; series components
+ * It draws the *frame* — horizontal (and optional vertical) gridlines, axis tick
+ * labels, and optional axis titles — and hosts a definite-size **plot area** into
+ * which chart marks are projected via `<ng-content>`. Inner `padding` insets the
+ * shared scales so every series clears the frame at once. It carries no marks of
+ * its own; series components
  * (`<ui-line-series>`, and future `<ui-bar-series>` etc.) `inject()` this class
  * to read the shared `xScale`/`yScale`/`plotWidth`/`plotHeight` and draw
  * themselves. This mirrors the `UiToggleGroup` / `UiToggleGroupItem` DI pattern.
@@ -193,6 +326,11 @@ const X_LABEL_GAP = 4;
             <view class="bg-border" [style]="line.style"></view>
           }
         }
+        @if (showXGrid()) {
+          @for (line of verticalGridlines(); track $index) {
+            <view class="bg-border" [style]="line.style"></view>
+          }
+        }
         <ng-content />
       </view>
 
@@ -213,6 +351,25 @@ const X_LABEL_GAP = 4;
           >{{ label.text }}</text
         >
       }
+
+      <!-- Y-axis title: rotated -90° in the reserved left strip, centred on the
+           plot height. Rendered only when set so it costs no gutter otherwise. -->
+      @if (yAxisLabel()) {
+        <text
+          class="text-[10px] font-medium leading-none text-muted-foreground text-center"
+          [style]="yAxisLabelStyle()"
+          >{{ yAxisLabel() }}</text
+        >
+      }
+
+      <!-- X-axis title: centred across the plot, below the x tick labels. -->
+      @if (xAxisLabel()) {
+        <text
+          class="text-[10px] font-medium leading-none text-muted-foreground text-center"
+          [style]="xAxisLabelStyle()"
+          >{{ xAxisLabel() }}</text
+        >
+      }
     </view>
   `,
 })
@@ -227,22 +384,63 @@ export class UiCartesianChart {
   readonly yAxisWidth = input(32);
   readonly xAxisHeight = input(20);
   readonly tickCount = input(5);
+  /** Draw horizontal gridlines at each y tick. */
   readonly showGrid = input(true);
+  /** Draw vertical gridlines at each x tick (off by default — the y gridlines
+   * above are the usual value reference for line/area charts). */
+  readonly showXGrid = input(false);
+  /** Title drawn along the x-axis, centred below the tick labels. */
+  readonly xAxisLabel = input<string>('');
+  /** Title drawn along the y-axis, rotated in the left gutter. */
+  readonly yAxisLabel = input<string>('');
+  /** Inner inset of the plot area, each side a fraction (0–1) — see {@link ChartPadding}. */
+  readonly padding = input<ChartPadding>({});
   readonly xTickFormat = input<(value: number) => string>(defaultTickFormat);
   readonly yTickFormat = input<(value: number) => string>(defaultTickFormat);
   readonly userClass = input<string>('', { alias: 'class' });
 
   // --- Shared coordinate system (read by projected series via DI) ---
 
-  readonly plotWidth = computed(() => this.width() - this.yAxisWidth());
-  readonly plotHeight = computed(() => this.height() - this.xAxisHeight());
-
-  readonly xScale = computed<ChartScale>(() =>
-    linearScale(this.xDomain(), [0, this.plotWidth()]),
+  // A set axis title steals a strip of the gutter (left for y, bottom for x);
+  // absorbing it here shrinks the plot so titles never overlap the tick labels.
+  readonly #yGutter = computed(
+    () => this.yAxisWidth() + (this.yAxisLabel() ? Y_AXIS_LABEL_SPACE : 0),
   );
-  // Range is flipped ([height, 0]) so larger y-values sit higher up the plot.
+  readonly #xGutter = computed(
+    () => this.xAxisHeight() + (this.xAxisLabel() ? X_AXIS_LABEL_SPACE : 0),
+  );
+
+  readonly plotWidth = computed(() => this.width() - this.#yGutter());
+  readonly plotHeight = computed(() => this.height() - this.#xGutter());
+
+  // Padding as pixels, resolved against the plot size. Omitted sides read as 0.
+  readonly #padLeft = computed(
+    () => (this.padding().left ?? 0) * this.plotWidth(),
+  );
+  readonly #padRight = computed(
+    () => (this.padding().right ?? 0) * this.plotWidth(),
+  );
+  readonly #padTop = computed(
+    () => (this.padding().top ?? 0) * this.plotHeight(),
+  );
+  readonly #padBottom = computed(
+    () => (this.padding().bottom ?? 0) * this.plotHeight(),
+  );
+
+  // Scales map the domain into the *padded* range, so every projected series is
+  // inset from the frame together — no per-series padding needed.
+  readonly xScale = computed<ChartScale>(() =>
+    linearScale(this.xDomain(), [
+      this.#padLeft(),
+      this.plotWidth() - this.#padRight(),
+    ]),
+  );
+  // Range is flipped (high px → low px) so larger y-values sit higher up the plot.
   readonly yScale = computed<ChartScale>(() =>
-    linearScale(this.yDomain(), [this.plotHeight(), 0]),
+    linearScale(this.yDomain(), [
+      this.plotHeight() - this.#padBottom(),
+      this.#padTop(),
+    ]),
   );
 
   // --- Internal rendering state ---
@@ -265,9 +463,10 @@ export class UiCartesianChart {
 
   protected readonly plotStyle = computed(
     () =>
-      `position: absolute; left: ${px(this.yAxisWidth())}; top: 0px; width: ${px(this.plotWidth())}; height: ${px(this.plotHeight())};`,
+      `position: absolute; left: ${px(this.#yGutter())}; top: 0px; width: ${px(this.plotWidth())}; height: ${px(this.plotHeight())};`,
   );
 
+  // Horizontal gridlines: full-width rules at each y tick's pixel height.
   protected readonly gridlines = computed(() => {
     const scale = this.yScale();
     return this.#resolvedYTicks().map((value) => ({
@@ -275,24 +474,57 @@ export class UiCartesianChart {
     }));
   });
 
+  // Vertical gridlines: full-height rules at each x tick's pixel position.
+  protected readonly verticalGridlines = computed(() => {
+    const scale = this.xScale();
+    return this.#resolvedXTicks().map((value) => ({
+      style: `position: absolute; top: 0px; left: ${px(scale(value))}; width: 1px; height: 100%;`,
+    }));
+  });
+
   protected readonly yLabels = computed(() => {
     const scale = this.yScale();
     const format = this.yTickFormat();
+    // A y-title pushes the tick labels right, past its reserved strip.
+    const left = this.yAxisLabel() ? Y_AXIS_LABEL_SPACE : 0;
     const width = this.yAxisWidth() - LABEL_GUTTER_GAP;
     return this.#resolvedYTicks().map((value) => ({
       text: format(value),
-      style: `position: absolute; left: 0px; top: ${px(scale(value) - LABEL_FONT_HALF)}; width: ${px(width)};`,
+      style: `position: absolute; left: ${px(left)}; top: ${px(scale(value) - LABEL_FONT_HALF)}; width: ${px(width)};`,
     }));
   });
 
   protected readonly xLabels = computed(() => {
     const scale = this.xScale();
     const format = this.xTickFormat();
-    const gutter = this.yAxisWidth();
+    const gutter = this.#yGutter();
     const top = this.plotHeight() + X_LABEL_GAP;
     return this.#resolvedXTicks().map((value) => ({
       text: format(value),
       style: `position: absolute; top: ${px(top)}; left: ${px(gutter + scale(value) - X_LABEL_WIDTH / 2)}; width: ${px(X_LABEL_WIDTH)};`,
     }));
   });
+
+  // Y-title: a horizontal text box `plotHeight` wide, rotated -90° about its
+  // centre so it runs vertically. Rotation is visual only (it doesn't change the
+  // layout box), so we position the *unrotated* box centred on the reserved left
+  // strip and the plot's mid-height; after the turn it spans the full plot height.
+  protected readonly yAxisLabelStyle = computed(() => {
+    const h = this.plotHeight();
+    const centreX = Y_AXIS_LABEL_SPACE / 2;
+    const centreY = h / 2;
+    const left = centreX - h / 2;
+    const top = centreY - AXIS_LABEL_LINE_HEIGHT / 2;
+    return (
+      `position: absolute; left: ${px(left)}; top: ${px(top)}; ` +
+      `width: ${px(h)}; height: ${px(AXIS_LABEL_LINE_HEIGHT)}; ` +
+      `transform-origin: center; transform: rotate(-90deg);`
+    );
+  });
+
+  // X-title: centred across the plot, in the band below the x tick labels.
+  protected readonly xAxisLabelStyle = computed(
+    () =>
+      `position: absolute; left: ${px(this.#yGutter())}; top: ${px(this.plotHeight() + this.xAxisHeight())}; width: ${px(this.plotWidth())};`,
+  );
 }
