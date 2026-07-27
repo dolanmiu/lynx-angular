@@ -186,17 +186,17 @@ export class QueryProbe {
         </ui-card-header>
         <ui-card-content class="flex-col gap-3 p-4 pt-0 flex">
           <app-slot-frame>
-            <text class="text-sm text-foreground"
-              >This text is projected into the frame.</text
-            >
+            <text class="text-sm text-foreground">
+              This text is projected into the frame.
+            </text>
           </app-slot-frame>
           <app-slot-frame>
-            <text class="text-sm font-semibold text-foreground"
-              >Rich content works too</text
-            >
-            <text class="text-xs text-muted-foreground"
-              >Any elements can be projected — not just a single line.</text
-            >
+            <text class="text-sm font-semibold text-foreground">
+              Rich content works too
+            </text>
+            <text class="text-xs text-muted-foreground">
+              Any elements can be projected — not just a single line.
+            </text>
           </app-slot-frame>
         </ui-card-content>
       </ui-card>
@@ -218,15 +218,15 @@ export class QueryProbe {
             <text
               slot="header"
               class="text-sm font-semibold text-primary-foreground"
-              >Panel header</text
             >
-            <text class="text-sm text-foreground"
-              >This drops into the default body slot.</text
-            >
-            <text class="text-xs text-muted-foreground"
-              >The header text carries slot="header" to land in the bar
-              above.</text
-            >
+              Panel header
+            </text>
+            <text class="text-sm text-foreground">
+              This drops into the default body slot.
+            </text>
+            <text class="text-xs text-muted-foreground">
+              The header text carries slot="header" to land in the bar above.
+            </text>
           </app-labeled-panel>
         </ui-card-content>
       </ui-card>
@@ -245,13 +245,13 @@ export class QueryProbe {
         </ui-card-header>
         <ui-card-content class="p-4 pt-0">
           <app-reveal>
-            <text class="text-sm text-foreground"
-              >This content only exists while it's shown.</text
-            >
-            <text class="text-xs text-muted-foreground"
-              >Hiding it removes the projected nodes from the tree — it isn't
-              just visually collapsed.</text
-            >
+            <text class="text-sm text-foreground">
+              This content only exists while it's shown.
+            </text>
+            <text class="text-xs text-muted-foreground">
+              Hiding it removes the projected nodes from the tree — it isn't
+              just visually collapsed.
+            </text>
           </app-reveal>
         </ui-card-content>
       </ui-card>
@@ -273,11 +273,12 @@ export class QueryProbe {
               <text
                 slot="header"
                 class="text-sm font-semibold text-primary-foreground"
-                >Nested header</text
               >
-              <text class="text-sm text-foreground"
-                >A frame wraps a panel — content flows through both.</text
-              >
+                Nested header
+              </text>
+              <text class="text-sm text-foreground">
+                A frame wraps a panel — content flows through both.
+              </text>
             </app-labeled-panel>
           </app-slot-frame>
         </ui-card-content>
@@ -297,18 +298,18 @@ export class QueryProbe {
         </ui-card-header>
         <ui-card-content class="p-4 pt-0">
           <app-query-probe>
-            <text #main class="text-sm font-semibold text-foreground"
-              >Main content (#main)</text
-            >
-            <text #item class="text-sm text-muted-foreground"
-              >Item A (#item)</text
-            >
-            <text #item class="text-sm text-muted-foreground"
-              >Item B (#item)</text
-            >
-            <text #item class="text-sm text-muted-foreground"
-              >Item C (#item)</text
-            >
+            <text #main class="text-sm font-semibold text-foreground">
+              Main content (#main)
+            </text>
+            <text #item class="text-sm text-muted-foreground">
+              Item A (#item)
+            </text>
+            <text #item class="text-sm text-muted-foreground">
+              Item B (#item)
+            </text>
+            <text #item class="text-sm text-muted-foreground">
+              Item C (#item)
+            </text>
           </app-query-probe>
         </ui-card-content>
       </ui-card>

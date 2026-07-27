@@ -57,9 +57,9 @@ import { ScreenHost } from '../screen-host';
       <ui-card>
         <ui-card-header class="gap-1 p-4 pb-0">
           <ui-card-title class="text-base">Live preview</ui-card-title>
-          <ui-card-description
-            >Rendered at the selected font size.</ui-card-description
-          >
+          <ui-card-description>
+            Rendered at the selected font size.
+          </ui-card-description>
         </ui-card-header>
         <ui-card-content class="flex-col gap-4 p-4 flex">
           <view class="flex-row flex-wrap gap-2 flex">
@@ -68,8 +68,9 @@ import { ScreenHost } from '../screen-host';
                 size="sm"
                 [variant]="previewSize() === size ? 'default' : 'outline'"
                 (pressed)="previewSize.set(size)"
-                >{{ size }}px</ui-button
               >
+                {{ size }}px
+              </ui-button>
             }
           </view>
 
@@ -78,8 +79,9 @@ import { ScreenHost } from '../screen-host';
               <text
                 class="text-foreground"
                 [style]="'font-size: ' + previewSize() + 'px;'"
-                >{{ text() }}</text
               >
+                {{ text() }}
+              </text>
             } @else {
               <ui-text variant="muted">Type something to measure it.</ui-text>
             }
@@ -118,9 +120,9 @@ import { ScreenHost } from '../screen-host';
         <ui-card-content class="flex-col gap-3 p-4 flex">
           @for (metric of sizeMetrics(); track metric.size) {
             <view class="flex-row items-center gap-3 flex">
-              <text class="w-10 text-sm text-muted-foreground"
-                >{{ metric.size }}px</text
-              >
+              <text class="w-10 text-sm text-muted-foreground">
+                {{ metric.size }}px
+              </text>
               <view
                 class="h-2.5 flex-1 rounded-full bg-muted flex overflow-hidden"
               >
@@ -129,9 +131,9 @@ import { ScreenHost } from '../screen-host';
                   [style]="barWidth(metric.width)"
                 ></view>
               </view>
-              <text class="w-14 text-sm text-foreground text-right"
-                >{{ metric.width }}px</text
-              >
+              <text class="w-14 text-sm text-foreground text-right">
+                {{ metric.width }}px
+              </text>
             </view>
           }
         </ui-card-content>
@@ -157,8 +159,9 @@ import { ScreenHost } from '../screen-host';
                 size="sm"
                 [variant]="wrapWidth() === width ? 'default' : 'outline'"
                 (pressed)="wrapWidth.set(width)"
-                >{{ width }}px</ui-button
               >
+                {{ width }}px
+              </ui-button>
             }
           </view>
 
@@ -174,20 +177,20 @@ import { ScreenHost } from '../screen-host';
                   }}</text>
                 }
               } @else {
-                <ui-text variant="muted"
-                  >Type something to see it wrap.</ui-text
-                >
+                <ui-text variant="muted">
+                  Type something to see it wrap.
+                </ui-text>
               }
             </view>
           </view>
 
           <view class="flex-row flex-wrap gap-2 flex">
-            <ui-badge variant="secondary" [animated]="false"
-              >{{ wrappedLines().length }} / {{ maxLine }} lines</ui-badge
-            >
-            <ui-badge variant="outline" [animated]="false"
-              >{{ wrapWidth() }}px wide</ui-badge
-            >
+            <ui-badge variant="secondary" [animated]="false">
+              {{ wrappedLines().length }} / {{ maxLine }} lines
+            </ui-badge>
+            <ui-badge variant="outline" [animated]="false">
+              {{ wrapWidth() }}px wide
+            </ui-badge>
           </view>
         </ui-card-content>
       </ui-card>

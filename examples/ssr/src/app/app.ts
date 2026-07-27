@@ -7,9 +7,9 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
     <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
       <view class="p-6">
         <text class="mb-1 text-[28px] font-bold text-zinc-900">SSR</text>
-        <text class="mb-5 text-[13px] text-zinc-500"
-          >Instant first-frame rendering with snapshot encoding.</text
-        >
+        <text class="mb-5 text-[13px] text-zinc-500">
+          Instant first-frame rendering with snapshot encoding.
+        </text>
 
         <view
           class="mb-4 rounded-xl border p-4"
@@ -18,32 +18,32 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
           [class.bg-red-50]="!ssrStatus().ok"
           [class.border-red-200]="!ssrStatus().ok"
         >
-          <text class="mb-2 text-sm font-semibold text-zinc-900"
-            >SSR Status</text
-          >
-          <text class="mb-0.5 text-[13px] text-zinc-500"
-            >ssrEncode registered:
-            {{ ssrStatus().encodeRegistered ? 'YES' : 'NO' }}</text
-          >
-          <text class="mb-0.5 text-[13px] text-zinc-500"
-            >ssrHydrate registered:
-            {{ ssrStatus().hydrateRegistered ? 'YES' : 'NO' }}</text
-          >
-          <text class="mb-0.5 text-[13px] text-zinc-500"
-            >Opcode count: {{ ssrStatus().opcodeCount }}</text
-          >
-          <text class="mb-0.5 text-[13px] text-zinc-500"
-            >Snapshot size: {{ ssrStatus().snapshotSize }} bytes</text
-          >
+          <text class="mb-2 text-sm font-semibold text-zinc-900">
+            SSR Status
+          </text>
+          <text class="mb-0.5 text-[13px] text-zinc-500">
+            ssrEncode registered:
+            {{ ssrStatus().encodeRegistered ? 'YES' : 'NO' }}
+          </text>
+          <text class="mb-0.5 text-[13px] text-zinc-500">
+            ssrHydrate registered:
+            {{ ssrStatus().hydrateRegistered ? 'YES' : 'NO' }}
+          </text>
+          <text class="mb-0.5 text-[13px] text-zinc-500">
+            Opcode count: {{ ssrStatus().opcodeCount }}
+          </text>
+          <text class="mb-0.5 text-[13px] text-zinc-500">
+            Snapshot size: {{ ssrStatus().snapshotSize }} bytes
+          </text>
         </view>
 
         <view
           class="mb-4 items-center rounded-[10px] bg-indigo-500 px-6 py-3"
           (bindtap)="runEncode()"
         >
-          <text class="text-[15px] font-semibold text-white"
-            >Run ssrEncode()</text
-          >
+          <text class="text-[15px] font-semibold text-white">
+            Run ssrEncode()
+          </text>
         </view>
 
         @if (snapshotPreview()) {
@@ -57,8 +57,9 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
         <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
             class="uppercase mb-2.5 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
-            >Static Content</text
           >
+            Static Content
+          </text>
           <text class="text-sm leading-5 text-zinc-500">
             This text is part of the first-frame snapshot. It appears instantly
             without waiting for JS to execute on the background thread.
@@ -68,8 +69,9 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
         <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
             class="uppercase mb-2.5 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
-            >Dynamic Items</text
           >
+            Dynamic Items
+          </text>
           @for (item of items(); track item.id) {
             <view class="border-b border-zinc-200 py-2.5">
               <text class="text-sm text-zinc-900">{{ item.label }}</text>
@@ -79,9 +81,9 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
             class="mt-3 items-center rounded-[10px] bg-indigo-500 px-6 py-3"
             (bindtap)="addItem()"
           >
-            <text class="text-[15px] font-semibold text-white"
-              >Add item (post-hydration)</text
-            >
+            <text class="text-[15px] font-semibold text-white">
+              Add item (post-hydration)
+            </text>
           </view>
         </view>
 

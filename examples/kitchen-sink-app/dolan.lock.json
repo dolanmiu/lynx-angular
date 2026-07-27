@@ -49,7 +49,7 @@
     },
     "card": {
       "card.ts": {
-        "hash": "2b58265d9a20f26a"
+        "hash": "184dc090bdef3fa3"
       },
       "index.ts": {
         "hash": "2df977d39d77f524"
@@ -68,7 +68,7 @@
         "hash": "4b675dffd15fdf8c"
       },
       "input.ts": {
-        "hash": "0200f4120b597b55"
+        "hash": "4a7f3e3151fbd3b1"
       }
     },
     "textarea": {
@@ -76,7 +76,7 @@
         "hash": "03fc5e55016e71db"
       },
       "textarea.ts": {
-        "hash": "40a11e2c22020990"
+        "hash": "1ef88c285c419779"
       }
     },
     "checkbox": {
@@ -158,6 +158,39 @@
       },
       "index.ts": {
         "hash": "472fe87dc80ccb22"
+      }
+    },
+    "candlestick-chart": {
+      "candlestick-chart.test.ts": {
+        "hash": "d88e8a459bbbfc4b"
+      },
+      "candlestick-chart.ts": {
+        "hash": "1960a6108354a1ea"
+      },
+      "index.ts": {
+        "hash": "1e5f6600a9abd48d"
+      }
+    },
+    "bar-chart": {
+      "bar-chart.test.ts": {
+        "hash": "f0cf1b73cffba3a3"
+      },
+      "bar-chart.ts": {
+        "hash": "b087031fd592db49"
+      },
+      "index.ts": {
+        "hash": "73987c595cf3820b"
+      }
+    },
+    "scatter-chart": {
+      "index.ts": {
+        "hash": "3bb8bd15e19f5728"
+      },
+      "scatter-chart.test.ts": {
+        "hash": "923c160b3b5bb256"
+      },
+      "scatter-chart.ts": {
+        "hash": "f42cbe480c57a991"
       }
     }
   },

@@ -3901,3 +3901,42 @@ if (environment.name === 'lynx' && chain.module.rules.has(CHAIN_ID.RULE.FONT)) {
 A data URI is absolute, so it survives the `webpack://` base-URI join untouched. It needs no `publicPath`, no network fetch, and no host font loader — exactly what the [Lynx `@font-face` docs](https://lynxjs.org/api/css/at-rule/font-face) recommend ("Base64-encoded fonts").
 
 The `environment.name === 'lynx'` guard keeps the change Lynx-only. The **web preview bundle keeps the same broken `webpack:///` font URLs**; its ideal fix is a correct `publicPath` serving fonts over HTTP, not inlining, which would bloat the browser bundle. React Lynx never hit this — it has no equivalent global-stylesheet `@font-face` build path.
+
+## Indented template text renders with a leading space — Angular collapses whitespace but never trims it, and Lynx has no line-box trimming
+
+### What you'd expect (web)
+
+Prose written across indented lines renders flush, with no leading or trailing space:
+
+```html
+<text>
+  Hello world
+</text>
+```
+
+renders as `Hello world`.
+
+### What Lynx does
+
+On-device the text renders with a stray leading space — a visible indent: ` Hello world`.
+
+Angular's template compiler (`preserveWhitespaces: false`, the default) collapses each run of whitespace to a single space. But it does **not** trim the single leading/trailing space left against the element boundary, so the snippet above reaches the renderer as `" Hello world "`. On the web that edge space is invisible — the CSS white-space model strips whitespace at the start and end of a line box. Lynx's `raw-text` has no such layout-time collapsing and renders the string verbatim, so the leading space shows up.
+
+React Lynx never hits this. Its JSX transform strips newline-adjacent whitespace at compile time — more aggressively than Angular's collapse-only pass — so the runtime never sees the edge space. That's why clean multi-line JSX works there but the identical Angular template did not.
+
+### The fix
+
+Normalize at the single choke point every text node flows through — `createText` (static text) and `setValue` (interpolations) in `packages/runtime/src/lib/renderer/renderer.ts`:
+
+```ts
+const normalizeText = (value: string): string =>
+  value.replace(/[ \t\n\r\f\v]+/g, ' ').replace(/^ | $/g, '');
+```
+
+Collapse runs to a single space and trim the ASCII-whitespace ends, mirroring the browser's default `white-space`. Trimming only ASCII whitespace leaves a deliberate non-breaking space (` `) intact as an escape hatch for the rare runtime value that needs a literal edge space.
+
+This restores parity for the common case: a text container wrapping one run of prose. The text node is both the first and last child, so edge-trimming is exactly correct.
+
+The fix does **not** yet handle two cases. Inline composition (`Hello <b>x</b> world`) needs *edge-only* trimming, because the space between inline siblings is meaningful. And `white-space: pre` needs whitespace preserved. Both need positional, container-level handling — tracked as follow-ups.
+
+Because the renderer now trims, templates can be written naturally (`<text>\n  Hello\n</text>`) instead of the dangling-`>` workaround that hugs text to kill the whitespace (`<text\n  >Hello</text\n>`).

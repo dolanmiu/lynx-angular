@@ -6,12 +6,12 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   template: `
     <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
       <view class="p-6">
-        <text class="mb-1 text-[28px] font-bold text-zinc-900"
-          >Settings Page</text
-        >
-        <text class="mb-5 text-[13px] text-zinc-500"
-          >A separate Lynx page with its own entry point.</text
-        >
+        <text class="mb-1 text-[28px] font-bold text-zinc-900">
+          Settings Page
+        </text>
+        <text class="mb-5 text-[13px] text-zinc-500">
+          A separate Lynx page with its own entry point.
+        </text>
 
         <view class="rounded-xl border border-zinc-200 bg-white p-4">
           <view class="flex-row items-center py-1 justify-between">

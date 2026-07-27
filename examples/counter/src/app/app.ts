@@ -11,9 +11,9 @@ import { UiCard } from '../components/ui/card';
       class="h-screen flex-col items-center bg-background p-6 flex justify-center"
     >
       <text class="mb-1 text-[28px] font-bold text-foreground">Counter</text>
-      <text class="mb-8 text-[13px] text-muted-foreground"
-        >Signal-based reactivity with computed state.</text
-      >
+      <text class="mb-8 text-[13px] text-muted-foreground">
+        Signal-based reactivity with computed state.
+      </text>
 
       <ui-card class="mb-8 items-center px-12 py-8">
         <text class="mb-1 text-[72px] font-bold text-primary">{{
@@ -24,9 +24,9 @@ import { UiCard } from '../components/ui/card';
 
       <view class="flex-row gap-3 flex">
         <ui-button size="lg" (pressed)="decrement()">−</ui-button>
-        <ui-button variant="outline" size="lg" (pressed)="reset()"
-          >Reset</ui-button
-        >
+        <ui-button variant="outline" size="lg" (pressed)="reset()">
+          Reset
+        </ui-button>
         <ui-button size="lg" (pressed)="increment()">+</ui-button>
       </view>
     </view>

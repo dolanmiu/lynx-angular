@@ -7,15 +7,16 @@ import { LYNX_ELEMENTS, type LynxAnimation } from '@blotch/angular-lynx';
     <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
       <view class="p-6">
         <text class="mb-1 text-[28px] font-bold text-zinc-900">Animations</text>
-        <text class="mb-5 text-[13px] text-zinc-500"
-          >CSS transitions, keyframes, and the JS animate() API.</text
-        >
+        <text class="mb-5 text-[13px] text-zinc-500">
+          CSS transitions, keyframes, and the JS animate() API.
+        </text>
 
         <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
             class="uppercase mb-3 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
-            >CSS Transition</text
           >
+            CSS Transition
+          </text>
           <view
             class="demo-box transition-box"
             [class.transition-active]="transitionOn()"
@@ -28,8 +29,9 @@ import { LYNX_ELEMENTS, type LynxAnimation } from '@blotch/angular-lynx';
         <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
             class="uppercase mb-3 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
-            >CSS Keyframes</text
           >
+            CSS Keyframes
+          </text>
           <view
             class="demo-box keyframe-box"
             [class.spinning]="spinOn()"
@@ -42,8 +44,9 @@ import { LYNX_ELEMENTS, type LynxAnimation } from '@blotch/angular-lynx';
         <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
             class="uppercase mb-3 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
-            >JS animate() API</text
           >
+            JS animate() API
+          </text>
           <view
             #animBox
             class="demo-box animate-box"

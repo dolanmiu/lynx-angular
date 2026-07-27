@@ -6,18 +6,19 @@ import { LYNX_ELEMENTS, LynxSessionStorage } from '@blotch/angular-lynx';
   template: `
     <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
       <view class="p-6">
-        <text class="mb-1 text-[28px] font-bold text-zinc-900"
-          >Session Storage</text
-        >
-        <text class="mb-5 text-[13px] text-zinc-500"
-          >Persist state across Lynx pages with reactive watching.</text
-        >
+        <text class="mb-1 text-[28px] font-bold text-zinc-900">
+          Session Storage
+        </text>
+        <text class="mb-5 text-[13px] text-zinc-500">
+          Persist state across Lynx pages with reactive watching.
+        </text>
 
         <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
             class="uppercase mb-2.5 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
-            >Counter</text
           >
+            Counter
+          </text>
           <text class="mb-3 text-[24px] font-bold text-zinc-900">{{
             counter() ?? 'not set'
           }}</text>
@@ -26,9 +27,9 @@ import { LYNX_ELEMENTS, LynxSessionStorage } from '@blotch/angular-lynx';
               class="items-center rounded-[10px] bg-indigo-500 px-6 py-3"
               (bindtap)="increment()"
             >
-              <text class="text-[15px] font-semibold text-white"
-                >Increment</text
-              >
+              <text class="text-[15px] font-semibold text-white">
+                Increment
+              </text>
             </view>
             <view
               class="items-center rounded-[10px] bg-red-500 px-6 py-3"
@@ -42,18 +43,19 @@ import { LYNX_ELEMENTS, LynxSessionStorage } from '@blotch/angular-lynx';
         <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
             class="uppercase mb-2.5 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
-            >One-time Read</text
           >
-          <text class="mb-3 text-[15px] text-zinc-900"
-            >Last read: {{ lastRead() }}</text
-          >
+            One-time Read
+          </text>
+          <text class="mb-3 text-[15px] text-zinc-900">
+            Last read: {{ lastRead() }}
+          </text>
           <view
             class="items-center rounded-[10px] border border-zinc-200 bg-zinc-100 px-6 py-3"
             (bindtap)="readOnce()"
           >
-            <text class="text-[15px] font-semibold text-zinc-900"
-              >Read Once</text
-            >
+            <text class="text-[15px] font-semibold text-zinc-900">
+              Read Once
+            </text>
           </view>
         </view>
       </view>

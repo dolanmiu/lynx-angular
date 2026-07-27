@@ -65,6 +65,30 @@ describe('resolveDependencies', () => {
     ]);
   });
 
+  it('resolves bar-chart with its cartesian-chart dependency', () => {
+    // Bar chart draws straight onto the base — the base must land first.
+    expect(resolveDependencies(['bar-chart'])).toEqual([
+      'cartesian-chart',
+      'bar-chart',
+    ]);
+  });
+
+  it('resolves scatter-chart with its cartesian-chart dependency', () => {
+    // Scatter draws straight onto the base — the base must land first.
+    expect(resolveDependencies(['scatter-chart'])).toEqual([
+      'cartesian-chart',
+      'scatter-chart',
+    ]);
+  });
+
+  it('resolves candlestick-chart with its cartesian-chart dependency', () => {
+    // Candlestick draws straight onto the base — the base must land first.
+    expect(resolveDependencies(['candlestick-chart'])).toEqual([
+      'cartesian-chart',
+      'candlestick-chart',
+    ]);
+  });
+
   it('resolves area-chart with its transitive chart dependencies in order', () => {
     // area-chart → line-chart → cartesian-chart; the base must land first.
     expect(resolveDependencies(['area-chart'])).toEqual([

@@ -145,9 +145,9 @@ const flashElement = mainThreadFn((color: string, elementSelector: string) => {
           >
             <view class="flex-row items-center gap-2 flex">
               <ui-icon name="circle" size="xs" />
-              <text class="text-sm font-semibold text-foreground"
-                >Main thread</text
-              >
+              <text class="text-sm font-semibold text-foreground">
+                Main thread
+              </text>
             </view>
             <text class="text-xs text-muted-foreground">
               Native UI. Style writes land the instant your finger moves — zero
@@ -178,9 +178,9 @@ const flashElement = mainThreadFn((color: string, elementSelector: string) => {
               <ui-icon name="star" size="sm" />
               <ui-card-title class="text-lg">Instant color</ui-card-title>
             </view>
-            <ui-badge variant="secondary" [animated]="false"
-              >Main thread</ui-badge
-            >
+            <ui-badge variant="secondary" [animated]="false">
+              Main thread
+            </ui-badge>
           </view>
           <ui-card-description>
             Tap cycles the color directly on the main thread — no round trip to
@@ -192,9 +192,9 @@ const flashElement = mainThreadFn((color: string, elementSelector: string) => {
             class="items-center rounded-lg bg-indigo-500 py-10 flex justify-center"
             [mainThreadBindtap]="handleTap"
           >
-            <text class="text-base font-semibold text-white"
-              >Tap to cycle colors</text
-            >
+            <text class="text-base font-semibold text-white">
+              Tap to cycle colors
+            </text>
           </view>
         </ui-card-content>
       </ui-card>
@@ -207,9 +207,9 @@ const flashElement = mainThreadFn((color: string, elementSelector: string) => {
               <ui-icon name="eye" size="sm" />
               <ui-card-title class="text-lg">Live opacity</ui-card-title>
             </view>
-            <ui-badge variant="secondary" [animated]="false"
-              >Main thread</ui-badge
-            >
+            <ui-badge variant="secondary" [animated]="false">
+              Main thread
+            </ui-badge>
           </view>
           <ui-card-description>
             Drag across the box — opacity tracks your finger, updated live on
@@ -222,9 +222,9 @@ const flashElement = mainThreadFn((color: string, elementSelector: string) => {
             [mainThreadBindtouchmove]="handleTouchMove"
             [mainThreadBindtouchend]="handleTouchEnd"
           >
-            <text class="text-base font-semibold text-white"
-              >Drag across me</text
-            >
+            <text class="text-base font-semibold text-white">
+              Drag across me
+            </text>
           </view>
         </ui-card-content>
       </ui-card>
@@ -286,9 +286,9 @@ const flashElement = mainThreadFn((color: string, elementSelector: string) => {
           <view
             class="flash-target items-center rounded-lg border border-dashed border-border bg-muted py-10 flex justify-center"
           >
-            <text class="text-base font-semibold text-foreground"
-              >Flash target</text
-            >
+            <text class="text-base font-semibold text-foreground">
+              Flash target
+            </text>
           </view>
           <ui-button size="sm" (pressed)="onFlashFromBackground()">
             Flash from Angular

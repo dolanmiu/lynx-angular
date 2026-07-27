@@ -41,16 +41,17 @@ import { UiButton } from '../components/ui/button';
         <view class="flex-col gap-3.5 flex">
           <text
             class="uppercase text-[11px] font-semibold tracking-[1px] text-zinc-400"
-            >Notifications</text
           >
+            Notifications
+          </text>
           <view
             class="flex-row items-center rounded-xl border border-zinc-200 bg-white px-4 py-3 flex justify-between"
           >
             <view class="flex-col gap-0.5 flex">
               <ui-label>Push Notifications</ui-label>
-              <text class="text-xs text-zinc-400"
-                >Receive alerts on your device</text
-              >
+              <text class="text-xs text-zinc-400">
+                Receive alerts on your device
+              </text>
             </view>
             <ui-switch [(checked)]="pushNotifications" />
           </view>
@@ -73,8 +74,9 @@ import { UiButton } from '../components/ui/button';
         <view class="flex-col gap-3.5 flex">
           <text
             class="uppercase text-[11px] font-semibold tracking-[1px] text-zinc-400"
-            >Appearance</text
           >
+            Appearance
+          </text>
           <view class="flex-col gap-1.5 flex">
             <ui-label>Language</ui-label>
             <ui-select [(value)]="language">
@@ -113,13 +115,15 @@ import { UiButton } from '../components/ui/button';
         <view class="flex-col gap-3.5 flex">
           <text
             class="uppercase text-[11px] font-semibold tracking-[1px] text-red-500"
-            >Danger Zone</text
           >
+            Danger Zone
+          </text>
           <ui-button
             variant="destructive"
             (pressed)="deleteDialogOpen.set(true)"
-            >Delete Account</ui-button
           >
+            Delete Account
+          </ui-button>
         </view>
       </view>
     </scroll-view>
@@ -133,12 +137,15 @@ import { UiButton } from '../components/ui/button';
         </ui-alert-dialog-description>
       </ui-alert-dialog-header>
       <ui-alert-dialog-footer>
-        <ui-button variant="outline" (pressed)="deleteDialogOpen.set(false)"
-          >Cancel</ui-button
+        <ui-button variant="outline" (pressed)="deleteDialogOpen.set(false)">
+          Cancel
+        </ui-button>
+        <ui-button
+          variant="destructive"
+          (pressed)="deleteDialogOpen.set(false)"
         >
-        <ui-button variant="destructive" (pressed)="deleteDialogOpen.set(false)"
-          >Delete</ui-button
-        >
+          Delete
+        </ui-button>
       </ui-alert-dialog-footer>
     </ui-alert-dialog>
   `,

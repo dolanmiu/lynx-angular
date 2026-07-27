@@ -74,9 +74,9 @@ import { ScreenHost } from '../screen-host';
         <ui-card-header class="gap-1 p-4">
           <view class="flex-row items-center gap-2 flex">
             <ui-icon name="settings" size="sm" />
-            <ui-card-title class="text-lg"
-              >Color and fill opacity</ui-card-title
-            >
+            <ui-card-title class="text-lg">
+              Color and fill opacity
+            </ui-card-title>
           </view>
           <ui-card-description>
             color sets the line and dots; fillOpacity controls how solid the

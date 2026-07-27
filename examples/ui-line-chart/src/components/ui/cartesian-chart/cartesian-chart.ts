@@ -339,8 +339,9 @@ const AXIS_LABEL_LINE_HEIGHT = 12;
         <text
           class="text-[10px] leading-none text-muted-foreground text-right"
           [style]="label.style"
-          >{{ label.text }}</text
         >
+          {{ label.text }}
+        </text>
       }
 
       <!-- X-axis tick labels, centred under each tick below the plot. -->
@@ -348,8 +349,9 @@ const AXIS_LABEL_LINE_HEIGHT = 12;
         <text
           class="text-[10px] leading-none text-muted-foreground text-center"
           [style]="label.style"
-          >{{ label.text }}</text
         >
+          {{ label.text }}
+        </text>
       }
 
       <!-- Y-axis title: rotated -90° in the reserved left strip, centred on the
@@ -358,8 +360,9 @@ const AXIS_LABEL_LINE_HEIGHT = 12;
         <text
           class="text-[10px] font-medium leading-none text-muted-foreground text-center"
           [style]="yAxisLabelStyle()"
-          >{{ yAxisLabel() }}</text
         >
+          {{ yAxisLabel() }}
+        </text>
       }
 
       <!-- X-axis title: centred across the plot, below the x tick labels. -->
@@ -367,8 +370,9 @@ const AXIS_LABEL_LINE_HEIGHT = 12;
         <text
           class="text-[10px] font-medium leading-none text-muted-foreground text-center"
           [style]="xAxisLabelStyle()"
-          >{{ xAxisLabel() }}</text
         >
+          {{ xAxisLabel() }}
+        </text>
       }
     </view>
   `,

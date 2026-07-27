@@ -106,18 +106,22 @@ export class UiInput implements FormValueControl<string> {
 
   /**
    * Focus ring as an inline box-shadow (see the template comment for why
-   * Tailwind ring-* can't be used on Lynx). A 2px spread with no offset/blur is
-   * exactly a ring, and it inherits the wrapper's rounded-xl corners. Focus uses
-   * the translucent var(--ring-subtle) for a softer outline than the opaque
-   * --ring; error keeps solid var(--destructive) since it signals a problem (and
-   * never shows alongside the focus ring). Both resolve at runtime and track
-   * dark mode. Returns null when unfocused/error-free so Angular clears the
+   * Tailwind ring-* can't be used on Lynx). Two layered shadows: an `inset` 1px
+   * shadow that reads as a crisp border, plus a 2px outer ring — both follow the
+   * wrapper's rounded-xl corners. Focus pairs a solid var(--ring) border with the
+   * translucent var(--ring-subtle) ring (softer than the opaque --ring); error
+   * uses solid var(--destructive) for both since it signals a problem (and never
+   * shows alongside the focus ring). The border is an inset shadow, not a real
+   * border, so the box never changes size on focus. Colors resolve at runtime and
+   * track dark mode. Returns null when unfocused/error-free so Angular clears the
    * shadow (removeStyle) rather than painting a transparent one. Error takes
-   * precedence over focus so an invalid field always shows the destructive ring.
+   * precedence over focus so an invalid field always shows the destructive style.
    */
   protected readonly focusRing = computed(() => {
-    if (this.error()) return '0 0 0 2px var(--destructive)';
-    if (this.#isFocused()) return '0 0 0 2px var(--ring-subtle)';
+    if (this.error())
+      return 'inset 0 0 0 1px var(--destructive), 0 0 0 2px var(--destructive)';
+    if (this.#isFocused())
+      return 'inset 0 0 0 1px var(--ring), 0 0 0 2px var(--ring-subtle)';
     return null;
   });
 

@@ -141,21 +141,21 @@ const flashMain = (event: MainThread.TouchEvent) => {
         </ui-text>
 
         <view class="rounded-lg bg-muted p-3">
-          <text class="font-[monospace] text-xs text-foreground"
-            >const recolor = (event) =&gt; &#123;</text
-          >
+          <text class="font-[monospace] text-xs text-foreground">
+            const recolor = (event) =&gt; &#123;
+          </text>
           <text class="font-[monospace] text-xs font-semibold text-[#10b981]"
-            >&nbsp;&nbsp;'main thread';</text
-          >
+            >&nbsp;&nbsp;'main thread';
+          </text>
           <text class="font-[monospace] text-xs text-foreground"
-            >&nbsp;&nbsp;event.currentTarget.setStyleProperty(</text
-          >
+            >&nbsp;&nbsp;event.currentTarget.setStyleProperty(
+          </text>
           <text class="font-[monospace] text-xs text-foreground"
-            >&nbsp;&nbsp;&nbsp;&nbsp;'background-color', next);</text
-          >
+            >&nbsp;&nbsp;&nbsp;&nbsp;'background-color', next);
+          </text>
           <text class="font-[monospace] text-xs text-muted-foreground"
-            >&#125;;</text
-          >
+            >&#125;;
+          </text>
         </view>
       </ui-card>
 
@@ -180,9 +180,9 @@ const flashMain = (event: MainThread.TouchEvent) => {
           [mainThreadBindtap]="recolor"
         >
           <text class="text-base font-semibold text-white">Tap me</text>
-          <text class="mt-1 text-xs text-white/70"
-            >setStyleProperty · main thread</text
-          >
+          <text class="mt-1 text-xs text-white/70">
+            setStyleProperty · main thread
+          </text>
         </view>
       </ui-card>
 
@@ -207,12 +207,12 @@ const flashMain = (event: MainThread.TouchEvent) => {
           [mainThreadBindtouchmove]="dimToFinger"
           [mainThreadBindtouchend]="resetDim"
         >
-          <text class="text-base font-semibold text-white"
-            >Slide across me</text
-          >
-          <text class="mt-1 text-xs text-white/70"
-            >opacity tracks your finger</text
-          >
+          <text class="text-base font-semibold text-white">
+            Slide across me
+          </text>
+          <text class="mt-1 text-xs text-white/70">
+            opacity tracks your finger
+          </text>
         </view>
       </ui-card>
 
@@ -237,9 +237,9 @@ const flashMain = (event: MainThread.TouchEvent) => {
           [mainThreadBindtap]="springPress"
         >
           <text class="text-base font-semibold text-white">Press me</text>
-          <text class="mt-1 text-xs text-white/70"
-            >scale bounce · main thread</text
-          >
+          <text class="mt-1 text-xs text-white/70">
+            scale bounce · main thread
+          </text>
         </view>
       </ui-card>
 
@@ -265,9 +265,9 @@ const flashMain = (event: MainThread.TouchEvent) => {
             [mainThreadBindtap]="flashMain"
           >
             <text class="text-sm font-semibold text-white">Main thread</text>
-            <text class="mt-1 text-[11px] text-white/70 text-center"
-              >worklet · zero latency</text
-            >
+            <text class="mt-1 text-[11px] text-white/70 text-center">
+              worklet · zero latency
+            </text>
           </view>
 
           <view
@@ -275,12 +275,12 @@ const flashMain = (event: MainThread.TouchEvent) => {
             [style.background-color]="bgColor()"
             (bindtap)="onBgTap()"
           >
-            <text class="text-sm font-semibold text-white"
-              >Background thread</text
-            >
-            <text class="mt-1 text-[11px] text-white/70 text-center"
-              >{{ bgTaps() }} taps · cross-thread</text
-            >
+            <text class="text-sm font-semibold text-white">
+              Background thread
+            </text>
+            <text class="mt-1 text-[11px] text-white/70 text-center">
+              {{ bgTaps() }} taps · cross-thread
+            </text>
           </view>
         </view>
       </ui-card>

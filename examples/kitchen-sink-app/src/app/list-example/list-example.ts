@@ -82,22 +82,22 @@ const EXTRA_MEMBERS: readonly Omit<Member, 'id' | 'online'>[] = [
       <view class="flex-col gap-2 p-4 flex">
         <ui-text variant="h3">List</ui-text>
         <ui-badge variant="secondary">Elements</ui-badge>
-        <ui-text variant="muted"
-          >A virtualized native list. Tap a member to toggle their status, ✕ to
-          remove, or add teammates and watch the list reconcile.</ui-text
-        >
+        <ui-text variant="muted">
+          A virtualized native list. Tap a member to toggle their status, ✕ to
+          remove, or add teammates and watch the list reconcile.
+        </ui-text>
       </view>
 
       <!-- Controls -->
       <view class="flex-row items-center gap-3 px-4 pb-3 flex">
         <ui-button size="sm" (pressed)="addMember()">Add member</ui-button>
-        <ui-button size="sm" variant="outline" (pressed)="reset()"
-          >Reset</ui-button
-        >
+        <ui-button size="sm" variant="outline" (pressed)="reset()">
+          Reset
+        </ui-button>
         <view class="flex-1 flex" />
-        <ui-badge variant="outline" [animated]="false"
-          >{{ onlineCount() }} / {{ members().length }} online</ui-badge
-        >
+        <ui-badge variant="outline" [animated]="false">
+          {{ onlineCount() }} / {{ members().length }} online
+        </ui-badge>
       </view>
 
       <!-- The list fills the remaining height. Per Lynx's sizing rule, flex-1
@@ -143,8 +143,9 @@ const EXTRA_MEMBERS: readonly Omit<Member, 'id' | 'online'>[] = [
                 <ui-badge
                   [variant]="member.online ? 'default' : 'secondary'"
                   [animated]="false"
-                  >{{ member.online ? 'Online' : 'Away' }}</ui-badge
                 >
+                  {{ member.online ? 'Online' : 'Away' }}
+                </ui-badge>
 
                 <!-- Remove. catchtap (not bindtap) stops the tap here so it
                      removes only this row and never bubbles to the row's own

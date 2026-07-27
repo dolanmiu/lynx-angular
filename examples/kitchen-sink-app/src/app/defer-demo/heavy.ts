@@ -41,9 +41,9 @@ import { UiSeparator } from '../../components/ui/separator';
         </view>
         <view class="flex-1 flex-col flex">
           <text class="text-sm font-medium text-foreground">Chunk loaded</text>
-          <text class="text-xs text-muted-foreground"
-            >fetched {{ label() }}</text
-          >
+          <text class="text-xs text-muted-foreground">
+            fetched {{ label() }}
+          </text>
         </view>
         <ui-badge variant="secondary" [animated]="false">heavy.js</ui-badge>
       </view>
@@ -59,21 +59,21 @@ import { UiSeparator } from '../../components/ui/separator';
               <ui-icon name="check" size="sm" color="#ffffff" />
             </view>
             <view class="flex-col flex">
-              <text class="text-base font-semibold text-foreground"
-                >Chunk loaded</text
-              >
-              <text class="text-xs text-muted-foreground"
-                >fetched {{ label() }}</text
-              >
+              <text class="text-base font-semibold text-foreground">
+                Chunk loaded
+              </text>
+              <text class="text-xs text-muted-foreground">
+                fetched {{ label() }}
+              </text>
             </view>
           </view>
           <ui-badge variant="secondary" [animated]="false">heavy.js</ui-badge>
         </view>
 
-        <text class="text-sm text-muted-foreground"
-          >Angular fetched this component with a dynamic import() the moment the
-          trigger fired — the initial bundle never paid for it.</text
-        >
+        <text class="text-sm text-muted-foreground">
+          Angular fetched this component with a dynamic import() the moment the
+          trigger fired — the initial bundle never paid for it.
+        </text>
 
         <ui-separator />
 

@@ -72,9 +72,9 @@ import { UiSeparator } from '../components/ui/separator';
           </view>
         </view>
 
-        <ui-button class="w-full" (pressed)="editOpen.set(true)"
-          >Edit Profile</ui-button
-        >
+        <ui-button class="w-full" (pressed)="editOpen.set(true)">
+          Edit Profile
+        </ui-button>
 
         <ui-card class="w-full">
           <ui-card-header><ui-card-title>About</ui-card-title></ui-card-header>
@@ -87,8 +87,8 @@ import { UiSeparator } from '../components/ui/separator';
 
     <ui-sheet [(open)]="editOpen">
       <ui-sheet-header
-        ><ui-sheet-title>Edit Profile</ui-sheet-title></ui-sheet-header
-      >
+        ><ui-sheet-title>Edit Profile</ui-sheet-title>
+      </ui-sheet-header>
       <view class="flex-col gap-4 p-4 flex">
         <view class="flex-col gap-1.5 flex">
           <ui-label>Display Name</ui-label>
@@ -108,9 +108,9 @@ import { UiSeparator } from '../components/ui/separator';
         </view>
       </view>
       <ui-sheet-footer>
-        <ui-button variant="outline" (pressed)="editOpen.set(false)"
-          >Cancel</ui-button
-        >
+        <ui-button variant="outline" (pressed)="editOpen.set(false)">
+          Cancel
+        </ui-button>
         <ui-button (pressed)="saveEdit()">Save</ui-button>
       </ui-sheet-footer>
     </ui-sheet>

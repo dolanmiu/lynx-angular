@@ -1,5 +1,19 @@
-import { Component, ViewEncapsulation, computed, input } from '@angular/core';
-import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
+import {
+  Component,
+  ViewEncapsulation,
+  computed,
+  input,
+  signal,
+} from '@angular/core';
+import {
+  Gesture,
+  LYNX_ELEMENTS,
+  LynxGestureDetector,
+  PanGesture,
+  type PanGestureEvent,
+  PinchGesture,
+  type PinchGestureEvent,
+} from '@blotch/angular-lynx';
 
 import { cn } from '../../utils/cn';
 
@@ -142,6 +156,98 @@ export const generateTicks = (domain: ChartDomain, count: number): number[] => {
     ticks.push(d0 + ((d1 - d0) * i) / (count - 1));
   }
   return ticks;
+};
+
+/**
+ * ---------------------------------------------------------------------------
+ * Pan / zoom window math (pure — exported for unit tests)
+ * 
+ * Pan and zoom are modelled as a *visible window*: a sub-range of the axis
+ * domain that the scales map from. Shrinking the window zooms in (data spreads
+ * across the same pixels), sliding it pans. Because every gridline, axis label,
+ * and series mark projects through the scales, replacing the window re-projects
+ * the whole chart — and bar/candle widths (derived from projected pixel spacing)
+ * stretch for free. These helpers are the pure geometry behind that model.
+ * ---------------------------------------------------------------------------
+ */
+
+const clampValue = (value: number, lo: number, hi: number): number =>
+  Math.max(lo, Math.min(hi, value));
+
+/**
+ * The inverse of {@link linearScale}: maps a pixel offset back to its data
+ * value. Used to turn a pinch's focal *pixel* into the data value under the
+ * fingers, so the zoom can hold that value fixed on screen. A zero-width range
+ * (all pixels equal) can't be inverted, so it collapses to the domain's lower
+ * bound.
+ */
+export const invertLinear = (
+  domain: ChartDomain,
+  range: readonly [number, number],
+  pixel: number,
+): number => {
+  const [d0, d1] = domain;
+  const [r0, r1] = range;
+  const span = r1 - r0;
+  if (span === 0) return d0;
+  return d0 + ((pixel - r0) / span) * (d1 - d0);
+};
+
+/**
+ * Clamps a visible `window` so it always sits inside the full data `base`
+ * domain: its span can't exceed the base span, and it can't slide past either
+ * edge. Span is preserved where possible (the window slides rather than resizes)
+ * so panning against an edge doesn't secretly zoom. Keeps a zoomed view valid
+ * even if the underlying data domain later shrinks.
+ */
+export const clampWindow = (
+  base: ChartDomain,
+  window: ChartDomain,
+): ChartDomain => {
+  const [bLo, bHi] = base;
+  const baseSpan = bHi - bLo;
+  const span = Math.min(window[1] - window[0], baseSpan);
+  const lo = clampValue(window[0], bLo, bHi - span);
+  return [lo, lo + span];
+};
+
+/**
+ * Pans a visible `window` by `dataDelta` (in data units), clamped inside `base`.
+ * The span is preserved, so hitting an edge stops the pan rather than resizing
+ * the window. Positive `dataDelta` moves the window toward higher values.
+ */
+export const panWindow = (
+  base: ChartDomain,
+  current: ChartDomain,
+  dataDelta: number,
+): ChartDomain =>
+  clampWindow(base, [current[0] + dataDelta, current[1] + dataDelta]);
+
+/**
+ * Zooms a visible `window` by `factor` (>1 zooms in, <1 zooms out), holding the
+ * data value `focal` fixed on screen so a pinch stays centred on the fingers.
+ * The resulting span is clamped to `[baseSpan / maxZoom, baseSpan / minZoom]` —
+ * you can never zoom out past the full data range, nor in past `maxZoom`× — then
+ * the window is clamped inside `base`.
+ */
+export const zoomWindow = (
+  base: ChartDomain,
+  current: ChartDomain,
+  factor: number,
+  focal: number,
+  maxZoom: number,
+  minZoom = 1,
+): ChartDomain => {
+  const baseSpan = base[1] - base[0];
+  const [lo, hi] = current;
+  const span = hi - lo;
+  const minSpan = maxZoom > 0 ? baseSpan / maxZoom : baseSpan;
+  const maxSpan = minZoom > 0 ? baseSpan / minZoom : baseSpan;
+  const newSpan = clampValue(span / (factor || 1), minSpan, maxSpan);
+  // Keep the focal value at the same fractional position within the window.
+  const frac = span === 0 ? 0.5 : (focal - lo) / span;
+  const newLo = focal - frac * newSpan;
+  return clampWindow(base, [newLo, newLo + newSpan]);
 };
 
 /**
@@ -310,7 +416,7 @@ const AXIS_LABEL_LINE_HEIGHT = 12;
 @Component({
   selector: 'ui-cartesian-chart',
   standalone: true,
-  imports: [LYNX_ELEMENTS],
+  imports: [LYNX_ELEMENTS, LynxGestureDetector],
   encapsulation: ViewEncapsulation.None,
   template: `
     <view [class]="containerClass()" [style]="containerStyle()">
@@ -319,8 +425,15 @@ const AXIS_LABEL_LINE_HEIGHT = 12;
         containing block for both the gridlines and the projected series marks.
         Gridlines render BEFORE <ng-content> so the line paints on top of them
         (Lynx paint order follows source order; z-index is not needed).
+
+        When zoomable, the plot view is the gesture target: a 1-finger drag pans
+        and a pinch zooms (both write the visible window). overflow:hidden on the
+        plot keeps zoomed marks clipped to this box.
       -->
-      <view [style]="plotStyle()">
+      <view
+        [style]="plotStyle()"
+        [lynxGesture]="zoomable() ? interactionGesture : null"
+      >
         @if (showGrid()) {
           @for (line of gridlines(); track $index) {
             <view class="bg-border" [style]="line.style"></view>
@@ -339,8 +452,9 @@ const AXIS_LABEL_LINE_HEIGHT = 12;
         <text
           class="text-[10px] leading-none text-muted-foreground text-right"
           [style]="label.style"
-          >{{ label.text }}</text
         >
+          {{ label.text }}
+        </text>
       }
 
       <!-- X-axis tick labels, centred under each tick below the plot. -->
@@ -348,8 +462,9 @@ const AXIS_LABEL_LINE_HEIGHT = 12;
         <text
           class="text-[10px] leading-none text-muted-foreground text-center"
           [style]="label.style"
-          >{{ label.text }}</text
         >
+          {{ label.text }}
+        </text>
       }
 
       <!-- Y-axis title: rotated -90° in the reserved left strip, centred on the
@@ -358,8 +473,9 @@ const AXIS_LABEL_LINE_HEIGHT = 12;
         <text
           class="text-[10px] font-medium leading-none text-muted-foreground text-center"
           [style]="yAxisLabelStyle()"
-          >{{ yAxisLabel() }}</text
         >
+          {{ yAxisLabel() }}
+        </text>
       }
 
       <!-- X-axis title: centred across the plot, below the x tick labels. -->
@@ -367,8 +483,44 @@ const AXIS_LABEL_LINE_HEIGHT = 12;
         <text
           class="text-[10px] font-medium leading-none text-muted-foreground text-center"
           [style]="xAxisLabelStyle()"
-          >{{ xAxisLabel() }}</text
         >
+          {{ xAxisLabel() }}
+        </text>
+      }
+
+      <!-- Zoom controls: a small +/−/reset cluster at the plot's top-right.
+           Rendered LAST so it paints over the plot, and kept in the container
+           (not inside the clipped, gesture-capturing plot view) so it is neither
+           clipped by overflow:hidden nor swallowed by the pan gesture. Each is a
+           plain (bindtap) view — a normal Angular event, safe to mutate state
+           from, unlike the gesture worklet. -->
+      @if (zoomable() && showZoomControls()) {
+        <view [style]="zoomControlsStyle()" class="flex-col gap-1 flex">
+          <view
+            class="h-7 w-7 items-center rounded-md border border-border bg-card flex justify-center"
+            (bindtap)="zoomIn()"
+          >
+            <text class="text-base font-medium leading-none text-foreground"
+              >+</text
+            >
+          </view>
+          <view
+            class="h-7 w-7 items-center rounded-md border border-border bg-card flex justify-center"
+            (bindtap)="zoomOut()"
+          >
+            <text class="text-base font-medium leading-none text-foreground"
+              >-</text
+            >
+          </view>
+          <view
+            class="h-7 w-7 items-center rounded-md border border-border bg-card flex justify-center"
+            (bindtap)="resetZoom()"
+          >
+            <text class="text-[9px] font-medium leading-none text-foreground"
+              >1:1</text
+            >
+          </view>
+        </view>
       }
     </view>
   `,
@@ -399,6 +551,24 @@ export class UiCartesianChart {
   readonly yTickFormat = input<(value: number) => string>(defaultTickFormat);
   readonly userClass = input<string>('', { alias: 'class' });
 
+  // --- Pan / zoom (opt-in) ---
+  /** Enable pan (1-finger drag) + zoom (pinch and the on-screen controls). Off
+   * by default so existing charts — which often sit inside scroll-views — keep
+   * their static behaviour and don't fight the native scroll gesture. */
+  readonly zoomable = input(false);
+  /** Which axes pan/zoom affect. `'xy'` (default) zooms both; `'x'` or `'y'`
+   * locks the other axis (e.g. `'x'` for a time-series where only the horizontal
+   * stretches). */
+  readonly zoomAxes = input<'x' | 'y' | 'xy'>('xy');
+  /** Show the +/−/reset control cluster (top-right of the plot) when zoomable. */
+  readonly showZoomControls = input(true);
+  /** Lower zoom bound (1 = fully zoomed out; you can't zoom out past the data). */
+  readonly minZoom = input(1);
+  /** Upper zoom bound — the visible window can shrink to `baseSpan / maxZoom`. */
+  readonly maxZoom = input(8);
+  /** Multiplier applied per +/− control press. 1.4 ≈ a comfortable step. */
+  readonly zoomStep = input(1.4);
+
   // --- Shared coordinate system (read by projected series via DI) ---
 
   // A set axis title steals a strip of the gutter (left for y, bottom for x);
@@ -427,17 +597,43 @@ export class UiCartesianChart {
     () => (this.padding().bottom ?? 0) * this.plotHeight(),
   );
 
-  // Scales map the domain into the *padded* range, so every projected series is
-  // inset from the frame together — no per-series padding needed.
+  // --- Pan/zoom view state ---
+  // The currently-visible sub-window of each axis domain, or `null` when the
+  // chart is at rest (fully zoomed out). Gestures and the zoom controls write
+  // these; everything downstream (scales, gridlines, labels, series marks) reads
+  // through the effective domain below, so a single signal write re-projects the
+  // whole chart. `null` (rather than the base domain) marks "at rest" so a
+  // non-zoomable chart keeps its exact original tick behaviour (see
+  // `#resolvedXTicks`).
+  readonly #viewXDomain = signal<ChartDomain | null>(null);
+  readonly #viewYDomain = signal<ChartDomain | null>(null);
+
+  // The domain the scales actually map from: the visible window when zoomed,
+  // else the input domain. Clamped to the input domain so a data change while
+  // zoomed can never strand the window outside the data.
+  readonly #effectiveXDomain = computed<ChartDomain>(() => {
+    const view = this.#viewXDomain();
+    return view ? clampWindow(this.xDomain(), view) : this.xDomain();
+  });
+  readonly #effectiveYDomain = computed<ChartDomain>(() => {
+    const view = this.#viewYDomain();
+    return view ? clampWindow(this.yDomain(), view) : this.yDomain();
+  });
+
+  // Scales map the *effective* domain into the padded range, so every projected
+  // series is inset from the frame together — no per-series padding needed. When
+  // zoomed, the effective domain is the visible window, so the same scale drives
+  // gridlines, labels, and every mark (bars/candles stretch because their width
+  // is derived from projected pixel spacing).
   readonly xScale = computed<ChartScale>(() =>
-    linearScale(this.xDomain(), [
+    linearScale(this.#effectiveXDomain(), [
       this.#padLeft(),
       this.plotWidth() - this.#padRight(),
     ]),
   );
   // Range is flipped (high px → low px) so larger y-values sit higher up the plot.
   readonly yScale = computed<ChartScale>(() =>
-    linearScale(this.yDomain(), [
+    linearScale(this.#effectiveYDomain(), [
       this.plotHeight() - this.#padBottom(),
       this.#padTop(),
     ]),
@@ -445,11 +641,22 @@ export class UiCartesianChart {
 
   // --- Internal rendering state ---
 
-  readonly #resolvedYTicks = computed(
-    () => this.yTicks() ?? generateTicks(this.yDomain(), this.tickCount()),
+  // When zoomable, ticks are generated for the *visible* window at a FIXED count
+  // (exactly `tickCount`) so the gridline/label `@for` never adds or removes
+  // nodes mid-gesture — it only restyles the existing ones. Mutating the element
+  // tree inside a Lynx gesture worklet can crash natively, so the element count
+  // must stay constant while a pinch/pan is live. A non-zoomable chart keeps its
+  // original behaviour exactly (explicit ticks, else evenly generated over the
+  // full domain).
+  readonly #resolvedYTicks = computed(() =>
+    this.zoomable()
+      ? generateTicks(this.#effectiveYDomain(), this.tickCount())
+      : (this.yTicks() ?? generateTicks(this.yDomain(), this.tickCount())),
   );
-  readonly #resolvedXTicks = computed(
-    () => this.xTicks() ?? generateTicks(this.xDomain(), this.tickCount()),
+  readonly #resolvedXTicks = computed(() =>
+    this.zoomable()
+      ? generateTicks(this.#effectiveXDomain(), this.tickCount())
+      : (this.xTicks() ?? generateTicks(this.xDomain(), this.tickCount())),
   );
 
   protected readonly containerClass = computed(() => cn(this.userClass()));
@@ -463,7 +670,11 @@ export class UiCartesianChart {
 
   protected readonly plotStyle = computed(
     () =>
-      `position: absolute; left: ${px(this.#yGutter())}; top: 0px; width: ${px(this.plotWidth())}; height: ${px(this.plotHeight())};`,
+      // `overflow: hidden` clips zoomed/panned marks to the plot rectangle. The
+      // axis labels live in the container (siblings of this plot view), so they
+      // are unaffected. Harmless at rest — every series already draws inside the
+      // plot bounds.
+      `position: absolute; left: ${px(this.#yGutter())}; top: 0px; width: ${px(this.plotWidth())}; height: ${px(this.plotHeight())}; overflow: hidden;`,
   );
 
   // Horizontal gridlines: full-width rules at each y tick's pixel height.
@@ -527,4 +738,212 @@ export class UiCartesianChart {
     () =>
       `position: absolute; left: ${px(this.#yGutter())}; top: ${px(this.plotHeight() + this.xAxisHeight())}; width: ${px(this.plotWidth())};`,
   );
+
+  // The control cluster sits just inside the container's top-right corner, over
+  // the plot. `CONTROL_INSET` = button width (28px) + a 6px margin.
+  protected readonly zoomControlsStyle = computed(
+    () => `position: absolute; top: 6px; left: ${px(this.width() - 34)};`,
+  );
+
+  // ---------------------------------------------------------------------------
+  // Pan / zoom interaction
+  //
+  // A 1-finger drag pans and a 2-finger pinch zooms. `maxPointers(1)` on the pan
+  // keeps it from firing during a pinch, so the two never fight for the touch.
+  // Both gestures snapshot the visible window at their *start* and derive the new
+  // window from the gesture's cumulative value (translation / scale), so there is
+  // no per-frame drift. Callbacks only ever write the view signals — that
+  // restyles existing nodes (the tick count is fixed while zoomable), never
+  // mutates the element tree, which is unsafe inside a Lynx gesture worklet.
+  // ---------------------------------------------------------------------------
+
+  // Visible window captured at the start of the active pan/pinch (null between
+  // gestures). Plain fields, not signals — they seed the math, nothing renders
+  // from them directly.
+  #panStartX: ChartDomain | null = null;
+  #panStartY: ChartDomain | null = null;
+  #pinchStartX: ChartDomain | null = null;
+  #pinchStartY: ChartDomain | null = null;
+  // Data value under the pinch focal point, held fixed on screen as the zoom runs.
+  #pinchFocalX = 0;
+  #pinchFocalY = 0;
+
+  readonly #pan = new PanGesture()
+    .maxPointers(1)
+    .onStart(() => {
+      this.#panStartX = this.#effectiveXDomain();
+      this.#panStartY = this.#effectiveYDomain();
+    })
+    .onUpdate((event) => this.#onPan(event))
+    .onEnd(() => {
+      this.#panStartX = null;
+      this.#panStartY = null;
+    });
+
+  readonly #pinch = new PinchGesture()
+    .onStart((event) => this.#onPinchStart(event))
+    .onUpdate((event) => this.#onPinch(event));
+
+  // Bound on the plot view when `zoomable()` is true. Pan and pinch recognize
+  // simultaneously; `maxPointers(1)` keeps them from actually overlapping.
+  protected readonly interactionGesture = Gesture.Simultaneous(
+    this.#pan,
+    this.#pinch,
+  );
+
+  #onPan(event: PanGestureEvent): void {
+    const axes = this.zoomAxes();
+    if (axes === 'x' || axes === 'xy') {
+      const start = this.#panStartX ?? this.#effectiveXDomain();
+      const rangePx = this.plotWidth() - this.#padLeft() - this.#padRight();
+      const dataPerPx = rangePx !== 0 ? (start[1] - start[0]) / rangePx : 0;
+      // Dragging right (translationX > 0) reveals earlier (lower) x, so the
+      // window slides toward lower values.
+      this.#setViewX(
+        panWindow(this.xDomain(), start, -event.translationX * dataPerPx),
+      );
+    }
+    if (axes === 'y' || axes === 'xy') {
+      const start = this.#panStartY ?? this.#effectiveYDomain();
+      const rangePx = this.plotHeight() - this.#padTop() - this.#padBottom();
+      const dataPerPx = rangePx !== 0 ? (start[1] - start[0]) / rangePx : 0;
+      // The y-scale is flipped (screen y grows downward), so dragging DOWN
+      // (translationY > 0) reveals higher values → window slides up.
+      this.#setViewY(
+        panWindow(this.yDomain(), start, event.translationY * dataPerPx),
+      );
+    }
+  }
+
+  #onPinchStart(event: PinchGestureEvent): void {
+    const startX = this.#effectiveXDomain();
+    const startY = this.#effectiveYDomain();
+    this.#pinchStartX = startX;
+    this.#pinchStartY = startY;
+    // The focal point is element-relative (to the plot view) so it is already in
+    // plot-local pixels; fall back to the plot centre if the native payload omits
+    // it. Invert through the start scale to get the data value to pin.
+    const focalPx = event.params?.['x'];
+    const focalPy = event.params?.['y'];
+    const fx =
+      typeof focalPx === 'number' ? focalPx : this.plotWidth() / 2;
+    const fy =
+      typeof focalPy === 'number' ? focalPy : this.plotHeight() / 2;
+    this.#pinchFocalX = invertLinear(
+      startX,
+      [this.#padLeft(), this.plotWidth() - this.#padRight()],
+      fx,
+    );
+    this.#pinchFocalY = invertLinear(
+      startY,
+      [this.plotHeight() - this.#padBottom(), this.#padTop()],
+      fy,
+    );
+  }
+
+  #onPinch(event: PinchGestureEvent): void {
+    const factor = event.scale || 1;
+    const axes = this.zoomAxes();
+    if (axes === 'x' || axes === 'xy') {
+      const start = this.#pinchStartX ?? this.#effectiveXDomain();
+      this.#setViewX(
+        zoomWindow(
+          this.xDomain(),
+          start,
+          factor,
+          this.#pinchFocalX,
+          this.maxZoom(),
+          this.minZoom(),
+        ),
+      );
+    }
+    if (axes === 'y' || axes === 'xy') {
+      const start = this.#pinchStartY ?? this.#effectiveYDomain();
+      this.#setViewY(
+        zoomWindow(
+          this.yDomain(),
+          start,
+          factor,
+          this.#pinchFocalY,
+          this.maxZoom(),
+          this.minZoom(),
+        ),
+      );
+    }
+  }
+
+  /**
+   * Write a new visible window, collapsing it back to `null` (rest) when it spans
+   * essentially the whole domain, so a fully zoomed-out chart reverts to its base
+   * tick behaviour.
+   */
+  #setViewX(window: ChartDomain): void {
+    this.#viewXDomain.set(
+      this.#isFullSpan(window, this.xDomain()) ? null : window,
+    );
+  }
+  #setViewY(window: ChartDomain): void {
+    this.#viewYDomain.set(
+      this.#isFullSpan(window, this.yDomain()) ? null : window,
+    );
+  }
+  #isFullSpan(window: ChartDomain, base: ChartDomain): boolean {
+    const baseSpan = base[1] - base[0];
+    if (baseSpan === 0) return true;
+    return window[1] - window[0] >= baseSpan * (1 - 1e-6);
+  }
+
+  // --- Public zoom API (drives the controls; also callable via a template ref) ---
+
+  /**
+   * Zoom in by `zoomStep`, centred on the plot. 
+   */
+  zoomIn(): void {
+    this.#zoomByControls(this.zoomStep());
+  }
+  /**
+   * Zoom out by `zoomStep`, centred on the plot. 
+   */
+  zoomOut(): void {
+    this.#zoomByControls(1 / this.zoomStep());
+  }
+  /**
+   * Reset to the fully zoomed-out view. 
+   */
+  resetZoom(): void {
+    this.#viewXDomain.set(null);
+    this.#viewYDomain.set(null);
+  }
+
+  #zoomByControls(factor: number): void {
+    const axes = this.zoomAxes();
+    if (axes === 'x' || axes === 'xy') {
+      const current = this.#effectiveXDomain();
+      const focal = (current[0] + current[1]) / 2;
+      this.#setViewX(
+        zoomWindow(
+          this.xDomain(),
+          current,
+          factor,
+          focal,
+          this.maxZoom(),
+          this.minZoom(),
+        ),
+      );
+    }
+    if (axes === 'y' || axes === 'xy') {
+      const current = this.#effectiveYDomain();
+      const focal = (current[0] + current[1]) / 2;
+      this.#setViewY(
+        zoomWindow(
+          this.yDomain(),
+          current,
+          factor,
+          focal,
+          this.maxZoom(),
+          this.minZoom(),
+        ),
+      );
+    }
+  }
 }

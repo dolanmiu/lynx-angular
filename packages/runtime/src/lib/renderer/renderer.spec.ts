@@ -78,6 +78,46 @@ describe('LynxRenderer', () => {
       renderer.createText('hello');
       expect(spy).toHaveBeenCalledWith('hello');
     });
+
+    // Angular's compiler leaves the single leading/trailing space it creates
+    // from indented templates; browsers hide it via white-space collapsing but
+    // Lynx renders it verbatim, so the renderer must trim to match the web.
+    it('trims the leading/trailing whitespace left by indented templates', () => {
+      const { renderer, doc } = createRenderer();
+      const spy = vi.spyOn(doc, 'createText');
+      renderer.createText(' Hello world ');
+      expect(spy).toHaveBeenCalledWith('Hello world');
+    });
+
+    it('collapses interior whitespace runs (including newlines and tabs) to one space', () => {
+      const { renderer, doc } = createRenderer();
+      const spy = vi.spyOn(doc, 'createText');
+      renderer.createText('\n  Hello\t\tthere\n  world  \n');
+      expect(spy).toHaveBeenCalledWith('Hello there world');
+    });
+
+    it('leaves already-clean text untouched', () => {
+      const { renderer, doc } = createRenderer();
+      const spy = vi.spyOn(doc, 'createText');
+      renderer.createText('Hello world');
+      expect(spy).toHaveBeenCalledWith('Hello world');
+    });
+
+    it('keeps the empty string empty', () => {
+      const { renderer, doc } = createRenderer();
+      const spy = vi.spyOn(doc, 'createText');
+      renderer.createText('');
+      expect(spy).toHaveBeenCalledWith('');
+    });
+
+    // Only ASCII whitespace is trimmed, so a non-breaking space is a deliberate
+    // escape hatch for a runtime value that needs a literal edge space.
+    it('preserves a non-breaking space at the edge', () => {
+      const { renderer, doc } = createRenderer();
+      const spy = vi.spyOn(doc, 'createText');
+      renderer.createText('\u00A0Hello');
+      expect(spy).toHaveBeenCalledWith('\u00A0Hello');
+    });
   });
 
   describe('selectRootElement', () => {
@@ -321,6 +361,19 @@ describe('LynxRenderer', () => {
       const spy = vi.spyOn(el, 'setAttribute');
 
       renderer.setValue(el, 'hello world');
+
+      expect(spy).toHaveBeenCalledWith('text', 'hello world');
+    });
+
+    // Interpolations bake the template's collapsed leading/trailing space into
+    // the string that flows through setValue at runtime, so it needs the same
+    // web-parity normalization as static text.
+    it('trims leading/trailing whitespace and collapses interior runs', () => {
+      const { renderer } = createRenderer();
+      const el = new LynxBackgroundElement();
+      const spy = vi.spyOn(el, 'setAttribute');
+
+      renderer.setValue(el, '  hello   world  ');
 
       expect(spy).toHaveBeenCalledWith('text', 'hello world');
     });

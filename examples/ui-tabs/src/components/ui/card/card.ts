@@ -95,7 +95,7 @@ export class UiCardHeader {
   standalone: true,
   imports: [LYNX_ELEMENTS],
   encapsulation: ViewEncapsulation.None,
-  template: ` <text [class]="textClass()"><ng-content /></text> `,
+  template: `<text [class]="textClass()"><ng-content /></text>`,
 })
 export class UiCardTitle {
   readonly userClass = input<string>('', { alias: 'class' });
@@ -110,7 +110,7 @@ export class UiCardTitle {
   standalone: true,
   imports: [LYNX_ELEMENTS],
   encapsulation: ViewEncapsulation.None,
-  template: ` <text [class]="textClass()"><ng-content /></text> `,
+  template: `<text [class]="textClass()"><ng-content /></text>`,
 })
 export class UiCardDescription {
   readonly userClass = input<string>('', { alias: 'class' });

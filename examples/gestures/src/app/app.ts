@@ -13,15 +13,16 @@ import {
     <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
       <view class="p-6">
         <text class="mb-1 text-[28px] font-bold text-zinc-900">Gestures</text>
-        <text class="mb-5 text-[13px] text-zinc-500"
-          >Pan, tap, and exclusive gesture recognition.</text
-        >
+        <text class="mb-5 text-[13px] text-zinc-500">
+          Pan, tap, and exclusive gesture recognition.
+        </text>
 
         <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
             class="uppercase mb-3 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
-            >Pan Gesture</text
           >
+            Pan Gesture
+          </text>
           <view
             [lynxGesture]="panGesture"
             [style.transform]="panTransform()"
@@ -29,31 +30,33 @@ import {
           >
             <text class="text-sm font-medium text-white">Drag me</text>
           </view>
-          <text class="text-xs text-zinc-500"
-            >X: {{ panX() }} Y: {{ panY() }}</text
-          >
+          <text class="text-xs text-zinc-500">
+            X: {{ panX() }} Y: {{ panY() }}
+          </text>
         </view>
 
         <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
             class="uppercase mb-3 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
-            >Tap Gesture</text
           >
+            Tap Gesture
+          </text>
           <view
             [lynxGesture]="tapGesture"
             class="items-center rounded-[10px] bg-green-500 px-6 py-3.5 justify-center"
           >
-            <text class="text-[15px] font-semibold text-white"
-              >Taps: {{ tapCount() }}</text
-            >
+            <text class="text-[15px] font-semibold text-white">
+              Taps: {{ tapCount() }}
+            </text>
           </view>
         </view>
 
         <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
             class="uppercase mb-3 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
-            >Exclusive (Pan vs Tap)</text
           >
+            Exclusive (Pan vs Tap)
+          </text>
           <view
             [lynxGesture]="exclusive"
             class="items-center rounded-[10px] bg-orange-500 p-4 justify-center"

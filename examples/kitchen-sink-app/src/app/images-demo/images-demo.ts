@@ -109,9 +109,9 @@ import { ScreenHost } from '../screen-host';
       <ui-card class="w-full">
         <ui-card-header class="p-4">
           <ui-card-title>Remote URL</ui-card-title>
-          <ui-card-description
-            >Loaded over the network from angular.dev.</ui-card-description
-          >
+          <ui-card-description>
+            Loaded over the network from angular.dev.
+          </ui-card-description>
         </ui-card-header>
         <ui-card-content class="items-center p-4 pt-0 flex">
           <image

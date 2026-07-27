@@ -6,18 +6,19 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   template: `
     <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
       <view class="p-6">
-        <text class="mb-1 text-[28px] font-bold text-zinc-900"
-          >SVG Element</text
-        >
-        <text class="mb-5 text-[13px] text-zinc-500"
-          >Render SVG content via the content attribute.</text
-        >
+        <text class="mb-1 text-[28px] font-bold text-zinc-900">
+          SVG Element
+        </text>
+        <text class="mb-5 text-[13px] text-zinc-500">
+          Render SVG content via the content attribute.
+        </text>
 
         <view class="rounded-xl border border-zinc-200 bg-white p-4">
           <text
             class="uppercase mb-3 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
-            >Circle</text
           >
+            Circle
+          </text>
           <view class="mb-3 items-center rounded-lg bg-zinc-100 p-5">
             <svg [attr.content]="circleSvg" class="h-[100px] w-[100px]" />
           </view>

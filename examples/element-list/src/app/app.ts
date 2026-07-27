@@ -6,13 +6,13 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   template: `
     <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
       <view class="p-6">
-        <text class="mb-1 text-[28px] font-bold text-zinc-900"
-          >List Element</text
-        >
-        <text class="mb-5 text-[13px] text-zinc-500"
-          >A virtualized list. Add and remove items to see the native list
-          reconcile.</text
-        >
+        <text class="mb-1 text-[28px] font-bold text-zinc-900">
+          List Element
+        </text>
+        <text class="mb-5 text-[13px] text-zinc-500">
+          A virtualized list. Add and remove items to see the native list
+          reconcile.
+        </text>
 
         <view
           class="rounded-xl border border-zinc-200 bg-white p-4 overflow-hidden"
@@ -20,8 +20,9 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
           <view class="mb-2.5 flex-row items-center flex justify-between">
             <text
               class="uppercase text-[11px] font-bold tracking-[0.5px] text-zinc-400"
-              >{{ items().length }} Items</text
             >
+              {{ items().length }} Items
+            </text>
             <view
               class="rounded-lg bg-indigo-500 px-3 py-1.5"
               (bindtap)="addItem()"

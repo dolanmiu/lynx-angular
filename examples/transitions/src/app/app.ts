@@ -12,18 +12,19 @@ type Item = { id: number; label: string };
   template: `
     <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
       <view class="p-6">
-        <text class="mb-1 text-[28px] font-bold text-zinc-900"
-          >Transitions</text
-        >
-        <text class="mb-5 text-[13px] text-zinc-500"
-          >Animate elements entering and leaving the DOM.</text
-        >
+        <text class="mb-1 text-[28px] font-bold text-zinc-900">
+          Transitions
+        </text>
+        <text class="mb-5 text-[13px] text-zinc-500">
+          Animate elements entering and leaving the DOM.
+        </text>
 
         <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
             class="uppercase mb-3 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
-            >LynxTransition — Single Element</text
           >
+            LynxTransition — Single Element
+          </text>
           <view
             class="mb-3 items-center rounded-lg bg-indigo-500 px-5 py-2.5 justify-center"
             (bindtap)="togglePanel()"
@@ -35,12 +36,12 @@ type Item = { id: number; label: string };
           <!-- Temporary on-screen diagnostics for the re-show freeze investigation.
                Lynx has no console on-device, so we surface counters via <text>
                instead (per project convention). Remove once confirmed fixed. -->
-          <text class="mb-2 text-[11px] text-zinc-400"
-            >taps={{ tapCount() }} enter={{ enterCount() }} leave={{
+          <text class="mb-2 text-[11px] text-zinc-400">
+            taps={{ tapCount() }} enter={{ enterCount() }} leave={{
               leaveCount()
             }}
-            show={{ showPanel() }}</text
-          >
+            show={{ showPanel() }}
+          </text>
           <lynx-transition
             [show]="showPanel()"
             name="fade"
@@ -49,9 +50,9 @@ type Item = { id: number; label: string };
             (afterLeave)="leaveCount.set(leaveCount() + 1)"
           >
             <view class="mb-2 rounded-lg bg-indigo-50 p-4">
-              <text class="text-sm text-indigo-700"
-                >I fade and slide in/out!</text
-              >
+              <text class="text-sm text-indigo-700">
+                I fade and slide in/out!
+              </text>
             </view>
           </lynx-transition>
         </view>
@@ -59,8 +60,9 @@ type Item = { id: number; label: string };
         <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
             class="uppercase mb-3 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
-            >LynxTransitionGroup — Dynamic List</text
           >
+            LynxTransitionGroup — Dynamic List
+          </text>
           <view
             class="mb-3 items-center rounded-lg bg-indigo-500 px-5 py-2.5 justify-center"
             (bindtap)="addItem()"

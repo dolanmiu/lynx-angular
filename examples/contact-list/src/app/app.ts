@@ -130,9 +130,9 @@ type Contact = {
           </view>
         </view>
         <ui-dialog-footer>
-          <ui-button variant="destructive" (pressed)="confirmDelete()"
-            >Delete</ui-button
-          >
+          <ui-button variant="destructive" (pressed)="confirmDelete()">
+            Delete
+          </ui-button>
           <ui-button (pressed)="viewOpen.set(false)">Close</ui-button>
         </ui-dialog-footer>
       </ui-dialog>
@@ -140,8 +140,8 @@ type Contact = {
 
     <ui-dialog [(open)]="addOpen">
       <ui-dialog-header
-        ><ui-dialog-title>New Contact</ui-dialog-title></ui-dialog-header
-      >
+        ><ui-dialog-title>New Contact</ui-dialog-title>
+      </ui-dialog-header>
       <view class="flex-col gap-3.5 p-4 flex">
         <view class="flex-col gap-1.5 flex">
           <ui-label>Name</ui-label>
@@ -157,9 +157,9 @@ type Contact = {
         </view>
       </view>
       <ui-dialog-footer>
-        <ui-button variant="outline" (pressed)="addOpen.set(false)"
-          >Cancel</ui-button
-        >
+        <ui-button variant="outline" (pressed)="addOpen.set(false)">
+          Cancel
+        </ui-button>
         <ui-button (pressed)="addContact()">Save</ui-button>
       </ui-dialog-footer>
     </ui-dialog>
@@ -173,12 +173,12 @@ type Contact = {
         </ui-alert-dialog-description>
       </ui-alert-dialog-header>
       <ui-alert-dialog-footer>
-        <ui-button variant="outline" (pressed)="deleteOpen.set(false)"
-          >Cancel</ui-button
-        >
-        <ui-button variant="destructive" (pressed)="deleteContact()"
-          >Delete</ui-button
-        >
+        <ui-button variant="outline" (pressed)="deleteOpen.set(false)">
+          Cancel
+        </ui-button>
+        <ui-button variant="destructive" (pressed)="deleteContact()">
+          Delete
+        </ui-button>
       </ui-alert-dialog-footer>
     </ui-alert-dialog>
   `,

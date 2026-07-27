@@ -36,12 +36,12 @@ type Role = 'developer' | 'designer' | 'manager' | 'founder';
       <view class="flex-col gap-6 p-6 flex">
         <view class="flex-col gap-2 flex">
           <view class="flex-row flex justify-between">
-            <text class="text-sm text-zinc-500"
-              >Step {{ step() }} of {{ totalSteps }}</text
-            >
-            <text class="text-sm text-zinc-500"
-              >{{ Math.round(progress()) }}%</text
-            >
+            <text class="text-sm text-zinc-500">
+              Step {{ step() }} of {{ totalSteps }}
+            </text>
+            <text class="text-sm text-zinc-500">
+              {{ Math.round(progress()) }}%
+            </text>
           </view>
           <ui-progress [value]="progress()" />
         </view>
@@ -49,21 +49,20 @@ type Role = 'developer' | 'designer' | 'manager' | 'founder';
         @if (step() === 1) {
           <view class="flex-col items-center gap-3 py-8 flex">
             <text class="text-[48px]">👋</text>
-            <text class="text-[26px] font-bold text-zinc-900 text-center"
-              >Welcome to AngularLynx</text
-            >
-            <text class="text-sm leading-5 text-zinc-500 text-center"
-              >Let's personalize your experience. This only takes a
-              minute.</text
-            >
+            <text class="text-[26px] font-bold text-zinc-900 text-center">
+              Welcome to AngularLynx
+            </text>
+            <text class="text-sm leading-5 text-zinc-500 text-center">
+              Let's personalize your experience. This only takes a minute.
+            </text>
           </view>
         }
 
         @if (step() === 2) {
           <view class="flex-col gap-4 flex">
-            <text class="text-[22px] font-bold text-zinc-900"
-              >What's your role?</text
-            >
+            <text class="text-[22px] font-bold text-zinc-900">
+              What's your role?
+            </text>
             <ui-radio-group [(value)]="role">
               <view class="flex-col gap-2.5 flex">
                 @for (opt of roles; track opt.value) {
@@ -91,9 +90,9 @@ type Role = 'developer' | 'designer' | 'manager' | 'founder';
 
         @if (step() === 3) {
           <view class="flex-col gap-4 flex">
-            <text class="text-[22px] font-bold text-zinc-900"
-              >What are you building?</text
-            >
+            <text class="text-[22px] font-bold text-zinc-900">
+              What are you building?
+            </text>
             <text class="text-sm text-zinc-500">Select all that apply.</text>
             <view class="flex-col gap-2.5 flex">
               @for (opt of interests; track opt.value) {
@@ -123,13 +122,13 @@ type Role = 'developer' | 'designer' | 'manager' | 'founder';
 
         @if (step() === 4) {
           <view class="flex-col gap-4 flex">
-            <text class="text-[22px] font-bold text-zinc-900"
-              >You're all set! 🎉</text
-            >
+            <text class="text-[22px] font-bold text-zinc-900">
+              You're all set! 🎉
+            </text>
             <ui-card>
               <ui-card-header
-                ><ui-card-title>Your Profile</ui-card-title></ui-card-header
-              >
+                ><ui-card-title>Your Profile</ui-card-title>
+              </ui-card-header>
               <ui-card-content>
                 <view class="flex-col gap-3 flex">
                   <view class="flex-row flex justify-between">
@@ -153,9 +152,9 @@ type Role = 'developer' | 'designer' | 'manager' | 'founder';
 
         <view class="flex-row gap-3 flex">
           @if (step() > 1) {
-            <ui-button variant="outline" class="flex-1" (pressed)="back()"
-              >Back</ui-button
-            >
+            <ui-button variant="outline" class="flex-1" (pressed)="back()">
+              Back
+            </ui-button>
           }
           @if (step() < totalSteps) {
             <ui-button class="flex-1" (pressed)="next()">{{

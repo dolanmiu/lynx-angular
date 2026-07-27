@@ -79,11 +79,10 @@ type SwatchGroup = {
           <ui-icon name="info" size="sm" color="#8b5cf6" />
           <view class="flex-1 flex-col gap-1 flex">
             <ui-text variant="small">How to read this</ui-text>
-            <ui-text variant="muted"
-              >A filled chip means Lynx rendered the value. An empty chip means
-              the native parser silently dropped it — avoid that
-              syntax.</ui-text
-            >
+            <ui-text variant="muted">
+              A filled chip means Lynx rendered the value. An empty chip means
+              the native parser silently dropped it — avoid that syntax.
+            </ui-text>
           </view>
         </view>
       </ui-card>
@@ -98,11 +97,9 @@ type SwatchGroup = {
                   group.description
                 }}</ui-card-description>
               </view>
-              <ui-badge variant="outline"
-                >{{ supportedCount(group) }}/{{
-                  group.swatches.length
-                }}</ui-badge
-              >
+              <ui-badge variant="outline">
+                {{ supportedCount(group) }}/{{ group.swatches.length }}
+              </ui-badge>
             </view>
           </ui-card-header>
 
@@ -140,8 +137,9 @@ type SwatchGroup = {
                         ? 'text-xs font-medium text-green-600'
                         : 'text-xs font-medium text-red-600'
                     "
-                    >{{ s.supported ? 'Renders' : 'Blank' }}</text
                   >
+                    {{ s.supported ? 'Renders' : 'Blank' }}
+                  </text>
                 </view>
               </view>
 

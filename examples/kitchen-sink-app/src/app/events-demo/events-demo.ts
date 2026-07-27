@@ -72,9 +72,9 @@ import { ScreenHost } from '../screen-host';
             class="items-center rounded-lg border border-dashed border-border bg-muted py-8 flex justify-center"
             (bindtap)="onTap()"
           >
-            <text class="text-sm text-muted-foreground"
-              >Tap anywhere in this box</text
-            >
+            <text class="text-sm text-muted-foreground">
+              Tap anywhere in this box
+            </text>
           </view>
           <view class="flex-row items-center flex justify-between">
             <ui-badge [animated]="false">Taps: {{ tapCount() }}</ui-badge>
@@ -105,36 +105,36 @@ import { ScreenHost } from '../screen-host';
             class="flex-col gap-3 rounded-lg border border-dashed border-border bg-muted p-4 flex"
             (bindtap)="onOuterTap()"
           >
-            <text class="text-sm text-muted-foreground"
-              >Outer view — tap a child below</text
-            >
+            <text class="text-sm text-muted-foreground">
+              Outer view — tap a child below
+            </text>
             <view class="flex-row gap-3 flex">
               <view
                 class="flex-1 items-center rounded-md bg-primary py-3 flex justify-center"
                 (bindtap)="onBubbleTap()"
               >
-                <text class="text-sm font-medium text-primary-foreground"
-                  >Bubbles</text
-                >
+                <text class="text-sm font-medium text-primary-foreground">
+                  Bubbles
+                </text>
               </view>
               <view
                 class="flex-1 items-center rounded-md bg-secondary py-3 flex justify-center"
                 (catchtap)="onCatchTap()"
               >
-                <text class="text-sm font-medium text-secondary-foreground"
-                  >Stops</text
-                >
+                <text class="text-sm font-medium text-secondary-foreground">
+                  Stops
+                </text>
               </view>
             </view>
           </view>
           <view class="flex-row flex-wrap items-center gap-2 flex">
             <ui-badge [animated]="false">Outer: {{ outerCount() }}</ui-badge>
-            <ui-badge variant="secondary" [animated]="false"
-              >Bubbles: {{ bubbleCount() }}</ui-badge
-            >
-            <ui-badge variant="outline" [animated]="false"
-              >Stops: {{ catchCount() }}</ui-badge
-            >
+            <ui-badge variant="secondary" [animated]="false">
+              Bubbles: {{ bubbleCount() }}
+            </ui-badge>
+            <ui-badge variant="outline" [animated]="false">
+              Stops: {{ catchCount() }}
+            </ui-badge>
           </view>
           <ui-button size="sm" variant="outline" (pressed)="resetPropagation()">
             Reset
@@ -162,12 +162,12 @@ import { ScreenHost } from '../screen-host';
             <text class="text-sm text-muted-foreground">Press and hold</text>
           </view>
           <view class="flex-row flex-wrap items-center gap-2 flex">
-            <ui-badge [animated]="false"
-              >Long presses: {{ longPressCount() }}</ui-badge
-            >
-            <ui-badge variant="secondary" [animated]="false"
-              >Taps: {{ longPressAreaTapCount() }}</ui-badge
-            >
+            <ui-badge [animated]="false">
+              Long presses: {{ longPressCount() }}
+            </ui-badge>
+            <ui-badge variant="secondary" [animated]="false">
+              Taps: {{ longPressAreaTapCount() }}
+            </ui-badge>
           </view>
         </ui-card-content>
       </ui-card>
@@ -211,20 +211,21 @@ import { ScreenHost } from '../screen-host';
             <ui-badge
               [variant]="touching() ? 'default' : 'secondary'"
               [animated]="false"
-              >{{ touching() ? 'touching' : 'idle' }}</ui-badge
             >
-            <ui-badge variant="outline" [animated]="false"
-              >x: {{ touchX() }}</ui-badge
-            >
-            <ui-badge variant="outline" [animated]="false"
-              >y: {{ touchY() }}</ui-badge
-            >
-            <ui-badge variant="outline" [animated]="false"
-              >Δx: {{ touchDeltaX() }}</ui-badge
-            >
-            <ui-badge variant="outline" [animated]="false"
-              >Δy: {{ touchDeltaY() }}</ui-badge
-            >
+              {{ touching() ? 'touching' : 'idle' }}
+            </ui-badge>
+            <ui-badge variant="outline" [animated]="false">
+              x: {{ touchX() }}
+            </ui-badge>
+            <ui-badge variant="outline" [animated]="false">
+              y: {{ touchY() }}
+            </ui-badge>
+            <ui-badge variant="outline" [animated]="false">
+              Δx: {{ touchDeltaX() }}
+            </ui-badge>
+            <ui-badge variant="outline" [animated]="false">
+              Δy: {{ touchDeltaY() }}
+            </ui-badge>
           </view>
         </ui-card-content>
       </ui-card>

@@ -18,9 +18,9 @@ import styles from './demo.module.css';
       <!-- Styled via CSS Modules hashed class names -->
       <view [class]="styles['card']">
         <text [class]="styles['title']">Card Title (CSS Module)</text>
-        <text
-          >This card is styled with a hashed class from demo.module.css</text
-        >
+        <text>
+          This card is styled with a hashed class from demo.module.css
+        </text>
       </view>
 
       <view [class]="styles['highlight']">
@@ -36,21 +36,21 @@ import styles from './demo.module.css';
 
       <!-- Debug: show the raw hashed class names -->
       <view class="mt-6 rounded-lg bg-gray-100 p-3">
-        <text class="mb-2 text-sm font-bold text-gray-500"
-          >Debug: Hashed Class Names</text
-        >
-        <text class="mb-1 font-[monospace] text-xs text-gray-400"
-          >card → {{ styles['card'] }}</text
-        >
-        <text class="mb-1 font-[monospace] text-xs text-gray-400"
-          >title → {{ styles['title'] }}</text
-        >
-        <text class="mb-1 font-[monospace] text-xs text-gray-400"
-          >highlight → {{ styles['highlight'] }}</text
-        >
-        <text class="mb-1 font-[monospace] text-xs text-gray-400"
-          >badge → {{ styles['badge'] }}</text
-        >
+        <text class="mb-2 text-sm font-bold text-gray-500">
+          Debug: Hashed Class Names
+        </text>
+        <text class="mb-1 font-[monospace] text-xs text-gray-400">
+          card → {{ styles['card'] }}
+        </text>
+        <text class="mb-1 font-[monospace] text-xs text-gray-400">
+          title → {{ styles['title'] }}
+        </text>
+        <text class="mb-1 font-[monospace] text-xs text-gray-400">
+          highlight → {{ styles['highlight'] }}
+        </text>
+        <text class="mb-1 font-[monospace] text-xs text-gray-400">
+          badge → {{ styles['badge'] }}
+        </text>
       </view>
     </app-demo-screen>
   `,

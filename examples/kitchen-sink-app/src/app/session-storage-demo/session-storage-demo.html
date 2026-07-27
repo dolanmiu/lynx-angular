@@ -18,9 +18,9 @@
     <ui-card-content class="flex-col gap-4 p-4 pt-0 flex">
       <!-- Big current value, so the counter reads at a glance -->
       <view class="flex-col items-center gap-2 rounded-xl bg-muted p-4 flex">
-        <ui-text variant="h1" class="text-primary"
-          >{{ counter() ?? 0 }}</ui-text
-        >
+        <ui-text variant="h1" class="text-primary">
+          {{ counter() ?? 0 }}
+        </ui-text>
         <view class="flex-row items-center gap-2 flex">
           <ui-text variant="muted">stored under</ui-text>
           <ui-badge variant="outline">{{ key }}</ui-badge>
@@ -35,9 +35,9 @@
         </ui-button>
       </view>
 
-      <ui-text variant="muted"
-        >{{ writeCount() }} write(s) this session</ui-text
-      >
+      <ui-text variant="muted">
+        {{ writeCount() }} write(s) this session
+      </ui-text>
     </ui-card-content>
   </ui-card>
 
@@ -66,9 +66,9 @@
   <ui-card>
     <ui-card-header class="gap-1 p-4">
       <ui-card-title class="text-lg">Activity</ui-card-title>
-      <ui-card-description
-        >Every read and write, newest first.</ui-card-description
-      >
+      <ui-card-description>
+        Every read and write, newest first.
+      </ui-card-description>
     </ui-card-header>
     <ui-card-content class="p-4 pt-0 flex">
       @if (activity().length) {

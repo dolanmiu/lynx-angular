@@ -48,63 +48,66 @@ const handleTouchEnd = mainThreadFn((event: MainThread.TouchEvent) => {
   template: `
     <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
       <view class="p-6">
-        <text class="mb-1 text-[28px] font-bold text-zinc-900"
-          >Main Thread Scripts</text
-        >
-        <text class="mb-5 text-[13px] text-zinc-500"
-          >Zero-latency UI updates via main-thread execution.</text
-        >
+        <text class="mb-1 text-[28px] font-bold text-zinc-900">
+          Main Thread Scripts
+        </text>
+        <text class="mb-5 text-[13px] text-zinc-500">
+          Zero-latency UI updates via main-thread execution.
+        </text>
 
         <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
             class="uppercase mb-1 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
-            >Instant Color Change</text
           >
-          <text class="mb-3 text-xs text-zinc-400"
-            >mainThreadFn + MainThreadRef</text
-          >
+            Instant Color Change
+          </text>
+          <text class="mb-3 text-xs text-zinc-400">
+            mainThreadFn + MainThreadRef
+          </text>
           <view
             [mainThreadBindtap]="handleTap"
             class="h-[80px] items-center rounded-[10px] bg-indigo-500 justify-center"
           >
-            <text class="text-[15px] font-medium text-white"
-              >Tap to change color</text
-            >
+            <text class="text-[15px] font-medium text-white">
+              Tap to change color
+            </text>
           </view>
         </view>
 
         <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
             class="uppercase mb-1 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
-            >Touch Tracking</text
           >
+            Touch Tracking
+          </text>
           <text class="mb-3 text-xs text-zinc-400">mainThreadFn</text>
           <view
             [mainThreadBindtouchmove]="handleTouchMove"
             [mainThreadBindtouchend]="handleTouchEnd"
             class="h-[80px] items-center rounded-[10px] bg-blue-500 justify-center"
           >
-            <text class="text-[15px] font-medium text-white"
-              >Drag to change opacity</text
-            >
+            <text class="text-[15px] font-medium text-white">
+              Drag to change opacity
+            </text>
           </view>
         </view>
 
         <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
             class="uppercase mb-1 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
-            >Background Thread</text
           >
-          <text class="mb-3 text-xs text-zinc-400"
-            >For comparison — round-trip latency</text
-          >
+            Background Thread
+          </text>
+          <text class="mb-3 text-xs text-zinc-400">
+            For comparison — round-trip latency
+          </text>
           <view
             (bindtap)="onBgTap()"
             class="h-[80px] items-center rounded-[10px] bg-zinc-500 justify-center"
           >
-            <text class="text-[15px] font-medium text-white"
-              >Background taps: {{ bgTapCount() }}</text
-            >
+            <text class="text-[15px] font-medium text-white">
+              Background taps: {{ bgTapCount() }}
+            </text>
           </view>
         </view>
       </view>

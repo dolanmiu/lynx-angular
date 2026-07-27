@@ -63,9 +63,9 @@ type UploadFile = {
                     @if (file.done) {
                       <ui-badge variant="secondary">Done</ui-badge>
                     } @else {
-                      <text class="text-xs text-zinc-400"
-                        >{{ file.progress }}%</text
-                      >
+                      <text class="text-xs text-zinc-400">
+                        {{ file.progress }}%
+                      </text>
                     }
                   </view>
                   <ui-progress [value]="file.progress" />
@@ -117,9 +117,9 @@ type UploadFile = {
                   <text class="text-sm font-medium text-zinc-900">{{
                     file.name
                   }}</text>
-                  <text class="text-xs text-zinc-400"
-                    >{{ file.size }} · {{ file.date }}</text
-                  >
+                  <text class="text-xs text-zinc-400">
+                    {{ file.size }} · {{ file.date }}
+                  </text>
                 </view>
               </view>
             }

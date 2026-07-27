@@ -14,12 +14,12 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
       </refresh-header>
       <scroll-view class="h-screen bg-zinc-50" scroll-orientation="vertical">
         <view class="p-6">
-          <text class="mb-1 text-[28px] font-bold text-zinc-900"
-            >Refresh Element</text
-          >
-          <text class="mb-5 text-[13px] text-zinc-500"
-            >Pull down to reload the list.</text
-          >
+          <text class="mb-1 text-[28px] font-bold text-zinc-900">
+            Refresh Element
+          </text>
+          <text class="mb-5 text-[13px] text-zinc-500">
+            Pull down to reload the list.
+          </text>
 
           @for (item of items(); track item.id) {
             <view
@@ -28,9 +28,9 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
               <text class="text-[15px] font-medium text-zinc-900">{{
                 item.name
               }}</text>
-              <text class="mt-1 text-xs text-zinc-400"
-                >Added {{ item.time }}</text
-              >
+              <text class="mt-1 text-xs text-zinc-400">
+                Added {{ item.time }}
+              </text>
             </view>
           }
         </view>

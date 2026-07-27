@@ -69,12 +69,12 @@ const SPRING = 'cubic-bezier(0.34, 1.56, 0.64, 1)';
           <view
             class="flex-row items-center gap-3 rounded-full bg-muted px-3 py-1 flex"
           >
-            <text class="text-xs font-medium text-muted-foreground"
-              >x {{ panX() }}</text
-            >
-            <text class="text-xs font-medium text-muted-foreground"
-              >y {{ panY() }}</text
-            >
+            <text class="text-xs font-medium text-muted-foreground">
+              x {{ panX() }}
+            </text>
+            <text class="text-xs font-medium text-muted-foreground">
+              y {{ panY() }}
+            </text>
           </view>
         </view>
 
@@ -111,9 +111,9 @@ const SPRING = 'cubic-bezier(0.34, 1.56, 0.64, 1)';
           class="flex-1 flex-col items-center gap-1 rounded-xl border border-border bg-card p-4 flex justify-center"
           [lynxGesture]="tapGesture"
         >
-          <ui-badge variant="outline" class="self-center" [animated]="false"
-            >Tap</ui-badge
-          >
+          <ui-badge variant="outline" class="self-center" [animated]="false">
+            Tap
+          </ui-badge>
           <text #tapNum class="text-4xl font-bold text-foreground">{{
             tapCount()
           }}</text>
@@ -129,9 +129,9 @@ const SPRING = 'cubic-bezier(0.34, 1.56, 0.64, 1)';
           }}"
           [lynxGesture]="longPressGesture"
         >
-          <ui-badge variant="outline" class="self-center" [animated]="false"
-            >Hold</ui-badge
-          >
+          <ui-badge variant="outline" class="self-center" [animated]="false">
+            Hold
+          </ui-badge>
           <view
             class="h-12 w-12 items-center rounded-full flex justify-center {{
               longPressActive() ? 'bg-primary' : 'bg-muted'

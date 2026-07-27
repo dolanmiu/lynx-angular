@@ -215,8 +215,8 @@ const LIST_DURATION = 300;
           <view class="flex-row items-center gap-2 flex">
             <ui-badge variant="secondary">leave</ui-badge>
             <ui-text variant="muted"
-              >&lt;name&gt;-leave plays, then it unmounts</ui-text
-            >
+              >&lt;name&gt;-leave plays, then it unmounts
+            </ui-text>
           </view>
         </view>
       </ui-card>

@@ -20,9 +20,9 @@ import {
 
         <!-- Basic single-series chart via the convenience wrapper -->
         <view class="flex-col gap-2 flex">
-          <text class="text-sm font-medium text-foreground"
-            >Revenue (basic)</text
-          >
+          <text class="text-sm font-medium text-foreground">
+            Revenue (basic)
+          </text>
           <view class="rounded-lg border border-border bg-card p-4">
             <ui-line-chart [data]="revenue" [width]="280" [height]="180" />
           </view>
@@ -58,9 +58,9 @@ import {
 
         <!-- Axis titles + vertical gridlines + inner padding -->
         <view class="flex-col gap-2 flex">
-          <text class="text-sm font-medium text-foreground"
-            >Labeled axes &amp; grid</text
-          >
+          <text class="text-sm font-medium text-foreground">
+            Labeled axes &amp; grid
+          </text>
           <view class="rounded-lg border border-border bg-card p-4">
             <ui-line-chart
               [data]="revenue"
@@ -76,9 +76,9 @@ import {
 
         <!-- Force the y-axis to start at zero instead of fitting the data -->
         <view class="flex-col gap-2 flex">
-          <text class="text-sm font-medium text-foreground"
-            >Fixed y-axis (0…)</text
-          >
+          <text class="text-sm font-medium text-foreground">
+            Fixed y-axis (0…)
+          </text>
           <view class="rounded-lg border border-border bg-card p-4">
             <ui-line-chart
               [data]="revenue"

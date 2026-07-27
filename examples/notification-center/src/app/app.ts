@@ -47,9 +47,9 @@ type Notification = {
           }
         </view>
         @if (notifications().length > 0) {
-          <ui-button variant="ghost" size="sm" (pressed)="clearAll()"
-            >Clear All</ui-button
-          >
+          <ui-button variant="ghost" size="sm" (pressed)="clearAll()">
+            Clear All
+          </ui-button>
         }
       </view>
 
@@ -105,13 +105,16 @@ type Notification = {
       <ui-action-sheet [(open)]="actionSheetOpen">
         <ui-action-sheet-title>{{ selected()!.title }}</ui-action-sheet-title>
         @if (!selected()!.read) {
-          <ui-action-sheet-item (pressed)="markRead()"
-            >Mark as Read</ui-action-sheet-item
-          >
+          <ui-action-sheet-item (pressed)="markRead()">
+            Mark as Read
+          </ui-action-sheet-item>
         }
-        <ui-action-sheet-item variant="destructive" (pressed)="deleteSelected()"
-          >Delete</ui-action-sheet-item
+        <ui-action-sheet-item
+          variant="destructive"
+          (pressed)="deleteSelected()"
         >
+          Delete
+        </ui-action-sheet-item>
         <ui-action-sheet-cancel>Cancel</ui-action-sheet-cancel>
       </ui-action-sheet>
     }

@@ -29,9 +29,9 @@ import { UiButton } from '../components/ui/button';
 
         <ui-alert-dialog [(open)]="showDialog">
           <ui-alert-dialog-header>
-            <ui-alert-dialog-title
-              >Are you absolutely sure?</ui-alert-dialog-title
-            >
+            <ui-alert-dialog-title>
+              Are you absolutely sure?
+            </ui-alert-dialog-title>
             <ui-alert-dialog-description>
               This action cannot be undone. This will permanently delete your
               account and remove your data from our servers.

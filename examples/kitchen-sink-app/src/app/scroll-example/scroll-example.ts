@@ -197,9 +197,9 @@ const ACTIVITIES: readonly Activity[] = [
           <ui-text variant="small">Activity</ui-text>
           <view class="flex-1 flex" />
           <!-- Live scroll telemetry, driven by bindscroll below. -->
-          <ui-badge variant="outline" [animated]="false"
-            >{{ scrollY() }} px</ui-badge
-          >
+          <ui-badge variant="outline" [animated]="false">
+            {{ scrollY() }} px
+          </ui-badge>
           @if (atEdge() === 'top') {
             <ui-badge variant="secondary" [animated]="false">Top</ui-badge>
           } @else if (atEdge() === 'bottom') {

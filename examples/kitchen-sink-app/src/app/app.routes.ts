@@ -87,6 +87,30 @@ export const routes: Routes = [
       import('./area-chart-demo/area-chart-demo').then((m) => m.AreaChartDemo),
   },
   {
+    path: 'candlestick-chart-demo',
+    loadComponent: () =>
+      import('./candlestick-chart-demo/candlestick-chart-demo').then(
+        (m) => m.CandlestickChartDemo,
+      ),
+  },
+  {
+    path: 'bar-chart-demo',
+    loadComponent: () =>
+      import('./bar-chart-demo/bar-chart-demo').then((m) => m.BarChartDemo),
+  },
+  {
+    path: 'scatter-chart-demo',
+    loadComponent: () =>
+      import('./scatter-chart-demo/scatter-chart-demo').then(
+        (m) => m.ScatterChartDemo,
+      ),
+  },
+  {
+    path: 'chart-zoom-demo',
+    loadComponent: () =>
+      import('./chart-zoom-demo/chart-zoom-demo').then((m) => m.ChartZoomDemo),
+  },
+  {
     path: 'exposure-demo',
     loadComponent: () =>
       import('./exposure-demo/exposure-demo').then((m) => m.ExposureDemo),

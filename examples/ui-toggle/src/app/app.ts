@@ -33,8 +33,9 @@ import { UiLabel } from '../components/ui/label';
               <text
                 class="text-sm text-foreground"
                 style="text-decoration: underline;"
-                >U</text
               >
+                U
+              </text>
             </ui-toggle>
           </view>
         </view>
@@ -69,8 +70,9 @@ import { UiLabel } from '../components/ui/label';
               <text
                 class="text-sm text-foreground"
                 style="text-decoration: line-through;"
-                >S</text
               >
+                S
+              </text>
             </ui-toggle-group-item>
           </ui-toggle-group>
         </view>

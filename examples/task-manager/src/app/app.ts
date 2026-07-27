@@ -69,25 +69,23 @@ type Task = {
       >
         <text class="text-[22px] font-bold text-zinc-900">Tasks</text>
         <ui-button size="sm" (pressed)="newSheetOpen.set(true)"
-          >+ New</ui-button
-        >
+          >+ New
+        </ui-button>
       </view>
 
       <ui-tabs [(value)]="activeTab" class="flex-1 flex-col flex">
         <ui-tabs-list class="mx-4 mt-3">
-          <ui-tabs-trigger value="all"
-            >All <ui-badge>{{ tasks().length }}</ui-badge></ui-tabs-trigger
-          >
-          <ui-tabs-trigger value="active"
-            >Active
-            <ui-badge>{{ activeTasks().length }}</ui-badge></ui-tabs-trigger
-          >
-          <ui-tabs-trigger value="done"
-            >Done
-            <ui-badge variant="secondary">{{
-              doneTasks().length
-            }}</ui-badge></ui-tabs-trigger
-          >
+          <ui-tabs-trigger value="all">
+            All <ui-badge>{{ tasks().length }}</ui-badge>
+          </ui-tabs-trigger>
+          <ui-tabs-trigger value="active">
+            Active
+            <ui-badge>{{ activeTasks().length }}</ui-badge>
+          </ui-tabs-trigger>
+          <ui-tabs-trigger value="done">
+            Done
+            <ui-badge variant="secondary">{{ doneTasks().length }}</ui-badge>
+          </ui-tabs-trigger>
         </ui-tabs-list>
 
         <ui-tabs-content value="all" class="flex-1">
@@ -133,8 +131,9 @@ type Task = {
                 class="flex-1 text-sm text-zinc-900"
                 [class.text-zinc-400]="task.done"
                 [class.line-through]="task.done"
-                >{{ task.title }}</text
               >
+                {{ task.title }}
+              </text>
               <ui-badge [variant]="priorityVariant(task.priority)">{{
                 task.priority
               }}</ui-badge>
@@ -146,8 +145,8 @@ type Task = {
 
     <ui-sheet [(open)]="newSheetOpen">
       <ui-sheet-header
-        ><ui-sheet-title>New Task</ui-sheet-title></ui-sheet-header
-      >
+        ><ui-sheet-title>New Task</ui-sheet-title>
+      </ui-sheet-header>
       <view class="flex-col gap-4 p-4 flex">
         <view class="flex-col gap-1.5 flex">
           <ui-label>Title</ui-label>
@@ -163,9 +162,9 @@ type Task = {
         </view>
       </view>
       <ui-sheet-footer>
-        <ui-button variant="outline" (pressed)="newSheetOpen.set(false)"
-          >Cancel</ui-button
-        >
+        <ui-button variant="outline" (pressed)="newSheetOpen.set(false)">
+          Cancel
+        </ui-button>
         <ui-button (pressed)="addTask()">Add Task</ui-button>
       </ui-sheet-footer>
     </ui-sheet>
@@ -175,9 +174,9 @@ type Task = {
         <ui-action-sheet-title>{{
           selectedTask()!.title
         }}</ui-action-sheet-title>
-        <ui-action-sheet-item variant="destructive" (pressed)="deleteTask()"
-          >Delete</ui-action-sheet-item
-        >
+        <ui-action-sheet-item variant="destructive" (pressed)="deleteTask()">
+          Delete
+        </ui-action-sheet-item>
         <ui-action-sheet-cancel>Cancel</ui-action-sheet-cancel>
       </ui-action-sheet>
     }

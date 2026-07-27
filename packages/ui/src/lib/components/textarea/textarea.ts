@@ -31,6 +31,18 @@ import { cn } from '../../utils/cn';
            (via height:100% below). Pinning min/max-height on the textarea itself
            locks it to a fixed box that scrolls but never grows. -->
       <view [class]="textareaWrapperClass()" [style]="wrapperStyle()">
+        <!-- Focus ring on its own overlay layer so it can fade (see input.ts for
+             the full rationale): box-shadow is animatable:no on Lynx, opacity is,
+             so we transition the layer's opacity. First child = painted behind
+             the textarea (Lynx paints in source order), so the textarea stays on
+             top and tappable — no pointer-events (which errors the Lynx build).
+             OUTSET only; Lynx doesn't render inset box-shadows. -->
+        <view
+          class="absolute top-0 right-0 bottom-0 left-0 rounded-xl opacity-0"
+          [style.transition]="'opacity 150ms ease'"
+          [style.box-shadow]="ringShadow()"
+          [style.opacity]="ringVisible() ? 1 : 0"
+        ></view>
         <!-- [attr.disabled]="disabled() || undefined": passing 'undefined'
              removes the attribute entirely; passing 'false' would set
              disabled="false" which Lynx still treats as disabled. -->
@@ -127,11 +139,13 @@ export class UiTextarea implements FormValueControl<string> {
    * Focus ring as an inline box-shadow. Tailwind's ring-* utilities render
    * nothing on Lynx — the preset doesn't wire up the --tw-ring-* variables they
    * compose into box-shadow — so the ring has to be an inline box-shadow, the
-   * one shadow form Lynx honors (incl. iOS). A 2px spread with no offset/blur is
-   * exactly a ring, and it inherits the wrapper's rounded-xl corners. Focus uses
-   * the translucent var(--ring-subtle) for a softer outline than the opaque
-   * --ring; error keeps solid var(--destructive). Both resolve at runtime and
-   * track dark mode. This
+   * one shadow form Lynx honors (incl. iOS). Two layered shadows: an `inset` 1px
+   * shadow that reads as a crisp border, plus a 2px outer ring — both follow the
+   * wrapper's rounded-xl corners. Focus pairs a solid var(--ring) border with the
+   * translucent var(--ring-subtle) ring (softer than the opaque --ring); error
+   * uses solid var(--destructive) for both. The border is an inset shadow, not a
+   * real border, so the box never changes size on focus. Colors resolve at
+   * runtime and track dark mode. This
    * is folded into wrapperStyle() rather than bound via [style.box-shadow]
    * because the wrapper already has a whole-string [style]: mixing whole-string
    * (__SetInlineStyles) and per-key (__AddInlineStyle) inline styles on one
@@ -141,8 +155,10 @@ export class UiTextarea implements FormValueControl<string> {
    * Error takes precedence over focus so an invalid field always shows red.
    */
   protected readonly focusRing = computed(() => {
-    if (this.error()) return 'box-shadow: 0 0 0 2px var(--destructive)';
-    if (this.#isFocused()) return 'box-shadow: 0 0 0 2px var(--ring-subtle)';
+    if (this.error())
+      return 'box-shadow: inset 0 0 0 1px var(--destructive), 0 0 0 2px var(--destructive)';
+    if (this.#isFocused())
+      return 'box-shadow: inset 0 0 0 1px var(--ring), 0 0 0 2px var(--ring-subtle)';
     return '';
   });
 

@@ -115,16 +115,16 @@ type Spacing = { readonly class: string; readonly label: string };
       <ui-card>
         <ui-card-header class="p-4 pb-2">
           <ui-card-title>Typography</ui-card-title>
-          <ui-card-description
-            >The type scale via ui-text variants.</ui-card-description
-          >
+          <ui-card-description>
+            The type scale via ui-text variants.
+          </ui-card-description>
         </ui-card-header>
         <ui-card-content class="flex-col gap-2 p-4 pt-0 flex">
           <ui-text variant="h3">Heading</ui-text>
           <ui-text variant="large">Large & semibold</ui-text>
-          <ui-text variant="p"
-            >Paragraph body copy sits at the base size.</ui-text
-          >
+          <ui-text variant="p">
+            Paragraph body copy sits at the base size.
+          </ui-text>
           <ui-text variant="small">Small label</ui-text>
           <ui-text variant="muted">Muted caption text</ui-text>
         </ui-card-content>
@@ -156,9 +156,9 @@ type Spacing = { readonly class: string; readonly label: string };
       <ui-card>
         <ui-card-header class="p-4 pb-2">
           <ui-card-title>Radius</ui-card-title>
-          <ui-card-description
-            >From sharp corners to a full pill.</ui-card-description
-          >
+          <ui-card-description>
+            From sharp corners to a full pill.
+          </ui-card-description>
         </ui-card-header>
         <ui-card-content
           class="flex-row flex-wrap items-center gap-4 p-4 pt-0 flex"

@@ -6,18 +6,19 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   template: `
     <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
       <view class="p-6">
-        <text class="mb-1 text-[28px] font-bold text-zinc-900"
-          >Title Bar View</text
-        >
-        <text class="mb-5 text-[13px] text-zinc-500"
-          >A custom frameless window title bar with draggable regions.</text
-        >
+        <text class="mb-1 text-[28px] font-bold text-zinc-900">
+          Title Bar View
+        </text>
+        <text class="mb-5 text-[13px] text-zinc-500">
+          A custom frameless window title bar with draggable regions.
+        </text>
 
         <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
             class="uppercase mb-2.5 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
-            >Title Bar</text
           >
+            Title Bar
+          </text>
           <view
             class="h-[44px] flex-row items-center rounded-lg bg-zinc-100 overflow-hidden"
           >
@@ -25,9 +26,9 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
               moveable="true"
               class="h-full flex-1 justify-center"
             >
-              <text class="pl-3.5 text-sm font-semibold text-zinc-900"
-                >My App</text
-              >
+              <text class="pl-3.5 text-sm font-semibold text-zinc-900">
+                My App
+              </text>
             </title-bar-view>
             <view
               class="h-full w-11 items-center border-l border-zinc-200 justify-center"

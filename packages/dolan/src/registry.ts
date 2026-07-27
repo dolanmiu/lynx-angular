@@ -14,9 +14,15 @@ export const registry: RegistryEntry[] = [
   { name: 'aspect-ratio', dependencies: [] },
   { name: 'avatar', dependencies: ['skeleton'] },
   { name: 'badge', dependencies: [] },
+  // Bar chart draws its own rectangle marks straight onto the cartesian-chart
+  // base — like candlestick, and unlike area-chart, it does not reuse line-series.
+  { name: 'bar-chart', dependencies: ['cartesian-chart'] },
   { name: 'bottom-sheet', dependencies: [] },
   { name: 'button', dependencies: ['spinner'] },
   { name: 'button-group', dependencies: [] },
+  // Candlestick (OHLC) chart draws its own wick/body marks straight onto the
+  // cartesian-chart base — unlike area-chart it does not reuse line-series.
+  { name: 'candlestick-chart', dependencies: ['cartesian-chart'] },
   { name: 'card', dependencies: [] },
   // Reusable foundation for cartesian charts (line, bar, …); has no example/docs
   // of its own, like bottom-sheet — it's consumed by chart components.
@@ -34,6 +40,9 @@ export const registry: RegistryEntry[] = [
   { name: 'pagination', dependencies: [] },
   { name: 'progress', dependencies: [] },
   { name: 'radio-group', dependencies: [] },
+  // Scatter chart draws its own dot marks straight onto the cartesian-chart
+  // base — like bar and candlestick, and unlike area-chart, no line-series reuse.
+  { name: 'scatter-chart', dependencies: ['cartesian-chart'] },
   { name: 'scroll-area', dependencies: [] },
   { name: 'select', dependencies: ['bottom-sheet'] },
   { name: 'separator', dependencies: [] },

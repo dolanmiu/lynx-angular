@@ -7,17 +7,17 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
   template: `
     <scroll-view class="h-screen bg-zinc-50" scroll-orientation="vertical">
       <view class="p-6">
-        <text class="mb-1 text-[28px] font-bold text-zinc-900"
-          >Profile Form</text
-        >
-        <text class="mb-5 text-[13px] text-zinc-500"
-          >Input validation with signal-based state.</text
-        >
+        <text class="mb-1 text-[28px] font-bold text-zinc-900">
+          Profile Form
+        </text>
+        <text class="mb-5 text-[13px] text-zinc-500">
+          Input validation with signal-based state.
+        </text>
 
         <view class="mb-5 rounded-xl border border-zinc-200 bg-white p-5">
-          <text class="mb-1.5 text-[13px] font-semibold text-zinc-900"
-            >Name</text
-          >
+          <text class="mb-1.5 text-[13px] font-semibold text-zinc-900">
+            Name
+          </text>
           <input
             class="rounded-lg border border-zinc-200 bg-white px-3.5 py-3 text-[15px]"
             [class.border-indigo-500]="focusedField() === 'name'"
@@ -33,9 +33,9 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
             <text class="mt-1 text-xs text-red-500">Name is required</text>
           }
 
-          <text class="mb-1.5 mt-4 text-[13px] font-semibold text-zinc-900"
-            >Email</text
-          >
+          <text class="mb-1.5 mt-4 text-[13px] font-semibold text-zinc-900">
+            Email
+          </text>
           <input
             class="rounded-lg border border-zinc-200 bg-white px-3.5 py-3 text-[15px]"
             [class.border-indigo-500]="focusedField() === 'email'"
@@ -52,9 +52,9 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
             <text class="mt-1 text-xs text-red-500">Enter a valid email</text>
           }
 
-          <text class="mb-1.5 mt-4 text-[13px] font-semibold text-zinc-900"
-            >Bio</text
-          >
+          <text class="mb-1.5 mt-4 text-[13px] font-semibold text-zinc-900">
+            Bio
+          </text>
           <textarea
             class="h-[100px] rounded-lg border border-zinc-200 bg-white px-3.5 py-3 text-[15px]"
             [class.border-indigo-500]="focusedField() === 'bio'"
@@ -64,9 +64,9 @@ import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
             (bindfocus)="focusedField.set('bio')"
             (bindblur)="focusedField.set(null)"
           ></textarea>
-          <text class="mt-1 text-xs text-zinc-400 text-right"
-            >{{ bio().length }} / 200</text
-          >
+          <text class="mt-1 text-xs text-zinc-400 text-right">
+            {{ bio().length }} / 200
+          </text>
         </view>
 
         <view

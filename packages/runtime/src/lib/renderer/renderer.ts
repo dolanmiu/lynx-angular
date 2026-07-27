@@ -6,6 +6,32 @@ import {
 import type { LynxDocumentBase } from '../lynx-document';
 import type { BaseLynxElement } from '../lynx-element';
 
+/**
+ * Collapse runs of whitespace to a single space and trim the ends, matching how
+ * a browser lays out text with the default `white-space`.
+ *
+ * Why this lives in the renderer: Angular's template compiler
+ * (`preserveWhitespaces: false`, the default) collapses interior whitespace but
+ * leaves the single leading/trailing space it created against element
+ * boundaries — e.g. an indented `<text>\n  Hello\n</text>` reaches us as
+ * `" Hello "`. On the web that space is invisible because the CSS white-space
+ * model strips whitespace at the start/end of a line box; Lynx's raw-text has no
+ * such layout-time collapsing and renders the string verbatim, so the leading
+ * space shows up as a stray indent on-device. Normalizing at this single choke
+ * point (every static and interpolated text node funnels through createText /
+ * setValue) restores web/Angular parity without making every template hand-strip
+ * whitespace. React Lynx never hits this because its JSX transform already trims
+ * newline-adjacent whitespace at compile time.
+ *
+ * Only ASCII whitespace is touched, so a deliberate non-breaking space ( )
+ * survives as an escape hatch for the rare runtime value that needs a literal
+ * edge space. This mirrors the default `white-space`; preformatted text
+ * (`white-space: pre`) would need positional, container-level handling and is a
+ * separate follow-up.
+ */
+const normalizeText = (value: string): string =>
+  value.replace(/[ \t\n\r\f\v]+/g, ' ').replace(/^ | $/g, '');
+
 export class LynxRenderer implements Renderer2 {
   readonly #document: LynxDocumentBase;
   /**
@@ -33,7 +59,7 @@ export class LynxRenderer implements Renderer2 {
     return this.#document.createComment();
   }
   createText(value: string): BaseLynxElement {
-    return this.#document.createText(value);
+    return this.#document.createText(normalizeText(value));
   }
   // Angular walks a destroyed view and calls destroyNode() per node ONLY when
   // this is non-null (see destroyLView in @angular/core). We use it to drop the
@@ -140,7 +166,7 @@ export class LynxRenderer implements Renderer2 {
    * their content in the 'text' attribute.
    */
   setValue(node: BaseLynxElement, value: string): void {
-    node.setAttribute('text', value);
+    node.setAttribute('text', normalizeText(value));
   }
   listen(
     target: BaseLynxElement,

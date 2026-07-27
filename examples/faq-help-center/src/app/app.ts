@@ -52,9 +52,9 @@ type FaqCategory = { title: string; items: FaqItem[] };
       <view class="flex-col gap-5 p-6 flex">
         <view class="flex-col gap-1 flex">
           <text class="text-[28px] font-bold text-zinc-900">Help Center</text>
-          <text class="text-sm text-zinc-500"
-            >Find answers to common questions</text
-          >
+          <text class="text-sm text-zinc-500">
+            Find answers to common questions
+          </text>
         </view>
 
         <ui-input
@@ -73,9 +73,9 @@ type FaqCategory = { title: string; items: FaqItem[] };
                   <text class="text-base font-semibold text-zinc-900">{{
                     cat.title
                   }}</text>
-                  <text class="text-xs text-zinc-400"
-                    >{{ cat.items.length }} items</text
-                  >
+                  <text class="text-xs text-zinc-400">
+                    {{ cat.items.length }} items
+                  </text>
                 </view>
               </ui-collapsible-trigger>
               <ui-collapsible-content>
@@ -97,19 +97,19 @@ type FaqCategory = { title: string; items: FaqItem[] };
         } @empty {
           <view class="flex-col items-center gap-2 py-10 flex">
             <text class="text-[32px]">🔍</text>
-            <text class="text-sm text-zinc-400"
-              >No results for "{{ query() }}"</text
-            >
+            <text class="text-sm text-zinc-400">
+              No results for "{{ query() }}"
+            </text>
           </view>
         }
 
         <view class="flex-col items-center gap-2 py-4 flex">
-          <text class="text-[13px] text-zinc-500"
-            >Can't find what you need?</text
-          >
-          <ui-button variant="outline" (pressed)="contactOpen.set(true)"
-            >Contact Support</ui-button
-          >
+          <text class="text-[13px] text-zinc-500">
+            Can't find what you need?
+          </text>
+          <ui-button variant="outline" (pressed)="contactOpen.set(true)">
+            Contact Support
+          </ui-button>
         </view>
       </view>
     </scroll-view>
@@ -117,9 +117,9 @@ type FaqCategory = { title: string; items: FaqItem[] };
     <ui-dialog [(open)]="contactOpen">
       <ui-dialog-header>
         <ui-dialog-title>Contact Support</ui-dialog-title>
-        <ui-dialog-description
-          >We'll get back to you within 24 hours.</ui-dialog-description
-        >
+        <ui-dialog-description>
+          We'll get back to you within 24 hours.
+        </ui-dialog-description>
       </ui-dialog-header>
       <view class="flex-col gap-4 p-4 flex">
         <view class="flex-col gap-1.5 flex">
@@ -138,9 +138,9 @@ type FaqCategory = { title: string; items: FaqItem[] };
         </view>
       </view>
       <ui-dialog-footer>
-        <ui-button variant="outline" (pressed)="contactOpen.set(false)"
-          >Cancel</ui-button
-        >
+        <ui-button variant="outline" (pressed)="contactOpen.set(false)">
+          Cancel
+        </ui-button>
         <ui-button (pressed)="sendMessage()">Send</ui-button>
       </ui-dialog-footer>
     </ui-dialog>

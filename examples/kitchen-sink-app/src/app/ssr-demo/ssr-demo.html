@@ -46,9 +46,9 @@
         </view>
         <view class="flex-1 flex-col gap-1 flex">
           <view class="flex-row items-center gap-2 flex">
-            <ui-text variant="small" class="font-semibold"
-              >ssrHydrate()</ui-text
-            >
+            <ui-text variant="small" class="font-semibold">
+              ssrHydrate()
+            </ui-text>
             <ui-badge variant="outline">device</ui-badge>
           </view>
           <ui-text variant="muted">
@@ -102,18 +102,18 @@
 
       @if (error()) {
       <view class="rounded-lg bg-destructive-subtle px-4 py-3 flex">
-        <ui-text variant="small" class="text-destructive"
-          >{{ error() }}</ui-text
-        >
+        <ui-text variant="small" class="text-destructive">
+          {{ error() }}
+        </ui-text>
       </view>
       } @if (snapshot(); as snap) {
       <!-- Headline metrics as a 2x2 stat grid -->
       <view class="flex-col gap-3 flex">
         <view class="flex-row gap-3 flex">
           <view class="flex-1 flex-col gap-1 rounded-xl bg-muted p-4 flex">
-            <ui-text variant="h3" class="text-primary"
-              >{{ snap.elements }}</ui-text
-            >
+            <ui-text variant="h3" class="text-primary">
+              {{ snap.elements }}
+            </ui-text>
             <ui-text variant="muted">Elements</ui-text>
           </view>
           <view class="flex-1 flex-col gap-1 rounded-xl bg-muted p-4 flex">
@@ -131,9 +131,9 @@
             <ui-text variant="muted">Text nodes</ui-text>
           </view>
           <view class="flex-1 flex-col gap-1 rounded-xl bg-muted p-4 flex">
-            <ui-text variant="h3" class="text-primary"
-              >{{ sizeLabel() }}</ui-text
-            >
+            <ui-text variant="h3" class="text-primary">
+              {{ sizeLabel() }}
+            </ui-text>
             <ui-text variant="muted">Snapshot</ui-text>
           </view>
         </view>

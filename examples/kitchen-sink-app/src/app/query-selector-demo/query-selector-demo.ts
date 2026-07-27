@@ -113,9 +113,9 @@ const expectedNull = (el: unknown): Pick<QueryRow, 'state' | 'detail'> =>
         <ui-card-header class="gap-1 p-4">
           <view class="flex-row items-center gap-2 flex">
             <ui-icon name="search" size="sm" />
-            <ui-card-title class="text-lg"
-              >On the background thread</ui-card-title
-            >
+            <ui-card-title class="text-lg">
+              On the background thread
+            </ui-card-title>
           </view>
           <ui-card-description>
             Lynx runs Angular on a background JS thread with only a virtual
@@ -146,51 +146,53 @@ const expectedNull = (el: unknown): Pick<QueryRow, 'state' | 'detail'> =>
               class="qs-item flex-row items-center gap-2 rounded-lg border border-border bg-muted p-3 flex"
               id="qs-first"
             >
-              <text class="flex-1 text-sm font-medium text-foreground"
-                >Item A</text
-              >
+              <text class="flex-1 text-sm font-medium text-foreground">
+                Item A
+              </text>
               <ui-badge variant="outline" [animated]="false"
-                >#qs-first</ui-badge
-              >
+                >#qs-first
+              </ui-badge>
               <ui-badge variant="secondary" [animated]="false"
-                >.qs-item</ui-badge
-              >
+                >.qs-item
+              </ui-badge>
             </view>
 
             <!-- Item B carries the extra .qs-active class and stands out. -->
             <view
               class="qs-item qs-active flex-row items-center gap-2 rounded-lg border border-primary bg-muted p-3 flex"
             >
-              <text class="flex-1 text-sm font-medium text-foreground"
-                >Item B (active)</text
-              >
+              <text class="flex-1 text-sm font-medium text-foreground">
+                Item B (active)
+              </text>
               <ui-badge [animated]="false">.qs-active</ui-badge>
               <ui-badge variant="secondary" [animated]="false"
-                >.qs-item</ui-badge
-              >
+                >.qs-item
+              </ui-badge>
             </view>
 
             <view
               class="qs-item flex-row items-center gap-2 rounded-lg border border-border bg-muted p-3 flex"
             >
-              <text class="flex-1 text-sm font-medium text-foreground"
-                >Item C</text
-              >
+              <text class="flex-1 text-sm font-medium text-foreground">
+                Item C
+              </text>
               <ui-badge variant="secondary" [animated]="false"
-                >.qs-item</ui-badge
-              >
+                >.qs-item
+              </ui-badge>
             </view>
 
             <!-- A <text> (not a <view>) with .qs-label, for the tag+class case. -->
             <view
               class="flex-row items-center gap-2 rounded-lg border border-dashed border-border p-3 flex"
             >
-              <text class="qs-label flex-1 text-sm italic text-muted-foreground"
-                >Label</text
+              <text
+                class="qs-label flex-1 text-sm italic text-muted-foreground"
               >
-              <ui-badge variant="outline" [animated]="false"
-                >text.qs-label</ui-badge
-              >
+                Label
+              </text>
+              <ui-badge variant="outline" [animated]="false">
+                text.qs-label
+              </ui-badge>
             </view>
           </view>
         </ui-card-content>
@@ -204,9 +206,9 @@ const expectedNull = (el: unknown): Pick<QueryRow, 'state' | 'detail'> =>
               <ui-icon name="check" size="sm" />
               <ui-card-title class="text-lg">Query results</ui-card-title>
             </view>
-            <ui-badge variant="secondary" [animated]="false"
-              >{{ passedCount() }} / {{ queries().length }} passed</ui-badge
-            >
+            <ui-badge variant="secondary" [animated]="false">
+              {{ passedCount() }} / {{ queries().length }} passed
+            </ui-badge>
           </view>
           <ui-card-description>
             Each selector run against the tree above.
@@ -229,8 +231,9 @@ const expectedNull = (el: unknown): Pick<QueryRow, 'state' | 'detail'> =>
               <text
                 class="text-sm font-medium"
                 [style.color]="colorFor(q.state)"
-                >{{ q.detail }}</text
               >
+                {{ q.detail }}
+              </text>
             </view>
             @if (!last) {
               <ui-separator />

@@ -7,21 +7,22 @@ import { LYNX_ELEMENTS, LynxLocale } from '@blotch/angular-lynx';
     <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
       <view class="p-6">
         <text class="mb-1 text-[28px] font-bold text-zinc-900">i18n</text>
-        <text class="mb-5 text-[13px] text-zinc-500"
-          >Internationalization with Angular and Lynx.</text
-        >
+        <text class="mb-5 text-[13px] text-zinc-500">
+          Internationalization with Angular and Lynx.
+        </text>
 
         <view class="mb-4 rounded-lg bg-indigo-50 px-3.5 py-2.5">
-          <text class="text-[13px] font-semibold text-indigo-700"
-            >Locale: {{ localeService.locale() }}</text
-          >
+          <text class="text-[13px] font-semibold text-indigo-700">
+            Locale: {{ localeService.locale() }}
+          </text>
         </view>
 
         <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
             class="uppercase mb-2.5 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
-            >Translated Strings</text
           >
+            Translated Strings
+          </text>
           <text i18n="@@app.greeting" class="mb-2 text-[18px] text-zinc-900">
             Hello, world!
           </text>
@@ -41,8 +42,9 @@ import { LYNX_ELEMENTS, LynxLocale } from '@blotch/angular-lynx';
         <view class="mb-4 rounded-xl border border-zinc-200 bg-white p-4">
           <text
             class="uppercase mb-2.5 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
-            >Counter</text
           >
+            Counter
+          </text>
           <text class="mb-3 text-[18px] text-zinc-900">{{
             counterMessage()
           }}</text>
@@ -53,8 +55,9 @@ import { LYNX_ELEMENTS, LynxLocale } from '@blotch/angular-lynx';
             <text
               i18n="@@app.tap_button"
               class="text-[15px] font-semibold text-white"
-              >Tap to increment</text
             >
+              Tap to increment
+            </text>
           </view>
         </view>
       </view>

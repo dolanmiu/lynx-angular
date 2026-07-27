@@ -7,12 +7,12 @@ import styles from './demo.module.css';
   template: `
     <scroll-view class="h-full bg-zinc-50" scroll-orientation="vertical">
       <view class="p-6">
-        <text class="mb-1 text-[28px] font-bold text-zinc-900"
-          >CSS Modules</text
-        >
-        <text class="mb-5 text-[13px] text-zinc-500"
-          >Scoped, hashed class names for style isolation.</text
-        >
+        <text class="mb-1 text-[28px] font-bold text-zinc-900">
+          CSS Modules
+        </text>
+        <text class="mb-5 text-[13px] text-zinc-500">
+          Scoped, hashed class names for style isolation.
+        </text>
 
         <view [class]="styles['card']">
           <text [class]="styles['title']">Styled Card</text>
@@ -28,14 +28,15 @@ import styles from './demo.module.css';
         <view class="mt-4 rounded-xl bg-zinc-100 p-3.5">
           <text
             class="uppercase mb-2 text-[11px] font-bold tracking-[0.5px] text-zinc-400"
-            >Hashed class names</text
           >
-          <text class="mb-0.5 text-[11px] text-zinc-500"
-            >card → {{ styles['card'] }}</text
-          >
-          <text class="mb-0.5 text-[11px] text-zinc-500"
-            >title → {{ styles['title'] }}</text
-          >
+            Hashed class names
+          </text>
+          <text class="mb-0.5 text-[11px] text-zinc-500">
+            card → {{ styles['card'] }}
+          </text>
+          <text class="mb-0.5 text-[11px] text-zinc-500">
+            title → {{ styles['title'] }}
+          </text>
         </view>
       </view>
     </scroll-view>

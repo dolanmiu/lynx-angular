@@ -78,9 +78,9 @@ export class MultiSlotText {}
         @if (show()) {
           <ng-content />
         } @else {
-          <text class="text-muted-foreground"
-            >Tap to reveal the projected text</text
-          >
+          <text class="text-muted-foreground">
+            Tap to reveal the projected text
+          </text>
         }
       </text>
     </view>
@@ -255,9 +255,9 @@ export class CardTitleMock {}
             class="flex-col gap-1 rounded-lg border border-border bg-muted p-4 flex"
           >
             <app-card-title-mock>Grocery list</app-card-title-mock>
-            <text class="text-xs text-muted-foreground"
-              >4 items · updated just now</text
-            >
+            <text class="text-xs text-muted-foreground">
+              4 items · updated just now
+            </text>
           </view>
         </ui-card-content>
       </ui-card>

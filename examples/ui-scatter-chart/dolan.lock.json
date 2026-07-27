@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "components": {
+    "cartesian-chart": {
+      "cartesian-chart.test.ts": {
+        "hash": "a84bf9fbf06818b2"
+      },
+      "cartesian-chart.ts": {
+        "hash": "e1d4dd7b9ea0687c"
+      },
+      "index.ts": {
+        "hash": "83519804ffd23c31"
+      }
+    },
+    "scatter-chart": {
+      "index.ts": {
+        "hash": "3bb8bd15e19f5728"
+      },
+      "scatter-chart.test.ts": {
+        "hash": "923c160b3b5bb256"
+      },
+      "scatter-chart.ts": {
+        "hash": "f42cbe480c57a991"
+      }
+    }
+  },
+  "theme": {
+    "default.css": {
+      "hash": "6010e930f4314a61"
+    },
+    "dark.css": {
+      "hash": "73345d8f2179fd64"
+    },
+    "tailwind-plugin.ts": {
+      "hash": "d90f5b377f6e00eb"
+    }
+  }
+}

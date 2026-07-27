@@ -10,9 +10,9 @@ type Todo = { id: number; text: string; done: boolean };
     <scroll-view class="h-screen bg-zinc-50" scroll-orientation="vertical">
       <view class="p-6">
         <text class="mb-1 text-[28px] font-bold text-zinc-900">Todos</text>
-        <text class="mb-5 text-[13px] text-zinc-500"
-          >{{ remaining() }} remaining</text
-        >
+        <text class="mb-5 text-[13px] text-zinc-500">
+          {{ remaining() }} remaining
+        </text>
 
         <view class="mb-4 flex-row gap-2 flex">
           <input
@@ -47,8 +47,9 @@ type Todo = { id: number; text: string; done: boolean };
               class="flex-1 text-[15px] text-zinc-900"
               [class.text-zinc-400]="todo.done"
               [class.line-through]="todo.done"
-              >{{ todo.text }}</text
             >
+              {{ todo.text }}
+            </text>
             <view class="px-2 py-1" (catchtap)="remove(todo.id)">
               <text class="text-base text-red-500">✕</text>
             </view>

@@ -104,11 +104,11 @@ const MANUAL_LOADING_MS = 900;
             </view>
             <view class="flex-1 flex-col flex">
               <text class="text-sm font-medium text-foreground"
-                >&#64;placeholder</text
-              >
-              <text class="text-xs text-muted-foreground"
-                >Shown until the trigger fires</text
-              >
+                >&#64;placeholder
+              </text>
+              <text class="text-xs text-muted-foreground">
+                Shown until the trigger fires
+              </text>
             </view>
           </view>
           <view class="flex-row items-center gap-3 flex">
@@ -119,11 +119,11 @@ const MANUAL_LOADING_MS = 900;
             </view>
             <view class="flex-1 flex-col flex">
               <text class="text-sm font-medium text-foreground"
-                >&#64;loading</text
-              >
-              <text class="text-xs text-muted-foreground"
-                >While the chunk is fetched over the network</text
-              >
+                >&#64;loading
+              </text>
+              <text class="text-xs text-muted-foreground">
+                While the chunk is fetched over the network
+              </text>
             </view>
           </view>
           <view class="flex-row items-center gap-3 flex">
@@ -134,9 +134,9 @@ const MANUAL_LOADING_MS = 900;
             </view>
             <view class="flex-1 flex-col flex">
               <text class="text-sm font-medium text-foreground">loaded</text>
-              <text class="text-xs text-muted-foreground"
-                >The real component, now on screen</text
-              >
+              <text class="text-xs text-muted-foreground">
+                The real component, now on screen
+              </text>
             </view>
           </view>
         </ui-card-content>
@@ -183,12 +183,12 @@ const MANUAL_LOADING_MS = 900;
                 <ui-icon name="plus" size="md" />
               </view>
               <view class="flex-col items-center gap-1 flex">
-                <text class="text-sm font-medium text-foreground"
-                  >Not loaded yet</text
-                >
-                <text class="text-xs text-muted-foreground"
-                  >Tap "Load widget" to fetch heavy.js</text
-                >
+                <text class="text-sm font-medium text-foreground">
+                  Not loaded yet
+                </text>
+                <text class="text-xs text-muted-foreground">
+                  Tap "Load widget" to fetch heavy.js
+                </text>
               </view>
             </view>
           } @loading (minimum 900ms) {
@@ -196,9 +196,9 @@ const MANUAL_LOADING_MS = 900;
               class="flex-col items-center gap-3 rounded-lg border border-border bg-muted p-4 flex"
             >
               <ui-spinner size="md" />
-              <text class="text-sm text-muted-foreground"
-                >Fetching heavy.js…</text
-              >
+              <text class="text-sm text-muted-foreground">
+                Fetching heavy.js…
+              </text>
             </view>
           } @error {
             <view
@@ -246,9 +246,9 @@ const MANUAL_LOADING_MS = 900;
                 <ui-icon name="loader" size="sm" />
                 <text class="text-sm font-medium text-foreground">Timer</text>
               </view>
-              <ui-badge variant="outline" [animated]="false"
-                >on timer(3s)</ui-badge
-              >
+              <ui-badge variant="outline" [animated]="false">
+                on timer(3s)
+              </ui-badge>
             </view>
             @defer (on timer(3000ms)) {
               <app-heavy [compact]="true" label="on timer" />
@@ -257,18 +257,18 @@ const MANUAL_LOADING_MS = 900;
                 class="flex-row items-center gap-3 rounded-lg border border-dashed border-border bg-muted p-3 flex"
               >
                 <ui-icon name="loader" size="sm" />
-                <text class="text-sm text-muted-foreground"
-                  >Auto-loads 3s after render…</text
-                >
+                <text class="text-sm text-muted-foreground">
+                  Auto-loads 3s after render…
+                </text>
               </view>
             } @loading {
               <view
                 class="flex-row items-center gap-3 rounded-lg border border-border bg-muted p-3 flex"
               >
                 <ui-spinner size="sm" />
-                <text class="text-sm text-muted-foreground"
-                  >Fetching heavy.js…</text
-                >
+                <text class="text-sm text-muted-foreground">
+                  Fetching heavy.js…
+                </text>
               </view>
             }
           </view>
@@ -291,18 +291,18 @@ const MANUAL_LOADING_MS = 900;
                 class="flex-row items-center gap-3 rounded-lg border border-dashed border-border bg-muted p-3 flex"
               >
                 <ui-icon name="ellipsis" size="sm" />
-                <text class="text-sm text-muted-foreground"
-                  >Waits for an idle frame…</text
-                >
+                <text class="text-sm text-muted-foreground">
+                  Waits for an idle frame…
+                </text>
               </view>
             } @loading {
               <view
                 class="flex-row items-center gap-3 rounded-lg border border-border bg-muted p-3 flex"
               >
                 <ui-spinner size="sm" />
-                <text class="text-sm text-muted-foreground"
-                  >Fetching heavy.js…</text
-                >
+                <text class="text-sm text-muted-foreground">
+                  Fetching heavy.js…
+                </text>
               </view>
             }
           </view>

@@ -29,8 +29,9 @@ import { cn } from '../../utils/cn';
           #checkmark
           [class]="checkClass()"
           [style]="checked() ? 'opacity: 1;' : 'opacity: 0;'"
-          >✓</text
         >
+          ✓
+        </text>
       </view>
     </view>
   `,

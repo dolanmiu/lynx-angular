@@ -79,9 +79,9 @@ type Track = { title: string; artist: string; duration: string };
           <ui-collapsible-trigger>
             <view class="flex-row items-center gap-1 py-2 flex justify-between">
               <text class="text-sm font-semibold text-zinc-900">Up Next</text>
-              <text class="text-xs text-zinc-400"
-                >{{ queue.length }} tracks</text
-              >
+              <text class="text-xs text-zinc-400">
+                {{ queue.length }} tracks
+              </text>
             </view>
           </ui-collapsible-trigger>
           <ui-collapsible-content>
