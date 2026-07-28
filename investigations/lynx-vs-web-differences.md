@@ -3985,3 +3985,40 @@ This bites charts specifically. `UiCartesianChart` draws gridlines and axis labe
 When zoom is enabled, generate a **fixed** number of ticks (`generateTicks(visibleDomain, tickCount)` returns exactly `tickCount` values) so the gridline/label `@for` length never changes during a gesture — every zoom frame only restyles the existing nodes (new `top`/`left`/label text), never adds or removes them. The trade-off is that a zoomable chart's ticks are evenly spaced rather than "nice round" numbers; a non-zoomable chart keeps the original nice-tick behaviour. See `#resolvedXTicks`/`#resolvedYTicks` in `packages/ui/src/lib/components/cartesian-chart/cartesian-chart.ts`.
 
 The same principle applies to the pan/zoom transform itself: it only ever writes the visible-window signals, which drive the scales and thus restyle existing gridlines, labels, and series marks — the marks re-project (and bars/candles stretch, since their width comes from projected pixel spacing) without any node being created or destroyed.
+
+---
+
+## A continuous gesture's `onStart`/`onEnd` silently never fire unless `onBegin` is ALSO registered — breaking any handler that snapshots state at gesture-start
+
+### What you'd expect (web / react-native-gesture-handler)
+
+Registering `onStart`, `onUpdate`, and `onEnd` on a pan is enough — `onStart` fires once when the gesture is recognized, `onUpdate` fires every frame, `onEnd` fires on release. `onBegin` (finger-down, before the gesture is recognized) is a separate, optional lifecycle hook you only add if you need it.
+
+### What Lynx does
+
+**Both iOS and Android gate `onStart` (and `onEnd`) behind `onBegin` having already fired** — and `onBegin` itself is a no-op unless a JS `onBegin` callback was registered:
+
+- iOS `LynxPanGestureHandler.m`: `onStart:` returns early if `!_isInvokedBegin`; `onEnd:` returns early on the same flag. `_isInvokedBegin` is set **only** inside `onBegin:`, which itself returns early unless `[self onBeginEnabled]` — an enable flag that defaults `NO` and is flipped on only when `onBegin` is in the JS callback list (`handleEnableGestureCallback:`).
+- Android `PanGestureHandler.java` mirrors this exactly: `onStart()` checks `!mIsInvokedBegin` (line 187), `mIsInvokedBegin` is set only in `onBegin()` (line 172), gated by `isOnBeginEnable()`.
+
+So: register `onStart`/`onUpdate`/`onEnd` but not `onBegin`, and on-device **`onStart` and `onEnd` never fire — with no error, no warning, no log.** `onUpdate` fires normally (it has no such gate), so the gesture *looks* alive — it just never announces its start or end.
+
+**Concrete symptom:** a pan handler that snapshots state in `onStart` (e.g. "remember the value at gesture-start, then apply cumulative `event.translationX` against it in `onUpdate`") never takes that snapshot. If `onUpdate` then falls back to reading *current* state instead of the missing snapshot, the transform is applied against a value that already moved last frame — the effect compounds every frame instead of tracking the finger 1:1. On a chart, this reads as "the pan doesn't move the same distance as the finger, like it's anchored to the middle and applying translation relative to a fixed origin" — a diagnosis that first looks like a coordinate-system bug (page vs. client vs. element-relative), but is actually a dropped lifecycle callback. See `UiCartesianChart`'s `#pan` gesture in `cartesian-chart.ts`.
+
+### The fix
+
+Always register `onBegin` on a continuous gesture (`PanGesture`/`PinchGesture`/`RotationGesture`/`FlingGesture`) if you register `onStart` or `onEnd` — even an empty callback is enough to flip the native enable flag:
+
+```ts
+new PanGesture()
+  .onBegin(() => { /* snapshot start-of-gesture state HERE, not onStart */ })
+  .onStart(() => { /* fallback anchor: ??= so it's a no-op if onBegin already ran */ })
+  .onUpdate((event) => { /* apply cumulative event.translationX/Y against the snapshot */ })
+  .onEnd(() => { /* clear the snapshot */ });
+```
+
+Belt-and-suspenders: also anchor defensively on the first `onUpdate` (`snapshot ??= currentValue`) so a platform that somehow skips both `onBegin` and `onStart` still can't compound — it just anchors one frame later.
+
+### Related: `PinchGesture` and `RotationGesture` have no native handler on ANY platform — they never fire
+
+A search of the Lynx native source (`convertToGestureHandler` in `LynxBaseGestureHandler.m` / the Android equivalent) shows handlers registered for `pan`, `default`, `fling`, `tap`, `longpress`, and `native` — but **no pinch and no rotation handler exists on iOS, Android, or Harmony**. `Gesture.Simultaneous(pan, pinch)` is safe to compose (the native engine just never recognizes the pinch half), but don't rely on pinch-to-zoom actually firing on-device today; drive zoom from 1-finger pan plus on-screen controls instead, and treat `PinchGesture`/`RotationGesture` as forward-compatible API surface, not a currently-working feature.

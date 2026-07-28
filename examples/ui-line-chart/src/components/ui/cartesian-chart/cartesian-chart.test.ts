@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import type { ChartDomain } from './cartesian-chart';
 
 // Mock Angular so importing the component module doesn't require the framework
 // runtime. Only the exported pure geometry fns are exercised here; the class
@@ -237,6 +238,67 @@ describe('panWindow', () => {
     // Preserves the span of 4, clamped against the right and left edges.
     expect(panWindow([0, 10], [2, 6], 10)).toEqual([6, 10]);
     expect(panWindow([0, 10], [2, 6], -10)).toEqual([0, 4]);
+  });
+});
+
+// Regression guard for the pan interaction. The bug: on iOS AND Android the
+// native pan handler gates onStart/onEnd behind onBegin having fired, so a pan
+// that registers only onStart/onUpdate/onEnd never snapshots the start window and
+// #onPan re-reads the CURRENT window every frame — making the pan compound instead
+// of tracking the finger 1:1. The fix registers onBegin to anchor the window once
+// at gesture start. These tests lock the geometry that anchoring must produce, and
+// pin down the compounding failure mode so it can't silently return.
+describe('pan tracks the finger 1:1 (window anchored at gesture start)', () => {
+  /**
+   * Projects a data x into plot pixels through a given visible window, matching how
+   * xScale maps the effective domain across the plot range.
+   */
+  const projectX = (
+    dataX: number,
+    window: readonly [number, number],
+    rangePx: number,
+  ) => ((dataX - window[0]) / (window[1] - window[0])) * rangePx;
+
+  it('moves projected content exactly translationX pixels for any cumulative delta', () => {
+    const base: ChartDomain = [0, 100];
+    const start: ChartDomain = [40, 60]; // zoomed 5× (span 20 of a 100 domain)
+    const rangePx = 200;
+    const dataPerPx = (start[1] - start[0]) / rangePx; // 0.1 data units / px
+
+    const pointX = 45; // any data point inside the window
+    const startPx = projectX(pointX, start, rangePx);
+
+    // A steady drag is reported as a CUMULATIVE translation (0 → growing). Each
+    // frame maps it against the FIXED start window (what onBegin snapshots).
+    for (const translationX of [5, 12, 40, -18, -35]) {
+      const window = panWindow(base, start, -translationX * dataPerPx);
+      const nowPx = projectX(pointX, window, rangePx);
+      // 1:1: the point moved on screen by exactly the finger's travel.
+      expect(nowPx - startPx).toBeCloseTo(translationX, 6);
+    }
+  });
+
+  it('compounds (the bug) when the window is re-read every frame instead of anchored', () => {
+    const base: ChartDomain = [0, 100];
+    const rangePx = 200;
+    const dataPerPx = 20 / rangePx; // 0.1
+
+    // Correct path: fixed start window, cumulative translation. A 10 px/frame drag
+    // over 3 frames (cumulative 10, 20, 30) shifts the window left by 30·0.1 = 3.
+    const start: ChartDomain = [40, 60];
+    const anchored = panWindow(base, start, -30 * dataPerPx);
+    expect(anchored[0]).toBeCloseTo(37, 6);
+
+    // Buggy path: use the CURRENT window as the base each frame (because the start
+    // was never snapshotted). The same drag drives the window much further left —
+    // the shift accumulates super-linearly.
+    let window: ChartDomain = [40, 60];
+    for (const cumulative of [10, 20, 30]) {
+      window = panWindow(base, window, -cumulative * dataPerPx);
+    }
+    expect(window[0]).toBeLessThan(37);
+    // Concretely: 40 → 39 → 37 → 34, i.e. 2× the correct shift after 3 frames.
+    expect(window[0]).toBeCloseTo(34, 6);
   });
 });
 

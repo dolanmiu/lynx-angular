@@ -80,6 +80,12 @@ export class LynxHydrateDocument implements LynxDocumentBase {
     }
     const el = this.#nextElement();
     el.tagName = 'raw-text';
+    // Seed the same recreation/normalization cache a freshly-created raw-text
+    // gets (see LynxDocument.createText). Without this, #rawText stays
+    // undefined; if this element is later touched by the flush-time whitespace
+    // pass (e.g. a sibling run inside the same <text> changes), it would read
+    // back '' and blank this correctly-hydrated text.
+    el.setInitialText(value);
     return el;
   }
 

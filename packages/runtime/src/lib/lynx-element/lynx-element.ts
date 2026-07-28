@@ -539,34 +539,64 @@ export class LynxElement implements BaseLynxElement {
 
   /**
    * Trims the edges of one text inline-formatting context. Collects its raw-text
-   * leaves in document order, strips the leading space of the first leaf and the
-   * trailing space of the last, and collapses a space shared across an inter-run
-   * boundary to a single space — matching how a browser lays out
-   * `white-space: normal` text. A single-leaf context (ordinary prose) reduces to
-   * trim-both.
+   * leaves in document order, strips the leading space of the first NON-EMPTY
+   * leaf and the trailing space of the last NON-EMPTY leaf, and collapses a space
+   * shared across an inter-run boundary to a single space — matching how a
+   * browser lays out `white-space: normal` text. A single-leaf context (ordinary
+   * prose) reduces to trim-both.
+   *
+   * "Non-empty" matters because a leaf can legitimately collapse to '' (a
+   * whitespace-only interpolated or `@for` run — collapseWhitespace shrinks it to
+   * a single space, which the inter-run branch below can then consume entirely).
+   * Such a leaf contributes no inline box, so it must be transparent: it cannot
+   * claim an edge trim in place of the real first/last run, and it must not
+   * erase `pendingSpace` — the earlier run's trailing space is still "pending"
+   * across it, or the run after would keep its own leading space too and produce
+   * a double space (this was a real bug: `['A ', ' ', ' B']` rendered "A  B").
    */
   static #normalizeTextRoot(root: LynxElement): void {
-    const leaves: LynxElement[] = [];
-    LynxElement.#collectRawTextLeaves(root, leaves);
+    // A raw-text is itself a leaf. Its parent is not always a <text> (a raw-text
+    // painted outside a <text> is unsupported by Lynx and never renders, but
+    // this keeps the pass's own contract — "a single-leaf context reduces to
+    // trim-both" — true for every root it is handed).
+    const leaves: LynxElement[] = root.tagName === 'raw-text' ? [root] : [];
+    if (root.tagName === 'text') {
+      LynxElement.#collectRawTextLeaves(root, leaves);
+    }
     if (leaves.length === 0) return;
-    let prevEndsWithSpace = false;
-    for (let i = 0; i < leaves.length; i++) {
-      const leaf = leaves[i];
+
+    const displayed: string[] = [];
+    let pendingSpace = false;
+    let seenNonEmpty = false;
+    for (const leaf of leaves) {
       let text = leaf.#rawText ?? '';
-      if (i === 0) {
-        // Leading edge of the whole context.
+      if (!seenNonEmpty) {
+        // Still at the leading edge of the whole context — every leaf up to and
+        // including the first non-empty one is eligible for the leading trim.
         text = text.replace(/^ /, '');
-      } else if (prevEndsWithSpace && text.startsWith(' ')) {
+      } else if (pendingSpace && text.startsWith(' ')) {
         // A space on both sides of an inter-run boundary collapses to one (kept
         // on the earlier run), as a browser would across adjacent inline boxes.
         text = text.slice(1);
       }
-      if (i === leaves.length - 1) {
-        // Trailing edge of the whole context.
-        text = text.replace(/ $/, '');
+      displayed.push(text);
+      if (text.length > 0) {
+        seenNonEmpty = true;
+        pendingSpace = text.endsWith(' ');
       }
-      leaf.#setDisplayedText(text);
-      prevEndsWithSpace = text.endsWith(' ');
+      // An empty leaf carries `pendingSpace`/`seenNonEmpty` forward unchanged —
+      // it is not the edge and not a boundary in its own right.
+    }
+    // Trailing edge: strip one trailing space from the LAST non-empty leaf. Done
+    // as a second pass (not inline above) because which leaf is "last" can only
+    // be known once an empty tail has been ruled out.
+    for (let i = displayed.length - 1; i >= 0; i--) {
+      if (displayed[i].length === 0) continue;
+      displayed[i] = displayed[i].replace(/ $/, '');
+      break;
+    }
+    for (let i = 0; i < leaves.length; i++) {
+      leaves[i].#setDisplayedText(displayed[i]);
     }
   }
 

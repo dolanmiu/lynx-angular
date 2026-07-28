@@ -770,9 +770,32 @@ export class UiCartesianChart {
 
   readonly #pan = new PanGesture()
     .maxPointers(1)
-    .onStart(() => {
+    // Registering onBegin is REQUIRED, not decorative. On BOTH iOS and Android the
+    // native pan handler gates onStart *and* onEnd behind onBegin having fired
+    // (`!_isInvokedBegin` / `!mIsInvokedBegin` early-return in
+    // LynxPanGestureHandler.m / PanGestureHandler.java), and onBegin itself
+    // no-ops unless a JS onBegin callback was registered (the enable flag defaults
+    // off). Wire only onStart/onUpdate/onEnd and, on-device, onStart/onEnd NEVER
+    // fire — so the start-of-gesture window snapshot below is never taken, #onPan
+    // re-reads the *current* (already-moved) window every frame, and the pan
+    // compounds into a runaway slide instead of tracking the finger 1:1 (the
+    // reported "doesn't move the same distance / anchored to the middle" bug).
+    // onUpdate has no such gate, which is why the pan fired at all but drifted.
+    // Snapshotting here at touch-down also anchors the window at the exact zero
+    // point of translationX — mapGestureEvent anchors its own origin on onBegin —
+    // so the two stay in lockstep for precise 1:1 panning.
+    .onBegin(() => {
+      // Unconditional: marks a fresh gesture start. Overwrites any stale snapshot
+      // left behind if a previous gesture's onEnd was dropped (e.g. a cancel path).
       this.#panStartX = this.#effectiveXDomain();
       this.#panStartY = this.#effectiveYDomain();
+    })
+    // Fallback anchor for any platform that fires onStart without onBegin; guarded
+    // so it keeps the earlier onBegin snapshot when both fire (nothing has panned
+    // in between, so the value is identical either way).
+    .onStart(() => {
+      this.#panStartX ??= this.#effectiveXDomain();
+      this.#panStartY ??= this.#effectiveYDomain();
     })
     .onUpdate((event) => this.#onPan(event))
     .onEnd(() => {
@@ -781,6 +804,16 @@ export class UiCartesianChart {
     });
 
   readonly #pinch = new PinchGesture()
+    // Same begin-gating as pan (see above) — register onBegin so onStart can fire.
+    // NOTE: Lynx's new-gesture system currently ships NO native pinch handler on
+    // ANY platform (iOS/Android/Harmony all omit it from convertToGestureHandler),
+    // so pinch never fires on-device today; zoom is driven by drag-to-pan and the
+    // +/−/1:1 controls. This wiring is kept correct so pinch-to-zoom lights up the
+    // moment a Lynx runtime adds pinch support.
+    .onBegin(() => {
+      // Intentionally empty: only needed to flip the native onBegin-enabled flag
+      // so onStart is allowed to fire. The real focal snapshot happens in onStart.
+    })
     .onStart((event) => this.#onPinchStart(event))
     .onUpdate((event) => this.#onPinch(event));
 
@@ -799,6 +832,13 @@ export class UiCartesianChart {
   protected readonly noGesture: never[] = [];
 
   #onPan(event: PanGestureEvent): void {
+    // Defensive anchor: onBegin/onStart normally snapshot the start window, but if
+    // a platform ever delivered onUpdate without either, anchor on this first
+    // update and hold it (the `??=` won't overwrite on later frames). Without a
+    // fixed anchor the window would be re-read every frame and the pan would
+    // compound — the exact failure the onBegin registration above prevents.
+    this.#panStartX ??= this.#effectiveXDomain();
+    this.#panStartY ??= this.#effectiveYDomain();
     const axes = this.zoomAxes();
     if (axes === 'x' || axes === 'xy') {
       const start = this.#panStartX ?? this.#effectiveXDomain();
