@@ -170,6 +170,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'text-whitespace-demo',
+    loadComponent: () =>
+      import('./text-whitespace-demo/text-whitespace-demo').then(
+        (m) => m.TextWhitespaceDemo,
+      ),
+  },
+  {
     path: 'refresh-demo',
     loadComponent: () =>
       import('./refresh-demo/refresh-demo').then((m) => m.RefreshDemo),

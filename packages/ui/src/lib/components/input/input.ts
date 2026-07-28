@@ -30,15 +30,15 @@ import { cn } from '../../utils/cn';
            Tailwind ring-* class (the Lynx preset doesn't wire up --tw-ring-*, so
            ring-* renders nothing on device). It rides its OWN layer so it can
            fade: box-shadow is animatable:no on Lynx (the core rejects a
-           `transition: box-shadow`), but opacity is animatable, so we transition
+           transition: box-shadow), but opacity is animatable, so we transition
            the layer's opacity instead. The overlay is the FIRST child, and Lynx
            paints in source order, so the <input> stays on top and tappable —
            avoiding pointer-events, which errors the Lynx build. The shadow is
-           OUTSET only: Lynx doesn't render `inset` box-shadows, so the crisp 1px
+           OUTSET only: Lynx doesn't render inset box-shadows, so the crisp 1px
            "border" is an outset ring hugging the edge, not a real inset border. -->
       <view [class]="inputWrapperClass()">
         <view
-          class="absolute top-0 right-0 bottom-0 left-0 rounded-xl opacity-0"
+          class="rounded-xl opacity-0 absolute bottom-0 left-0 right-0 top-0"
           [style.transition]="'opacity 150ms ease'"
           [style.box-shadow]="ringShadow()"
           [style.opacity]="ringVisible() ? 1 : 0"

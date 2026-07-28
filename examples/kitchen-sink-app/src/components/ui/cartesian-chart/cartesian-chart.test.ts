@@ -9,14 +9,31 @@ vi.mock('@angular/core', () => ({
   ViewEncapsulation: { None: 0 },
   computed: () => () => {},
   input: () => () => {},
+  signal: () => () => {},
 }));
 
+// The module now imports the gesture primitives at top level. They're only used
+// inside class field initializers (which never run — we don't construct the
+// component), so bare stubs are enough to satisfy the imports.
 vi.mock('@blotch/angular-lynx', () => ({
   LYNX_ELEMENTS: [],
+  LynxGestureDetector: class {},
+  PanGesture: class {},
+  PinchGesture: class {},
+  Gesture: { Simultaneous: () => ({}) },
 }));
 
-const { linearScale, niceNum, niceScale, generateTicks, sampleSmoothLine } =
-  await import('./cartesian-chart');
+const {
+  linearScale,
+  invertLinear,
+  niceNum,
+  niceScale,
+  generateTicks,
+  sampleSmoothLine,
+  clampWindow,
+  panWindow,
+  zoomWindow,
+} = await import('./cartesian-chart');
 
 describe('linearScale', () => {
   it('interpolates a value across the range', () => {
@@ -171,5 +188,78 @@ describe('sampleSmoothLine', () => {
     for (let i = 1; i < curve.length; i++) {
       expect(curve[i].x).toBeGreaterThanOrEqual(curve[i - 1].x);
     }
+  });
+});
+
+describe('invertLinear', () => {
+  it('is the inverse of linearScale', () => {
+    const domain = [0, 10] as const;
+    const range = [0, 100] as const;
+    const scale = linearScale(domain, range);
+    for (const v of [0, 2.5, 5, 7.5, 10]) {
+      expect(invertLinear(domain, range, scale(v))).toBeCloseTo(v);
+    }
+  });
+
+  it('inverts a descending (flipped y) range', () => {
+    // linearScale([0,100],[180,0])(50) === 90 → invert back to 50.
+    expect(invertLinear([0, 100], [180, 0], 90)).toBeCloseTo(50);
+    expect(invertLinear([0, 100], [180, 0], 180)).toBeCloseTo(0);
+    expect(invertLinear([0, 100], [180, 0], 0)).toBeCloseTo(100);
+  });
+
+  it('collapses a zero-width range to the domain lower bound', () => {
+    expect(invertLinear([2, 8], [50, 50], 999)).toBe(2);
+  });
+});
+
+describe('clampWindow', () => {
+  it('leaves a window already inside the base untouched', () => {
+    expect(clampWindow([0, 10], [2, 6])).toEqual([2, 6]);
+  });
+
+  it('slides a window back inside the base, preserving its span', () => {
+    expect(clampWindow([0, 10], [8, 14])).toEqual([4, 10]);
+    expect(clampWindow([0, 10], [-3, 2])).toEqual([0, 5]);
+  });
+
+  it('caps a window wider than the base to the whole base', () => {
+    expect(clampWindow([0, 10], [-5, 20])).toEqual([0, 10]);
+  });
+});
+
+describe('panWindow', () => {
+  it('shifts the window by a data delta', () => {
+    expect(panWindow([0, 10], [2, 6], 1)).toEqual([3, 7]);
+  });
+
+  it('stops (does not resize) at either edge', () => {
+    // Preserves the span of 4, clamped against the right and left edges.
+    expect(panWindow([0, 10], [2, 6], 10)).toEqual([6, 10]);
+    expect(panWindow([0, 10], [2, 6], -10)).toEqual([0, 4]);
+  });
+});
+
+describe('zoomWindow', () => {
+  it('zooms in around the focal value, keeping it fixed', () => {
+    // 2× zoom on the centre halves the span and stays centred.
+    expect(zoomWindow([0, 10], [0, 10], 2, 5, 8)).toEqual([2.5, 7.5]);
+    // Focal at the left edge keeps that edge pinned.
+    expect(zoomWindow([0, 10], [0, 10], 2, 0, 8)).toEqual([0, 5]);
+  });
+
+  it('clamps zoom-in to maxZoom (min span = baseSpan / maxZoom)', () => {
+    const [lo, hi] = zoomWindow([0, 10], [0, 10], 100, 5, 8);
+    expect(hi - lo).toBeCloseTo(10 / 8); // 1.25, not 0.1
+  });
+
+  it('never zooms out past the full base domain', () => {
+    expect(zoomWindow([0, 10], [2.5, 7.5], 0.1, 5, 8)).toEqual([0, 10]);
+  });
+
+  it('honours minZoom as an upper bound on the visible span', () => {
+    // minZoom 2 → the window can never be wider than baseSpan / 2 = 5.
+    const [lo, hi] = zoomWindow([0, 10], [3, 4], 0.01, 3.5, 8, 2);
+    expect(hi - lo).toBeCloseTo(5);
   });
 });

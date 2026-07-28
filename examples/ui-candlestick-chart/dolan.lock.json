@@ -3,21 +3,21 @@
   "components": {
     "cartesian-chart": {
       "cartesian-chart.test.ts": {
-        "hash": "a84bf9fbf06818b2"
+        "hash": "30a5f52f079f82a7"
       },
       "cartesian-chart.ts": {
-        "hash": "e1d4dd7b9ea0687c"
+        "hash": "fa22e5261ed0e33f"
       },
       "index.ts": {
-        "hash": "83519804ffd23c31"
+        "hash": "f48e77dff85aa447"
       }
     },
     "candlestick-chart": {
       "candlestick-chart.test.ts": {
-        "hash": "d88e8a459bbbfc4b"
+        "hash": "8580b623f937b443"
       },
       "candlestick-chart.ts": {
-        "hash": "1960a6108354a1ea"
+        "hash": "addd71f3c265b3e4"
       },
       "index.ts": {
         "hash": "1e5f6600a9abd48d"

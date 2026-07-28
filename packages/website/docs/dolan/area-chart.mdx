@@ -124,6 +124,16 @@ For more than one area, use the base `<ui-cartesian-chart>` with one `<ui-area-s
 Lynx has no filled-polygon primitive, so the fill is rasterized into thin vertical views sized in **pixels** — hence the explicit `width`/`height` instead of stretch-to-fit. The line on top is drawn as rotated views, same as the [Line Chart](/dolan/line-chart).
 :::
 
+### Pan and zoom
+
+Set `zoomable` for pinch-to-zoom and drag-to-pan, with on-screen `+` / `−` / `1:1` controls. The axes and gridlines update live as you zoom. Off by default.
+
+```angular-html
+<ui-area-chart [data]="revenue" [zoomable]="true" />
+```
+
+See [Pan and zoom](/dolan/line-chart#pan-and-zoom) for the shared options (`zoomAxes`, `minZoom`, `maxZoom`) and the `zoomIn()` / `zoomOut()` / `resetZoom()` methods.
+
 ## API
 
 ### UiAreaChart
@@ -153,6 +163,12 @@ The single-series convenience wrapper. Auto-computes the axes from `data` and th
 | `yMax`        | `number`                    | _auto_             | Force y-axis upper bound                  |
 | `xTickFormat` | `(value: number) => string` | rounds to 2 dp     | Formats x-axis labels                     |
 | `yTickFormat` | `(value: number) => string` | rounds to 2 dp     | Formats y-axis labels                     |
+| `zoomable`    | `boolean`                   | `false`            | Enable pinch/drag zoom + controls         |
+| `zoomAxes`    | `'x' \| 'y' \| 'xy'`        | `'xy'`             | Which axes zoom/pan affect                |
+| `showZoomControls` | `boolean`              | `true`             | Show the +/−/1:1 controls when zoomable   |
+| `minZoom`     | `number`                    | `1`                | Lower zoom bound (1 = fit all data)       |
+| `maxZoom`     | `number`                    | `8`                | Upper zoom bound                          |
+| `zoomStep`    | `number`                    | `1.4`              | Zoom factor per +/− control press         |
 | `class`       | `string`                    | `''`               | Additional CSS classes                    |
 
 | Output     | Type         | Description                          |

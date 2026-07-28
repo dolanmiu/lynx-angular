@@ -136,6 +136,16 @@ For an overlay, drop to the base `<ui-cartesian-chart>` and layer a [`<ui-line-s
 Lynx has no `Intl`, so the whole chart system keeps `x` **numeric** rather than a `Date` — format tick labels with `xTickFormat` if you need them. Bars are vertical and single-series; for a trend or comparison, overlay a line as shown above.
 :::
 
+### Pan and zoom
+
+Set `zoomable` for pinch-to-zoom and drag-to-pan, with on-screen `+` / `−` / `1:1` controls. Zooming in **stretches the bars apart** while the axes and gridlines update live. Off by default.
+
+```angular-html
+<ui-bar-chart [data]="revenue" [zoomable]="true" />
+```
+
+See [Pan and zoom](/dolan/line-chart#pan-and-zoom) for the shared options (`zoomAxes`, `minZoom`, `maxZoom`) and the `zoomIn()` / `zoomOut()` / `resetZoom()` methods.
+
 ## API
 
 ### UiBarChart
@@ -163,6 +173,12 @@ The single-series convenience wrapper. Auto-computes the axes from `data` (foldi
 | `yMax`          | `number`                    | _auto_             | Force y-axis upper bound                          |
 | `xTickFormat`   | `(value: number) => string` | rounds to 2 dp     | Formats x-axis labels                             |
 | `yTickFormat`   | `(value: number) => string` | rounds to 2 dp     | Formats y-axis labels                             |
+| `zoomable`      | `boolean`                   | `false`            | Enable pinch/drag zoom + controls                 |
+| `zoomAxes`      | `'x' \| 'y' \| 'xy'`        | `'xy'`             | Which axes zoom/pan affect                        |
+| `showZoomControls` | `boolean`                | `true`             | Show the +/−/1:1 controls when zoomable           |
+| `minZoom`       | `number`                    | `1`                | Lower zoom bound (1 = fit all data)               |
+| `maxZoom`       | `number`                    | `8`                | Upper zoom bound                                  |
+| `zoomStep`      | `number`                    | `1.4`              | Zoom factor per +/− control press                 |
 | `class`         | `string`                    | `''`               | Additional CSS classes                            |
 
 | Output   | Type         | Description                          |

@@ -11,6 +11,7 @@ import type { LynxDocumentBase } from '../lynx-document';
 import {
   processPendingListUpdates,
   processPendingRemovals,
+  processPendingTextNormalization,
 } from '../lynx-element';
 import {
   isFirstRenderPending,
@@ -121,6 +122,13 @@ export class LynxRendererFactory2 implements RendererFactory2 {
       // mutate native elements directly, and native performs its own flush once
       // renderPage returns.
       processPendingRemovals();
+      // Re-derive positional edge whitespace for texts mutated this cycle, after
+      // removals (so torn-down subtrees are skipped) and before the flush (so the
+      // corrected text is painted in the same pass). Runs even while the first
+      // render's explicit flush is skipped: it only mutates native `text`
+      // attributes directly, which native commits in its own post-renderPage
+      // flush — same rationale as processPendingRemovals above.
+      processPendingTextNormalization();
       if (!isFirstRenderPending()) {
         __FlushElementTree();
       }

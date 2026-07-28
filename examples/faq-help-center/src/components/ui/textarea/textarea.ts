@@ -31,6 +31,18 @@ import { cn } from '@blotch/dolan/utils/cn';
            (via height:100% below). Pinning min/max-height on the textarea itself
            locks it to a fixed box that scrolls but never grows. -->
       <view [class]="textareaWrapperClass()" [style]="wrapperStyle()">
+        <!-- Focus ring on its own overlay layer so it can fade (see input.ts for
+             the full rationale): box-shadow is animatable:no on Lynx, opacity is,
+             so we transition the layer's opacity. First child = painted behind
+             the textarea (Lynx paints in source order), so the textarea stays on
+             top and tappable — no pointer-events (which errors the Lynx build).
+             OUTSET only; Lynx doesn't render inset box-shadows. -->
+        <view
+          class="rounded-xl opacity-0 absolute bottom-0 left-0 right-0 top-0"
+          [style.transition]="'opacity 150ms ease'"
+          [style.box-shadow]="ringShadow()"
+          [style.opacity]="ringVisible() ? 1 : 0"
+        ></view>
         <!-- [attr.disabled]="disabled() || undefined": passing 'undefined'
              removes the attribute entirely; passing 'false' would set
              disabled="false" which Lynx still treats as disabled. -->
@@ -124,31 +136,30 @@ export class UiTextarea implements FormValueControl<string> {
   );
 
   /**
-   * Focus ring as an inline box-shadow. Tailwind's ring-* utilities render
-   * nothing on Lynx — the preset doesn't wire up the --tw-ring-* variables they
-   * compose into box-shadow — so the ring has to be an inline box-shadow, the
-   * one shadow form Lynx honors (incl. iOS). Two layered shadows: an `inset` 1px
-   * shadow that reads as a crisp border, plus a 2px outer ring — both follow the
-   * wrapper's rounded-xl corners. Focus pairs a solid var(--ring) border with the
-   * translucent var(--ring-subtle) ring (softer than the opaque --ring); error
-   * uses solid var(--destructive) for both. The border is an inset shadow, not a
-   * real border, so the box never changes size on focus. Colors resolve at
-   * runtime and track dark mode. This
-   * is folded into wrapperStyle() rather than bound via [style.box-shadow]
-   * because the wrapper already has a whole-string [style]: mixing whole-string
-   * (__SetInlineStyles) and per-key (__AddInlineStyle) inline styles on one
-   * element lets the whole-string set clobber the per-key one. Returns '' when
-   * unfocused/error-free so it drops out of the joined string (and, since
-   * __SetInlineStyles replaces rather than merges, the ring clears on blur).
-   * Error takes precedence over focus so an invalid field always shows red.
+   * Focus ring, drawn as an OUTSET box-shadow on a dedicated overlay layer (see
+   * the template comment, and input.ts for the full rationale). Two stacked
+   * outset shadows: a solid 1px ring hugging the edge (reads as a crisp border)
+   * and a softer 3px ring around it. Focus pairs var(--ring) with the translucent
+   * var(--ring-subtle); error uses solid var(--destructive) for both. Always set
+   * (never null) so the shadow stays painted while the layer fades out —
+   * visibility is driven by ringVisible()/opacity. On its own layer (not folded
+   * into wrapperStyle()) so the wrapper's whole-string [style] and this per-key
+   * box-shadow never collide. Colors resolve at runtime and track dark mode.
    */
-  protected readonly focusRing = computed(() => {
-    if (this.error())
-      return 'box-shadow: inset 0 0 0 1px var(--destructive), 0 0 0 2px var(--destructive)';
-    if (this.#isFocused())
-      return 'box-shadow: inset 0 0 0 1px var(--ring), 0 0 0 2px var(--ring-subtle)';
-    return '';
-  });
+  protected readonly ringShadow = computed(() =>
+    this.error()
+      ? '0 0 0 1px var(--destructive), 0 0 0 3px var(--destructive)'
+      : '0 0 0 1px var(--ring), 0 0 0 3px var(--ring-subtle)',
+  );
+
+  /**
+   * Whether the focus ring is shown. The overlay's opacity transitions between 0
+   * and 1 on this, fading the ring in/out (opacity is animatable on Lynx;
+   * box-shadow is not). Shown while focused, or while an error is present.
+   */
+  protected readonly ringVisible = computed(
+    () => this.#isFocused() || this.error() !== '',
+  );
 
   // Sizing lives on the wrapper so the textarea (height:100%) grows it with
   // content between min and max, then scrolls at the cap — the native textarea
@@ -165,7 +176,6 @@ export class UiTextarea implements FormValueControl<string> {
     return [
       `min-height: ${this.minLines() * lineHeight + verticalPadding}px`,
       max != null ? `max-height: ${max * lineHeight + verticalPadding}px` : '',
-      this.focusRing(),
     ]
       .filter(Boolean)
       .join('; ');

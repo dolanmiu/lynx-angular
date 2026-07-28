@@ -192,6 +192,11 @@ export class App {
           label: 'Text Projection',
           icon: 'info',
         },
+        {
+          path: 'text-whitespace-demo',
+          label: 'Text Whitespace',
+          icon: 'info',
+        },
       ],
     },
   ];

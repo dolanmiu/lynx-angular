@@ -79,21 +79,28 @@ describe('LynxRenderer', () => {
       expect(spy).toHaveBeenCalledWith('hello');
     });
 
-    // Angular's compiler leaves the single leading/trailing space it creates
-    // from indented templates; browsers hide it via white-space collapsing but
-    // Lynx renders it verbatim, so the renderer must trim to match the web.
-    it('trims the leading/trailing whitespace left by indented templates', () => {
+    // The renderer only COLLAPSES whitespace; positional edge-trimming is
+    // deferred to the flush-time pass, which needs sibling context (see
+    // inline-text.spec.ts). So edge spaces are preserved through this layer.
+    it('collapses interior whitespace runs to a single space', () => {
       const { renderer, doc } = createRenderer();
       const spy = vi.spyOn(doc, 'createText');
-      renderer.createText(' Hello world ');
+      renderer.createText('Hello   world');
       expect(spy).toHaveBeenCalledWith('Hello world');
     });
 
-    it('collapses interior whitespace runs (including newlines and tabs) to one space', () => {
+    it('collapses newlines and tabs to a single space, keeping edges', () => {
       const { renderer, doc } = createRenderer();
       const spy = vi.spyOn(doc, 'createText');
       renderer.createText('\n  Hello\t\tthere\n  world  \n');
-      expect(spy).toHaveBeenCalledWith('Hello there world');
+      expect(spy).toHaveBeenCalledWith(' Hello there world ');
+    });
+
+    it('preserves leading/trailing edge spaces (trimming is deferred to flush)', () => {
+      const { renderer, doc } = createRenderer();
+      const spy = vi.spyOn(doc, 'createText');
+      renderer.createText(' Hello world ');
+      expect(spy).toHaveBeenCalledWith(' Hello world ');
     });
 
     it('leaves already-clean text untouched', () => {
@@ -110,9 +117,9 @@ describe('LynxRenderer', () => {
       expect(spy).toHaveBeenCalledWith('');
     });
 
-    // Only ASCII whitespace is trimmed, so a non-breaking space is a deliberate
-    // escape hatch for a runtime value that needs a literal edge space.
-    it('preserves a non-breaking space at the edge', () => {
+    // Collapse touches ASCII whitespace only, so a non-breaking space is a
+    // deliberate escape hatch for a value that needs a literal space.
+    it('preserves a non-breaking space', () => {
       const { renderer, doc } = createRenderer();
       const spy = vi.spyOn(doc, 'createText');
       renderer.createText('\u00A0Hello');
@@ -365,17 +372,17 @@ describe('LynxRenderer', () => {
       expect(spy).toHaveBeenCalledWith('text', 'hello world');
     });
 
-    // Interpolations bake the template's collapsed leading/trailing space into
-    // the string that flows through setValue at runtime, so it needs the same
-    // web-parity normalization as static text.
-    it('trims leading/trailing whitespace and collapses interior runs', () => {
+    // setValue only collapses interior runs; edge trimming is positional and
+    // happens in the flush-time pass (see inline-text.spec.ts), so edges are
+    // preserved through this layer.
+    it('collapses interior runs but preserves edges (trim deferred to flush)', () => {
       const { renderer } = createRenderer();
       const el = new LynxBackgroundElement();
       const spy = vi.spyOn(el, 'setAttribute');
 
       renderer.setValue(el, '  hello   world  ');
 
-      expect(spy).toHaveBeenCalledWith('text', 'hello world');
+      expect(spy).toHaveBeenCalledWith('text', ' hello world ');
     });
   });
 

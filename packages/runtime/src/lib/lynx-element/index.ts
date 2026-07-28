@@ -2,6 +2,7 @@ export { LynxBackgroundElement } from './lynx-background-element';
 export {
   LynxElement,
   processPendingRemovals,
+  processPendingTextNormalization,
   scheduleSettleFlush,
 } from './lynx-element';
 export {

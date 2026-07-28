@@ -14,6 +14,11 @@ vi.mock('@angular/core', () => ({
 
 vi.mock('@blotch/angular-lynx', () => ({
   LYNX_ELEMENTS: [],
+  // cartesian-chart (imported transitively) registers these in its decorator.
+  LynxGestureDetector: class {},
+  PanGesture: class {},
+  PinchGesture: class {},
+  Gesture: { Simultaneous: () => ({}) },
 }));
 
 const { computeBars } = await import('./bar-chart');

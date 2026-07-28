@@ -219,7 +219,8 @@
     "worklets",
     "wvid",
     "yalc",
-    "zoneless"
+    "zoneless",
+    "zoomable"
   ],
   "patterns": [
     {

@@ -3,7 +3,7 @@
   "components": {
     "checkbox": {
       "checkbox.ts": {
-        "hash": "564db019ed935d9a"
+        "hash": "22d8873a7f3efedd"
       },
       "index.ts": {
         "hash": "1f08373e69b58dcf"
@@ -38,7 +38,7 @@
         "hash": "4b675dffd15fdf8c"
       },
       "input.ts": {
-        "hash": "4a7f3e3151fbd3b1"
+        "hash": "adac269e7b8e1054"
       }
     },
     "select": {

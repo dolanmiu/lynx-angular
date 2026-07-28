@@ -231,6 +231,12 @@ export class UiBarSeries {
       [padding]="effectivePadding()"
       [xTickFormat]="xTickFormat()"
       [yTickFormat]="yTickFormat()"
+      [zoomable]="zoomable()"
+      [zoomAxes]="zoomAxes()"
+      [showZoomControls]="showZoomControls()"
+      [minZoom]="minZoom()"
+      [maxZoom]="maxZoom()"
+      [zoomStep]="zoomStep()"
       [class]="userClass()"
     >
       <ui-bar-series
@@ -277,6 +283,15 @@ export class UiBarChart {
   readonly xTickFormat = input<(value: number) => string>(defaultTickFormat);
   readonly yTickFormat = input<(value: number) => string>(defaultTickFormat);
   readonly userClass = input<string>('', { alias: 'class' });
+
+  // Pan/zoom — forwarded to the underlying <ui-cartesian-chart>. Off by default
+  // so a bar chart stays static (and scroll-view friendly) unless opted in.
+  readonly zoomable = input(false);
+  readonly zoomAxes = input<'x' | 'y' | 'xy'>('xy');
+  readonly showZoomControls = input(true);
+  readonly minZoom = input(1);
+  readonly maxZoom = input(8);
+  readonly zoomStep = input(1.4);
 
   readonly barTap = output<ChartPoint>();
 

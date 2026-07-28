@@ -26,11 +26,23 @@ import { cn } from '@blotch/dolan/utils/cn';
       @if (label()) {
         <text [class]="labelClass()">{{ label() }}</text>
       }
-      <!-- Focus ring is an inline box-shadow, not a Tailwind ring-* class:
-           ring-* utilities compose through the --tw-ring-* CSS variables, which
-           the Lynx tailwind preset doesn't wire up, so they render nothing on
-           device (incl. iOS). box-shadow is the one shadow form Lynx honors. -->
-      <view [class]="inputWrapperClass()" [style.box-shadow]="focusRing()">
+      <!-- Focus ring is an inline box-shadow on a dedicated overlay layer, not a
+           Tailwind ring-* class (the Lynx preset doesn't wire up --tw-ring-*, so
+           ring-* renders nothing on device). It rides its OWN layer so it can
+           fade: box-shadow is animatable:no on Lynx (the core rejects a
+           transition: box-shadow), but opacity is animatable, so we transition
+           the layer's opacity instead. The overlay is the FIRST child, and Lynx
+           paints in source order, so the <input> stays on top and tappable —
+           avoiding pointer-events, which errors the Lynx build. The shadow is
+           OUTSET only: Lynx doesn't render inset box-shadows, so the crisp 1px
+           "border" is an outset ring hugging the edge, not a real inset border. -->
+      <view [class]="inputWrapperClass()">
+        <view
+          class="rounded-xl opacity-0 absolute bottom-0 left-0 right-0 top-0"
+          [style.transition]="'opacity 150ms ease'"
+          [style.box-shadow]="ringShadow()"
+          [style.opacity]="ringVisible() ? 1 : 0"
+        ></view>
         <!-- [attr.disabled]="disabled() || undefined": passing 'undefined'
              removes the attribute entirely; passing 'false' would set
              disabled="false" which Lynx still treats as disabled. -->
@@ -105,25 +117,32 @@ export class UiInput implements FormValueControl<string> {
   );
 
   /**
-   * Focus ring as an inline box-shadow (see the template comment for why
-   * Tailwind ring-* can't be used on Lynx). Two layered shadows: an `inset` 1px
-   * shadow that reads as a crisp border, plus a 2px outer ring — both follow the
-   * wrapper's rounded-xl corners. Focus pairs a solid var(--ring) border with the
-   * translucent var(--ring-subtle) ring (softer than the opaque --ring); error
-   * uses solid var(--destructive) for both since it signals a problem (and never
-   * shows alongside the focus ring). The border is an inset shadow, not a real
-   * border, so the box never changes size on focus. Colors resolve at runtime and
-   * track dark mode. Returns null when unfocused/error-free so Angular clears the
-   * shadow (removeStyle) rather than painting a transparent one. Error takes
-   * precedence over focus so an invalid field always shows the destructive style.
+   * Focus ring, drawn as an OUTSET box-shadow on a dedicated overlay layer (see
+   * the template comment for why it can't be a Tailwind ring-* class and why it
+   * needs its own layer). Two stacked outset shadows: a solid 1px ring hugging
+   * the edge (reads as a crisp border) and a softer 3px ring around it — both
+   * follow the wrapper's rounded-xl corners. Focus pairs var(--ring) with the
+   * translucent var(--ring-subtle); error uses solid var(--destructive) for both
+   * since it flags a problem. The value is always set (never null) so the shadow
+   * stays painted while the layer fades OUT — visibility is driven by
+   * ringVisible()/opacity, not by adding/removing the shadow. Colors resolve at
+   * runtime and track dark mode.
    */
-  protected readonly focusRing = computed(() => {
-    if (this.error())
-      return 'inset 0 0 0 1px var(--destructive), 0 0 0 2px var(--destructive)';
-    if (this.#isFocused())
-      return 'inset 0 0 0 1px var(--ring), 0 0 0 2px var(--ring-subtle)';
-    return null;
-  });
+  protected readonly ringShadow = computed(() =>
+    this.error()
+      ? '0 0 0 1px var(--destructive), 0 0 0 3px var(--destructive)'
+      : '0 0 0 1px var(--ring), 0 0 0 3px var(--ring-subtle)',
+  );
+
+  /**
+   * Whether the focus ring is shown. The overlay's opacity transitions between 0
+   * and 1 on this, fading the ring in/out (opacity is animatable on Lynx;
+   * box-shadow is not). Shown while focused, or while an error is present so an
+   * invalid field always carries the destructive ring.
+   */
+  protected readonly ringVisible = computed(
+    () => this.#isFocused() || this.error() !== '',
+  );
 
   protected readonly helperClass = computed(() =>
     cn('text-xs text-muted-foreground'),

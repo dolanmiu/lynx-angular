@@ -95,6 +95,18 @@ By default the axes fit the data. Pass `yMin` / `yMax` (or `xMin` / `xMax`) to p
 <ui-line-chart [data]="revenue" (pointTap)="onPointTap($event)" />
 ```
 
+### Pan and zoom
+
+Set `zoomable` to let users **pinch to zoom** and **drag to pan**, with on-screen `+` / `−` / `1:1` controls. The axes, gridlines, and mark widths update live as you zoom. It's off by default, so charts stay static inside scroll views.
+
+```angular-html
+<ui-line-chart [data]="revenue" [zoomable]="true" />
+```
+
+Lock one axis with `zoomAxes` (`'x'`, `'y'`, or `'xy'`), and bound the range with `minZoom` / `maxZoom`. Every chart forwards these to the base [`UiCartesianChart`](#uicartesianchart), so they work the same on bar, candlestick, area, and scatter charts. On bar and candlestick charts, zooming in stretches the bars and candles apart.
+
+To drive zoom from your own buttons, call `zoomIn()`, `zoomOut()`, or `resetZoom()` on a `UiCartesianChart` reference.
+
 ### Multiple series
 
 For more than one line, use the base `<ui-cartesian-chart>` with one `<ui-line-series>` per line. The series read the shared axes from the chart, so they line up automatically.
@@ -144,6 +156,12 @@ The single-series convenience wrapper. Auto-computes the axes from `data`.
 | `yMax`        | `number`                    | _auto_               | Force y-axis upper bound                  |
 | `xTickFormat` | `(value: number) => string` | rounds to 2 decimals | Formats x-axis labels                     |
 | `yTickFormat` | `(value: number) => string` | rounds to 2 decimals | Formats y-axis labels                     |
+| `zoomable`         | `boolean`              | `false`              | Enable pinch/drag zoom + controls         |
+| `zoomAxes`         | `'x' \| 'y' \| 'xy'`   | `'xy'`               | Which axes zoom/pan affect                |
+| `showZoomControls` | `boolean`              | `true`               | Show the +/−/1:1 controls when zoomable   |
+| `minZoom`          | `number`               | `1`                  | Lower zoom bound (1 = fit all data)       |
+| `maxZoom`          | `number`               | `8`                  | Upper zoom bound                          |
+| `zoomStep`         | `number`               | `1.4`                | Zoom factor per +/− control press         |
 | `class`       | `string`                    | `''`                 | Additional CSS classes                    |
 
 | Output     | Type         | Description                          |
@@ -172,7 +190,19 @@ The reusable base: draws gridlines and axis labels, and shares its scales with a
 | `padding`     | `ChartPadding`              | `{}`                 | Inner inset, each side a `0`–`1` fraction   |
 | `xTickFormat` | `(value: number) => string` | rounds to 2 decimals | Formats x-axis labels                       |
 | `yTickFormat` | `(value: number) => string` | rounds to 2 decimals | Formats y-axis labels                       |
+| `zoomable`         | `boolean`              | `false`              | Enable pinch/drag zoom + on-screen controls |
+| `zoomAxes`         | `'x' \| 'y' \| 'xy'`   | `'xy'`               | Which axes zoom/pan affect                  |
+| `showZoomControls` | `boolean`              | `true`               | Show the +/−/1:1 controls when zoomable     |
+| `minZoom`          | `number`               | `1`                  | Lower zoom bound (1 = fit all data)         |
+| `maxZoom`          | `number`               | `8`                  | Upper zoom bound (max shrink of the view)   |
+| `zoomStep`         | `number`               | `1.4`                | Zoom factor per +/− control press           |
 | `class`       | `string`                    | `''`                 | Additional CSS classes                      |
+
+| Method        | Description                          |
+| ------------- | ------------------------------------ |
+| `zoomIn()`    | Zoom in one `zoomStep`, centred      |
+| `zoomOut()`   | Zoom out one `zoomStep`, centred     |
+| `resetZoom()` | Return to the fully zoomed-out view  |
 
 `ChartPadding` is `{ top?, right?, bottom?, left? }`, each a fraction (`0`–`1`) of the plot size; omitted sides default to `0`.
 

@@ -1,10 +1,15 @@
 export {
   UiCartesianChart,
   linearScale,
+  invertLinear,
   niceNum,
   niceScale,
   generateTicks,
+  clampWindow,
+  panWindow,
+  zoomWindow,
   type ChartPoint,
   type ChartDomain,
   type ChartScale,
+  type ChartPadding,
 } from './cartesian-chart';

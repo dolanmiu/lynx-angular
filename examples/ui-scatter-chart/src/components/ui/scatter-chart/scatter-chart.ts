@@ -189,6 +189,12 @@ export class UiScatterSeries {
       [padding]="effectivePadding()"
       [xTickFormat]="xTickFormat()"
       [yTickFormat]="yTickFormat()"
+      [zoomable]="zoomable()"
+      [zoomAxes]="zoomAxes()"
+      [showZoomControls]="showZoomControls()"
+      [minZoom]="minZoom()"
+      [maxZoom]="maxZoom()"
+      [zoomStep]="zoomStep()"
       [class]="userClass()"
     >
       <ui-scatter-series
@@ -230,6 +236,14 @@ export class UiScatterChart {
   readonly xTickFormat = input<(value: number) => string>(defaultTickFormat);
   readonly yTickFormat = input<(value: number) => string>(defaultTickFormat);
   readonly userClass = input<string>('', { alias: 'class' });
+
+  // Pan/zoom — forwarded to the underlying <ui-cartesian-chart>. Off by default.
+  readonly zoomable = input(false);
+  readonly zoomAxes = input<'x' | 'y' | 'xy'>('xy');
+  readonly showZoomControls = input(true);
+  readonly minZoom = input(1);
+  readonly maxZoom = input(8);
+  readonly zoomStep = input(1.4);
 
   readonly pointTap = output<ChartPoint>();
 

@@ -3804,19 +3804,41 @@ They render **nothing** — no ring, no shadow, no build error. Tailwind compose
 Write the shadow as an inline `box-shadow`, the one shadow form Lynx honors. Lynx supports the full syntax including the spread radius (`offset-x offset-y blur spread color`), so a focus ring is `0 0 0 2px <color>` — 2px spread, no offset or blur — and it follows the element's `border-radius`.
 
 ```html
-<!-- focus ring (element's only inline style → per-key binding) -->
+<!-- one-shot focus ring (element's only inline style → per-key binding) -->
 <view [style.box-shadow]="focused() ? '0 0 0 2px var(--ring)' : null" />
 
 <!-- elevation shadow (static) -->
 <view style="box-shadow: 0 2px 16px rgba(0, 0, 0, 0.15);" />
 ```
 
-Color it with `var(--ring)` / `var(--destructive)`: `var()` resolves in inline styles on Lynx and tracks dark mode. Exemplars: `input`/`textarea` (focus ring), `action-sheet`/`toast` (elevation).
+Color it with `var(--ring)` / `var(--destructive)`: `var()` resolves in inline styles on Lynx and tracks dark mode. Exemplars: `action-sheet`/`toast` (elevation), `input`/`textarea` (focus ring — see the faded pattern below).
 
-Two caveats:
+### Fading a focus ring: animate opacity, not the shadow
 
-- **Not animatable.** `box-shadow` is `animatable: no` on Lynx — it snaps on/off, so keep it out of transitions. `toast` deliberately holds its shadow in a static style, separate from its animated `transform`/`opacity`.
-- **Don't mix binding paths on one element.** `[style.box-shadow]` routes through `__AddInlineStyle` (per-key); a whole-string `[style]="..."` routes through `__SetInlineStyles` (replaces all inline styles). On an element that already has a whole-string `[style]`, fold the shadow into that string instead — a later whole-string set clobbers the per-key one. Because `__SetInlineStyles` replaces rather than merges, omitting the shadow from the string clears it (`textarea` folds its ring into `wrapperStyle()` for exactly this reason).
+`box-shadow` is `animatable: no` on Lynx, so `transition: box-shadow` is silently ignored and the ring snaps. The docs mark it non-animatable, and the core confirms it: `kBoxShadow` is left out of the transition validator (`IsValueValid()` in `core/animation/css_transition_manager.cc`), so the engine rejects it. `opacity` **is** animatable — so put the shadow on its own overlay layer and transition *that layer's* opacity:
+
+```html
+<view [class]="wrapperClass()">
+  <!-- ring layer: FIRST child, fades via opacity -->
+  <view
+    class="absolute top-0 right-0 bottom-0 left-0 rounded-xl opacity-0"
+    [style.transition]="'opacity 150ms ease'"
+    [style.box-shadow]="ringShadow()"
+    [style.opacity]="ringVisible() ? 1 : 0"
+  ></view>
+  <input ... />
+</view>
+```
+
+Three Lynx-specific requirements make this render on-device:
+
+- **A dedicated overlay layer.** Opacity on the wrapper would fade the input too. The shadow rides a separate sibling whose opacity is independent. Keep `ringShadow()` always set (never null) so the shadow stays painted while the layer fades out — drive visibility with opacity alone.
+- **First child = painted behind.** Lynx paints in **source order**; positioned elements do *not* jump above in-flow siblings as on web. So the ring layer placed first stays behind the input, which keeps receiving taps — no `pointer-events` (it **errors the Lynx build**; see that entry). The overlay's outset shadow still shows because it spreads *outside* the wrapper.
+- **Outset shadow only.** Lynx doesn't render `inset` box-shadows (see the inset entry), so the crisp "border" is an outset `0 0 0 1px` ring hugging the edge, layered under a softer `0 0 0 3px` ring — not a real inset border.
+
+### Don't mix binding paths on one element
+
+`[style.box-shadow]` routes through `__AddInlineStyle` (per-key); a whole-string `[style]="..."` routes through `__SetInlineStyles` (replaces all inline styles), so on one element a later whole-string set clobbers the per-key one. The overlay above keeps them apart: the ring layer carries only per-key `[style.*]` bindings, while `textarea`'s wrapper keeps its whole-string `[style]="wrapperStyle()"` (min/max-height). Because the ring is a separate child, the two never share an element.
 
 ---
 
@@ -3926,17 +3948,40 @@ React Lynx never hits this. Its JSX transform strips newline-adjacent whitespace
 
 ### The fix
 
-Normalize at the single choke point every text node flows through — `createText` (static text) and `setValue` (interpolations) in `packages/runtime/src/lib/renderer/renderer.ts`:
+Two layers, because the correct trim depends on a run's POSITION and the renderer only sees one text node at a time.
 
-```ts
-const normalizeText = (value: string): string =>
-  value.replace(/[ \t\n\r\f\v]+/g, ' ').replace(/^ | $/g, '');
-```
+First, the renderer only **collapses** whitespace runs to a single space, without trimming — `collapseWhitespace` in `packages/runtime/src/lib/renderer/renderer.ts`, applied in `createText` (static text) and `setValue` (interpolations). ASCII whitespace only, so a deliberate non-breaking space (U+00A0) survives as an escape hatch.
 
-Collapse runs to a single space and trim the ASCII-whitespace ends, mirroring the browser's default `white-space`. Trimming only ASCII whitespace leaves a deliberate non-breaking space (` `) intact as an escape hatch for the rare runtime value that needs a literal edge space.
+Then a flush-time pass trims positionally over the assembled tree: `processPendingTextNormalization` in `packages/runtime/src/lib/lynx-element/lynx-element.ts`, drained from `LynxRendererFactory2.end()` right after removals and before `__FlushElementTree()` (and from `scheduleSettleFlush` for out-of-cycle content). For each text touched this cycle it resolves to the outermost `<text>` — a nested `<text>` is inline, sharing one inline-formatting-context with the surrounding raw-text like an HTML `<span>`. It then collects the raw-text leaves in document order and:
 
-This restores parity for the common case: a text container wrapping one run of prose. The text node is both the first and last child, so edge-trimming is exactly correct.
+- strips the leading space of the FIRST leaf and the trailing space of the LAST;
+- collapses a space shared across a run boundary to one;
+- preserves the spaces BETWEEN runs.
 
-The fix does **not** yet handle two cases. Inline composition (`Hello <b>x</b> world`) needs *edge-only* trimming, because the space between inline siblings is meaningful. And `white-space: pre` needs whitespace preserved. Both need positional, container-level handling — tracked as follow-ups.
+A single-run text (ordinary prose) reduces to trim-both. Multiple runs — `<text>One </text><text>two</text><text> three</text>`, and the same shape assembled at runtime through `<ng-content>` projection — keep their inter-run spaces, so "One two three" no longer collapses to "Onetwothree". Deferring to flush is what makes the projection case work at all: the runs come from separate templates and only form one context once assembled, so no compile-time pass can see it.
 
-Because the renderer now trims, templates can be written naturally (`<text>\n  Hello\n</text>`) instead of the dangling-`>` workaround that hugs text to kill the whitespace (`<text\n  >Hello</text\n>`).
+Each raw-text stashes its collapsed-but-untrimmed value (`#rawText`) so the pass can RESTORE an edge space when a run's position changes (e.g. it stops being the last run) — the displayed `#text` alone has already dropped it.
+
+Remaining gaps, both rare: an inline **non-text** element (`<image>` / inline `<view>`) at a context edge can leave an adjacent space untrimmed, and `white-space: pre` is not honored (native Lynx does not support it anyway).
+
+Because AngularLynx trims, templates can be written naturally (`<text>\n  Hello\n</text>`) instead of the dangling-`>` workaround that hugs text to kill the whitespace (`<text\n  >Hello</text\n>`).
+
+---
+
+## Adding/removing elements inside a gesture worklet callback risks a native crash — keep the element count fixed during a live gesture
+
+### What you'd expect (web)
+
+A `pointermove`/drag handler can freely mutate the DOM — add rows, remove nodes, re-render a list — and the browser just repaints. There's no penalty for changing the *number* of elements mid-gesture.
+
+### What Lynx does
+
+Gesture callbacks (`PanGesture`/`PinchGesture` `onUpdate`, etc.) run on the **main thread inside a Lynx worklet**. Mutating the element *tree* from that context — inserting or removing native elements — is the same dangerous path that crashes when navigating from a native event callback (see `App.navigateTo()` in `kitchen-sink-app`, which defers router navigation with `setTimeout(…, 0)` for exactly this reason). Changing an element's *style* is fine; changing which elements *exist* is not.
+
+This bites charts specifically. `UiCartesianChart` draws gridlines and axis labels with `@for (tick of ticks())`. If a pinch/pan recomputed the tick *values* live and the count changed (e.g. a "nice numbers in the visible window" algorithm yields 5 ticks at one zoom and 6 at the next), the `@for` would add/remove `<view>`/`<text>` nodes on a gesture frame — a tree mutation inside the worklet.
+
+### The fix
+
+When zoom is enabled, generate a **fixed** number of ticks (`generateTicks(visibleDomain, tickCount)` returns exactly `tickCount` values) so the gridline/label `@for` length never changes during a gesture — every zoom frame only restyles the existing nodes (new `top`/`left`/label text), never adds or removes them. The trade-off is that a zoomable chart's ticks are evenly spaced rather than "nice round" numbers; a non-zoomable chart keeps the original nice-tick behaviour. See `#resolvedXTicks`/`#resolvedYTicks` in `packages/ui/src/lib/components/cartesian-chart/cartesian-chart.ts`.
+
+The same principle applies to the pan/zoom transform itself: it only ever writes the visible-window signals, which drive the scales and thus restyle existing gridlines, labels, and series marks — the marks re-project (and bars/candles stretch, since their width comes from projected pixel spacing) without any node being created or destroyed.

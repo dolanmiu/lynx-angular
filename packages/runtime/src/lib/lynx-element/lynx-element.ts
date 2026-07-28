@@ -58,6 +58,13 @@ const wouldFormCycle = (parent: ElementRef, candidate: ElementRef): boolean => {
   return false;
 };
 
+/**
+ * A raw-text leaf or a <text> container — the only elements that carry trimmable
+ * inline text. Used to decide when a mutation should queue text normalization.
+ */
+const isTextish = (el: LynxElement): boolean =>
+  el.tagName === 'text' || el.tagName === 'raw-text';
+
 export class LynxElement implements BaseLynxElement {
   /**
    * The native element ref this wrapper currently drives.
@@ -129,8 +136,21 @@ export class LynxElement implements BaseLynxElement {
     eventName: string;
     listener: (event: any) => any;
   }[] = [];
-  /** Text baked into a raw-text element at creation (see setInitialText). */
+  /**
+   * DISPLAYED text of a raw-text element — the positionally edge-trimmed value
+   * that is actually painted, and what #recreateSubtree bakes into a rebuilt
+   * raw-text (see setInitialText / #setDisplayedText).
+   */
   #text: string | undefined;
+  /**
+   * Collapsed-but-UNTRIMMED text of a raw-text element (the value the renderer
+   * produced via collapseWhitespace, before any positional edge-trim). The
+   * flush-time normalization pass re-derives #text from this — it must keep the
+   * edge spaces #text drops, so a leaf whose position changes (e.g. it stops
+   * being the last run in its text) can have a trimmed edge restored. See
+   * #normalizeTextRoot / processPendingTextNormalization.
+   */
+  #rawText: string | undefined;
   /**
    * Ordered child wrappers, kept in lock-step with the native child order by
    * appendChild/insertBefore/#doRemove. This is the CANONICAL wrapper list — the
@@ -174,6 +194,20 @@ export class LynxElement implements BaseLynxElement {
    * LynxDocument.createComment).
    */
   static #pendingRemovals = new Set<LynxElement>();
+
+  /**
+   * Text-carrying elements whose inline content changed this cycle and need
+   * positional whitespace re-derivation. The renderer collapses whitespace but
+   * cannot trim edges — whether a run's leading/trailing space is trimmable
+   * depends on its POSITION among siblings (see collapseWhitespace in
+   * renderer.ts) — so trimming is deferred to a flush-time pass that walks each
+   * dirty text's inline-formatting context. Drained by
+   * `processPendingTextNormalization()` from `LynxRendererFactory2.end()`, right
+   * after removals and before `__FlushElementTree()`, so corrected text lands in
+   * the same flush. Keyed by the wrapper, never a native ref (hashing one crashes
+   * the Lepus engine — see #pendingRemovals / #byNativeId).
+   */
+  static #pendingTextNormalization = new Set<LynxElement>();
 
   /**
    * Native-ref → canonical wrapper registry, keyed by the native unique ID.
@@ -244,6 +278,21 @@ export class LynxElement implements BaseLynxElement {
    */
   setInitialText(text: string): void {
     this.#text = text;
+    this.#rawText = text;
+  }
+
+  /**
+   * Writes the positionally edge-trimmed DISPLAY text onto the live raw-text
+   * element, bypassing setAttribute so it does NOT overwrite #rawText or re-queue
+   * this node for normalization. Called only by the flush-time normalization
+   * pass. Keeps #text and the recreation attr cache (#attrs['text']) in sync with
+   * the displayed value so a remounted raw-text rebuilds with the correct text.
+   */
+  #setDisplayedText(displayed: string): void {
+    if (this.#text === displayed) return;
+    __SetAttribute(this.element, 'text', displayed);
+    this.#text = displayed;
+    this.#attrs.set('text', displayed);
   }
   setAttribute(name: string, value: any): void {
     if (name === 'class') {
@@ -278,7 +327,14 @@ export class LynxElement implements BaseLynxElement {
         this.#attrs.set(name, value);
       }
       if (this.tagName === 'raw-text' && name === 'text') {
-        this.#text = value == null ? undefined : String(value);
+        // The renderer feeds this the COLLAPSED-but-untrimmed value (see
+        // renderer.setValue → collapseWhitespace). Stash it as the raw source and
+        // queue the enclosing text for the positional edge-trim pass; #text is
+        // the provisional display until that pass corrects it (#setDisplayedText).
+        const text = value == null ? undefined : String(value);
+        this.#text = text;
+        this.#rawText = text;
+        LynxElement.#enqueueTextNormalization(this);
       }
     }
   }
@@ -326,6 +382,9 @@ export class LynxElement implements BaseLynxElement {
       if (wouldFormCycle(this.element, newChild.element)) return;
       __InsertElementBefore(this.element, newChild.element, refChild.element);
       this.#adoptChild(newChild, refChild);
+      if (isTextish(this) || isTextish(newChild)) {
+        LynxElement.#enqueueTextNormalization(newChild);
+      }
     }
   }
 
@@ -340,6 +399,14 @@ export class LynxElement implements BaseLynxElement {
     if (wouldFormCycle(this.element, newChild.element)) return;
     __AppendElement(this.element, newChild.element);
     this.#adoptChild(newChild);
+    // Attaching a run to (or as) a text shifts inline layout — re-derive the
+    // enclosing context's edge whitespace at the next flush (see
+    // #pendingTextNormalization). Enqueue newChild; the pass resolves it to the
+    // outermost text root, so this covers both a run joining a text and a text
+    // root being attached elsewhere.
+    if (isTextish(this) || isTextish(newChild)) {
+      LynxElement.#enqueueTextNormalization(newChild);
+    }
   }
 
   /**
@@ -434,6 +501,92 @@ export class LynxElement implements BaseLynxElement {
   }
 
   /**
+   * Queues `el` for flush-time whitespace normalization (see
+   * #pendingTextNormalization). Deduped, so a node touched by both a text update
+   * and an attach in the same cycle is processed once, against the final tree.
+   */
+  static #enqueueTextNormalization(el: LynxElement): void {
+    LynxElement.#pendingTextNormalization.add(el);
+  }
+
+  /**
+   * Re-derives displayed whitespace for every text touched this cycle. Each dirty
+   * node is resolved to the OUTERMOST enclosing <text>: a nested <text> is inline
+   * — it shares one inline-formatting-context with the surrounding raw-text, like
+   * an HTML <span> — so the whole subtree is trimmed as a single run of text.
+   * Called by `processPendingTextNormalization()` from `end()` /
+   * `scheduleSettleFlush`, after removals and before the flush.
+   */
+  static commitPendingTextNormalization(): void {
+    if (LynxElement.#pendingTextNormalization.size === 0) return;
+    const dirty = [...LynxElement.#pendingTextNormalization];
+    LynxElement.#pendingTextNormalization.clear();
+    const roots = new Set<LynxElement>();
+    for (const node of dirty) {
+      let root = node;
+      while (root.#jsParent && root.#jsParent.tagName === 'text') {
+        root = root.#jsParent;
+      }
+      // Skip stray enqueues (not inside a text) and subtrees torn down this
+      // cycle — their native refs are gone (see #doRemove / #paintingDead).
+      if (!isTextish(root) || root.#paintingDead) continue;
+      roots.add(root);
+    }
+    for (const root of roots) {
+      LynxElement.#normalizeTextRoot(root);
+    }
+  }
+
+  /**
+   * Trims the edges of one text inline-formatting context. Collects its raw-text
+   * leaves in document order, strips the leading space of the first leaf and the
+   * trailing space of the last, and collapses a space shared across an inter-run
+   * boundary to a single space — matching how a browser lays out
+   * `white-space: normal` text. A single-leaf context (ordinary prose) reduces to
+   * trim-both.
+   */
+  static #normalizeTextRoot(root: LynxElement): void {
+    const leaves: LynxElement[] = [];
+    LynxElement.#collectRawTextLeaves(root, leaves);
+    if (leaves.length === 0) return;
+    let prevEndsWithSpace = false;
+    for (let i = 0; i < leaves.length; i++) {
+      const leaf = leaves[i];
+      let text = leaf.#rawText ?? '';
+      if (i === 0) {
+        // Leading edge of the whole context.
+        text = text.replace(/^ /, '');
+      } else if (prevEndsWithSpace && text.startsWith(' ')) {
+        // A space on both sides of an inter-run boundary collapses to one (kept
+        // on the earlier run), as a browser would across adjacent inline boxes.
+        text = text.slice(1);
+      }
+      if (i === leaves.length - 1) {
+        // Trailing edge of the whole context.
+        text = text.replace(/ $/, '');
+      }
+      leaf.#setDisplayedText(text);
+      prevEndsWithSpace = text.endsWith(' ');
+    }
+  }
+
+  /**
+   * Collects the raw-text leaves under `el` in document order, descending through
+   * nested <text> (inline) and treating any other element as opaque. Walks the
+   * canonical #children — never __GetChildren, whose throwaway wrappers would
+   * break the recreation registry and background/testing.
+   */
+  static #collectRawTextLeaves(el: LynxElement, out: LynxElement[]): void {
+    for (const child of el.#children) {
+      if (child.tagName === 'raw-text') {
+        out.push(child);
+      } else if (child.tagName === 'text') {
+        LynxElement.#collectRawTextLeaves(child, out);
+      }
+    }
+  }
+
+  /**
    * Cancels a queued removal because the element is being re-inserted (a move).
    * A no-op if the element was not pending (a plain append/insert of a fresh
    * element).
@@ -505,6 +658,12 @@ export class LynxElement implements BaseLynxElement {
       this.#jsParent = null;
     }
     this.#markPaintingDead();
+    // Removing a run from a surviving text shifts its edges (a middle run can
+    // become the new last run), so re-derive the former parent's context. Uses
+    // jsParent captured above, before #jsParent was nulled.
+    if (jsParent && isTextish(this)) {
+      LynxElement.#enqueueTextNormalization(jsParent);
+    }
   }
 
   /**
@@ -765,6 +924,17 @@ export const processPendingRemovals = (): void => {
   LynxElement.commitPendingRemovals();
 };
 
+/**
+ * Re-derives positional edge whitespace for every text touched this cycle — a
+ * free-function wrapper over `LynxElement.commitPendingTextNormalization()` so
+ * `LynxRendererFactory2.end()` can drain it (via the lynx-element barrel) right
+ * after removals and before `__FlushElementTree()`, keeping the corrected text in
+ * the same flush as the cycle's other mutations. See #pendingTextNormalization.
+ */
+export const processPendingTextNormalization = (): void => {
+  LynxElement.commitPendingTextNormalization();
+};
+
 let settleFlushScheduled = false;
 
 /**
@@ -806,10 +976,12 @@ export const scheduleSettleFlush = (): void => {
     // A CD cycle began in the meantime — its end() will flush; don't double up
     // (and avoid a re-entrant flush).
     if (isInsideChangeDetection()) return;
-    // Mirror end()'s ordering: commit any queued removals so they land in the
-    // same flush as the new content (see #pendingRemovals). List children are
-    // driven by their own update-list-info path, so no list handling here.
+    // Mirror end()'s ordering: commit any queued removals, then re-derive text
+    // whitespace, so both land in the same flush as the new content (see
+    // #pendingRemovals / #pendingTextNormalization). List children are driven by
+    // their own update-list-info path, so no list handling here.
     LynxElement.commitPendingRemovals();
+    LynxElement.commitPendingTextNormalization();
     __FlushElementTree();
   });
 };

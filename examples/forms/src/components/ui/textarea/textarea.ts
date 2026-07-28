@@ -25,11 +25,19 @@ import { cn } from '@blotch/dolan/utils/cn';
       @if (label()) {
         <text [class]="labelClass()">{{ label() }}</text>
       }
-      <!-- Focus ring is an inline box-shadow, not a Tailwind ring-* class:
-           ring-* utilities compose through the --tw-ring-* CSS variables, which
-           the Lynx tailwind preset doesn't wire up, so they render nothing on
-           device (incl. iOS). box-shadow is the one shadow form Lynx honors. -->
-      <view [class]="textareaWrapperClass()" [style.box-shadow]="focusRing()">
+      <!-- Focus ring on its own overlay layer so it can fade (see input.ts for
+           the full rationale): box-shadow is animatable:no on Lynx, opacity is,
+           so we transition the layer's opacity. First child = painted behind the
+           textarea (Lynx paints in source order), so the textarea stays on top
+           and tappable — no pointer-events (which errors the Lynx build). OUTSET
+           only; Lynx doesn't render inset box-shadows. -->
+      <view [class]="textareaWrapperClass()">
+        <view
+          class="rounded-xl opacity-0 absolute bottom-0 left-0 right-0 top-0"
+          [style.transition]="'opacity 150ms ease'"
+          [style.box-shadow]="ringShadow()"
+          [style.opacity]="ringVisible() ? 1 : 0"
+        ></view>
         <!-- [attr.disabled]="disabled() || undefined": passing 'undefined'
              removes the attribute entirely; passing 'false' would set
              disabled="false" which Lynx still treats as disabled. -->
@@ -102,26 +110,30 @@ export class UiTextarea implements FormValueControl<string> {
   );
 
   /**
-   * Focus ring as an inline box-shadow (see the template comment for why
-   * Tailwind ring-* can't be used on Lynx). A 2px spread with no offset/blur is
-   * exactly a ring, and it inherits the wrapper's rounded-xl corners. Two layered
-   * shadows: an `inset` 1px shadow that reads as a crisp border, plus a 2px outer
-   * ring. Focus pairs a solid var(--ring) border with the translucent
-   * var(--ring-subtle) ring (softer than the opaque --ring); error uses solid
-   * var(--destructive) for both since it signals a problem (and never shows
-   * alongside the focus ring). The border is an inset shadow, not a real border,
-   * so the box never changes size on focus. Colors resolve at runtime and track
-   * dark mode. Returns null when unfocused/error-free so Angular clears the
-   * shadow (removeStyle) rather than painting a transparent one. Error takes
-   * precedence over focus so an invalid field always shows the destructive style.
+   * Focus ring, drawn as an OUTSET box-shadow on a dedicated overlay layer (see
+   * the template comment, and input.ts for the full rationale). Two stacked
+   * outset shadows: a solid 1px ring hugging the edge (reads as a crisp border)
+   * and a softer 3px ring around it — both follow the wrapper's rounded-xl
+   * corners. Focus pairs var(--ring) with the translucent var(--ring-subtle);
+   * error uses solid var(--destructive) for both. The value is always set (never
+   * null) so the shadow stays painted while the layer fades OUT — visibility is
+   * driven by ringVisible()/opacity. Colors resolve at runtime and track dark
+   * mode.
    */
-  protected readonly focusRing = computed(() => {
-    if (this.error())
-      return 'inset 0 0 0 1px var(--destructive), 0 0 0 2px var(--destructive)';
-    if (this.#isFocused())
-      return 'inset 0 0 0 1px var(--ring), 0 0 0 2px var(--ring-subtle)';
-    return null;
-  });
+  protected readonly ringShadow = computed(() =>
+    this.error()
+      ? '0 0 0 1px var(--destructive), 0 0 0 3px var(--destructive)'
+      : '0 0 0 1px var(--ring), 0 0 0 3px var(--ring-subtle)',
+  );
+
+  /**
+   * Whether the focus ring is shown. The overlay's opacity transitions between 0
+   * and 1 on this, fading the ring in/out (opacity is animatable on Lynx;
+   * box-shadow is not). Shown while focused, or while an error is present.
+   */
+  protected readonly ringVisible = computed(
+    () => this.#isFocused() || this.error() !== '',
+  );
 
   protected readonly helperClass = computed(() =>
     cn('text-xs text-muted-foreground'),

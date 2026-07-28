@@ -7,30 +7,33 @@ import type { LynxDocumentBase } from '../lynx-document';
 import type { BaseLynxElement } from '../lynx-element';
 
 /**
- * Collapse runs of whitespace to a single space and trim the ends, matching how
- * a browser lays out text with the default `white-space`.
+ * Collapse every run of whitespace to a single space — WITHOUT trimming the ends.
  *
- * Why this lives in the renderer: Angular's template compiler
- * (`preserveWhitespaces: false`, the default) collapses interior whitespace but
- * leaves the single leading/trailing space it created against element
- * boundaries — e.g. an indented `<text>\n  Hello\n</text>` reaches us as
- * `" Hello "`. On the web that space is invisible because the CSS white-space
- * model strips whitespace at the start/end of a line box; Lynx's raw-text has no
- * such layout-time collapsing and renders the string verbatim, so the leading
- * space shows up as a stray indent on-device. Normalizing at this single choke
- * point (every static and interpolated text node funnels through createText /
- * setValue) restores web/Angular parity without making every template hand-strip
- * whitespace. React Lynx never hits this because its JSX transform already trims
- * newline-adjacent whitespace at compile time.
+ * Angular's template compiler (`preserveWhitespaces: false`, the default)
+ * already collapses interior whitespace but leaves the single leading/trailing
+ * space that template indentation produces (e.g. `<text>\n  Hello\n</text>`
+ * reaches us as `" Hello "`). Native Lynx has no CSS white-space model, so that
+ * edge space renders as a literal indent on-device.
  *
- * Only ASCII whitespace is touched, so a deliberate non-breaking space ( )
- * survives as an escape hatch for the rare runtime value that needs a literal
- * edge space. This mirrors the default `white-space`; preformatted text
- * (`white-space: pre`) would need positional, container-level handling and is a
- * separate follow-up.
+ * We must strip that edge space — but NOT here, because whether an edge space is
+ * trimmable depends on POSITION within the text's inline-formatting context. The
+ * leading space of the FIRST run and the trailing space of the LAST run are
+ * trimmed, but the space between two adjacent runs — e.g. the projected
+ * `<text>One </text><text>two</text><text> three</text>` — is meaningful and
+ * must survive (otherwise "One two three" renders as "Onetwothree"). The
+ * renderer sees one text node at a time with no sibling context, and projected
+ * runs from separate templates only form one inline context at runtime, so the
+ * positional edge-trim runs later — at flush time over the assembled tree (see
+ * `processPendingTextNormalization` in lynx-element.ts). Here we only collapse,
+ * so the element can stash the collapsed-but-untrimmed value that pass re-derives
+ * the display from. React Lynx sidesteps all this at compile time, where its JSX
+ * transform still has the newline info Angular has already discarded by now.
+ *
+ * ASCII whitespace only, so a deliberate non-breaking space (U+00A0) survives as
+ * an escape hatch for a value that needs a literal edge space.
  */
-const normalizeText = (value: string): string =>
-  value.replace(/[ \t\n\r\f\v]+/g, ' ').replace(/^ | $/g, '');
+const collapseWhitespace = (value: string): string =>
+  value.replace(/[ \t\n\r\f\v]+/g, ' ');
 
 export class LynxRenderer implements Renderer2 {
   readonly #document: LynxDocumentBase;
@@ -59,7 +62,7 @@ export class LynxRenderer implements Renderer2 {
     return this.#document.createComment();
   }
   createText(value: string): BaseLynxElement {
-    return this.#document.createText(normalizeText(value));
+    return this.#document.createText(collapseWhitespace(value));
   }
   // Angular walks a destroyed view and calls destroyNode() per node ONLY when
   // this is non-null (see destroyLView in @angular/core). We use it to drop the
@@ -166,7 +169,7 @@ export class LynxRenderer implements Renderer2 {
    * their content in the 'text' attribute.
    */
   setValue(node: BaseLynxElement, value: string): void {
-    node.setAttribute('text', normalizeText(value));
+    node.setAttribute('text', collapseWhitespace(value));
   }
   listen(
     target: BaseLynxElement,
