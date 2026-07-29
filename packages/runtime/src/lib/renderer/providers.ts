@@ -1,4 +1,4 @@
-import { APP_BASE_HREF } from '@angular/common';
+import { APP_BASE_HREF, IMAGE_CONFIG } from '@angular/common';
 import {
   DOCUMENT,
   ErrorHandler,
@@ -56,6 +56,26 @@ export const provideRenderer = (): EnvironmentProviders => {
     {
       provide: APP_BASE_HREF,
       useValue: '/',
+    },
+    // Disable Angular's ImagePerformanceWarning. It runs on every bootstrap and,
+    // unless *both* warnings are disabled, calls Angular's internal getDocument()
+    // to scan the page for oversized/lazy <img> elements. Lynx has no DOM
+    // document — getDocument() throws NG0210 and aborts the whole bootstrap.
+    //
+    // This only bit the *web* runtime: ImagePerformanceWarning.start() early-
+    // returns when `PerformanceObserver` is undefined, which is the case in the
+    // native (iOS/Android) background-thread JS engine. On web the background
+    // thread is a real Web Worker, which *does* have PerformanceObserver, so it
+    // proceeded to getDocument() and crashed. Disabling both warnings makes
+    // start() early-return before that call on every platform — and it's
+    // semantically correct anyway: Lynx renders native <image>, not HTML <img>,
+    // so these DOM-scanning diagnostics can never apply.
+    {
+      provide: IMAGE_CONFIG,
+      useValue: {
+        disableImageSizeWarning: true,
+        disableImageLazyLoadWarning: true,
+      },
     },
     LynxRendererFactory2,
     {

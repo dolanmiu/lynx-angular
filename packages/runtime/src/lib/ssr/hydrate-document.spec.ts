@@ -17,6 +17,7 @@ vi.mock('../lynx-element', () => {
     element: ElementRef;
     isRootPageElement = false;
     appendChild = vi.fn();
+    setInitialText = vi.fn();
     constructor(ref: ElementRef) {
       this.element = ref;
     }
@@ -84,6 +85,21 @@ describe('LynxHydrateDocument', () => {
       const text = doc.createText('hello');
 
       expect(text.element).toBe(textRef);
+    });
+
+    // Without this, a hydrated raw-text's #rawText/#text stay undefined (see
+    // LynxDocument.createText for the non-hydrating equivalent). If this
+    // element is later touched by the flush-time whitespace pass — e.g. a
+    // sibling run inside the same <text> changes — it would read back '' and
+    // blank this correctly-hydrated text.
+    it('seeds the recreation/normalization cache with the given value', () => {
+      const textRef = { _text: true } as any as ElementRef;
+      const doc = new LynxHydrateDocument(pageRef, [textRef]);
+      doc.createRootElement();
+
+      const text = doc.createText('hello') as any;
+
+      expect(text.setInitialText).toHaveBeenCalledWith('hello');
     });
   });
 

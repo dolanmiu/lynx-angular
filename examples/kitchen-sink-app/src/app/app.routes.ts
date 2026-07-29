@@ -111,6 +111,11 @@ export const routes: Routes = [
       import('./chart-zoom-demo/chart-zoom-demo').then((m) => m.ChartZoomDemo),
   },
   {
+    path: 'icon-showcase',
+    loadComponent: () =>
+      import('./icon-showcase/icon-showcase').then((m) => m.IconShowcase),
+  },
+  {
     path: 'exposure-demo',
     loadComponent: () =>
       import('./exposure-demo/exposure-demo').then((m) => m.ExposureDemo),

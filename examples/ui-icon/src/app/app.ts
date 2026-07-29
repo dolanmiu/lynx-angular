@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { LYNX_ELEMENTS } from '@blotch/angular-lynx';
-import { UiIcon, type IconName } from '../components/ui/icon';
+import { ICONS, UiIcon, type IconName } from '../components/ui/icon';
 import { UiText } from '../components/ui/typography';
 
 @Component({
@@ -90,29 +90,7 @@ import { UiText } from '../components/ui/typography';
   `,
 })
 export class App {
-  readonly icons: IconName[] = [
-    'check',
-    'x',
-    'plus',
-    'minus',
-    'chevron-down',
-    'chevron-up',
-    'chevron-left',
-    'chevron-right',
-    'arrow-left',
-    'arrow-right',
-    'search',
-    'menu',
-    'info',
-    'alert-triangle',
-    'loader',
-    'circle',
-    'ellipsis',
-    'eye',
-    'eye-off',
-    'settings',
-    'trash',
-    'heart',
-    'star',
-  ];
+  // Derived from ICONS so this demo never drifts out of sync with the
+  // component's actual icon set as new icons are added.
+  readonly icons: IconName[] = Object.keys(ICONS) as IconName[];
 }

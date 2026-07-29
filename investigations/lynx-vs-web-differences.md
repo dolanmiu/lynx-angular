@@ -4022,3 +4022,43 @@ Belt-and-suspenders: also anchor defensively on the first `onUpdate` (`snapshot 
 ### Related: `PinchGesture` and `RotationGesture` have no native handler on ANY platform — they never fire
 
 A search of the Lynx native source (`convertToGestureHandler` in `LynxBaseGestureHandler.m` / the Android equivalent) shows handlers registered for `pan`, `default`, `fling`, `tap`, `longpress`, and `native` — but **no pinch and no rotation handler exists on iOS, Android, or Harmony**. `Gesture.Simultaneous(pan, pinch)` is safe to compose (the native engine just never recognizes the pinch half), but don't rely on pinch-to-zoom actually firing on-device today; drive zoom from 1-finger pan plus on-screen controls instead, and treat `PinchGesture`/`RotationGesture` as forward-compatible API surface, not a currently-working feature.
+
+---
+
+## Injected BOM globals shadow the `globalThis` polyfills, so Angular's `ImagePerformanceWarning` crashes web-only bootstrap
+
+The web preview crashes at bootstrap with `NG0210: The document object is not available in this context` (from `ImagePerformanceWarning.start` → `getDocument`), while iOS/Android run fine. Two facts combine.
+
+### What you'd expect (web / native parity)
+
+The renderer polyfills `globalThis.document` / `globalThis.window` at startup (see the browser-globals entries above), so any Angular code that reaches for `document` gets the stub on every platform. A dev-only diagnostic like Angular's `ImagePerformanceWarning` (it scans the page for oversized `<img>`) should be a harmless no-op on Lynx.
+
+### What Lynx does
+
+**(1) The background bundle's BOM globals are injected as function parameters, which shadow `globalThis`.** `RuntimeWrapperWebpackPlugin` wraps the background-thread script in an AMD module whose signature injects the BOM as *parameters* (`defaultInjectVars`):
+
+```js
+tt.define("main.js", function(require, module, exports, /* … */ window, document, location, navigator, history, /* … */) {
+  // ← the entire app-service.js (polyfills + Angular) runs in here
+});
+```
+
+So inside the bundle a bare `document` resolves to that **parameter**, not `globalThis.document`. On the web background thread (a real Web Worker) the Lynx web runtime passes `undefined` for `document`/`window` — a worker has no DOM. The startup polyfills (`packages/rsbuild-plugin-angular-lynx/src/polyfills.js`, plus the defensive copy in `runtime.ts`) run `globalThis.document = { … }` under a `typeof document === 'undefined'` guard. The guard reads the undefined *parameter* (true), so the assignment fires — but it sets a *global property* and never rebinds the shadowing local param. Net result: `globalThis.document` is a stub, while the bare `document` that bundle code sees stays `undefined`.
+
+Angular's **internal** `getDocument()` (`_debug_node-chunk.mjs`) reads the module-level `DOCUMENT` var (unset), then the bare `document` identifier (the undefined param), then throws `NG0210`. This is why the `globalThis.document` shim looks like it should help but can't: most Angular DOM access goes through the DI `DOCUMENT` token (`provideRenderer` supplies `{}`), so it never touches the shadowed global — but a few Angular internals call the raw `getDocument()` instead. (The polyfills' own `catch` comment, "Read-only in Web Worker — document already exists", is doubly wrong: a worker has no `document` at all, and even when the assignment succeeds it targets the wrong binding.)
+
+**(2) `ImagePerformanceWarning.start()` runs on web but early-returns on native.** It's an app-bootstrap listener gated on `typeof PerformanceObserver === 'undefined'`. The native background-thread engine (PrimJS) has no `PerformanceObserver`, so `start()` returns *before* calling `getDocument()` — iOS never crashes. A Web Worker *does* have `PerformanceObserver`, so on web `start()` proceeds into `getDocument()`, hits the undefined `document` param → NG0210 → the bootstrap promise rejects → nothing renders.
+
+Because iOS and web run the **same** bundle with the **same** undefined `document` param, and iOS works, the only real divergence is that one `PerformanceObserver` gate — nothing on the normal render path reads the bare `document`.
+
+### The fix
+
+Disable `ImagePerformanceWarning` in `provideRenderer()` (`packages/runtime/src/lib/renderer/providers.ts`) by providing `IMAGE_CONFIG` with **both** warnings off — `start()` only early-returns when both flags are set, so both are required:
+
+```ts
+{ provide: IMAGE_CONFIG, useValue: { disableImageSizeWarning: true, disableImageLazyLoadWarning: true } }
+```
+
+This makes web's document-access path identical to iOS's (which already never reached `getDocument()`), so it is zero-risk on native — and it's semantically correct: Lynx renders native `<image>`, not HTML `<img>`, and has no LCP, so the diagnostic can never apply. Covered by `providers.spec.ts`.
+
+Still-latent hazard: any *other* Angular internal that reads the bare `document`/`window` (instead of the DI `DOCUMENT` token) on the normal path would hit the same shadowed-undefined param on both platforms. None do today. A more general fix would be `ɵsetDocument(stub)` — it sets the module-level `DOCUMENT` var `getDocument()` checks first, bypassing the shadowed global — deliberately avoided for now because it mutates Angular global state on every platform, changing native behavior for no current benefit.

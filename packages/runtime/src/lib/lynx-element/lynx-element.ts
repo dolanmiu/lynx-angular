@@ -755,6 +755,21 @@ export class LynxElement implements BaseLynxElement {
     this.#nativeRef = fresh;
     LynxElement.#byNativeId.set(__GetElementUniqueID(fresh), this);
 
+    if (this.tagName === 'raw-text') {
+      // #text may be stale: normalization is SKIPPED for a subtree while it is
+      // #paintingDead (see commitPendingTextNormalization), so a multi-run text
+      // removed and re-shown in the same cycle can still be carrying its
+      // pre-removal (or even never-yet-trimmed) displayed value here. Queue this
+      // leaf so the next drain re-derives the correct positional trim from
+      // #rawText — cheap even when unchanged, since #setDisplayedText no-ops.
+      // #jsParent is untouched by removal/recreate (only the actually-removed
+      // node's own link is cleared — see #doRemove), so root-resolution still
+      // finds the right enclosing <text>, whose #paintingDead was already
+      // cleared above by the time this leaf's own recreate runs (recreate flips
+      // the flag before recursing into children).
+      LynxElement.#enqueueTextNormalization(this);
+    }
+
     if (this.#id != null) __SetID(fresh, this.#id);
     // Apply the dataset in one call so recreation is order- and merge-agnostic.
     if (Object.keys(this.#dataset).length > 0) {

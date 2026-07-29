@@ -32,6 +32,10 @@ import {
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { LynxDocument } from '../lynx-document';
 import { setPageElementRef } from '../lynx-document/page-ref';
+import {
+  processPendingRemovals,
+  processPendingTextNormalization,
+} from '../lynx-element';
 import { markFirstRenderComplete } from '../lynx-render-lifecycle';
 import { LynxRendererFactory2 } from './lynx-renderer-factory2';
 import { LYNX_DOCUMENT } from './token';
@@ -356,6 +360,39 @@ describe('inline text whitespace normalization', () => {
     expect(renderedText('dyn')).toBe('One two');
   });
 
+  // A run that collapses to '' (e.g. an interpolated/@for value that is only
+  // whitespace, or a genuinely empty string) contributes no inline box. It must
+  // not swallow the boundary-space state carried from the run before it, or
+  // claim an edge trim in place of the real first/last run — regression coverage
+  // for a bug where the pass derived that state from the (now-empty) leaf itself.
+  it('carries the boundary space across a whitespace-only middle run', () => {
+    const fixture = TestBed.createComponent(DynamicRunsHost);
+    fixture.componentInstance.runs.set(['A ', ' ', ' B']);
+    fixture.detectChanges();
+    expect(renderedText('dyn')).toBe('A B');
+  });
+
+  it('carries the boundary space across a genuinely empty middle run', () => {
+    const fixture = TestBed.createComponent(DynamicRunsHost);
+    fixture.componentInstance.runs.set(['A ', '', ' B']);
+    fixture.detectChanges();
+    expect(renderedText('dyn')).toBe('A B');
+  });
+
+  it('trims the trailing edge past a whitespace-only trailing run', () => {
+    const fixture = TestBed.createComponent(DynamicRunsHost);
+    fixture.componentInstance.runs.set(['x ', ' ']);
+    fixture.detectChanges();
+    expect(renderedText('dyn')).toBe('x');
+  });
+
+  it('trims the leading edge past a whitespace-only leading run', () => {
+    const fixture = TestBed.createComponent(DynamicRunsHost);
+    fixture.componentInstance.runs.set([' ', ' x']);
+    fixture.detectChanges();
+    expect(renderedText('dyn')).toBe('x');
+  });
+
   it('leaves a single clean projected run untouched', () => {
     const fixture = TestBed.createComponent(SingleRunHost);
     fixture.detectChanges();
@@ -437,5 +474,56 @@ describe('inline text whitespace normalization', () => {
     fixture.componentInstance.label.set('\u00A0hi');
     fixture.detectChanges();
     expect(renderedText('interp')).toBe('\u00A0hi');
+  });
+
+  describe('recreate-on-remount (created and destroyed in the same cycle)', () => {
+    // Normalization is SKIPPED for a subtree that is #paintingDead this cycle
+    // (see commitPendingTextNormalization) \u2014 necessarily, since its native refs
+    // are gone. If a multi-run <text> is created AND torn down within the SAME
+    // cycle, before it is ever normalized even once, its raw-text leaves keep
+    // their raw, UNTRIMMED #text. #recreateSubtree bakes whatever #text
+    // currently holds into the rebuilt native ref on a later re-show, so without
+    // re-enqueueing each recreated leaf the remounted text stays wrong forever
+    // (concretely: the untrimmed leading space on a middle/last run never gets a
+    // chance to collapse against its predecessor, producing a double space).
+    //
+    // Driven at the LynxDocument/LynxElement level, not TestBed: reproducing
+    // "created and removed in the exact same change-detection cycle" needs
+    // finer control than per-tick TestBed cycles give (each signal .set() +
+    // detectChanges() here is its own cycle, so content is always normalized at
+    // least once before any removal \u2014 this scenario needs both to land in one).
+    it('re-normalizes a multi-run text torn down before its first normalization', () => {
+      const doc = new LynxDocument();
+      doc.createRootElement();
+
+      const textRoot = doc.createElement('text') as any;
+      textRoot.setAttribute('class', 'wrap');
+      const runA = doc.createText('One ') as any;
+      const runB = doc.createText(' two') as any;
+      textRoot.appendChild(runA);
+      textRoot.appendChild(runB);
+
+      const host = doc.createElement('view') as any;
+      host.appendChild(textRoot);
+      doc.page.appendChild(host);
+      host.remove();
+
+      // One end()-equivalent cycle: removals mark the whole host subtree
+      // #paintingDead (host, textRoot, runA, runB) BEFORE normalization runs, so
+      // the drain must skip it \u2014 runA/runB's #text stays raw and untrimmed.
+      processPendingRemovals();
+      processPendingTextNormalization();
+      (globalThis as any).__FlushElementTree();
+
+      // Later cycle: re-show the SAME host instance \u2014 the recreate-on-remount
+      // path (see teardown.spec.ts's ReprojSlot for the Angular-driven
+      // equivalent of this same shape).
+      doc.page.appendChild(host);
+      processPendingRemovals();
+      processPendingTextNormalization();
+      (globalThis as any).__FlushElementTree();
+
+      expect(renderedText('wrap')).toBe('One two');
+    });
   });
 });

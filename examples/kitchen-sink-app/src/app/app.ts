@@ -72,7 +72,7 @@ type NavGroup = { title: string; items: NavItem[] };
             [active]="currentPath() === 'home'"
             (pressed)="navigateTo('home')"
           >
-            <ui-icon name="heart" size="sm" />
+            <ui-icon name="home" size="sm" />
             <text class="text-sm text-foreground">Home</text>
           </ui-nav-drawer-item>
           <ui-separator />
@@ -113,53 +113,66 @@ export class App {
     {
       title: 'Elements',
       items: [
-        { path: 'images-demo', label: 'Images', icon: 'eye' },
-        { path: 'list-example', label: 'List', icon: 'menu' },
-        { path: 'scroll-example', label: 'Scroll View', icon: 'chevron-down' },
+        { path: 'images-demo', label: 'Images', icon: 'camera' },
+        { path: 'list-example', label: 'List', icon: 'list' },
+        {
+          path: 'scroll-example',
+          label: 'Scroll View',
+          icon: 'chevrons-down',
+        },
       ],
     },
     {
       title: 'Components',
       items: [
+        { path: 'icon-showcase', label: 'Icons', icon: 'star' },
         {
           path: 'content-projection-demo',
           label: 'Content Projection',
-          icon: 'circle',
+          icon: 'layout-grid',
         },
-        { path: 'line-chart-demo', label: 'Line Chart', icon: 'star' },
-        { path: 'area-chart-demo', label: 'Area Chart', icon: 'chevron-up' },
+        { path: 'line-chart-demo', label: 'Line Chart', icon: 'chart-line' },
+        { path: 'area-chart-demo', label: 'Area Chart', icon: 'activity' },
         {
           path: 'candlestick-chart-demo',
           label: 'Candlestick Chart',
-          icon: 'chevron-down',
+          icon: 'chart-column',
         },
-        { path: 'bar-chart-demo', label: 'Bar Chart', icon: 'chevron-up' },
-        { path: 'scatter-chart-demo', label: 'Scatter Chart', icon: 'circle' },
-        { path: 'chart-zoom-demo', label: 'Chart Zoom', icon: 'search' },
-        { path: 'tailwind-demo', label: 'Tailwind', icon: 'eye' },
-        { path: 'css-modules-demo', label: 'CSS Modules', icon: 'circle' },
+        { path: 'bar-chart-demo', label: 'Bar Chart', icon: 'chart-bar' },
+        {
+          path: 'scatter-chart-demo',
+          label: 'Scatter Chart',
+          icon: 'sparkles',
+        },
+        { path: 'chart-zoom-demo', label: 'Chart Zoom', icon: 'zoom-in' },
+        { path: 'tailwind-demo', label: 'Tailwind', icon: 'code' },
+        { path: 'css-modules-demo', label: 'CSS Modules', icon: 'file-text' },
       ],
     },
     {
       title: 'Motion',
       items: [
-        { path: 'motion-demo', label: 'Motion', icon: 'star' },
+        { path: 'motion-demo', label: 'Motion', icon: 'zap' },
         {
           path: 'transition-demo',
           label: 'Transitions',
-          icon: 'chevron-right',
+          icon: 'chevrons-right',
         },
-        { path: 'refresh-demo', label: 'Pull to Refresh', icon: 'loader' },
+        {
+          path: 'refresh-demo',
+          label: 'Pull to Refresh',
+          icon: 'refresh-cw',
+        },
       ],
     },
     {
       title: 'Forms & Input',
       items: [
-        { path: 'forms-demo', label: 'Forms', icon: 'check' },
+        { path: 'forms-demo', label: 'Forms', icon: 'list-checks' },
         {
           path: 'session-storage-demo',
           label: 'Session Storage',
-          icon: 'settings',
+          icon: 'database',
         },
       ],
     },
@@ -169,33 +182,37 @@ export class App {
         { path: 'query-selector-demo', label: 'querySelector', icon: 'search' },
         { path: 'defer-demo', label: 'Defer', icon: 'loader' },
         { path: 'events', label: 'Events', icon: 'bell' },
-        { path: 'gesture-demo', label: 'Gestures', icon: 'circle' },
-        { path: 'fonts-demo', label: 'Custom Fonts', icon: 'info' },
-        { path: 'text-measure-demo', label: 'Text Measure', icon: 'info' },
+        { path: 'gesture-demo', label: 'Gestures', icon: 'hand' },
+        { path: 'fonts-demo', label: 'Custom Fonts', icon: 'type' },
+        { path: 'text-measure-demo', label: 'Text Measure', icon: 'compass' },
         { path: 'exposure-demo', label: 'Exposure', icon: 'eye' },
-        { path: 'main-thread-demo', label: 'Main Thread', icon: 'settings' },
+        { path: 'main-thread-demo', label: 'Main Thread', icon: 'cpu' },
         {
           path: 'worklet-directive-demo',
           label: 'Worklet Directive',
-          icon: 'settings',
+          icon: 'terminal',
         },
-        { path: 'i18n-demo', label: 'i18n', icon: 'info' },
-        { path: 'ssr-demo', label: 'SSR', icon: 'settings' },
+        { path: 'i18n-demo', label: 'i18n', icon: 'globe' },
+        { path: 'ssr-demo', label: 'SSR', icon: 'server' },
       ],
     },
     {
       title: 'Validation',
       items: [
-        { path: 'css-var-validation', label: 'CSS Variables', icon: 'info' },
+        {
+          path: 'css-var-validation',
+          label: 'CSS Variables',
+          icon: 'sliders-horizontal',
+        },
         {
           path: 'text-projection-validation',
           label: 'Text Projection',
-          icon: 'info',
+          icon: 'copy',
         },
         {
           path: 'text-whitespace-demo',
           label: 'Text Whitespace',
-          icon: 'info',
+          icon: 'align-left',
         },
       ],
     },

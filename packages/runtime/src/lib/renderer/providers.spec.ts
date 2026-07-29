@@ -1,5 +1,5 @@
 import '@angular/compiler';
-import { APP_BASE_HREF } from '@angular/common';
+import { APP_BASE_HREF, IMAGE_CONFIG } from '@angular/common';
 import {
   DOCUMENT,
   ErrorHandler,
@@ -62,6 +62,20 @@ describe('provideRenderer', () => {
       const baseHref = injector.get(APP_BASE_HREF);
 
       expect(baseHref).toBe('/');
+    });
+  });
+
+  describe('IMAGE_CONFIG', () => {
+    it('disables both image performance warnings so ImagePerformanceWarning.start() never reaches getDocument()', () => {
+      vi.stubGlobal('__MAIN_THREAD__', false);
+      const injector = createInjector();
+
+      const config = injector.get(IMAGE_CONFIG);
+
+      // Both must be true: ImagePerformanceWarning only early-returns when
+      // disableImageSizeWarning AND disableImageLazyLoadWarning are set.
+      expect(config.disableImageSizeWarning).toBe(true);
+      expect(config.disableImageLazyLoadWarning).toBe(true);
     });
   });
 

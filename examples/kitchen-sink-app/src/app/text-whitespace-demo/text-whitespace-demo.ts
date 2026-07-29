@@ -54,8 +54,8 @@ import { ScreenHost } from '../screen-host';
           </view>
           <ui-card-description>
             Three separately-styled runs on one line read as a single sentence.
-            The spaces between them survive — without inline-context trimming this
-            would render "Onetwothree".
+            The spaces between them survive — without inline-context trimming
+            this would render "Onetwothree".
           </ui-card-description>
         </ui-card-header>
         <ui-card-content class="p-4 pt-0">
@@ -77,16 +77,16 @@ import { ScreenHost } from '../screen-host';
             <ui-card-title class="text-lg">Inline emphasis</ui-card-title>
           </view>
           <ui-card-description>
-            A bold amount nested mid-sentence keeps exactly one space on each side,
-            no matter that the runs are separate elements.
+            A bold amount nested mid-sentence keeps exactly one space on each
+            side, no matter that the runs are separate elements.
           </ui-card-description>
         </ui-card-header>
         <ui-card-content class="p-4 pt-0">
           <view class="rounded-lg border border-border bg-muted px-4 py-3">
             <text class="text-base text-foreground">
-              Total:
+              <text>Total: </text>
               <text class="font-bold text-primary">$1,240.00</text>
-              due today
+              <text> due today</text>
             </text>
           </view>
         </ui-card-content>
@@ -101,8 +101,8 @@ import { ScreenHost } from '../screen-host';
           </view>
           <ui-card-description>
             Prose written across indented lines renders flush against the border
-            (top). Only ASCII whitespace is trimmed, so a deliberate &nbsp; stays
-            as a literal indent (bottom).
+            (top). Only ASCII whitespace is trimmed, so a deliberate &nbsp;
+            stays as a literal indent (bottom).
           </ui-card-description>
         </ui-card-header>
         <ui-card-content class="p-4 pt-0">
@@ -110,13 +110,13 @@ import { ScreenHost } from '../screen-host';
             class="flex-col gap-2 rounded-lg border-l-2 border-primary bg-muted py-2"
           >
             <text class="text-sm text-foreground">
-              This sentence spans several indented template lines, yet it renders
-              flush with no leading indent.
+              This sentence spans several indented template lines, yet it
+              renders flush with no leading indent.
             </text>
-            <text class="text-sm text-muted-foreground"
-              >&nbsp;&nbsp;&nbsp;&nbsp;A non-breaking space keeps this line
-              indented.</text
-            >
+            <text class="text-sm text-muted-foreground">
+              &nbsp;&nbsp;&nbsp;&nbsp;A non-breaking space keeps this line
+              indented.
+            </text>
           </view>
         </ui-card-content>
       </ui-card>
