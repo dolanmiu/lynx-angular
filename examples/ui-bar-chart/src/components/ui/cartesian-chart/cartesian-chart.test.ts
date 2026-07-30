@@ -30,6 +30,7 @@ const {
   niceNum,
   niceScale,
   generateTicks,
+  generateAlignedTicks,
   sampleSmoothLine,
   clampWindow,
   panWindow,
@@ -112,6 +113,68 @@ describe('generateTicks', () => {
 
   it('returns a single tick when count is 1', () => {
     expect(generateTicks([0, 10], 1)).toEqual([0]);
+  });
+});
+
+// Regression guard for the "grid stays still while panning" bug. The report:
+// zoomed-in pan moves the plotted content but the gridlines/tick marks stay
+// put — only the axis numbers update. Root cause: the old zoomable-tick
+// generator (generateTicks) divided the CURRENT window into a fixed fraction
+// per tick, so every tick always lands at the same `i/(count-1)` pixel no
+// matter where the window is. generateAlignedTicks fixes this by anchoring
+// each tick to a fixed multiple of a step in DATA space instead.
+describe('generateAlignedTicks', () => {
+  it('returns a fixed count of targetCount + 2 regardless of the window', () => {
+    expect(generateAlignedTicks([0, 100], 5)).toHaveLength(7);
+    expect(generateAlignedTicks([37, 57], 5)).toHaveLength(7);
+    expect(generateAlignedTicks([1000, 1050], 5)).toHaveLength(7);
+  });
+
+  it('anchors ticks to fixed data-space multiples of a nice step — panning shifts WHICH multiples are visible, not the multiples themselves', () => {
+    // Two windows of the same span (20) as if panned right by 6 data units —
+    // a real drag never changes the window's span, only its position.
+    const before = generateAlignedTicks([40, 60], 5);
+    const after = generateAlignedTicks([46, 66], 5);
+    const step = 5; // niceNum(20 / 4, true)
+    for (const t of [...before, ...after]) {
+      expect(t % step).toBeCloseTo(0, 6);
+    }
+    // Ticks still inside the post-pan window must appear UNCHANGED in both
+    // arrays — proof the grid is anchored to fixed data values, not
+    // recomputed as a fraction of the (shifted) window.
+    const stillVisible = before.filter((t) => t >= 46 && t <= 60);
+    expect(stillVisible.length).toBeGreaterThan(0);
+    for (const t of stillVisible) {
+      expect(after).toContain(t);
+    }
+  });
+
+  it('projects an anchored tick to a shifted pixel after a pan (the actual visual fix)', () => {
+    const rangePx = 200;
+    const project = (value: number, window: ChartDomain) =>
+      linearScale(window, [0, rangePx])(value);
+
+    const before: ChartDomain = [40, 60];
+    const after: ChartDomain = [46, 66]; // panned right by 6 data units
+    const common = generateAlignedTicks(before, 5).filter((t) =>
+      generateAlignedTicks(after, 5).includes(t),
+    );
+    expect(common.length).toBeGreaterThan(0);
+    for (const t of common) {
+      const pxBefore = project(t, before);
+      const pxAfter = project(t, after);
+      // The old (buggy) generateTicks-based ticks always reprojected to the
+      // exact same pixel here; an anchored tick must NOT.
+      expect(pxAfter).not.toBeCloseTo(pxBefore, 3);
+      // Panning the window +6 data units shifts every fixed value left by
+      // 6/20 of the range.
+      expect(pxBefore - pxAfter).toBeCloseTo((6 / 20) * rangePx, 6);
+    }
+  });
+
+  it('falls back to a step of 1 for a zero-width window instead of dividing by zero', () => {
+    expect(() => generateAlignedTicks([5, 5], 5)).not.toThrow();
+    expect(generateAlignedTicks([5, 5], 5).every(Number.isFinite)).toBe(true);
   });
 });
 

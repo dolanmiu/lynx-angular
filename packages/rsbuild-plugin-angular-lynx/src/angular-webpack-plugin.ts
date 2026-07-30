@@ -55,6 +55,15 @@ type AngularWebpackPluginOptions = {
   enableSSR?: boolean;
 
   /**
+   * Whether this bundle targets the web runtime (`@lynx-js/web-core`) rather
+   * than native Lynx. Injected into the bundle as the `__WEB__` compile-time
+   * define so the runtime can branch on web-only behavior (e.g. forcing the
+   * first element-tree flush, which native does implicitly but web-core does
+   * not). Set from `environment.name === 'web'` in entry.ts.
+   */
+  isWeb?: boolean;
+
+  /**
    * The chunk names to be considered as main thread chunks.
    */
   mainThreadChunks?: string[] | undefined;
@@ -140,6 +149,7 @@ class AngularWebpackPlugin {
       disableCreateSelectorQueryIncompatibleWarning: false,
       firstScreenSyncTiming: 'immediately',
       enableSSR: false,
+      isWeb: false,
       mainThreadChunks: [],
       extractStr: false,
       experimental_isLazyBundle: false,
@@ -178,6 +188,9 @@ class AngularWebpackPlugin {
         options.firstScreenSyncTiming,
       ),
       __ENABLE_SSR__: JSON.stringify(options.enableSSR),
+      // Web target flag. Native builds get `false`, so any `if (__WEB__)` block
+      // in the runtime is dead-code-eliminated from native bundles.
+      __WEB__: JSON.stringify(Boolean(options.isWeb)),
       __DISABLE_CREATE_SELECTOR_QUERY_INCOMPATIBLE_WARNING__: JSON.stringify(
         options.disableCreateSelectorQueryIncompatibleWarning,
       ),

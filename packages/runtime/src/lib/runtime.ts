@@ -619,10 +619,34 @@ export const bootstrapApplication = async (
   (globalThis as any).__LYNX_ANGULAR_APP_REF__ = appRef;
 
   // Clear hydration state so subsequent change detection cycles flush normally.
-  if (__ENABLE_SSR__ && (globalThis as any).__LYNX_IS_HYDRATING__) {
+  const wasHydrating =
+    __ENABLE_SSR__ && (globalThis as any).__LYNX_IS_HYDRATING__;
+  if (wasHydrating) {
     (globalThis as any).__LYNX_IS_HYDRATING__ = false;
     (globalThis as any).__LYNX_HYDRATE_PAGE__ = undefined;
     (globalThis as any).__LYNX_HYDRATE_QUEUE__ = undefined;
+  }
+
+  // Web-only: force the first element-tree flush after bootstrap.
+  //
+  // LynxRendererFactory2.end() deliberately SKIPS __FlushElementTree() on the
+  // very first render (isFirstRenderPending) because the NATIVE engine performs
+  // its own implicit flush once renderPage() returns. @lynx-js/web-core has no
+  // such implicit flush, and its <lynx-view> reveal + page attach happen INSIDE
+  // __FlushElementTree (web-core createElementAPI: rootDom.appendChild(page) +
+  // host.style.display = 'flex'). Without an explicit flush the page is never
+  // attached and the view stays display:none — so every app renders blank on
+  // web until some later change-detection cycle (a tap/signal) happens to flush.
+  //
+  // Deferred to a macrotask so it runs after web-core's renderPage frame has
+  // unwound — the same safe context the <list> first-update flush uses (see
+  // lynx-render-lifecycle.ts). __WEB__ is a compile-time define (false on
+  // native), so this whole block is dead-code-eliminated from native bundles:
+  // native behavior is unchanged. Skipped during SSR hydration, where the
+  // snapshot tree already exists and web-core shows the view via its [ssr] CSS
+  // attribute (mirrors end()'s hydration guard).
+  if (__WEB__ && __MAIN_THREAD__ && !wasHydrating) {
+    setTimeout(() => __FlushElementTree(), 0);
   }
 
   return appRef;

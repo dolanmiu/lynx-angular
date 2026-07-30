@@ -41,8 +41,8 @@ type ZoomAxes = 'x' | 'y' | 'xy';
         <ui-badge variant="secondary">Interactive</ui-badge>
       </view>
       <ui-text variant="muted">
-        Pinch or use the +/− controls to zoom, drag to pan, and 1:1 to reset. The
-        axes, gridlines, and bar/candle widths all update live.
+        Pinch or use the +/− controls to zoom, drag to pan, and 1:1 to reset.
+        The axes, gridlines, and bar/candle widths all update live.
       </ui-text>
 
       <!-- Chart-type toggle (segmented). Custom views, like the gesture demo —

@@ -12,6 +12,16 @@ declare global {
   // eslint-disable-next-line no-var
   var __MAIN_THREAD__: boolean;
   /**
+   * Whether this bundle targets the web runtime (`@lynx-js/web-core`) rather
+   * than native Lynx. Compile-time define injected by the rsbuild plugin
+   * (`environment.name === 'web'`). Used to branch on web-only behavior that
+   * must be dead-code-eliminated from native bundles — e.g. web-core has no
+   * implicit post-`renderPage` flush, so the runtime forces the first
+   * `__FlushElementTree` itself (see `bootstrapApplication` in runtime.ts).
+   */
+  // eslint-disable-next-line no-var
+  var __WEB__: boolean;
+  /**
    * Determines if running in dev mode
    */
   // eslint-disable-next-line no-var

@@ -3,13 +3,13 @@
   "components": {
     "cartesian-chart": {
       "cartesian-chart.test.ts": {
-        "hash": "936fdb0723e27a33"
+        "hash": "8f2d82078f9ade48"
       },
       "cartesian-chart.ts": {
-        "hash": "80f8f45e547c86ab"
+        "hash": "d22c322962611449"
       },
       "index.ts": {
-        "hash": "f48e77dff85aa447"
+        "hash": "173bf215fc5d8b22"
       }
     },
     "candlestick-chart": {

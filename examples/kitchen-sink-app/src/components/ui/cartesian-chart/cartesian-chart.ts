@@ -158,6 +158,44 @@ export const generateTicks = (domain: ChartDomain, count: number): number[] => {
   return ticks;
 };
 
+// Extra ticks generated beyond the target count so a full "screen" of grid
+// stays covered while a pan is mid-slide. The extras land just past either
+// plot edge, clipped by `overflow: hidden` — never visible, just inert
+// elements reserved so the `@for` never needs to grow.
+const ALIGNED_TICK_BUFFER = 2;
+
+/**
+ * Computes ZERO-aligned tick values spanning a `window` at a fixed "nice" step
+ * derived from the window's span (see {@link niceNum}). Unlike `generateTicks`
+ * — which divides a window into a fixed *fraction* of its own span, so every
+ * tick re-lands on the exact same pixel position the instant the window
+ * shifts (the axis *numbers* change but the *gridlines* visually stay put,
+ * which is what made a pan look like it was translating nothing) — each tick
+ * here sits on a fixed multiple of `step` in DATA space. Panning changes which
+ * multiples fall inside the window, but never an individual tick's data
+ * value, so its projected pixel position slides across the screen exactly in
+ * step with the content it labels — real X/Y scroll behaviour.
+ *
+ * The returned array always has `targetCount + ALIGNED_TICK_BUFFER` entries —
+ * a count that depends only on `targetCount` (an input, stable for the whole
+ * gesture), never on the window's position — so it can back a Lynx
+ * gesture-driven `@for` without ever adding/removing nodes mid-drag.
+ */
+export const generateAlignedTicks = (
+  window: ChartDomain,
+  targetCount: number,
+): number[] => {
+  const span = window[1] - window[0];
+  const step = niceNum(span / Math.max(1, targetCount - 1), true) || 1;
+  const firstIndex = Math.floor(window[0] / step) - 1;
+  const count = Math.max(1, targetCount) + ALIGNED_TICK_BUFFER;
+  const ticks: number[] = [];
+  for (let i = 0; i < count; i++) {
+    ticks.push((firstIndex + i) * step);
+  }
+  return ticks;
+};
+
 /**
  * ---------------------------------------------------------------------------
  * Pan / zoom window math (pure — exported for unit tests)
@@ -419,7 +457,11 @@ const AXIS_LABEL_LINE_HEIGHT = 12;
   imports: [LYNX_ELEMENTS, LynxGestureDetector],
   encapsulation: ViewEncapsulation.None,
   template: `
-    <view [class]="containerClass()" [style]="containerStyle()">
+    <view
+      [class]="containerClass()"
+      [style]="containerStyle()"
+      [flatten]="false"
+    >
       <!--
         Plot area: a definite-size box, offset by the y-axis gutter. It is the
         containing block for both the gridlines and the projected series marks.
@@ -641,21 +683,26 @@ export class UiCartesianChart {
 
   // --- Internal rendering state ---
 
-  // When zoomable, ticks are generated for the *visible* window at a FIXED count
-  // (exactly `tickCount`) so the gridline/label `@for` never adds or removes
-  // nodes mid-gesture — it only restyles the existing ones. Mutating the element
-  // tree inside a Lynx gesture worklet can crash natively, so the element count
-  // must stay constant while a pinch/pan is live. A non-zoomable chart keeps its
-  // original behaviour exactly (explicit ticks, else evenly generated over the
-  // full domain).
+  // When zoomable, ticks are pinned to fixed DATA-space multiples of a "nice"
+  // step (generateAlignedTicks) rather than evenly dividing the *current*
+  // window — the latter re-lands every tick on the same pixel position the
+  // instant the window shifts (numbers change, gridlines visually don't),
+  // which is why a pan used to look like it was translating around a fixed
+  // centre instead of tracking the finger. Anchoring to fixed data values
+  // makes every gridline slide across the screen exactly like the content it
+  // labels. The array length still depends only on `tickCount` (never the
+  // window), so the gridline/label `@for` never adds or removes nodes
+  // mid-gesture — mutating the element tree inside a Lynx gesture worklet can
+  // crash natively. A non-zoomable chart keeps its original behaviour exactly
+  // (explicit ticks, else evenly generated over the full domain).
   readonly #resolvedYTicks = computed(() =>
     this.zoomable()
-      ? generateTicks(this.#effectiveYDomain(), this.tickCount())
+      ? generateAlignedTicks(this.#effectiveYDomain(), this.tickCount())
       : (this.yTicks() ?? generateTicks(this.yDomain(), this.tickCount())),
   );
   readonly #resolvedXTicks = computed(() =>
     this.zoomable()
-      ? generateTicks(this.#effectiveXDomain(), this.tickCount())
+      ? generateAlignedTicks(this.#effectiveXDomain(), this.tickCount())
       : (this.xTicks() ?? generateTicks(this.xDomain(), this.tickCount())),
   );
 
@@ -663,17 +710,42 @@ export class UiCartesianChart {
 
   // `flex-shrink: 0` stops a narrow parent squeezing the chart below its
   // explicit pixel width (Lynx lets flex items shrink past their content).
+  //
+  // `overflow: hidden` clips axis tick labels to the chart's own box: a
+  // zoomable chart's aligned-tick generator (generateAlignedTicks) always
+  // renders a couple of buffer ticks past either edge of the visible window
+  // (see ALIGNED_TICK_BUFFER) so the grid never pops in mid-slide — their
+  // gridlines are already clipped by the plot view's own `overflow: hidden`,
+  // but the tick LABELS live outside the plot (in the axis gutters, as
+  // siblings) so without this they'd float outside the chart's declared
+  // width/height instead of being invisible like their gridline.
+  //
+  // Getting Lynx to actually HONOUR that clip against absolutely-positioned
+  // children (every label here is `position: absolute`) took two more
+  // declarations, both matching an existing pattern in this codebase:
+  // - `z-index: 0` — Lynx only creates a stacking context for an element that
+  //   explicitly sets `z-index` (unlike the web, where `z-index: auto` is a
+  //   real value); without one, absolutely-positioned children can visually
+  //   escape their ancestor's `overflow: hidden` (the same reason
+  //   `<x-scroll-view>` needs `z-index: 0` to stop children escaping during
+  //   scroll — see investigations/lynx-vs-web-differences.md).
+  // - `[flatten]="false"` (template) — Android may "flatten" a view with no
+  //   event listeners straight into its parent's canvas instead of giving it
+  //   its own native View, which can make its `overflow: hidden` apply
+  //   inconsistently (observed: the clip boundary appeared to move with zoom
+  //   level, and the bottom edge didn't clip at all). Forcing a dedicated
+  //   layer makes the clip solid regardless of zoom/pan state. No effect on
+  //   iOS, harmless either way.
   protected readonly containerStyle = computed(
     () =>
-      `position: relative; width: ${px(this.width())}; height: ${px(this.height())}; flex-shrink: 0;`,
+      `position: relative; width: ${px(this.width())}; height: ${px(this.height())}; flex-shrink: 0; overflow: hidden; z-index: 0;`,
   );
 
   protected readonly plotStyle = computed(
     () =>
-      // `overflow: hidden` clips zoomed/panned marks to the plot rectangle. The
-      // axis labels live in the container (siblings of this plot view), so they
-      // are unaffected. Harmless at rest — every series already draws inside the
-      // plot bounds.
+      // `overflow: hidden` clips zoomed/panned marks to the plot rectangle.
+      // The axis labels live in the container (siblings of this plot view) —
+      // the container clips those independently (see containerStyle above).
       `position: absolute; left: ${px(this.#yGutter())}; top: 0px; width: ${px(this.plotWidth())}; height: ${px(this.plotHeight())}; overflow: hidden;`,
   );
 

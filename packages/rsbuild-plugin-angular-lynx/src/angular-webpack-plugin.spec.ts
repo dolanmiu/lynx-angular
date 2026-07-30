@@ -239,6 +239,7 @@ describe('AngularWebpackPlugin', () => {
         disableCreateSelectorQueryIncompatibleWarning: false,
         firstScreenSyncTiming: 'immediately',
         enableSSR: false,
+        isWeb: false,
         mainThreadChunks: [],
         extractStr: false,
         experimental_isLazyBundle: false,
@@ -369,6 +370,24 @@ describe('AngularWebpackPlugin', () => {
         new AngularWebpackPlugin({ enableSSR: true }).apply(compiler as never);
 
         expect(capturedDefineArgs['__ENABLE_SSR__']).toBe('true');
+      });
+
+      it('sets __WEB__ to true when isWeb is set', () => {
+        const { compiler, capturedDefineArgs } = createMockCompiler();
+        setupBeforeEncodeHook();
+
+        new AngularWebpackPlugin({ isWeb: true }).apply(compiler as never);
+
+        expect(capturedDefineArgs['__WEB__']).toBe('true');
+      });
+
+      it('defaults __WEB__ to false (native builds) so web-only code is tree-shaken', () => {
+        const { compiler, capturedDefineArgs } = createMockCompiler();
+        setupBeforeEncodeHook();
+
+        new AngularWebpackPlugin({}).apply(compiler as never);
+
+        expect(capturedDefineArgs['__WEB__']).toBe('false');
       });
 
       it('sets __DISABLE_CREATE_SELECTOR_QUERY_INCOMPATIBLE_WARNING__ from option', () => {

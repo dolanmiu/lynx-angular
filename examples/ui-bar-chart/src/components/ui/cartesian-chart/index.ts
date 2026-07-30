@@ -5,6 +5,7 @@ export {
   niceNum,
   niceScale,
   generateTicks,
+  generateAlignedTicks,
   clampWindow,
   panWindow,
   zoomWindow,

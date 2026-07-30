@@ -202,6 +202,7 @@ export const applyEntry = (
         {
           mainThreadChunks,
           enableSSR: options.enableSSR,
+          isWeb,
         },
       ]);
   });

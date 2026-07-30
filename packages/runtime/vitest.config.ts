@@ -18,6 +18,7 @@ export default defineConfig({
     __DEV__: false,
     __PROFILE__: false,
     __ENABLE_SSR__: false,
+    __WEB__: false,
   },
   test: {
     include: ['src/**/*.spec.ts'],

@@ -2150,6 +2150,21 @@ Set `flatten={false}` on elements that need:
 - Screenshot capture
 - `sticky` positioning inside `<x-scroll-view>`
 - Element method calls via `SelectorQuery`
+- **Reliable `overflow: hidden` clipping of `position: absolute` children.** A
+  plain `<view style="overflow: hidden">` with absolutely-positioned children
+  can clip inconsistently on Android — the clip boundary appears to shift
+  depending on unrelated state changes, and some edges may not clip at all —
+  because a flattened view has no dedicated native View to own the clip
+  region. Concretely observed in `UiCartesianChart`
+  (`packages/ui/src/lib/components/cartesian-chart/cartesian-chart.ts`): the
+  plot's inner `overflow: hidden` clipped its (also absolutely-positioned)
+  series marks correctly, because that view is already forced non-flatten by
+  the gesture directive (see `LynxGestureDetector`); but the outer container's
+  `overflow: hidden` — added to clip axis tick labels that intentionally
+  render a little past the plot edge while panning — did nothing reliable
+  until `[flatten]="false"` was added to it too. Pair this with `z-index: 0`
+  (see the stacking-context entry below) — the two fixes are independent
+  causes of the same symptom, not alternatives.
 
 This attribute has no effect on iOS. There is no web equivalent because web always creates renderable objects for all elements.
 
@@ -4062,3 +4077,44 @@ Disable `ImagePerformanceWarning` in `provideRenderer()` (`packages/runtime/src/
 This makes web's document-access path identical to iOS's (which already never reached `getDocument()`), so it is zero-risk on native — and it's semantically correct: Lynx renders native `<image>`, not HTML `<img>`, and has no LCP, so the diagnostic can never apply. Covered by `providers.spec.ts`.
 
 Still-latent hazard: any *other* Angular internal that reads the bare `document`/`window` (instead of the DI `DOCUMENT` token) on the normal path would hit the same shadowed-undefined param on both platforms. None do today. A more general fix would be `ɵsetDocument(stub)` — it sets the module-level `DOCUMENT` var `getDocument()` checks first, bypassing the shadowed global — deliberately avoided for now because it mutates Angular global state on every platform, changing native behavior for no current benefit.
+
+---
+
+## web-core does NOT implicitly flush after `renderPage`, so the first render must be flushed explicitly — otherwise every web app is blank
+
+After the `ImagePerformanceWarning` crash above is fixed, Angular bootstraps cleanly on both threads on web (you see two "Angular is running in development mode" logs, no errors) — yet the screen stays blank. `<lynx-view>` is `display:none` and the page is never attached to the DOM.
+
+### What you'd expect (web / native parity)
+
+Whatever the framework renders during bootstrap appears on screen once bootstrap finishes, on every platform.
+
+### What Lynx does
+
+The renderer **skips the first `__FlushElementTree()`** on purpose. `LynxRendererFactory2.end()` gates it: `if (!isFirstRenderPending()) __FlushElementTree()`. The reasoning (see `lynx-render-lifecycle.ts`) is that every change-detection cycle during bootstrap is still nested inside the native engine's `renderPage()` call, and driving a layout-triggering flush there re-enters a `<list>`'s `componentAtIndex`. Skipping is safe **on native** because *"the native engine performs its own implicit flush once `renderPage()` returns."*
+
+`@lynx-js/web-core` has **no such implicit flush**. Worse, web-core's first-paint side effects live *inside* `__FlushElementTree` — its main-thread `createElementAPI` does, on the first flush where `page && !page.parentNode`:
+
+```js
+rootDom.appendChild(page);          // attach the page to the DOM
+rootDom.host.style.display = 'flex'; // reveal <lynx-view> (its base CSS is display:none)
+```
+
+So with the first flush skipped and no implicit web-core flush, the page is never attached and `<lynx-view>` stays `display:none`. Every app renders blank — until some *later* CD cycle (a tap, a signal change) happens to flush and reveal it. Static screens never get that, so they stay blank forever. `<lynx-view>`'s base rule really is `display:none` (revealed only by `[ssr]` in CSS, or by that `style.display='flex'` line at runtime), which is why the whole view — not just its contents — is invisible.
+
+### The fix
+
+Force one explicit flush after bootstrap, **web-only**. In `bootstrapApplication` (`runtime.ts`), after `markFirstRenderComplete()`:
+
+```ts
+if (__WEB__ && __MAIN_THREAD__ && !wasHydrating) {
+  setTimeout(() => __FlushElementTree(), 0);
+}
+```
+
+- **`__WEB__`** is a compile-time define (`environment.name === 'web'`, injected by the rsbuild plugin's `DefinePlugin`). It's `false` on native, so the whole block is **dead-code-eliminated from native bundles** — native's implicit-flush timing is untouched (verified: the `setTimeout(()=>__FlushElementTree(),0)` appears in the web main-thread chunk and is absent from `main.lynx.bundle`).
+- **`setTimeout` (macrotask)** defers the flush until after web-core's `renderPage` frame unwinds — the same safe context `runAfterFirstRender` uses for a `<list>`'s first update, so it can't re-enter `componentAtIndex` mid-`renderPage`.
+- **`!wasHydrating`** skips it during SSR hydration, where the snapshot tree already exists and web-core shows the view via its `[ssr]` CSS attribute.
+
+This was masked until now: the `ImagePerformanceWarning` crash aborted bootstrap before anything could render, so the missing first flush only became visible once that crash was fixed. Covered by the `__WEB__` define tests in `angular-webpack-plugin.spec.ts`.
+
+> **Accessing the web preview:** web-core uses `SharedArrayBuffer` + `Atomics.wait` for synchronous native-module calls, which needs `crossOriginIsolated` — i.e. COOP + COEP headers (the dev server sends both) **and** a trustworthy origin. Load the preview over `http://localhost:<port>` or HTTPS, **not** a LAN IP; on a plain-HTTP LAN IP the browser ignores COOP ("origin untrustworthy"), `SharedArrayBuffer` is `undefined`, and the first synchronous native call throws. This is an access-time requirement, not a code fix.
