@@ -197,6 +197,26 @@ export const generateAlignedTicks = (
 };
 
 /**
+ * True when `value` sits outside `domain`, treating the bounds as inclusive: a
+ * tick exactly on a bound reads as inside, protected by a tiny relative epsilon
+ * so float drift in the window math can't exclude a legitimate edge tick.
+ *
+ * Drives per-label hiding for zoomable charts — {@link generateAlignedTicks}
+ * intentionally emits a couple of tick values just past each edge of the
+ * visible window (so the grid stays covered while panning without changing the
+ * element count), and this predicate is what suppresses those buffer ticks'
+ * labels while every in-window label renders in full. Testing by value rather
+ * than projected pixel keeps it independent of axis padding.
+ */
+export const isValueOutsideDomain = (
+  value: number,
+  domain: ChartDomain,
+): boolean => {
+  const eps = Math.abs(domain[1] - domain[0]) * 1e-6;
+  return value < domain[0] - eps || value > domain[1] + eps;
+};
+
+/**
  * ---------------------------------------------------------------------------
  * Pan / zoom window math (pure — exported for unit tests)
  *
@@ -211,6 +231,37 @@ export const generateAlignedTicks = (
 
 const clampValue = (value: number, lo: number, hi: number): number =>
   Math.max(lo, Math.min(hi, value));
+
+// Gridlines are 1px thick. A line whose data value sits exactly on the plot's
+// FAR edge — the bottom (y = domain min) or the right (x = domain max) —
+// projects to pixel `plotHeight` / `plotWidth`: the first row/column just
+// OUTSIDE the plot's content box. The plot needs `overflow: hidden` to clip
+// panned/zoomed marks, so that 1px line is clipped away and the edge gridline
+// silently vanishes (reported: the y-axis "0" gridline isn't visible; its label
+// still shows because labels live in the un-clipped container). This is ordinary
+// box geometry, not a Lynx quirk — a child at `top: 100%` height 1px is outside
+// an overflow-hidden parent on the web too.
+const GRIDLINE_THICKNESS = 1;
+
+/**
+ * The pixel offset at which to draw a gridline of {@link GRIDLINE_THICKNESS},
+ * nudged so an in-window line at the plot's far edge stays visible instead of
+ * being clipped by the plot's `overflow: hidden`. An in-domain line is clamped
+ * into `[0, extentPx - thickness]` so its full thickness lands inside the box; an
+ * out-of-domain line — the buffer ticks {@link generateAlignedTicks} emits just
+ * past each edge while panning — is returned unclamped so it clips away
+ * naturally, because clamping those would instead pile them onto the visible edge.
+ */
+export const gridlineOffset = (
+  value: number,
+  offsetPx: number,
+  domain: ChartDomain,
+  extentPx: number,
+  thickness = GRIDLINE_THICKNESS,
+): number =>
+  isValueOutsideDomain(value, domain)
+    ? offsetPx
+    : clampValue(offsetPx, 0, extentPx - thickness);
 
 /**
  * The inverse of {@link linearScale}: maps a pixel offset back to its data
@@ -457,11 +508,7 @@ const AXIS_LABEL_LINE_HEIGHT = 12;
   imports: [LYNX_ELEMENTS, LynxGestureDetector],
   encapsulation: ViewEncapsulation.None,
   template: `
-    <view
-      [class]="containerClass()"
-      [style]="containerStyle()"
-      [flatten]="false"
-    >
+    <view [class]="containerClass()" [style]="containerStyle()">
       <!--
         Plot area: a definite-size box, offset by the y-axis gutter. It is the
         containing block for both the gridlines and the projected series marks.
@@ -711,80 +758,101 @@ export class UiCartesianChart {
   // `flex-shrink: 0` stops a narrow parent squeezing the chart below its
   // explicit pixel width (Lynx lets flex items shrink past their content).
   //
-  // `overflow: hidden` clips axis tick labels to the chart's own box: a
-  // zoomable chart's aligned-tick generator (generateAlignedTicks) always
-  // renders a couple of buffer ticks past either edge of the visible window
-  // (see ALIGNED_TICK_BUFFER) so the grid never pops in mid-slide — their
-  // gridlines are already clipped by the plot view's own `overflow: hidden`,
-  // but the tick LABELS live outside the plot (in the axis gutters, as
-  // siblings) so without this they'd float outside the chart's declared
-  // width/height instead of being invisible like their gridline.
-  //
-  // Getting Lynx to actually HONOUR that clip against absolutely-positioned
-  // children (every label here is `position: absolute`) took two more
-  // declarations, both matching an existing pattern in this codebase:
-  // - `z-index: 0` — Lynx only creates a stacking context for an element that
-  //   explicitly sets `z-index` (unlike the web, where `z-index: auto` is a
-  //   real value); without one, absolutely-positioned children can visually
-  //   escape their ancestor's `overflow: hidden` (the same reason
-  //   `<x-scroll-view>` needs `z-index: 0` to stop children escaping during
-  //   scroll — see investigations/lynx-vs-web-differences.md).
-  // - `[flatten]="false"` (template) — Android may "flatten" a view with no
-  //   event listeners straight into its parent's canvas instead of giving it
-  //   its own native View, which can make its `overflow: hidden` apply
-  //   inconsistently (observed: the clip boundary appeared to move with zoom
-  //   level, and the bottom edge didn't clip at all). Forcing a dedicated
-  //   layer makes the clip solid regardless of zoom/pan state. No effect on
-  //   iOS, harmless either way.
+  // Deliberately NOT `overflow: hidden` here. Tick labels are positioned to
+  // STRADDLE the plot edges on purpose — the top y-label is centred on the top
+  // gridline, so its text box overhangs the container's top by half the font
+  // height (LABEL_FONT_HALF); the last x-label overhangs the right edge by half
+  // its width. A container clip would slice those legitimate edge labels in
+  // half (reported: "the top 100 gets cut in half at 1:1"). The only labels
+  // that actually need suppressing are a zoomable chart's out-of-window buffer
+  // ticks, and those are hidden individually by value in `yLabels`/`xLabels`
+  // (see `#labelVisibility`) — precise enough to drop the strays while letting
+  // every in-range label render in full. Gridlines still clip correctly: they
+  // live inside the plot view, which keeps its own `overflow: hidden`.
   protected readonly containerStyle = computed(
     () =>
-      `position: relative; width: ${px(this.width())}; height: ${px(this.height())}; flex-shrink: 0; overflow: hidden; z-index: 0;`,
+      `position: relative; width: ${px(this.width())}; height: ${px(this.height())}; flex-shrink: 0;`,
   );
 
   protected readonly plotStyle = computed(
     () =>
-      // `overflow: hidden` clips zoomed/panned marks to the plot rectangle.
-      // The axis labels live in the container (siblings of this plot view) —
-      // the container clips those independently (see containerStyle above).
+      // `overflow: hidden` clips zoomed/panned marks — and the gridlines, which
+      // are also children of this view — to the plot rectangle. The axis labels
+      // live in the container (siblings of this plot view), so they are NOT
+      // clipped here; out-of-window buffer labels are hidden individually
+      // instead (see `#labelVisibility`). Harmless at rest — every series
+      // already draws inside the plot bounds.
       `position: absolute; left: ${px(this.#yGutter())}; top: 0px; width: ${px(this.plotWidth())}; height: ${px(this.plotHeight())}; overflow: hidden;`,
   );
 
-  // Horizontal gridlines: full-width rules at each y tick's pixel height.
+  /**
+   * A zoomable chart emits tick VALUES just past each edge of the visible
+   * window (ALIGNED_TICK_BUFFER) so the grid stays covered mid-pan without the
+   * element count ever changing. Their gridlines are clipped by the plot's own
+   * `overflow: hidden`, but their labels live outside the plot — so we hide the
+   * strays here. Testing by VALUE (is the tick outside the visible domain?)
+   * rather than by pixel keeps this independent of axis padding and guarantees
+   * a legitimate edge label (value exactly on the domain bound) is never caught
+   * by float drift. Returns a style fragment appended to the label; `visibility`
+   * keeps the element in the layout (fixed count) and is a pure paint toggle, so
+   * it is safe to update from a gesture-driven signal write (no tree mutation).
+   *
+   * Only zoomable charts generate buffer ticks, so this is a no-op otherwise —
+   * gated on `zoomable()` so a non-zoomable chart's labels (including any
+   * explicit `xTicks`/`yTicks` a caller placed outside the domain on purpose)
+   * are never touched, byte-for-byte matching the pre-pan/zoom behaviour.
+   */
+  #labelVisibility(value: number, domain: ChartDomain): string {
+    if (!this.zoomable()) return '';
+    return isValueOutsideDomain(value, domain) ? ' visibility: hidden;' : '';
+  }
+
+  // Horizontal gridlines: full-width rules at each y tick's pixel height. The
+  // bottom-most in-window line is nudged up by its thickness so the plot's
+  // `overflow: hidden` doesn't clip it (see {@link gridlineOffset}).
   protected readonly gridlines = computed(() => {
     const scale = this.yScale();
+    const domain = this.#effectiveYDomain();
+    const extent = this.plotHeight();
     return this.#resolvedYTicks().map((value) => ({
-      style: `position: absolute; left: 0px; top: ${px(scale(value))}; width: 100%; height: 1px;`,
+      style: `position: absolute; left: 0px; top: ${px(gridlineOffset(value, scale(value), domain, extent))}; width: 100%; height: ${GRIDLINE_THICKNESS}px;`,
     }));
   });
 
-  // Vertical gridlines: full-height rules at each x tick's pixel position.
+  // Vertical gridlines: full-height rules at each x tick's pixel position. The
+  // right-most in-window line is nudged left by its thickness for the same
+  // clip reason as the horizontal ones above.
   protected readonly verticalGridlines = computed(() => {
     const scale = this.xScale();
+    const domain = this.#effectiveXDomain();
+    const extent = this.plotWidth();
     return this.#resolvedXTicks().map((value) => ({
-      style: `position: absolute; top: 0px; left: ${px(scale(value))}; width: 1px; height: 100%;`,
+      style: `position: absolute; top: 0px; left: ${px(gridlineOffset(value, scale(value), domain, extent))}; width: ${GRIDLINE_THICKNESS}px; height: 100%;`,
     }));
   });
 
   protected readonly yLabels = computed(() => {
     const scale = this.yScale();
     const format = this.yTickFormat();
+    const domain = this.#effectiveYDomain();
     // A y-title pushes the tick labels right, past its reserved strip.
     const left = this.yAxisLabel() ? Y_AXIS_LABEL_SPACE : 0;
     const width = this.yAxisWidth() - LABEL_GUTTER_GAP;
     return this.#resolvedYTicks().map((value) => ({
       text: format(value),
-      style: `position: absolute; left: ${px(left)}; top: ${px(scale(value) - LABEL_FONT_HALF)}; width: ${px(width)};`,
+      style: `position: absolute; left: ${px(left)}; top: ${px(scale(value) - LABEL_FONT_HALF)}; width: ${px(width)};${this.#labelVisibility(value, domain)}`,
     }));
   });
 
   protected readonly xLabels = computed(() => {
     const scale = this.xScale();
     const format = this.xTickFormat();
+    const domain = this.#effectiveXDomain();
     const gutter = this.#yGutter();
     const top = this.plotHeight() + X_LABEL_GAP;
     return this.#resolvedXTicks().map((value) => ({
       text: format(value),
-      style: `position: absolute; top: ${px(top)}; left: ${px(gutter + scale(value) - X_LABEL_WIDTH / 2)}; width: ${px(X_LABEL_WIDTH)};`,
+      style: `position: absolute; top: ${px(top)}; left: ${px(gutter + scale(value) - X_LABEL_WIDTH / 2)}; width: ${px(X_LABEL_WIDTH)};${this.#labelVisibility(value, domain)}`,
     }));
   });
 

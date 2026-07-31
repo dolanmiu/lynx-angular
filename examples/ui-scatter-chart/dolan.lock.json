@@ -3,13 +3,13 @@
   "components": {
     "cartesian-chart": {
       "cartesian-chart.test.ts": {
-        "hash": "8f2d82078f9ade48"
+        "hash": "1e9e5c0acde9faa6"
       },
       "cartesian-chart.ts": {
-        "hash": "d22c322962611449"
+        "hash": "64d87d23606ad691"
       },
       "index.ts": {
-        "hash": "173bf215fc5d8b22"
+        "hash": "fe2cc9f8e98674de"
       }
     },
     "scatter-chart": {

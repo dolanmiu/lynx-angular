@@ -6,6 +6,8 @@ export {
   niceScale,
   generateTicks,
   generateAlignedTicks,
+  isValueOutsideDomain,
+  gridlineOffset,
   clampWindow,
   panWindow,
   zoomWindow,

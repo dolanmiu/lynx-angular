@@ -14,6 +14,7 @@
 // the separate, real cyclic-attach hazard that a reorder/re-projection can still
 // request.
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { FakeNativeGlobal } from '../testing/fake-native-global';
 import type { ElementRef } from '../types/lynx';
 import { LynxElement } from './lynx-element';
 
@@ -53,7 +54,7 @@ const detach = (child: FakeEl): void => {
 const installNativeFakes = (): void => {
   nextId = 1;
   pageRoot = makeEl('page');
-  const g = globalThis as Record<string, unknown>;
+  const g = globalThis as unknown as FakeNativeGlobal<FakeEl>;
 
   g.__GetElementUniqueID = (n: FakeEl) => n.id;
   g.__GetTag = (n: FakeEl) => n.tag;

@@ -55,6 +55,7 @@ import { processPendingRemovals } from '../lynx-element';
 import { LynxDocument } from '../lynx-document';
 import { setPageElementRef } from '../lynx-document/page-ref';
 import { markFirstRenderComplete } from '../lynx-render-lifecycle';
+import type { FakeNativeGlobal } from '../testing/fake-native-global';
 import { LynxRendererFactory2 } from './lynx-renderer-factory2';
 import { LYNX_DOCUMENT } from './token';
 
@@ -134,7 +135,7 @@ const installNativeFakes = (): void => {
   pendingRemovedSinceFlush.clear();
   addEventCalls.length = 0;
 
-  const g = globalThis as Record<string, unknown>;
+  const g = globalThis as unknown as FakeNativeGlobal<FakeEl>;
 
   g.__CreatePage = () => pageRoot;
   g.__CreateView = () => makeEl('view');
@@ -956,9 +957,7 @@ describe('renderer teardown', () => {
     // bound and blew the 5s teardown watchdog. This proves the leak is real and
     // unfixable via the renderer's remove hooks — so the renderer must never
     // relocate content, which recreate-on-remount is careful not to do.
-    const g = globalThis as Record<string, unknown> & {
-      __AppendElement: (p: FakeEl, c: FakeEl) => FakeEl;
-    };
+    const g = globalThis as unknown as FakeNativeGlobal<FakeEl>;
     const fixture = TestBed.createComponent(ReprojHost);
     fixture.detectChanges();
     await flush();

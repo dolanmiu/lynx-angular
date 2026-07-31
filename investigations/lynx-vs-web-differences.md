@@ -2155,16 +2155,28 @@ Set `flatten={false}` on elements that need:
   can clip inconsistently on Android — the clip boundary appears to shift
   depending on unrelated state changes, and some edges may not clip at all —
   because a flattened view has no dedicated native View to own the clip
-  region. Concretely observed in `UiCartesianChart`
+  region. Observed in `UiCartesianChart`
   (`packages/ui/src/lib/components/cartesian-chart/cartesian-chart.ts`): the
   plot's inner `overflow: hidden` clipped its (also absolutely-positioned)
-  series marks correctly, because that view is already forced non-flatten by
-  the gesture directive (see `LynxGestureDetector`); but the outer container's
-  `overflow: hidden` — added to clip axis tick labels that intentionally
-  render a little past the plot edge while panning — did nothing reliable
-  until `[flatten]="false"` was added to it too. Pair this with `z-index: 0`
-  (see the stacking-context entry below) — the two fixes are independent
-  causes of the same symptom, not alternatives.
+  series marks and gridlines correctly, because that view is already forced
+  non-flatten by the gesture directive (see `LynxGestureDetector`); but adding
+  `overflow: hidden` to the outer container did nothing reliable until BOTH
+  `[flatten]="false"` and `z-index: 0` (see the stacking-context entry below)
+  were added — they are independent causes of the same symptom, not
+  alternatives.
+
+  Caveat learned the hard way: container-level clipping is usually the WRONG
+  tool for clipping axis labels or any element deliberately positioned to
+  straddle an edge. `UiCartesianChart` originally clipped its out-of-window
+  buffer tick labels with a `overflow: hidden` + `z-index: 0` +
+  `[flatten]="false"` container, but that same clip sliced the *legitimate*
+  edge labels in half (the top y-label is centred on the top gridline, so its
+  box overhangs the container top by half its font height). The container clip
+  was reverted in favour of hiding individual out-of-window labels with
+  `visibility: hidden` (a pure paint toggle, safe from a gesture worklet).
+  Reach for the flatten+z-index container clip when you must clip content that
+  should genuinely be bounded (a scrolling region, a masked thumbnail); prefer
+  per-element hiding when some children are supposed to overhang.
 
 This attribute has no effect on iOS. There is no web equivalent because web always creates renderable objects for all elements.
 
@@ -4118,3 +4130,38 @@ if (__WEB__ && __MAIN_THREAD__ && !wasHydrating) {
 This was masked until now: the `ImagePerformanceWarning` crash aborted bootstrap before anything could render, so the missing first flush only became visible once that crash was fixed. Covered by the `__WEB__` define tests in `angular-webpack-plugin.spec.ts`.
 
 > **Accessing the web preview:** web-core uses `SharedArrayBuffer` + `Atomics.wait` for synchronous native-module calls, which needs `crossOriginIsolated` — i.e. COOP + COEP headers (the dev server sends both) **and** a trustworthy origin. Load the preview over `http://localhost:<port>` or HTTPS, **not** a LAN IP; on a plain-HTTP LAN IP the browser ignores COOP ("origin untrustworthy"), `SharedArrayBuffer` is `undefined`, and the first synchronous native call throws. This is an access-time requirement, not a code fix.
+
+## `crypto.randomUUID is not a function` on web — the preview is on an insecure origin, not a code bug
+
+Once the app actually starts rendering on web (after the first-flush fix above), web-core throws during startup:
+
+```
+Uncaught TypeError: crypto.randomUUID is not a function
+    at lX.init (kwift.CHROME.js:1:416864)
+    at ps._orderHandlerRegistration (kwift.CHROME.js:149:8798)
+    ...
+    at vendors.js:1:95
+```
+
+### What you'd expect (web / native parity)
+
+`crypto` is a standard global; `crypto.randomUUID()` should be callable anywhere `crypto` exists.
+
+### What Lynx does
+
+`kwift.CHROME.js` is Lynx's **prebuilt web engine** — it is *not* in our dependency tree (nothing under `node_modules/@lynx-js/**` references `kwift` or `randomUUID`); web-core fetches it at runtime and evaluates it **inside the background Web Worker** it spawns:
+
+```js
+// @lynx-js/web-core/dist/client/mainthread/Background.js
+new Worker(new URL('../background/index.js', import.meta.url), { type: 'module', name: 'lynx-bg' })
+```
+
+During handler registration the engine calls `crypto.randomUUID()`. The catch: **`crypto.randomUUID()` is a secure-context-only Web API.** On an insecure origin the `crypto` object still exists (so `crypto.getRandomValues` works) but `crypto.randomUUID` is simply `undefined` — hence "is not a function", not "crypto is undefined". A Web Worker is a secure context **only if the page that created it is** (the worker URL is same-origin here), so opening the "Network" `http://<LAN-IP>:<port>` URL the dev server prints makes the engine crash the moment it inits.
+
+This is the **same root cause** as the `SharedArrayBuffer`/`crossOriginIsolated` note above — an insecure origin — just a different symptom that trips first (engine init happens before any synchronous native call).
+
+### The fix
+
+**Open the preview from a secure context.** `http://localhost:<port>` and `http://127.0.0.1:<port>` always qualify; any HTTPS origin does too. Do **not** use the LAN IP URL for the *browser* preview (the QR / on-device flow is unaffected — LynxExplorer loads the native `.lynx.bundle`, not the browser page).
+
+There is **no code polyfill** for this: the engine is Lynx's own code, it runs before ours in web-core's worker, and we don't control that worker's entry — so nothing we ship can define `crypto.randomUUID` in time. What we *can* do is fail loudly instead of cryptically. `runtime.ts` emits an actionable, **web-only** (`__WEB__`-gated, DCE'd from native) console error when `globalThis.isSecureContext === false`, pointing the developer at the localhost URL rather than leaving them with a stack trace inside `kwift.CHROME.js`.

@@ -37,6 +37,7 @@ import {
   processPendingTextNormalization,
 } from '../lynx-element';
 import { markFirstRenderComplete } from '../lynx-render-lifecycle';
+import type { FakeNativeGlobal } from '../testing/fake-native-global';
 import { LynxRendererFactory2 } from './lynx-renderer-factory2';
 import { LYNX_DOCUMENT } from './token';
 
@@ -81,7 +82,7 @@ const installNativeFakes = (): void => {
   pageRoot = makeEl('page');
   pendingRemovedSinceFlush.clear();
 
-  const g = globalThis as Record<string, unknown>;
+  const g = globalThis as unknown as FakeNativeGlobal<FakeEl>;
 
   g.__CreatePage = () => pageRoot;
   g.__CreateView = () => makeEl('view');

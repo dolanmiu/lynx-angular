@@ -47,6 +47,35 @@ if (typeof (globalThis as any).onunhandledrejection !== 'function') {
   };
 }
 
+// Web-only: fail loud and clear when the page is not a secure context.
+//
+// @lynx-js/web-core's engine chunk (kwift.*.js) calls crypto.randomUUID()
+// while registering handlers during startup, inside the background Web Worker
+// it spawns (new Worker(new URL('../background/index.js', import.meta.url))).
+// crypto.randomUUID() — like SharedArrayBuffer, which web-core also needs for
+// synchronous native-module calls — is a SECURE-CONTEXT-ONLY Web API: the
+// `crypto` object still exists (so crypto.getRandomValues works) but
+// crypto.randomUUID is simply absent. Opening the preview over an insecure
+// origin — e.g. the "Network" http://<LAN-IP>:<port> URL the dev server prints
+// alongside "Local" — therefore makes web-core throw a cryptic
+// "crypto.randomUUID is not a function" deep inside Lynx's own engine code,
+// which we neither ship nor can patch, and which runs before any of our code in
+// web-core's worker (so it cannot be polyfilled). The only fix is to load from
+// a secure context. localhost and 127.0.0.1 always qualify; any HTTPS origin
+// does too. Surface that here instead of leaving the developer with the
+// third-party stack trace. __WEB__ is a compile-time define (false on native),
+// so this block is dead-code-eliminated from native bundles — native unchanged.
+if (__WEB__ && globalThis.isSecureContext === false) {
+  console.error(
+    '[angular-lynx] The web preview is not running in a secure context, so ' +
+      'crypto.randomUUID() and SharedArrayBuffer are unavailable and ' +
+      '@lynx-js/web-core will crash on startup ("crypto.randomUUID is not a ' +
+      'function"). Open the preview from a secure origin: use the "Local" ' +
+      'http://localhost:<port> URL, not the "Network" http://<LAN-IP>:<port> ' +
+      'URL (or serve over HTTPS).',
+  );
+}
+
 // Angular Router v21+ uses AbortController in its navigation pipeline.
 // The rsbuild plugin's polyfills.js provides this as preEntry, but this
 // defensive polyfill covers consumers not using the plugin.

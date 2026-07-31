@@ -31,6 +31,8 @@ const {
   niceScale,
   generateTicks,
   generateAlignedTicks,
+  isValueOutsideDomain,
+  gridlineOffset,
   sampleSmoothLine,
   clampWindow,
   panWindow,
@@ -175,6 +177,70 @@ describe('generateAlignedTicks', () => {
   it('falls back to a step of 1 for a zero-width window instead of dividing by zero', () => {
     expect(() => generateAlignedTicks([5, 5], 5)).not.toThrow();
     expect(generateAlignedTicks([5, 5], 5).every(Number.isFinite)).toBe(true);
+  });
+});
+
+// Regression guard for the "top axis number cut in half" bug. The zoomable
+// tick generator emits buffer ticks just past each edge of the window; their
+// labels must be hidden, but a legitimate edge label (value exactly on the
+// domain bound) must NOT be — hiding it, or clipping it at the container box,
+// is what sliced the top "100" in half at 1:1.
+describe('isValueOutsideDomain', () => {
+  it('treats a value exactly on either bound as inside (edge labels stay visible)', () => {
+    expect(isValueOutsideDomain(0, [0, 100])).toBe(false);
+    expect(isValueOutsideDomain(100, [0, 100])).toBe(false);
+  });
+
+  it('flags buffer ticks beyond either edge as outside', () => {
+    // generateAlignedTicks([0,100], 5) yields e.g. -20 and would extend past
+    // 100 — those must hide; the in-range multiples must not.
+    expect(isValueOutsideDomain(-20, [0, 100])).toBe(true);
+    expect(isValueOutsideDomain(120, [0, 100])).toBe(true);
+    expect(isValueOutsideDomain(40, [0, 100])).toBe(false);
+  });
+
+  it('does not exclude an on-bound tick lost to float drift', () => {
+    // A window bound that arrived via pan/zoom arithmetic can land a hair off
+    // the tick value; the relative epsilon must keep it visible.
+    expect(isValueOutsideDomain(100, [0, 99.99999999])).toBe(false);
+    expect(isValueOutsideDomain(0, [0.00000001, 100])).toBe(false);
+  });
+
+  it('scales epsilon with the span (a genuinely-outside tick still hides on a large domain)', () => {
+    expect(isValueOutsideDomain(1_000_050, [0, 1_000_000])).toBe(true);
+    expect(isValueOutsideDomain(1_000_000, [0, 1_000_000])).toBe(false);
+  });
+});
+
+// Regression guard for the "y-axis 0 gridline isn't visible" bug. The plot needs
+// `overflow: hidden` to clip panned marks, but a 1px gridline whose value sits on
+// the plot's far edge projects to exactly `extent` — one row/column past the box —
+// so the clip eats it. gridlineOffset nudges an in-window edge line back inside;
+// out-of-window buffer ticks stay put so they clip away instead of piling up.
+describe('gridlineOffset', () => {
+  it('nudges an in-window far-edge line inward so overflow:hidden cannot clip it', () => {
+    // y = domain min projects to `extent` (bottom of a flipped y-scale); a 1px
+    // line there is fully outside, so it clamps to extent - thickness.
+    expect(gridlineOffset(0, 200, [0, 100], 200)).toBe(199);
+    // The near edge (top / left = 0) is already inside and is left untouched.
+    expect(gridlineOffset(100, 0, [0, 100], 200)).toBe(0);
+  });
+
+  it('leaves an interior line exactly where it projects', () => {
+    expect(gridlineOffset(50, 100, [0, 100], 200)).toBe(100);
+  });
+
+  it('does not clamp an out-of-window buffer tick (it must clip away, not pile on the edge)', () => {
+    // generateAlignedTicks emits ticks just past each edge while panning. Below
+    // the window it projects past `extent`; above it projects negative. Both are
+    // returned as-is so the plot clip hides them rather than dragging them onto
+    // the visible edge as a spurious doubled line.
+    expect(gridlineOffset(-20, 260, [0, 100], 200)).toBe(260);
+    expect(gridlineOffset(120, -60, [0, 100], 200)).toBe(-60);
+  });
+
+  it('honours a custom gridline thickness', () => {
+    expect(gridlineOffset(0, 200, [0, 100], 200, 2)).toBe(198);
   });
 });
 
