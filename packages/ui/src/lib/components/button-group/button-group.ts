@@ -132,6 +132,9 @@ export class UiButtonGroup {
       (bindtouchstart)="onPressStart()"
       (bindtouchend)="onPressEnd()"
       (bindtouchcancel)="onPressCancel()"
+      (bindmousedown)="onPressStart()"
+      (bindmouseup)="onPressEnd()"
+      (bindmouseleave)="onPressCancel()"
       (bindtap)="onTap()"
     >
       <text [class]="labelClass()"><ng-content /></text>

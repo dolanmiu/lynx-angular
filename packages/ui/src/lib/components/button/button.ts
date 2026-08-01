@@ -84,6 +84,9 @@ export type ButtonSize = NonNullable<
       (bindtouchstart)="onPressStart()"
       (bindtouchend)="onPressEnd()"
       (bindtouchcancel)="onPressCancel()"
+      (bindmousedown)="onPressStart()"
+      (bindmouseup)="onPressEnd()"
+      (bindmouseleave)="onPressCancel()"
       (bindtap)="onTap()"
     >
       @if (loading()) {

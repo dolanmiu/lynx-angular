@@ -34,9 +34,14 @@ import { cn } from '../../utils/cn';
         <!-- Focus ring on its own overlay layer so it can fade (see input.ts for
              the full rationale): box-shadow is animatable:no on Lynx, opacity is,
              so we transition the layer's opacity. First child = painted behind
-             the textarea (Lynx paints in source order), so the textarea stays on
-             top and tappable — no pointer-events (which errors the Lynx build).
-             OUTSET only; Lynx doesn't render inset box-shadows. -->
+             the textarea on Lynx (strict source order). Source order alone is NOT
+             enough on web: CSS paints a positioned (absolute) sibling above a
+             static one regardless of source order, so this transparent overlay
+             would swallow every tap — no focus, no typing. The textarea below
+             carries position:relative + z-index:1 so it sits above the overlay on
+             BOTH platforms (redundant on Lynx, required on web). No pointer-events
+             (which errors the Lynx build). OUTSET only; Lynx doesn't render inset
+             box-shadows. -->
         <view
           class="rounded-xl opacity-0 absolute bottom-0 left-0 right-0 top-0"
           [style.transition]="'opacity 150ms ease'"
@@ -67,7 +72,7 @@ import { cn } from '../../utils/cn';
           [attr.disabled]="disabled() || undefined"
           [attr.enable-scroll-bar]="maxLines() != null ? 'true' : null"
           class="text-sm text-foreground"
-          style="border: none; background: transparent; height: 100%; width: 100%; line-height: 20px;"
+          style="border: none; background: transparent; height: 100%; width: 100%; line-height: 20px; position: relative; z-index: 1;"
           (bindinput)="onInput($any($event))"
           (bindfocus)="onFocus()"
           (bindblur)="onBlur()"

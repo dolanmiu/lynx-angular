@@ -55,6 +55,9 @@ export type ToggleSize = NonNullable<
       (bindtouchstart)="onPressStart()"
       (bindtouchend)="onPressEnd()"
       (bindtouchcancel)="onPressCancel()"
+      (bindmousedown)="onPressStart()"
+      (bindmouseup)="onPressEnd()"
+      (bindmouseleave)="onPressCancel()"
       (bindtap)="onTap()"
     >
       <ng-content />
@@ -158,6 +161,9 @@ export class UiToggleGroup {
       (bindtouchstart)="onPressStart()"
       (bindtouchend)="onPressEnd()"
       (bindtouchcancel)="onPressCancel()"
+      (bindmousedown)="onPressStart()"
+      (bindmouseup)="onPressEnd()"
+      (bindmouseleave)="onPressCancel()"
       (bindtap)="onTap()"
     >
       <ng-content />

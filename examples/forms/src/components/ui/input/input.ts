@@ -30,11 +30,17 @@ import { cn } from '@blotch/dolan/utils/cn';
            ring-* renders nothing on device). It rides its OWN layer so it can
            fade: box-shadow is animatable:no on Lynx (the core rejects a
            transition: box-shadow), but opacity is animatable, so we transition
-           the layer's opacity instead. The overlay is the FIRST child, and Lynx
-           paints in source order, so the <input> stays on top and tappable —
-           avoiding pointer-events, which errors the Lynx build. The shadow is
-           OUTSET only: Lynx doesn't render inset box-shadows, so the crisp 1px
-           "border" is an outset ring hugging the edge, not a real inset border. -->
+           the layer's opacity instead. The overlay is the FIRST child so Lynx,
+           which paints in strict source order, keeps the <input> on top and
+           tappable. Source order alone is NOT enough on web: CSS paints a
+           positioned (absolute) sibling above a static one regardless of source
+           order, so this transparent overlay would swallow every tap — no focus,
+           no typing. The <input> below therefore carries position:relative +
+           z-index:1 so it sits above the overlay on BOTH platforms (redundant on
+           Lynx, required on web). pointer-events is avoided — it errors the Lynx
+           build. The shadow is OUTSET only: Lynx doesn't render inset box-shadows,
+           so the crisp 1px "border" is an outset ring hugging the edge, not a
+           real inset border. -->
       <view [class]="inputWrapperClass()">
         <view
           class="rounded-xl opacity-0 absolute bottom-0 left-0 right-0 top-0"
@@ -57,7 +63,7 @@ import { cn } from '@blotch/dolan/utils/cn';
           [value]="value()"
           [attr.disabled]="disabled() || undefined"
           class="text-sm text-foreground"
-          style="border: none; background: transparent; height: 100%; width: 100%;"
+          style="border: none; background: transparent; height: 100%; width: 100%; position: relative; z-index: 1;"
           (bindinput)="onInput($any($event))"
           (bindfocus)="onFocus()"
           (bindblur)="onBlur()"

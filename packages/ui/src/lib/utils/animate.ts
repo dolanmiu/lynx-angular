@@ -298,39 +298,69 @@ export const popOut = (
 // ---------------------------------------------------------------------------
 
 /**
+ * Drives a press-feedback transform with an inline CSS transition instead of
+ * the imperative `element.animate()` (Web Animations) API.
+ *
+ * WHY NOT `el.animate()`: it plays on iOS/Android (native runs the renderer on
+ * the main thread, where `__ElementAnimate` maps to a real native animation)
+ * but is a DEAD no-op on Lynx web. On web the app runs inside `@lynx-js/web-core`'s
+ * worker against an OFFSCREEN document; `element.animate()` there creates a live
+ * Web-Animation on the offscreen node that is never serialized to the real DOM,
+ * so the on-screen element never moves. (Verified in a headless browser: the
+ * press handlers fire and `el.element.animate()` runs without error, yet the
+ * rendered node's computed transform stays `none`.) Inline STYLE mutations, by
+ * contrast, ARE serialized offscreen→real — that is how every `[style.*]`
+ * binding renders on web — so a `transition` + `transform` written via
+ * `setStyle` animates identically on native and web.
+ *
+ * The "from" state is always the element's current transform, so setting the
+ * `transition` and the new `transform` together reliably triggers the
+ * transition on both platforms (no from-state reflow needed, unlike an
+ * entrance animation would require).
+ */
+const transitionTransform = (
+  el: any,
+  transform: string,
+  duration: number,
+  easing: string,
+): AnimationHandle | undefined => {
+  if (!el?.setStyle) return undefined;
+  el.setStyle('transition', `transform ${duration}ms ${easing}`);
+  el.setStyle('transform', transform);
+  // CSS transitions have no imperative handle to stop; re-pressing simply
+  // re-transitions from the current value. cancel() is a no-op kept for API
+  // parity with callers that store and cancel the previous handle.
+  return { cancel() {} };
+};
+
+/**
  * Animates an element being pressed down (scale shrink).
- * Call on bindtouchstart.
+ *
+ * Wire this to BOTH the touch and mouse press-start events —
+ * `(bindtouchstart)` and `(bindmousedown)`. Native (iOS/Android) only ever
+ * fires touch events; Lynx web runs in the browser, where a mouse press fires
+ * `mousedown` and NEVER `touchstart`. Mouse events are inert on touch devices,
+ * so binding both yields identical press-and-hold feedback across platforms.
+ * See `transitionTransform` for why this uses a CSS transition, not
+ * `el.animate()`.
  */
 export const pressDown = (
   el: any,
   scale: number = SCALE.pressDown,
-): AnimationHandle | undefined => {
-  if (!el) return undefined;
-  return el.animate(
-    [{ transform: 'scale(1)' }, { transform: `scale(${scale})` }],
-    {
-      duration: DURATION.instant,
-      easing: EASING.standard,
-      fill: 'forwards',
-    },
-  );
-};
+): AnimationHandle | undefined =>
+  transitionTransform(el, `scale(${scale})`, DURATION.instant, EASING.standard);
 
 /**
  * Animates an element releasing from a press (scale back with spring).
- * Call on bindtouchend / bindtouchcancel.
+ *
+ * Wire this to the touch AND mouse release events — `(bindtouchend)` +
+ * `(bindtouchcancel)` and `(bindmouseup)` + `(bindmouseleave)`. See `pressDown`
+ * for why the mouse bindings are required on Lynx web. `mouseleave` is the
+ * `touchcancel` analogue: it restores the scale if the cursor leaves the
+ * element while still pressed.
  */
-export const pressRelease = (el: any): AnimationHandle | undefined => {
-  if (!el) return undefined;
-  return el.animate(
-    [{ transform: `scale(${SCALE.pressDown})` }, { transform: 'scale(1)' }],
-    {
-      duration: DURATION.fast,
-      easing: EASING.spring,
-      fill: 'forwards',
-    },
-  );
-};
+export const pressRelease = (el: any): AnimationHandle | undefined =>
+  transitionTransform(el, 'scale(1)', DURATION.fast, EASING.spring);
 
 // ---------------------------------------------------------------------------
 // Composite Helpers

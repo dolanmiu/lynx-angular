@@ -930,7 +930,21 @@ export class LynxElement implements BaseLynxElement {
           event.stopImmediatePropagation = () => {};
         }
       }
-      return cb(event);
+      const result = cb(event);
+      // Native events are delivered straight to this callback by the Lynx SDK —
+      // OUTSIDE Angular's begin()/end() change-detection cycle. So a handler that
+      // imperatively mutates the native tree (e.g. `el.setStyle(...)` for a press
+      // animation) but changes NO signal schedules no CD, and LynxRendererFactory2
+      // .end() therefore never flushes those mutations. On native the effect is a
+      // delayed paint; on web (@lynx-js/web-core's offscreen document) the mutation
+      // never reaches the real DOM at all, so imperative animations silently do
+      // nothing (verified in a headless browser). Schedule the same coalesced
+      // safety-net flush used for content built outside a cycle so these mutations
+      // commit. It's a near-no-op when nothing is layout-dirty, and if the handler
+      // DID change a signal the resulting CD flush runs and this stays a guarded
+      // no-op — so there's no double-flush cost.
+      scheduleSettleFlush();
+      return result;
     };
 
     // Cache the resolved handler so #recreateSubtree() can re-register it on a

@@ -28,6 +28,9 @@ import { cn } from '@blotch/dolan/utils/cn';
       (bindtouchstart)="onPressStart()"
       (bindtouchend)="onPressEnd()"
       (bindtouchcancel)="onPressCancel()"
+      (bindmousedown)="onPressStart()"
+      (bindmouseup)="onPressEnd()"
+      (bindmouseleave)="onPressCancel()"
     >
       <ng-content />
     </view>

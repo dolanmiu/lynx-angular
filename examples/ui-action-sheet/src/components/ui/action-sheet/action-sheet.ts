@@ -223,6 +223,9 @@ export class UiActionSheetTitle {
       (bindtouchstart)="onPressStart()"
       (bindtouchend)="onPressEnd()"
       (bindtouchcancel)="onPressCancel()"
+      (bindmousedown)="onPressStart()"
+      (bindmouseup)="onPressEnd()"
+      (bindmouseleave)="onPressCancel()"
       (bindtap)="onTap()"
     >
       <text [class]="textClass()"><ng-content /></text>
@@ -291,6 +294,9 @@ export class UiActionSheetItem {
       (bindtouchstart)="onPressStart()"
       (bindtouchend)="onPressEnd()"
       (bindtouchcancel)="onPressCancel()"
+      (bindmousedown)="onPressStart()"
+      (bindmouseup)="onPressEnd()"
+      (bindmouseleave)="onPressCancel()"
       (bindtap)="onTap()"
     >
       <text [class]="textClass()">{{ label() }}</text>

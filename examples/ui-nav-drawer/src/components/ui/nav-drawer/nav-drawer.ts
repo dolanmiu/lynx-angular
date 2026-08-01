@@ -328,6 +328,9 @@ export class UiNavDrawerContent {
       (bindtouchstart)="onPressStart()"
       (bindtouchend)="onPressEnd()"
       (bindtouchcancel)="onPressCancel()"
+      (bindmousedown)="onPressStart()"
+      (bindmouseup)="onPressEnd()"
+      (bindmouseleave)="onPressCancel()"
       (bindtap)="onTap()"
     >
       <ng-content />
@@ -448,6 +451,9 @@ export class UiNavDrawerFooter {
       (bindtouchstart)="onPressStart()"
       (bindtouchend)="onPressEnd()"
       (bindtouchcancel)="onPressCancel()"
+      (bindmousedown)="onPressStart()"
+      (bindmouseup)="onPressEnd()"
+      (bindmouseleave)="onPressCancel()"
       (bindtap)="onTap()"
     >
       <ui-icon name="menu" size="md" />

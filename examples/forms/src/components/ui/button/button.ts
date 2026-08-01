@@ -83,6 +83,9 @@ export type ButtonSize = NonNullable<
       (bindtouchstart)="onPressStart()"
       (bindtouchend)="onPressEnd()"
       (bindtouchcancel)="onPressCancel()"
+      (bindmousedown)="onPressStart()"
+      (bindmouseup)="onPressEnd()"
+      (bindmouseleave)="onPressCancel()"
       (bindtap)="onTap()"
     >
       @if (loading()) {
@@ -135,6 +138,8 @@ export class UiButton {
   }
 
   protected onPressCancel(): void {
+    // Also restore scale on cancel — without this, a cancelled touch (e.g. scroll
+    // gesture taking over) leaves the button stuck in its pressed-down state.
     this.#pressAnim?.cancel();
     this.#pressAnim = pressRelease(this.containerRef()?.nativeElement);
   }

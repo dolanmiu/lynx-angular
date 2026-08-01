@@ -820,6 +820,34 @@ If both `bindtap` and `bindlongpress` listeners are present on the same element,
 
 ---
 
+## `touchstart`/`touchend` never fire from a mouse on web — press feedback must also bind mouse events
+
+### What you'd expect (web)
+
+A press-down/press-up interaction wired to `touchstart`/`touchend` works everywhere, because either the browser synthesizes touch events for a mouse, or a single pointer abstraction covers both.
+
+### What Lynx does
+
+On web, `@lynx-js/web-core` runs the app's UI on the browser's main thread and delivers events straight from the DOM. A mouse **click** fires the browser `click` event, which Lynx maps to `tap` (`W3cEventNameToLynx` in `web-core/ts/constants.ts`), so `(bindtap)` works from a mouse. But `touchstart`/`touchend`/`touchcancel` are the raw DOM touch events — on a desktop browser with a mouse they **never fire** (only real touch input generates them). So any interaction driven purely by touch is dead when clicked with a mouse, while the `tap` action on the same element still fires — a confusing "the button works but gives no feedback" split.
+
+This bit every pressable `@blotch/ui` component: their scale-down/scale-up press animation (`pressDown`/`pressRelease`, driven off `(bindtouchstart)`/`(bindtouchend)`/`(bindtouchcancel)`) played on iOS/Android but not on the web preview. Note the `element.animate()` itself is fine on web — web-core's client main-thread `__ElementAnimate` is a real Web-Animations implementation; the missing piece was purely the event that triggers it.
+
+### The fix
+
+Bind the **mouse** press events alongside the touch ones on the same element, pointing at the same handlers:
+
+```html
+<view
+  (bindtouchstart)="onPressStart()"  (bindmousedown)="onPressStart()"
+  (bindtouchend)="onPressEnd()"      (bindmouseup)="onPressEnd()"
+  (bindtouchcancel)="onPressCancel()" (bindmouseleave)="onPressCancel()"
+>
+```
+
+`mouseleave` is the `touchcancel` analogue — it restores the scale if the cursor leaves while pressed. Mouse events never fire on touch-only devices, so this is inert on native and touch continues to drive the animation there; the two platforms end up with identical feedback. Lynx has a documented Mouse Event API (`mousedown`/`mouseup`/`mouseenter`/`mouseleave`; see the Lynx docs — note its `button` numbering is non-standard, below), and the renderer's `EVENT_PREFIXES` accepts `bind` + any event name, so no renderer change is needed. Applied to `button`, `toggle`, `card`, `action-sheet`, `nav-drawer`, and `button-group`; the shared rationale lives in the `pressDown`/`pressRelease` JSDoc in `packages/ui/src/lib/utils/animate.ts`.
+
+---
+
 ## No `:hover`, `:focus` pseudo-classes; no `::before`/`::after` pseudo-elements
 
 ### What you'd expect (web)
@@ -4165,3 +4193,34 @@ This is the **same root cause** as the `SharedArrayBuffer`/`crossOriginIsolated`
 **Open the preview from a secure context.** `http://localhost:<port>` and `http://127.0.0.1:<port>` always qualify; any HTTPS origin does too. Do **not** use the LAN IP URL for the *browser* preview (the QR / on-device flow is unaffected — LynxExplorer loads the native `.lynx.bundle`, not the browser page).
 
 There is **no code polyfill** for this: the engine is Lynx's own code, it runs before ours in web-core's worker, and we don't control that worker's entry — so nothing we ship can define `crypto.randomUUID` in time. What we *can* do is fail loudly instead of cryptically. `runtime.ts` emits an actionable, **web-only** (`__WEB__`-gated, DCE'd from native) console error when `globalThis.isSecureContext === false`, pointing the developer at the localhost URL rather than leaving them with a stack trace inside `kwift.CHROME.js`.
+
+---
+
+## Paint order is source order on Lynx, but CSS stacking on web — a `position: absolute` sibling paints above a static one regardless of source order
+
+### What you'd expect (Lynx)
+
+Lynx paints sibling elements in **strict source order**: a later child always paints on top of (and hit-tests before) an earlier child, no matter their `position`. This gives a simple way to layer a decorative overlay *behind* an interactive element. Put the overlay **first** in source order and the interactive element **after** it. The interactive element then sits on top and stays tappable — no `z-index`, and no `pointer-events` (which errors the Lynx build anyway; see above).
+
+### What web does
+
+On web this is governed by **CSS stacking rules**, not source order. Within a stacking context the paint groups are, low to high: non-positioned in-flow content → positioned elements with `z-index: auto`/`0` → positive `z-index`. A `position: absolute` sibling (even with no `z-index`) is a *positioned* element, so it paints **above** a *static* (non-positioned) sibling **regardless of source order**.
+
+So the "overlay first, interactive element after" layout inverts on web. A transparent `position: absolute` overlay placed before a static `<input>` paints **on top of** the input and **swallows every pointer event** — the input never focuses, and you can't type. The symptom: a field that renders and looks fine but is dead to clicks on web, while working perfectly on iOS/Android.
+
+This bit the Dolan `ui-input` and `ui-textarea` focus ring: the ring is a transparent `position: absolute` overlay layer (its own layer so its opacity can animate — `box-shadow` isn't animatable on Lynx), deliberately placed as the **first** child so Lynx paints the input over it. On web that same overlay covered the input.
+
+### The fix
+
+Give the interactive element an explicit stacking elevation so it sits above the overlay on **both** platforms:
+
+```html
+<view>                                             <!-- wrapper -->
+  <view class="absolute inset-0" .../>             <!-- decorative overlay, first child -->
+  <input style="position: relative; z-index: 1;" ... />  <!-- interactive, elevated -->
+</view>
+```
+
+`position: relative; z-index: 1` is **redundant on Lynx** (source order already keeps the input on top) but **required on web** (it moves the input into the positive-`z-index` paint group, above the `z-index: auto` overlay). Both properties are needed: `z-index` only applies to a *positioned* element, so `position: relative` is what makes the `z-index` take effect. Lynx's CSS encoder accepts both (unlike `pointer-events`), so the one declaration is safe cross-platform.
+
+Do **not** try to fix this by moving the overlay *after* the input in source order — that would put the overlay on top on Lynx (breaking the platform where it currently works) to fix web. Elevate the input instead; it satisfies both painting models at once.
