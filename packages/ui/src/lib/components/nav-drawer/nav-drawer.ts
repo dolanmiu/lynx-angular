@@ -68,10 +68,16 @@ export class UiNavDrawer {
   readonly closed = output<void>();
 
   protected readonly overlayVisible = signal(false);
+  /**
+   * `width`/`height`/`top`/`left` are web-only necessities: on web
+   * `<overlay>` has no intrinsic full-screen sizing (unlike native), so
+   * without them it collapses to 0x0 and nothing renders. `z-index` keeps it
+   * above sibling content that would otherwise occasionally paint on top.
+   */
   protected readonly overlayStyle = computed(() =>
     this.overlayVisible()
-      ? 'position: fixed; overflow: visible;'
-      : 'position: fixed; overflow: visible; display: none;',
+      ? 'position: fixed; overflow: visible; width: 100vw; height: 100vh; top: 0; left: 0; z-index: 999;'
+      : 'position: fixed; overflow: visible; width: 100vw; height: 100vh; top: 0; left: 0; z-index: 999; display: none;',
   );
 
   readonly backdropRef = viewChild<ElementRef>('backdrop');

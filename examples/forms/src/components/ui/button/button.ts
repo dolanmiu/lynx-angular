@@ -77,6 +77,16 @@ export type ButtonSize = NonNullable<
   imports: [LYNX_ELEMENTS, UiSpinner],
   encapsulation: ViewEncapsulation.None,
   template: `
+    <!-- Press feedback binds BOTH touch and mouse events on purpose. Native
+         (iOS/Android) only ever fires touch; Lynx web runs in the browser, where
+         a cursor press fires mousedown/up and NEVER touchstart — so touch-only
+         bindings gave zero visual feedback on web while (bindtap) still fired the
+         action (a "the button works but doesn't react" split). Binding both makes
+         the press-and-hold identical on every platform; mouse events are inert on
+         touch devices, so there's no double-fire. The scale animation itself lives
+         in pressDown/pressRelease — see their JSDoc for why it's a CSS transition
+         (which serializes to the DOM on Lynx web) and not el.animate() (whose Web
+         Animation runs on web-core's offscreen node and never reaches the screen). -->
     <view
       #container
       [class]="containerClass()"

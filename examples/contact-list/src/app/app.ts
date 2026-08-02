@@ -80,8 +80,20 @@ type Contact = {
             honours position: sticky on DIRECT children of a scroll-view, so the
             header must not be nested. flatten="false" keeps the header on its
             own layer, which sticky positioning requires on Android.
+
+            z-10 is applied on WEB ONLY. Lynx web makes every <view>
+            position: relative, so the contact rows (which follow the header in
+            DOM order) are positioned siblings that paint over the pinned header
+            and hide it — the header needs elevating above them. On NATIVE a
+            z-index promotes the header out of the scroll content and freezes it
+            like position: fixed, so it must be omitted there. See
+            investigations/lynx-vs-web-differences.md.
           -->
-          <view class="bg-zinc-100 px-4 py-1.5 sticky top-0" [flatten]="false">
+          <view
+            class="bg-zinc-100 px-4 py-1.5 sticky top-0"
+            [class.z-10]="isWeb"
+            [flatten]="false"
+          >
             <text class="text-xs font-bold text-zinc-400">{{
               group.letter
             }}</text>
@@ -184,6 +196,10 @@ type Contact = {
   `,
 })
 export class App {
+  // __WEB__ is a compile-time define (true on web, false on native). The sticky
+  // headers need a z-index ONLY on web — see the header markup for why, and
+  // investigations/lynx-vs-web-differences.md.
+  readonly isWeb = __WEB__;
   readonly query = signal('');
   readonly viewOpen = signal(false);
   readonly addOpen = signal(false);

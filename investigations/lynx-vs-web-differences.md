@@ -4224,3 +4224,38 @@ Give the interactive element an explicit stacking elevation so it sits above the
 `position: relative; z-index: 1` is **redundant on Lynx** (source order already keeps the input on top) but **required on web** (it moves the input into the positive-`z-index` paint group, above the `z-index: auto` overlay). Both properties are needed: `z-index` only applies to a *positioned* element, so `position: relative` is what makes the `z-index` take effect. Lynx's CSS encoder accepts both (unlike `pointer-events`), so the one declaration is safe cross-platform.
 
 Do **not** try to fix this by moving the overlay *after* the input in source order — that would put the overlay on top on Lynx (breaking the platform where it currently works) to fix web. Elevate the input instead; it satisfies both painting models at once.
+
+---
+
+## `position: sticky` works in a `scroll-view`, but the pinned header hides behind later rows without a `z-index`
+
+### What you'd expect (web)
+
+A `position: sticky; top: 0` header pins to the top of a scroll container and stays visible above the rows scrolling under it. You rarely need a `z-index` — the rows are normal-flow (static) content, which always paints below a positioned element.
+
+### What Lynx does
+
+Sticky positioning itself works: the header pins to the top of the `<scroll-view>` and hands off to the next group's header. But the pinned header paints **behind** the rows scrolling past it, so its label disappears under the content — it looks like sticky is broken.
+
+Lynx web sets `position: relative` on **every** `<view>` (its `linear.css` base rule). That makes the rows *positioned* siblings. Among positioned siblings with `z-index: auto`, paint order is source order, so each row — which follows the header in the DOM — paints over it. This is the same painting-model difference as the section above; every view being `position: relative` is what makes it bite sticky headers specifically.
+
+Native is unaffected: the compositor layers the sticky child correctly, and `flatten="false"` (already required for sticky on Android) gives it its own layer.
+
+The bug also stays hidden until the list overflows. With little content the `<scroll-view>` never scrolls and nothing pins, so headers can look fine on a tall desktop window yet fail on a short or mobile viewport.
+
+### The fix
+
+Elevate the sticky header with a `z-index` **on web only**, gating it on the `__WEB__` compile-time define:
+
+```html
+<view class="bg-zinc-100 px-4 py-1.5 sticky top-0" [class.z-10]="isWeb" [flatten]="false">
+  <text>{{ group.letter }}</text>
+</view>
+```
+
+```ts
+// __WEB__ is a compile-time define: true on web, false on native.
+readonly isWeb = __WEB__;
+```
+
+The `z-index` must **not** apply on native. There, a `z-index` on a sticky scroll-view child promotes it out of the scroll content and freezes it like `position: fixed` — the header stops scrolling entirely. So the elevation is web-only: it fixes the web paint order without touching native, where sticky already works. Elevate the header rather than reordering source — Lynx makes every view positioned, so source order alone won't keep it on top (exemplar: `examples/contact-list`).
