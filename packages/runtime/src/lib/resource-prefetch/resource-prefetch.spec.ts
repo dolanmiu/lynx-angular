@@ -151,11 +151,11 @@ describe('LynxResourcePrefetch', () => {
     it('cancel() passes resources to native cancel API', async () => {
       const mockResult = {
         code: 0,
-        msg: 'cancelled',
+        msg: 'canceled',
         details: [
           {
             code: 0,
-            msg: 'cancelled',
+            msg: 'canceled',
             uri: 'https://x.com/a.jpg',
             type: 'image' as const,
           },

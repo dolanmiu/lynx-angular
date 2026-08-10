@@ -171,7 +171,7 @@ describe('LynxTransition', () => {
       expect(el.classList.contains('v-leave')).toBe(true);
     });
 
-    it('a cancelled leave does not unmount the content', () => {
+    it('a canceled leave does not unmount the content', () => {
       const fixture = createShowing();
       triggerLeave(fixture);
       // Re-show before the leave timer fires — cancels the pending unmount.

@@ -26,7 +26,7 @@ const { computeBars } = await import('./bar-chart');
 // Screen y grows downward, so a value ABOVE the baseline has a SMALLER pixel y
 // than baseY. Baseline pixel y = 100 in these cases (bottom of the plot).
 describe('computeBars', () => {
-  it('draws a positive bar from the baseline up to the value, centred on cx', () => {
+  it('draws a positive bar from the baseline up to the value, centered on cx', () => {
     // value projects to y=30 (above the baseline at y=100).
     const [bar] = computeBars([{ cx: 50, valueY: 30 }], 100, 12);
     expect(bar.top).toBe(30); // min(valueY, baseY) — the higher edge
@@ -49,12 +49,12 @@ describe('computeBars', () => {
     expect(bar.height).toBe(0);
   });
 
-  it('honours a custom minimum bar height', () => {
+  it('honors a custom minimum bar height', () => {
     const [bar] = computeBars([{ cx: 0, valueY: 100 }], 100, 12, 3);
     expect(bar.height).toBe(3);
   });
 
-  it('centres every bar on its own cx', () => {
+  it('centers every bar on its own cx', () => {
     const bars = computeBars(
       [
         { cx: 10, valueY: 40 },

@@ -56,7 +56,7 @@ export type ChartPadding = {
  * (screen y grows downward).
  *
  * A zero-width domain (all values equal) would divide by zero, so it collapses
- * to the range midpoint — the flat line then sits centred in the plot.
+ * to the range midpoint — the flat line then sits centered in the plot.
  */
 export const linearScale = (
   domain: ChartDomain,
@@ -108,7 +108,7 @@ export const niceNum = (value: number, round: boolean): number => {
  * Derives a rounded axis from raw data extremes: a padded `[lo, hi]` domain
  * plus evenly stepped, human-readable `ticks`. `tickCount` is a *target* — the
  * actual tick count can differ by one because the step is snapped to a nice
- * value (this is standard axis behaviour, e.g. D3's `ticks`).
+ * value (this is standard axis behavior, e.g. D3's `ticks`).
  *
  * Flat data (`min === max`) or non-finite input can't yield a range, so we pad
  * around the single value to keep the line visible mid-plot.
@@ -174,7 +174,7 @@ const ALIGNED_TICK_BUFFER = 2;
  * here sits on a fixed multiple of `step` in DATA space. Panning changes which
  * multiples fall inside the window, but never an individual tick's data
  * value, so its projected pixel position slides across the screen exactly in
- * step with the content it labels — real X/Y scroll behaviour.
+ * step with the content it labels — real X/Y scroll behavior.
  *
  * The returned array always has `targetCount + ALIGNED_TICK_BUFFER` entries —
  * a count that depends only on `targetCount` (an input, stable for the whole
@@ -220,7 +220,7 @@ export const isValueOutsideDomain = (
  * ---------------------------------------------------------------------------
  * Pan / zoom window math (pure — exported for unit tests)
  *
- * Pan and zoom are modelled as a *visible window*: a sub-range of the axis
+ * Pan and zoom are modeled as a *visible window*: a sub-range of the axis
  * domain that the scales map from. Shrinking the window zooms in (data spreads
  * across the same pixels), sliding it pans. Because every gridline, axis label,
  * and series mark projects through the scales, replacing the window re-projects
@@ -314,7 +314,7 @@ export const panWindow = (
 
 /**
  * Zooms a visible `window` by `factor` (>1 zooms in, <1 zooms out), holding the
- * data value `focal` fixed on screen so a pinch stays centred on the fingers.
+ * data value `focal` fixed on screen so a pinch stays centered on the fingers.
  * The resulting span is clamped to `[baseSpan / maxZoom, baseSpan / minZoom]` —
  * you can never zoom out past the full data range, nor in past `maxZoom`× — then
  * the window is clamped inside `base`.
@@ -384,7 +384,7 @@ export const sampleSmoothLine = (
   }
 
   // Tangent at each point. Endpoints borrow their single adjacent secant;
-  // interior points average their two neighbours, but a sign change (a local
+  // interior points average their two neighbors, but a sign change (a local
   // peak or trough) forces a flat tangent so the curve turns without overshoot.
   const tangents: number[] = Array.from({ length: n });
   tangents[0] = secants[0];
@@ -396,9 +396,9 @@ export const sampleSmoothLine = (
   }
 
   // Fritsch–Carlson monotonicity fix: keep each Hermite segment monotone by
-  // clamping the tangents. Normalise them by the secant into (alpha, beta); if
+  // clamping the tangents. Normalize them by the secant into (alpha, beta); if
   // that point falls outside a circle of radius 3, scale both back onto it. A
-  // flat secant (equal endpoints) can't be normalised, so its tangents are
+  // flat secant (equal endpoints) can't be normalized, so its tangents are
   // pinned to 0 instead.
   for (let i = 0; i < n - 1; i++) {
     const secant = secants[i];
@@ -465,7 +465,7 @@ const defaultTickFormat = (value: number): string =>
   String(Math.round(value * 100) / 100);
 
 // Small pixel constants for label placement. Font is 10px; offsetting a y-label
-// by half that vertically-centres it on its gridline.
+// by half that vertically-centers it on its gridline.
 const LABEL_FONT_HALF = 5;
 const LABEL_GUTTER_GAP = 6;
 const X_LABEL_WIDTH = 44;
@@ -546,7 +546,7 @@ const AXIS_LABEL_LINE_HEIGHT = 12;
         </text>
       }
 
-      <!-- X-axis tick labels, centred under each tick below the plot. -->
+      <!-- X-axis tick labels, centered under each tick below the plot. -->
       @for (label of xLabels(); track $index) {
         <text
           class="text-[10px] leading-none text-muted-foreground text-center"
@@ -556,7 +556,7 @@ const AXIS_LABEL_LINE_HEIGHT = 12;
         </text>
       }
 
-      <!-- Y-axis title: rotated -90° in the reserved left strip, centred on the
+      <!-- Y-axis title: rotated -90° in the reserved left strip, centered on the
            plot height. Rendered only when set so it costs no gutter otherwise. -->
       @if (yAxisLabel()) {
         <text
@@ -567,7 +567,7 @@ const AXIS_LABEL_LINE_HEIGHT = 12;
         </text>
       }
 
-      <!-- X-axis title: centred across the plot, below the x tick labels. -->
+      <!-- X-axis title: centered across the plot, below the x tick labels. -->
       @if (xAxisLabel()) {
         <text
           class="text-[10px] font-medium leading-none text-muted-foreground text-center"
@@ -630,7 +630,7 @@ export class UiCartesianChart {
   /** Draw vertical gridlines at each x tick (off by default — the y gridlines
    * above are the usual value reference for line/area charts). */
   readonly showXGrid = input(false);
-  /** Title drawn along the x-axis, centred below the tick labels. */
+  /** Title drawn along the x-axis, centered below the tick labels. */
   readonly xAxisLabel = input<string>('');
   /** Title drawn along the y-axis, rotated in the left gutter. */
   readonly yAxisLabel = input<string>('');
@@ -643,7 +643,7 @@ export class UiCartesianChart {
   // --- Pan / zoom (opt-in) ---
   /** Enable pan (1-finger drag) + zoom (pinch and the on-screen controls). Off
    * by default so existing charts — which often sit inside scroll-views — keep
-   * their static behaviour and don't fight the native scroll gesture. */
+   * their static behavior and don't fight the native scroll gesture. */
   readonly zoomable = input(false);
   /** Which axes pan/zoom affect. `'xy'` (default) zooms both; `'x'` or `'y'`
    * locks the other axis (e.g. `'x'` for a time-series where only the horizontal
@@ -692,7 +692,7 @@ export class UiCartesianChart {
   // these; everything downstream (scales, gridlines, labels, series marks) reads
   // through the effective domain below, so a single signal write re-projects the
   // whole chart. `null` (rather than the base domain) marks "at rest" so a
-  // non-zoomable chart keeps its exact original tick behaviour (see
+  // non-zoomable chart keeps its exact original tick behavior (see
   // `#resolvedXTicks`).
   readonly #viewXDomain = signal<ChartDomain | null>(null);
   readonly #viewYDomain = signal<ChartDomain | null>(null);
@@ -735,12 +735,12 @@ export class UiCartesianChart {
   // window — the latter re-lands every tick on the same pixel position the
   // instant the window shifts (numbers change, gridlines visually don't),
   // which is why a pan used to look like it was translating around a fixed
-  // centre instead of tracking the finger. Anchoring to fixed data values
+  // center instead of tracking the finger. Anchoring to fixed data values
   // makes every gridline slide across the screen exactly like the content it
   // labels. The array length still depends only on `tickCount` (never the
   // window), so the gridline/label `@for` never adds or removes nodes
   // mid-gesture — mutating the element tree inside a Lynx gesture worklet can
-  // crash natively. A non-zoomable chart keeps its original behaviour exactly
+  // crash natively. A non-zoomable chart keeps its original behavior exactly
   // (explicit ticks, else evenly generated over the full domain).
   readonly #resolvedYTicks = computed(() =>
     this.zoomable()
@@ -759,7 +759,7 @@ export class UiCartesianChart {
   // explicit pixel width (Lynx lets flex items shrink past their content).
   //
   // Deliberately NOT `overflow: hidden` here. Tick labels are positioned to
-  // STRADDLE the plot edges on purpose — the top y-label is centred on the top
+  // STRADDLE the plot edges on purpose — the top y-label is centered on the top
   // gridline, so its text box overhangs the container's top by half the font
   // height (LABEL_FONT_HALF); the last x-label overhangs the right edge by half
   // its width. A container clip would slice those legitimate edge labels in
@@ -800,7 +800,7 @@ export class UiCartesianChart {
    * Only zoomable charts generate buffer ticks, so this is a no-op otherwise —
    * gated on `zoomable()` so a non-zoomable chart's labels (including any
    * explicit `xTicks`/`yTicks` a caller placed outside the domain on purpose)
-   * are never touched, byte-for-byte matching the pre-pan/zoom behaviour.
+   * are never touched, byte-for-byte matching the pre-pan/zoom behavior.
    */
   #labelVisibility(value: number, domain: ChartDomain): string {
     if (!this.zoomable()) return '';
@@ -857,15 +857,15 @@ export class UiCartesianChart {
   });
 
   // Y-title: a horizontal text box `plotHeight` wide, rotated -90° about its
-  // centre so it runs vertically. Rotation is visual only (it doesn't change the
-  // layout box), so we position the *unrotated* box centred on the reserved left
+  // center so it runs vertically. Rotation is visual only (it doesn't change the
+  // layout box), so we position the *unrotated* box centered on the reserved left
   // strip and the plot's mid-height; after the turn it spans the full plot height.
   protected readonly yAxisLabelStyle = computed(() => {
     const h = this.plotHeight();
-    const centreX = Y_AXIS_LABEL_SPACE / 2;
-    const centreY = h / 2;
-    const left = centreX - h / 2;
-    const top = centreY - AXIS_LABEL_LINE_HEIGHT / 2;
+    const centerX = Y_AXIS_LABEL_SPACE / 2;
+    const centerY = h / 2;
+    const left = centerX - h / 2;
+    const top = centerY - AXIS_LABEL_LINE_HEIGHT / 2;
     return (
       `position: absolute; left: ${px(left)}; top: ${px(top)}; ` +
       `width: ${px(h)}; height: ${px(AXIS_LABEL_LINE_HEIGHT)}; ` +
@@ -873,7 +873,7 @@ export class UiCartesianChart {
     );
   });
 
-  // X-title: centred across the plot, in the band below the x tick labels.
+  // X-title: centered across the plot, in the band below the x tick labels.
   protected readonly xAxisLabelStyle = computed(
     () =>
       `position: absolute; left: ${px(this.#yGutter())}; top: ${px(this.plotHeight() + this.xAxisHeight())}; width: ${px(this.plotWidth())};`,
@@ -1008,7 +1008,7 @@ export class UiCartesianChart {
     this.#pinchStartX = startX;
     this.#pinchStartY = startY;
     // The focal point is element-relative (to the plot view) so it is already in
-    // plot-local pixels; fall back to the plot centre if the native payload omits
+    // plot-local pixels; fall back to the plot center if the native payload omits
     // it. Invert through the start scale to get the data value to pin.
     const focalPx = event.params?.['x'];
     const focalPy = event.params?.['y'];
@@ -1060,7 +1060,7 @@ export class UiCartesianChart {
   /**
    * Write a new visible window, collapsing it back to `null` (rest) when it spans
    * essentially the whole domain, so a fully zoomed-out chart reverts to its base
-   * tick behaviour.
+   * tick behavior.
    */
   #setViewX(window: ChartDomain): void {
     this.#viewXDomain.set(
@@ -1081,13 +1081,13 @@ export class UiCartesianChart {
   // --- Public zoom API (drives the controls; also callable via a template ref) ---
 
   /**
-   * Zoom in by `zoomStep`, centred on the plot.
+   * Zoom in by `zoomStep`, centered on the plot.
    */
   zoomIn(): void {
     this.#zoomByControls(this.zoomStep());
   }
   /**
-   * Zoom out by `zoomStep`, centred on the plot.
+   * Zoom out by `zoomStep`, centered on the plot.
    */
   zoomOut(): void {
     this.#zoomByControls(1 / this.zoomStep());

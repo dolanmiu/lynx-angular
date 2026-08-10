@@ -165,7 +165,7 @@ describe('generateAlignedTicks', () => {
     for (const t of common) {
       const pxBefore = project(t, before);
       const pxAfter = project(t, after);
-      // The old (buggy) generateTicks-based ticks always reprojected to the
+      // The old (buggy) generateTicks-based ticks always re-projected to the
       // exact same pixel here; an anchored tick must NOT.
       expect(pxAfter).not.toBeCloseTo(pxBefore, 3);
       // Panning the window +6 data units shifts every fixed value left by
@@ -239,7 +239,7 @@ describe('gridlineOffset', () => {
     expect(gridlineOffset(120, -60, [0, 100], 200)).toBe(-60);
   });
 
-  it('honours a custom gridline thickness', () => {
+  it('honors a custom gridline thickness', () => {
     expect(gridlineOffset(0, 200, [0, 100], 200, 2)).toBe(198);
   });
 });
@@ -433,7 +433,7 @@ describe('pan tracks the finger 1:1 (window anchored at gesture start)', () => {
 
 describe('zoomWindow', () => {
   it('zooms in around the focal value, keeping it fixed', () => {
-    // 2× zoom on the centre halves the span and stays centred.
+    // 2× zoom on the center halves the span and stays centered.
     expect(zoomWindow([0, 10], [0, 10], 2, 5, 8)).toEqual([2.5, 7.5]);
     // Focal at the left edge keeps that edge pinned.
     expect(zoomWindow([0, 10], [0, 10], 2, 0, 8)).toEqual([0, 5]);
@@ -448,7 +448,7 @@ describe('zoomWindow', () => {
     expect(zoomWindow([0, 10], [2.5, 7.5], 0.1, 5, 8)).toEqual([0, 10]);
   });
 
-  it('honours minZoom as an upper bound on the visible span', () => {
+  it('honors minZoom as an upper bound on the visible span', () => {
     // minZoom 2 → the window can never be wider than baseSpan / 2 = 5.
     const [lo, hi] = zoomWindow([0, 10], [3, 4], 0.01, 3.5, 8, 2);
     expect(hi - lo).toBeCloseTo(5);

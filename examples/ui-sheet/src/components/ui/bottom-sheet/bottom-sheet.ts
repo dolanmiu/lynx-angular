@@ -160,7 +160,7 @@ export class UiBottomSheet {
   // Docked at the bottom, full width; `translateY(dragOffset)` layers the live
   // drag on top so the sheet follows the finger. The open/close slide
   // animations run via element.animate() and override this transform while they
-  // play (see #animateIn/#animateOut), then hand back to it once cancelled.
+  // play (see #animateIn/#animateOut), then hand back to it once canceled.
   protected readonly panelPositionStyle = computed(
     () =>
       `position: absolute; bottom: 0; left: 0; right: 0; transform: translateY(${this.dragOffset()}px);`,

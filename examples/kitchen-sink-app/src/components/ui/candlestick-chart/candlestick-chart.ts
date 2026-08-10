@@ -34,7 +34,7 @@ export type CandlestickPoint = {
 
 /** One candle after projection into plot-local pixel space. */
 type ProjectedCandle = {
-  /** Centre x of the candle, in px. */
+  /** Center x of the candle, in px. */
   cx: number;
   openY: number;
   highY: number;
@@ -50,7 +50,7 @@ type Rect = { left: number; top: number; width: number; height: number };
 /**
  * Render geometry for one candle: a thin vertical **wick** (high→low) and a
  * **body** (open↔close), both plain axis-aligned rectangles. `up` is echoed from
- * the input so the caller can pick the fill colour.
+ * the input so the caller can pick the fill color.
  */
 export type CandleShape = {
   wick: Rect;
@@ -74,7 +74,7 @@ export type CandleShape = {
  *
  * A doji (open === close) would give a zero-height body that renders invisibly,
  * so the body height is clamped to `minBodyHeight` (a thin line, like a bar).
- * Wick and body are both centred on the candle's `cx`.
+ * Wick and body are both centered on the candle's `cx`.
  *
  * @param bodyWidth width of the body rectangle in px (the wick stays `wickWidth`).
  * @param minBodyHeight floor for the body height so a doji is still visible.
@@ -124,13 +124,13 @@ const defaultTickFormat = (value: number): string =>
   String(Math.round(value * 100) / 100);
 
 // Fallback body width (px) when there is only a single candle, so there is no
-// neighbour to derive a spacing from. Matches the React source's `font(8)`.
+// neighbor to derive a spacing from. Matches the React source's `font(8)`.
 const SINGLE_CANDLE_BODY_WIDTH = 8;
 
 /**
  * A single candlestick series drawn inside a `<ui-cartesian-chart>`. Reads the
  * shared scales from the parent chart via DI and renders, per period, a wick
- * `<view>` (high→low) and a body `<view>` (open↔close), coloured by direction.
+ * `<view>` (high→low) and a body `<view>` (open↔close), colored by direction.
  *
  * ## Why the host is `position: absolute; width/height: 100%`
  * Identical to `UiLineSeries`: Lynx resolves an absolute child against its
@@ -138,10 +138,10 @@ const SINGLE_CANDLE_BODY_WIDTH = 8;
  * the plot-sized containing block. Every wick and body is a direct child of it.
  *
  * ## Differentiating up vs down
- * On a colour screen, the fill colour carries direction — up candles use
+ * On a color screen, the fill color carries direction — up candles use
  * `upColor`, down candles `downColor`. (The React original also supported SVG
- * *fill patterns* for e-ink displays where colour can't be relied on; Lynx has
- * no SVG patterns, so that is dropped in favour of solid colour.)
+ * *fill patterns* for e-ink displays where color can't be relied on; Lynx has
+ * no SVG patterns, so that is dropped in favor of solid color.)
  */
 @Component({
   selector: 'ui-candlestick-series',
@@ -199,7 +199,7 @@ export class UiCandlestickSeries {
     }));
   });
 
-  // Body width = a fraction of the pixel spacing between candle centres, so
+  // Body width = a fraction of the pixel spacing between candle centers, so
   // bodies scale with the plot and never overlap. With one candle there is no
   // spacing to measure, so fall back to a fixed width.
   readonly #bodyWidth = computed(() => {
@@ -296,7 +296,7 @@ export class UiCandlestickChart {
   readonly bodyWidthRatio = input(0.6);
   /** Draw vertical gridlines at each x tick. */
   readonly showXGrid = input(false);
-  /** Title for the x-axis (centred below the tick labels). */
+  /** Title for the x-axis (centered below the tick labels). */
   readonly xAxisLabel = input<string>('');
   /** Title for the y-axis (rotated in the left gutter). */
   readonly yAxisLabel = input<string>('');
@@ -344,7 +344,7 @@ export class UiCandlestickChart {
     return niceScale(lo, hi, this.tickCount());
   });
 
-  // A candle body is centred on its x, so the first and last bodies would spill
+  // A candle body is centered on its x, so the first and last bodies would spill
   // over the plot edges. Insetting the scales by half a candle's spacing keeps
   // them fully inside. User `padding` is spread last, so an explicit side wins.
   protected readonly effectivePadding = computed<ChartPadding>(() => {

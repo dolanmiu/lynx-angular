@@ -60,7 +60,7 @@ export const ejectCommand = async (
     });
 
     if (p.isCancel(confirm) || !confirm) {
-      p.cancel('Eject cancelled.');
+      p.cancel('Eject canceled.');
       process.exit(0);
     }
   }

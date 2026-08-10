@@ -289,7 +289,7 @@ export class GestureDemo {
     this.composedTap,
   );
 
-  // Colour the result badge by which gesture won — primary for pan, a neutral
+  // Color the result badge by which gesture won — primary for pan, a neutral
   // secondary for a tap, and a quiet outline while idle.
   readonly composedVariant = computed<BadgeVariant>(() => {
     switch (this.composedAction()) {

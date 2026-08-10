@@ -26,7 +26,7 @@ type ZoomAxes = 'x' | 'y' | 'xy';
  * (on the bar/candlestick charts) the mark widths — flows from one thing: the
  * chart re-maps its scales from a shrinking *visible window*. The bars/candles
  * stretch because their width is derived from the projected pixel spacing between
- * neighbours, which grows as the window shrinks.
+ * neighbors, which grows as the window shrinks.
  */
 @Component({
   selector: 'app-chart-zoom-demo',

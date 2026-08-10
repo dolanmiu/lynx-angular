@@ -23,7 +23,7 @@ vi.mock('@blotch/angular-lynx', () => ({
 
 const { computeCandles } = await import('./candlestick-chart');
 
-// A rising candle centred at cx=50. Screen y grows downward, so the projected
+// A rising candle centered at cx=50. Screen y grows downward, so the projected
 // highY (top of the wick) is the smallest pixel value and lowY the largest.
 // close is above open (up), so closeY < openY in pixels.
 const upCandle = {
@@ -36,16 +36,16 @@ const upCandle = {
 };
 
 describe('computeCandles', () => {
-  it('draws the wick spanning high to low, centred on cx', () => {
+  it('draws the wick spanning high to low, centered on cx', () => {
     const [shape] = computeCandles([upCandle], 12);
     expect(shape.wick.top).toBe(10); // min(highY, lowY)
     expect(shape.wick.height).toBe(80); // |lowY - highY|
     expect(shape.wick.width).toBe(1); // default wickWidth
-    // Centred: left = cx - wickWidth/2.
+    // Centered: left = cx - wickWidth/2.
     expect(shape.wick.left).toBe(50 - 0.5);
   });
 
-  it('draws the body between open and close, centred on cx', () => {
+  it('draws the body between open and close, centered on cx', () => {
     const [shape] = computeCandles([upCandle], 12);
     expect(shape.body.top).toBe(30); // min(openY, closeY) — the higher price
     expect(shape.body.height).toBe(40); // |closeY - openY|
@@ -84,7 +84,7 @@ describe('computeCandles', () => {
     expect(computeCandles([doji], 12, 1, 3)[0].body.height).toBe(3);
   });
 
-  it('honours a custom wick width', () => {
+  it('honors a custom wick width', () => {
     const [shape] = computeCandles([upCandle], 12, 3);
     expect(shape.wick.width).toBe(3);
     expect(shape.wick.left).toBe(50 - 1.5);

@@ -62,7 +62,7 @@ export class UiAvatar {
   /**
    * Reveal the image by removing the skeleton overlay once it loads.
    *
-   * Guarded against re-entrancy: on Lynx, starting or cancelling an element
+   * Guarded against re-entrancy: on Lynx, starting or canceling an element
    * animation can synchronously re-dispatch the image's `load` event — and
    * removing the skeleton here tears down its pulse animation, which does
    * exactly that. Without the one-way `loaded` latch short-circuiting the

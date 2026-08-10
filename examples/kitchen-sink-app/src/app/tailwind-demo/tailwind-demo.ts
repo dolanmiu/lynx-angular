@@ -216,7 +216,7 @@ export class TailwindDemo {
     { class: 'bg-pink-500', label: 'pink' },
   ];
 
-  // The light-grey tokens carry a border so they stay visible on the white card;
+  // The light-gray tokens carry a border so they stay visible on the white card;
   // in dark mode the same tokens invert automatically.
   readonly tokens: readonly Token[] = [
     { box: 'bg-primary', name: 'Primary', token: 'bg-primary' },

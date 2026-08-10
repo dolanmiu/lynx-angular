@@ -193,7 +193,7 @@ React Lynx (the production reference) never hits this: on unmount it drops the n
 
 ### The fix
 
-**Recreate on remount**, mirroring React Lynx. `LynxElement` (`packages/runtime/src/lib/lynx-element/lynx-element.ts`) caches each element's state as it is set (tag, attributes, id, dataset, classes, inline styles, event listeners, text, ordered children). `#doRemove()` marks the removed subtree painting-dead; the next `appendChild`/`insertBefore` of a painting-dead element rebuilds a fresh native ref for it and its whole subtree from cache (`#recreateSubtree`), then attaches that. A same-tick move is cancelled before it becomes a removal, so it is never painting-dead and never recreated — the reorder fast-path is untouched.
+**Recreate on remount**, mirroring React Lynx. `LynxElement` (`packages/runtime/src/lib/lynx-element/lynx-element.ts`) caches each element's state as it is set (tag, attributes, id, dataset, classes, inline styles, event listeners, text, ordered children). `#doRemove()` marks the removed subtree painting-dead; the next `appendChild`/`insertBefore` of a painting-dead element rebuilds a fresh native ref for it and its whole subtree from cache (`#recreateSubtree`), then attaches that. A same-tick move is canceled before it becomes a removal, so it is never painting-dead and never recreated — the reorder fast-path is untouched.
 
 Covered by `packages/runtime/src/lib/renderer/teardown.spec.ts`, whose fake native tree models **both** layers (a removed node's painting node dies at flush unless reinserted in the same flush). The accordion-cycle, bare-`<ng-content>`, event-rebind, attribute-replay and raw-text tests fail without recreation and pass with it.
 
@@ -2198,9 +2198,9 @@ Set `flatten={false}` on elements that need:
   straddle an edge. `UiCartesianChart` originally clipped its out-of-window
   buffer tick labels with a `overflow: hidden` + `z-index: 0` +
   `[flatten]="false"` container, but that same clip sliced the *legitimate*
-  edge labels in half (the top y-label is centred on the top gridline, so its
+  edge labels in half (the top y-label is centered on the top gridline, so its
   box overhangs the container top by half its font height). The container clip
-  was reverted in favour of hiding individual out-of-window labels with
+  was reverted in favor of hiding individual out-of-window labels with
   `visibility: hidden` (a pure paint toggle, safe from a gesture worklet).
   Reach for the flatten+z-index container clip when you must clip content that
   should genuinely be bounded (a scrolling region, a masked thumbnail); prefer
@@ -2744,7 +2744,7 @@ Starting a Web Animation from within an event handler (e.g. fading an `<image>` 
 
 ### What Lynx does
 
-Starting (or cancelling) an animation via `element.animate()` can **synchronously re-invoke event listeners**. Observed concretely: an `<image>` fading itself in from its `(bindload)` handler — `onLoad → element.animate() → … → the bindload listener runs again → onLoad → element.animate() → …` — recursing until the main thread throws `InternalError: stack overflow`. The re-entry also fires across elements: tearing down a sibling's animation (e.g. removing a pulsing `ui-skeleton`) during change detection re-dispatched a nearby image's `load`.
+Starting (or canceling) an animation via `element.animate()` can **synchronously re-invoke event listeners**. Observed concretely: an `<image>` fading itself in from its `(bindload)` handler — `onLoad → element.animate() → … → the bindload listener runs again → onLoad → element.animate() → …` — recursing until the main thread throws `InternalError: stack overflow`. The re-entry also fires across elements: tearing down a sibling's animation (e.g. removing a pulsing `ui-skeleton`) during change detection re-dispatched a nearby image's `load`.
 
 Consequence: never assume an event handler that calls `animate()` runs once. Make such handlers **idempotent** (a one-way latch that short-circuits re-entry), and prefer _not_ driving essential state changes through an `animate()` call made inside an event handler. This bit `ui-avatar`: it faded the image in via `fadeIn()` (which calls `element.animate()`) from `(bindload)`, and once images actually loaded the reveal recursed and crashed. The fix was to drop the `animate()` reveal (the skeleton's removal reveals the image) and guard the handler with a `loaded` latch.
 
@@ -4037,7 +4037,7 @@ This bites charts specifically. `UiCartesianChart` draws gridlines and axis labe
 
 ### The fix
 
-When zoom is enabled, generate a **fixed** number of ticks (`generateTicks(visibleDomain, tickCount)` returns exactly `tickCount` values) so the gridline/label `@for` length never changes during a gesture — every zoom frame only restyles the existing nodes (new `top`/`left`/label text), never adds or removes them. The trade-off is that a zoomable chart's ticks are evenly spaced rather than "nice round" numbers; a non-zoomable chart keeps the original nice-tick behaviour. See `#resolvedXTicks`/`#resolvedYTicks` in `packages/ui/src/lib/components/cartesian-chart/cartesian-chart.ts`.
+When zoom is enabled, generate a **fixed** number of ticks (`generateTicks(visibleDomain, tickCount)` returns exactly `tickCount` values) so the gridline/label `@for` length never changes during a gesture — every zoom frame only restyles the existing nodes (new `top`/`left`/label text), never adds or removes them. The trade-off is that a zoomable chart's ticks are evenly spaced rather than "nice round" numbers; a non-zoomable chart keeps the original nice-tick behavior. See `#resolvedXTicks`/`#resolvedYTicks` in `packages/ui/src/lib/components/cartesian-chart/cartesian-chart.ts`.
 
 The same principle applies to the pan/zoom transform itself: it only ever writes the visible-window signals, which drive the scales and thus restyle existing gridlines, labels, and series marks — the marks re-project (and bars/candles stretch, since their width comes from projected pixel spacing) without any node being created or destroyed.
 

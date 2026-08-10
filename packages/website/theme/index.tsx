@@ -79,13 +79,13 @@ const whenReady = (
   selector: string,
   cb: (el: Element) => void,
 ): (() => void) => {
-  let cancelled = false;
+  let canceled = false;
   let rafId: number;
   let attempts = 0;
   const maxAttempts = 300;
 
   const poll = () => {
-    if (cancelled || ++attempts > maxAttempts) return;
+    if (canceled || ++attempts > maxAttempts) return;
     const el = document.querySelector(selector);
     if (el) {
       cb(el);
@@ -96,7 +96,7 @@ const whenReady = (
 
   rafId = requestAnimationFrame(poll);
   return () => {
-    cancelled = true;
+    canceled = true;
     cancelAnimationFrame(rafId);
   };
 };
@@ -128,11 +128,11 @@ const HomeLayout = (props: Parameters<typeof BaseHomeLayout>[0]) => {
     let deleting = false;
     let paused = false;
     let timerId: ReturnType<typeof setTimeout> | null = null;
-    let cancelled = false;
+    let canceled = false;
     let cachedEl: Element | null = null;
 
     const schedule = (delay: number) => {
-      if (!cancelled) timerId = setTimeout(tick, delay);
+      if (!canceled) timerId = setTimeout(tick, delay);
     };
 
     const tick = () => {
@@ -172,7 +172,7 @@ const HomeLayout = (props: Parameters<typeof BaseHomeLayout>[0]) => {
     schedule(1000);
 
     return () => {
-      cancelled = true;
+      canceled = true;
       if (timerId !== null) clearTimeout(timerId);
     };
   }, []);

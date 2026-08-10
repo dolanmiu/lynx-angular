@@ -22,7 +22,7 @@ import { ScreenHost } from '../screen-host';
  * space of the first run and the trailing space of the last, while preserving the
  * spaces BETWEEN adjacent runs.
  *
- * This screen makes that behaviour visible. Every template below is written
+ * This screen makes that behavior visible. Every template below is written
  * NATURALLY (indented, multi-line) — the whole point is that authors no longer
  * need the `<text\n  >hug</text\n>` workaround to avoid a stray leading indent.
  */
@@ -69,7 +69,7 @@ import { ScreenHost } from '../screen-host';
         </ui-card-content>
       </ui-card>
 
-      <!-- Real-world shape: an inline-emphasised value inside running text. -->
+      <!-- Real-world shape: an inline-emphasized value inside running text. -->
       <ui-card class="w-full">
         <ui-card-header class="gap-1 p-4">
           <view class="flex-row items-center gap-2 flex">

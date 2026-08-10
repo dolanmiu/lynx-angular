@@ -18,7 +18,7 @@ export enum GestureState {
   ACTIVE = 2,
   END = 3,
   FAILED = 4,
-  CANCELLED = 5,
+  CANCELED = 5,
 }
 
 export type GestureEvent = {

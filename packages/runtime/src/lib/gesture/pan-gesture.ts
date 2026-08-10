@@ -7,7 +7,7 @@ export class PanGesture extends ContinuousGesture<PanGestureEvent, PanGesture> {
 
   /**
    * Seed the default config on construction so a complete config is always sent
-   * to native, keeping behaviour consistent with the other gestures. Mirrors
+   * to native, keeping behavior consistent with the other gestures. Mirrors
    * Lynx's own gesture-runtime PanGesture defaults. See ./const.
    */
   override _config: Record<string, unknown> = {

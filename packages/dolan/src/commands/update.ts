@@ -100,7 +100,7 @@ const reviewHunks = async (
       });
 
       if (p.isCancel(choice)) {
-        p.cancel('Update cancelled.');
+        p.cancel('Update canceled.');
         process.exit(0);
       }
 
@@ -220,7 +220,7 @@ const reviewFile = async (
     });
 
     if (p.isCancel(choice)) {
-      p.cancel('Update cancelled.');
+      p.cancel('Update canceled.');
       process.exit(0);
     }
 
@@ -484,7 +484,7 @@ export const updateCommand = async (options: {
       initialValue: true,
     });
     if (p.isCancel(confirm) || !confirm) {
-      p.cancel('Update cancelled.');
+      p.cancel('Update canceled.');
       process.exit(0);
     }
   }

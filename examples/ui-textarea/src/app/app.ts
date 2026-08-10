@@ -81,7 +81,7 @@ export class App {
   bio = signal('');
   feedback = signal('');
   description = signal('');
-  // Pre-seeded past 6 lines so the maxLines scroll behaviour is visible on load.
+  // Pre-seeded past 6 lines so the maxLines scroll behavior is visible on load.
   review = signal(
     'Line one of the review.\nLine two.\nLine three.\nLine four.\nLine five.\nLine six.\nLine seven — this one is only reachable by scrolling.',
   );

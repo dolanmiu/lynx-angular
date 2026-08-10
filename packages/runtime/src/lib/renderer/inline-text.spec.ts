@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+// cspell:words interp Reproj
 //
 // Integration harness for the flush-time whitespace normalization pass. It
 // drives the REAL main-thread renderer (LynxDocument + LynxElement) against an

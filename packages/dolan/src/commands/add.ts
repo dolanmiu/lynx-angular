@@ -66,7 +66,7 @@ export const addCommand = async (components: string[]) => {
     });
 
     if (p.isCancel(result)) {
-      p.cancel('Cancelled.');
+      p.cancel('Canceled.');
       process.exit(0);
     }
 

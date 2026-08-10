@@ -20,7 +20,7 @@ export const initCommand = async () => {
     });
 
     if (p.isCancel(overwrite) || !overwrite) {
-      p.cancel('Init cancelled.');
+      p.cancel('Init canceled.');
       process.exit(0);
     }
   }
@@ -42,7 +42,7 @@ export const initCommand = async () => {
     },
     {
       onCancel: () => {
-        p.cancel('Init cancelled.');
+        p.cancel('Init canceled.');
         process.exit(0);
       },
     },

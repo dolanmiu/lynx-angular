@@ -63,7 +63,7 @@ export class UiPagination {
 
   // Sliding-window pagination algorithm:
   // Always shows page 1 and the last page. Around the current page, shows
-  // `siblingCount` neighbours on each side. If there's a gap between page 1
+  // `siblingCount` neighbors on each side. If there's a gap between page 1
   // and the window (or window and last page), an ellipsis is inserted.
   // The threshold `5 + siblings * 2` is the max pages that fit without
   // truncation: first + last + up to (2*siblings+1) window + 2 ellipsis slots.

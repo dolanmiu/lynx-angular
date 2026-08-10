@@ -1,3 +1,4 @@
+// cspell:words Textish
 import {
   LynxAnimation,
   type LynxAnimationOptions,
@@ -369,7 +370,7 @@ export class LynxElement implements BaseLynxElement {
     newChild.#cancelPendingRemoval();
     // If the child was genuinely removed in a PREVIOUS cycle its native painting
     // node is gone — rebuild a fresh native element + subtree before re-attaching
-    // (see #recreateSubtree). A same-tick move was cancelled just above and is
+    // (see #recreateSubtree). A same-tick move was canceled just above and is
     // never painting-dead, so the fast move path pays only a boolean check.
     newChild.#recreateIfDead();
     if (refChild == null) {
@@ -462,7 +463,7 @@ export class LynxElement implements BaseLynxElement {
    *    and crash). This is never part of an Angular move, so it is not deferred.
    * 2. Normal parent → QUEUED and committed at the end of the change-detection
    *    cycle (see #pendingRemovals / commitPendingRemovals). If a re-insert
-   *    follows in the same cycle it is a move and gets cancelled; otherwise
+   *    follows in the same cycle it is a move and gets canceled; otherwise
    *    #doRemove() detaches from the native tree.
    */
   remove() {
@@ -626,7 +627,7 @@ export class LynxElement implements BaseLynxElement {
   }
 
   /**
-   * Commits a genuine removal (no re-insert cancelled it):
+   * Commits a genuine removal (no re-insert canceled it):
    * __RemoveElement detaches from the native element tree. Note: __RemoveElement
    * does NOT free the element's native pool slot — there is no __ReleaseElement
    * in Lynx's PAPI.
@@ -657,7 +658,7 @@ export class LynxElement implements BaseLynxElement {
     }
     // Remove the whole subtree in one shot — no "parking" of children elsewhere.
     // This runs ONLY for a genuine destroy: a move (remove-then-reinsert in the
-    // same tick) is cancelled before it reaches here (see #pendingRemovals), so a
+    // same tick) is canceled before it reaches here (see #pendingRemovals), so a
     // moved element keeps its children and is reparented intact.
     //
     // Earlier revisions detached this element's children first and stashed them

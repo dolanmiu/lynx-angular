@@ -63,7 +63,7 @@ const interpolateY = (
  * adjacent rectangles, one per `stripWidth` band, each reaching from the
  * interpolated line height down to `baseY`. The crisp line is drawn on top (see
  * `UiAreaSeries`), which hides the columns' stepped upper edge. Sampling at each
- * strip's centre keeps that step within about `stripWidth / 2 × slope` px.
+ * strip's center keeps that step within about `stripWidth / 2 × slope` px.
  *
  * Guards: fewer than two points, or a non-positive `plotWidth`/`stripWidth`,
  * yield no columns; near-zero-height columns (line meeting the baseline) are
@@ -79,9 +79,9 @@ export const computeAreaColumns = (
   if (points.length < 2 || plotWidth <= 0 || stripWidth <= 0) return columns;
 
   for (let x = 0; x < plotWidth; x += stripWidth) {
-    // Sample the line at the strip's centre (clamped to the plot's right edge).
-    const centre = Math.min(x + stripWidth / 2, plotWidth);
-    const lineY = interpolateY(points, centre);
+    // Sample the line at the strip's center (clamped to the plot's right edge).
+    const center = Math.min(x + stripWidth / 2, plotWidth);
+    const lineY = interpolateY(points, center);
     if (lineY === null) continue;
 
     const top = Math.min(lineY, baseY);
@@ -156,8 +156,8 @@ const STRIP_WIDTH = 3;
   template: `
     <!-- Fill layer first so the line + dots (below) paint on top of it. Its own
          opacity makes the whole fill translucent in a single composite —
-         independent of the colour's format (rgba/var()/named), so there's no need
-         to inject an alpha channel into an arbitrary CSS colour string. -->
+         independent of the color's format (rgba/var()/named), so there's no need
+         to inject an alpha channel into an arbitrary CSS color string. -->
     <view [style]="fillLayerStyle()">
       @for (column of columns(); track $index) {
         <view [style]="column.style"></view>
@@ -297,7 +297,7 @@ export class UiAreaChart {
   readonly smooth = input(false);
   /** Draw vertical gridlines at each x tick. */
   readonly showXGrid = input(false);
-  /** Title for the x-axis (centred below the tick labels). */
+  /** Title for the x-axis (centered below the tick labels). */
   readonly xAxisLabel = input<string>('');
   /** Title for the y-axis (rotated in the left gutter). */
   readonly yAxisLabel = input<string>('');

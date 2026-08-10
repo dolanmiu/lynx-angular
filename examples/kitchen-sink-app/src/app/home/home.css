@@ -12,7 +12,7 @@
  * declared first as a sibling it paints underneath, and because it lives
  * outside the scrolling container it stays put while the content scrolls.
  *
- * Colour: soft pink -> lavender, a pastel echo of Angular's signature
+ * Color: soft pink -> lavender, a pastel echo of Angular's signature
  * pink->purple gradient. Kept light so the hero uses dark type (legible in
  * both light and dark mode) and the vibrant logos still read against it.
  * Stops use percentages, not lengths — Lynx gradients reject <length>

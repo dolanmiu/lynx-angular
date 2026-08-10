@@ -228,7 +228,7 @@ export class UiLineChart {
   readonly smooth = input(false);
   /** Draw vertical gridlines at each x tick. */
   readonly showXGrid = input(false);
-  /** Title for the x-axis (centred below the tick labels). */
+  /** Title for the x-axis (centered below the tick labels). */
   readonly xAxisLabel = input<string>('');
   /** Title for the y-axis (rotated in the left gutter). */
   readonly yAxisLabel = input<string>('');

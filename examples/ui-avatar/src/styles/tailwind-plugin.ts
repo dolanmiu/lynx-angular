@@ -22,7 +22,7 @@ const SAFE_AREA_SIDES = {
  * populates them, so every utility here degrades gracefully to plain padding
  * (the offset variants) or to no padding (the bare variants).
  *
- * Two flavours:
+ * Two flavors:
  * - Bare (`.pb-safe`, `.px-safe`, `.p-safe`, …) — padding equal to the inset alone.
  * - Offset (`.pb-safe-4`, `.pt-safe-2`, …) — a spacing-scale value PLUS the inset,
  *   e.g. `calc(1rem + env(safe-area-inset-bottom))`. Use these when an element

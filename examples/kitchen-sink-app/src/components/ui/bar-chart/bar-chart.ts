@@ -25,7 +25,7 @@ import {
 
 /** One bar after projection into plot-local pixel space. */
 type ProjectedBar = {
-  /** Centre x of the bar, in px. */
+  /** Center x of the bar, in px. */
   cx: number;
   /** Pixel y of the bar's value (its far edge from the baseline). */
   valueY: number;
@@ -95,7 +95,7 @@ const clamp = (value: number, lo: number, hi: number): number =>
   Math.max(lo, Math.min(hi, value));
 
 // Fallback bar width (px) when there is only a single bar, so there is no
-// neighbour to derive a spacing from. Matches the candlestick series' fallback.
+// neighbor to derive a spacing from. Matches the candlestick series' fallback.
 const SINGLE_BAR_WIDTH = 24;
 
 /**
@@ -108,10 +108,10 @@ const SINGLE_BAR_WIDTH = 24;
  * **direct parent** (there is no `position: static`), so the host itself must be
  * the plot-sized containing block. Every bar is a direct child of it.
  *
- * ## Per-bar colours
+ * ## Per-bar colors
  * `color` fills every bar by default. Pass `colors` to give each bar its own
  * hue (a categorical bar chart) — the palette cycles if it is shorter than the
- * data, so a handful of colours tint any number of bars.
+ * data, so a handful of colors tint any number of bars.
  */
 @Component({
   selector: 'ui-bar-series',
@@ -162,7 +162,7 @@ export class UiBarSeries {
     }));
   });
 
-  // Bar width = a fraction of the pixel spacing between bar centres, so bars
+  // Bar width = a fraction of the pixel spacing between bar centers, so bars
   // scale with the plot and never overlap. With one bar there is no spacing to
   // measure, so fall back to a fixed width.
   readonly #barWidth = computed(() => {
@@ -265,7 +265,7 @@ export class UiBarChart {
   readonly radius = input(0);
   /** Draw vertical gridlines at each x tick. */
   readonly showXGrid = input(false);
-  /** Title for the x-axis (centred below the tick labels). */
+  /** Title for the x-axis (centered below the tick labels). */
   readonly xAxisLabel = input<string>('');
   /** Title for the y-axis (rotated in the left gutter). */
   readonly yAxisLabel = input<string>('');
@@ -316,7 +316,7 @@ export class UiBarChart {
     return niceScale(lo, hi, this.tickCount());
   });
 
-  // A bar is centred on its x, so the first and last bars would spill over the
+  // A bar is centered on its x, so the first and last bars would spill over the
   // plot edges. Insetting the scales by half a bar's spacing keeps them fully
   // inside. User `padding` is spread last, so an explicit side wins.
   protected readonly effectivePadding = computed<ChartPadding>(() => {

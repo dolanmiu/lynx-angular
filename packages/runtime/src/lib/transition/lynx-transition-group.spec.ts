@@ -208,7 +208,7 @@ describe('LynxTransitionGroup', () => {
       expect(itemEl.classList.contains('v-leave')).toBe(false);
     });
 
-    it('prevents the cancelled leave timer from destroying the item', () => {
+    it('prevents the canceled leave timer from destroying the item', () => {
       const { comp, hostEl } = create();
       setInputSignal(comp.each, [{ id: 1, name: 'A' }]);
       TestBed.flushEffects();

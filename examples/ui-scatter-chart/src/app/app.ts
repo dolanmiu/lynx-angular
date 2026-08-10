@@ -154,7 +154,7 @@ export class App {
     { x: 7, y: 9 },
   ];
 
-  // One colour per point, indexed to group membership (blue = A, orange = B).
+  // One color per point, indexed to group membership (blue = A, orange = B).
   // Data hues stay fixed across light/dark mode (they encode a group, not theme
   // chrome), so raw rgba() is the right call.
   readonly clusterColors = [

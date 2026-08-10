@@ -107,7 +107,7 @@ import { ScreenHost } from '../screen-host';
       </ui-card>
 
       <!-- Panel 2 — the same text at four sizes, drawn as a bar chart. Bars are
-           normalised to the widest sample so they always fit and make the
+           normalized to the widest sample so they always fit and make the
            "bigger font ⇒ wider" relationship obvious at a glance. -->
       <ui-card>
         <ui-card-header class="gap-1 p-4 pb-0">
@@ -233,7 +233,7 @@ export class TextMeasureDemo {
       ),
     })),
   );
-  /** Widest sample, used to normalise the bar chart (min 1 to avoid /0). */
+  /** Widest sample, used to normalize the bar chart (min 1 to avoid /0). */
   readonly #maxSizeWidth = computed(() =>
     Math.max(1, ...this.sizeMetrics().map((metric) => metric.width)),
   );

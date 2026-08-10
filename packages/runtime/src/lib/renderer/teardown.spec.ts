@@ -470,7 +470,7 @@ class BlockHost {
  * Reorderable @for list: each item is a <view> owning a <text> child. Reordering
  * the source array makes Angular MOVE the item views (detach-then-reinsert). The
  * move must carry each item's <text> child along — the deferred remove/reinsert
- * split (see #pendingRemovals) recognises the move and reparents it intact
+ * split (see #pendingRemovals) recognizes the move and reparents it intact
  * (this is exactly what broke examples/transitions when deleting a non-last item).
  */
 @Component({
@@ -847,7 +847,7 @@ describe('renderer teardown', () => {
     }
     // The views were moved (not recreated) into the new order.
     expect(items.map((i) => i.attrs.get('id'))).toEqual([2, 3, 1]);
-    // A move is cancelled before it becomes a genuine removal, so it is NEVER
+    // A move is canceled before it becomes a genuine removal, so it is NEVER
     // painting-dead and NEVER recreated: each surviving item is the SAME FakeEl
     // instance, not a rebuilt one. This guards recreate-on-remount from firing on
     // the hot reorder path.

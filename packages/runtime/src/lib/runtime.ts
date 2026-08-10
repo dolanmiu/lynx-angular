@@ -1,3 +1,4 @@
+// cspell:words kwift
 import type { ApplicationConfig, ApplicationRef, Type } from '@angular/core';
 import { bootstrapApplication as ngBootstrapApplication } from '@angular/platform-browser';
 import { firstValueFrom, Subject } from 'rxjs';

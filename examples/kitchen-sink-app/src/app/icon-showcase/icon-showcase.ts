@@ -306,7 +306,7 @@ const TOTAL_ICON_COUNT = ICON_CATEGORIES.reduce(
 );
 
 /**
- * Browsable catalog of every icon in the `ui-icon` component: a live search,
+ * A catalog of every icon in the `ui-icon` component: a live search,
  * a size toggle, and a tap-to-preview panel showing the exact template snippet
  * to copy. Exists because the icon set grew large enough (195 icons) that
  * scanning the docs table alone no longer answers "which one looks right?".

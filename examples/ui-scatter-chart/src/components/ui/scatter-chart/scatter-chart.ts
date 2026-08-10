@@ -25,9 +25,9 @@ import {
 
 /** One point after projection into plot-local pixel space, with its dot radius. */
 type ProjectedDot = {
-  /** Centre x of the dot, in px. */
+  /** Center x of the dot, in px. */
   cx: number;
-  /** Centre y of the dot, in px. */
+  /** Center y of the dot, in px. */
   cy: number;
   /** Dot radius in px (varies per point for a bubble chart). */
   r: number;
@@ -42,9 +42,9 @@ export type DotShape = { left: number; top: number; size: number };
 
 /**
  * Turns projected points — already in plot-local pixel space — into square boxes
- * centred on each point, ready to render as circular `<view>`s (the caller sets
+ * centered on each point, ready to render as circular `<view>`s (the caller sets
  * `border-radius` to half the size). A scatter mark is the simplest chart mark
- * of all: one box per datum, positioned so the point sits at its centre.
+ * of all: one box per datum, positioned so the point sits at its center.
  *
  * Each dot's radius comes from the point itself, so a per-point radius (a bubble
  * chart) and a uniform radius (a plain scatter) share this one mapping.
@@ -83,7 +83,7 @@ const SCATTER_INSET = 0.04;
  * **direct parent** (there is no `position: static`), so the host itself must be
  * the plot-sized containing block. Every dot is a direct child of it.
  *
- * ## Per-point colours and sizes
+ * ## Per-point colors and sizes
  * `color` fills every dot by default; pass `colors` to tint each dot (a
  * categorical scatter) — the palette cycles if it is shorter than the data. Pass
  * `sizes` to give each dot its own radius (a bubble chart); a point with no entry
@@ -219,7 +219,7 @@ export class UiScatterChart {
   readonly tickCount = input(5);
   /** Draw vertical gridlines at each x tick (horizontal ones are on by default). */
   readonly showXGrid = input(false);
-  /** Title for the x-axis (centred below the tick labels). */
+  /** Title for the x-axis (centered below the tick labels). */
   readonly xAxisLabel = input<string>('');
   /** Title for the y-axis (rotated in the left gutter). */
   readonly yAxisLabel = input<string>('');

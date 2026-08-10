@@ -3,10 +3,10 @@
   "components": {
     "cartesian-chart": {
       "cartesian-chart.test.ts": {
-        "hash": "1e9e5c0acde9faa6"
+        "hash": "053128f985c0e7da"
       },
       "cartesian-chart.ts": {
-        "hash": "64d87d23606ad691"
+        "hash": "4730b10d76855b54"
       },
       "index.ts": {
         "hash": "fe2cc9f8e98674de"
@@ -17,10 +17,10 @@
         "hash": "3bb8bd15e19f5728"
       },
       "scatter-chart.test.ts": {
-        "hash": "e616df18a697c391"
+        "hash": "cbf51936de98f1c3"
       },
       "scatter-chart.ts": {
-        "hash": "324056d070f8bdfc"
+        "hash": "d4ac8d9251e6ab7f"
       }
     }
   },
@@ -32,7 +32,7 @@
       "hash": "73345d8f2179fd64"
     },
     "tailwind-plugin.ts": {
-      "hash": "d90f5b377f6e00eb"
+      "hash": "0c4c52d9d2c90630"
     }
   }
 }

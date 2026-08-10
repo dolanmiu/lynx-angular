@@ -9,10 +9,10 @@ stateDiagram-v2
     BEGAN --> ACTIVE : conditions met
     BEGAN --> FAILED : conditions not met
     ACTIVE --> END : touch up
-    ACTIVE --> CANCELLED : interrupted
+    ACTIVE --> CANCELED : interrupted
     END --> [*]
     FAILED --> [*]
-    CANCELLED --> [*]
+    CANCELED --> [*]
 ```
 
 ## Callbacks

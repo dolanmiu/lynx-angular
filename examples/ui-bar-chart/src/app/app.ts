@@ -151,7 +151,7 @@ export class App {
     'rgba(20, 184, 166, 1)', // teal
   ];
 
-  // Green for gains, red for losses — one colour per bar, derived from the sign.
+  // Green for gains, red for losses — one color per bar, derived from the sign.
   protected readonly profitColors = computed(() =>
     this.profit.map((p) =>
       p.y >= 0 ? 'rgba(34, 197, 94, 1)' : 'rgba(239, 68, 68, 1)',

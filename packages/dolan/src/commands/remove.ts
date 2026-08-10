@@ -87,7 +87,7 @@ export const removeCommand = async (
       initialValue: false,
     });
     if (p.isCancel(proceed) || !proceed) {
-      p.cancel('Removal cancelled.');
+      p.cancel('Removal canceled.');
       process.exit(0);
     }
   }

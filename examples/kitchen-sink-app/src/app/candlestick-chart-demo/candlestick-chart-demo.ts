@@ -25,7 +25,7 @@ import { ScreenHost } from '../screen-host';
  * Candlestick Chart demo.
  *
  * An OHLC candle is two axis-aligned rectangles: a thin wick (high→low) and a
- * body (open↔close), coloured green when the period rose and red when it fell.
+ * body (open↔close), colored green when the period rose and red when it fell.
  * No rotation or fill rasterization is needed (unlike the line/area charts), so
  * candles draw straight onto the reusable `UiCartesianChart`. `UiCandlestickChart`
  * is the single-series wrapper; the moving-average card drops to the base

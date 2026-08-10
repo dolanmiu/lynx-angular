@@ -54,15 +54,15 @@ describe('computeAreaColumns', () => {
       50,
     );
     expect(columns).toHaveLength(2);
-    // Strip centred at x=25 → line above the baseline: top at the line, down to it.
+    // Strip centered at x=25 → line above the baseline: top at the line, down to it.
     expect(columns[0].top).toBeCloseTo(25);
     expect(columns[0].height).toBeCloseTo(25);
-    // Strip centred at x=75 → line below the baseline: top at the baseline.
+    // Strip centered at x=75 → line below the baseline: top at the baseline.
     expect(columns[1].top).toBeCloseTo(50);
     expect(columns[1].height).toBeCloseTo(25);
   });
 
-  it('skips strips whose centre falls outside the data x-range', () => {
+  it('skips strips whose center falls outside the data x-range', () => {
     // Data spans x=[40,60] but the plot is 100 wide → only strips inside fill.
     const columns = computeAreaColumns(
       [

@@ -24,14 +24,14 @@ vi.mock('@blotch/angular-lynx', () => ({
 const { computeDots } = await import('./scatter-chart');
 
 describe('computeDots', () => {
-  it('centres a dot on its point (top-left offset by the radius)', () => {
+  it('centers a dot on its point (top-left offset by the radius)', () => {
     const [dot] = computeDots([{ cx: 50, cy: 30, r: 4 }]);
     expect(dot.left).toBe(46); // cx - r
     expect(dot.top).toBe(26); // cy - r
     expect(dot.size).toBe(8); // r * 2 — the box the circle fills
   });
 
-  it('honours a per-point radius (a bubble chart)', () => {
+  it('honors a per-point radius (a bubble chart)', () => {
     const [small, big] = computeDots([
       { cx: 10, cy: 10, r: 2 },
       { cx: 40, cy: 40, r: 9 },
@@ -42,7 +42,7 @@ describe('computeDots', () => {
     expect(big.left).toBe(31); // 40 - 9
   });
 
-  it('keeps each dot centred on its own coordinates', () => {
+  it('keeps each dot centered on its own coordinates', () => {
     const dots = computeDots([
       { cx: 0, cy: 100, r: 3 },
       { cx: 100, cy: 0, r: 3 },

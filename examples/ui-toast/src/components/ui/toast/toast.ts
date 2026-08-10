@@ -156,7 +156,7 @@ export class UiToastItem implements OnInit {
   // squished the card (and its text).
   //
   // The entrance/restack/exit animations run via element.animate() and override
-  // `transform`/`opacity` while they play (fill:'forwards'); cancelling one (on
+  // `transform`/`opacity` while they play (fill:'forwards'); canceling one (on
   // touchstart) hands control back to this style so the drag can move the toast.
   // `box-shadow` isn't animatable on Lynx, so it lives here and stays put.
   protected readonly hostStyle = computed(() => {
